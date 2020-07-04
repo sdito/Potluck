@@ -29,6 +29,21 @@ class FindRestaurantVC: UIViewController {
         if self.locationServicesEnabled() {
             if locationManager.handleAuthorization(on: self) {
                 mapView.showsUserLocation = true
+                mapView.centerOnLocation(locationManager: locationManager)
+                print("This is being called")
+                Network.shared.getRestaurants(coordinate: locationManager.location!.coordinate) { result in
+                    print("Getting to this point")
+                    switch result {
+                    case .success(let restaurants):
+                        var names: String = ""
+                        for rest in restaurants {
+                            names = "\(names)\n\(rest.name)"
+                        }
+                        self.alert(title: "Restaurants found", message: names)
+                    case .failure(let error):
+                        print("Error reading restaurants: \(error.localizedDescription)")
+                    }
+                }
             }
             
         }

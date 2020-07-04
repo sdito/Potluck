@@ -29,6 +29,7 @@ extension CLLocationManager {
             return false
         }
     }
+    
 }
 
 
