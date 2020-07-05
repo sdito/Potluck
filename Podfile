@@ -6,5 +6,6 @@ target 'restaurants' do
   use_frameworks!
 
 pod 'Alamofire'
+pod 'AlamofireImage', '~> 4.1'
 
 end

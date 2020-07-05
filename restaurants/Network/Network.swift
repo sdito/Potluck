@@ -7,6 +7,7 @@
 //
 
 import Alamofire
+import AlamofireImage
 import CoreLocation
 
 class Network {
@@ -22,29 +23,37 @@ class Network {
         let request = AF.request(Network.yelpSearchURL, parameters: params, headers: headers)
         return request
     }
-
+    
+    func getImage(url: String?, imageReturned: @escaping (UIImage) -> Void) {
+        if let url = url {
+            AF.request(url).responseImage { (response) in
+                if let data = response.data {
+                    if let image = UIImage(data: data) {
+                        imageReturned(image)
+                    }
+                }
+            }
+        }
+    }
     
     func getRestaurants(coordinate: CLLocationCoordinate2D, restaurantsReturned: @escaping (Result<[Restaurant], Error>) -> Void) {
         let params = coordinate.getParams()
         let request = req(params: params)
         request.responseJSON { (response) in
             switch response.result {
-            case .success(let json):
-                if let data = json as? Data {
-                    if let restaurants = try? JSONDecoder().decode([Restaurant].self, from: data) {
-                        restaurantsReturned(Result.success(restaurants))
+            case .success(let jsonAny):
+                var restaurants: [Restaurant] = []
+                if let json = jsonAny as? [String:Any], let restaurantsJson = json["businesses"] as? [[String:Any]] {
+                    for r in restaurantsJson {
+                        let data = try? JSONSerialization.data (withJSONObject: r, options: [])
+                        if let data = data, let restaurant = try? JSONDecoder().decode(Restaurant.self, from: data) {
+                            restaurants.append(restaurant)
+                        }
                     }
-                    print("Success, but not restaurants")
-                } else {
-                    print(json)
                 }
-                
-            case .failure(let error):
-                print("There is a failure: \(error.localizedDescription)")
-                if let err = error.underlyingError {
-                    #warning("make sure this always goes to this error")
-                    restaurantsReturned(Result.failure(err))
-                }
+                restaurantsReturned(Result.success(restaurants))
+            case .failure(_):
+                print("Error")
             }
         }
         

@@ -40,17 +40,17 @@ struct Restaurant {
 // MARK: Decodable
 extension Restaurant: Decodable {
     init(from decoder: Decoder) throws {
+
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let response = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .response)
-        let coordinates = try response.nestedContainer(keyedBy: CodingKeys.self, forKey: .coordinates)
+        let coordinates = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .coordinates)
         
-        name = try response.decode(String.self, forKey: .name)
+        name = try container.decode(String.self, forKey: .name)
         latitude = try coordinates.decode(Double.self, forKey: .latitude)
         longitude = try coordinates.decode(Double.self, forKey: .longitude)
-        url = try coordinates.decode(String.self, forKey: .url)
-        imageURL = try coordinates.decode(String.self, forKey: .imageURL)
-        price = try coordinates.decode(String.self, forKey: .price)
-        distance = try coordinates.decode(Double.self, forKey: .distance)
-        
+        url = try container.decode(String.self, forKey: .url)
+        imageURL = try container.decode(String.self, forKey: .imageURL)
+        price = try container.decode(String.self, forKey: .price)
+        distance = try container.decode(Double.self, forKey: .distance)
+//
     }
 }

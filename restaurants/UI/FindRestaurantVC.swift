@@ -17,7 +17,6 @@ class FindRestaurantVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .red
         setUpMapView()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -26,20 +25,16 @@ class FindRestaurantVC: UIViewController {
     }
     
     private func setUp () {
+        print("Getting to this point")
         if self.locationServicesEnabled() {
+            
             if locationManager.handleAuthorization(on: self) {
                 mapView.showsUserLocation = true
                 mapView.centerOnLocation(locationManager: locationManager)
-                print("This is being called")
                 Network.shared.getRestaurants(coordinate: locationManager.location!.coordinate) { result in
-                    print("Getting to this point")
                     switch result {
                     case .success(let restaurants):
-                        var names: String = ""
-                        for rest in restaurants {
-                            names = "\(names)\n\(rest.name)"
-                        }
-                        self.alert(title: "Restaurants found", message: names)
+                        self.mapView.showRestaurants(restaurants)
                     case .failure(let error):
                         print("Error reading restaurants: \(error.localizedDescription)")
                     }
@@ -51,7 +46,10 @@ class FindRestaurantVC: UIViewController {
     
     private func setUpMapView() {
         mapView = MKMapView()
+        mapView.delegate = self
         mapView.translatesAutoresizingMaskIntoConstraints = false
+        mapView.showsTraffic = false
+        mapView.register(RestaurantAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
         self.view.addSubview(mapView)
         NSLayoutConstraint.activate([
             mapView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -60,13 +58,25 @@ class FindRestaurantVC: UIViewController {
             mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
-
-
 }
 
 
 
-
+// MARK: CLLocationManagerDelegate
 extension FindRestaurantVC: CLLocationManagerDelegate {
-    
+    #warning("see if i need to complete this")
+    func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
+        print("probably need to complete")
+    }
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        print("Need to complete: \(status.rawValue)")
+    }
+}
+
+extension FindRestaurantVC: MKMapViewDelegate {
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        if let restaurantAnnotationView = view as? RestaurantAnnotationView {
+            print(restaurantAnnotationView.restaurant.name)
+        }
+    }
 }

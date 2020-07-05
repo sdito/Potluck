@@ -17,4 +17,10 @@ extension MKMapView {
             self.setRegion(region, animated: true)
         }
     }
+    
+    func showRestaurants(_ restaurants: [Restaurant]) {
+        let annotations = restaurants.map({RestaurantAnnotation(restaurant: $0)})
+        self.addAnnotations(annotations)
+    }
+    
 }
