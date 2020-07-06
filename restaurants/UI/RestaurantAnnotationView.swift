@@ -23,13 +23,6 @@ class RestaurantAnnotationView: MKMarkerAnnotationView {
             displayPriority = .required
             
             
-            
-            #warning("Should use base images for each different type of restaurant")
-            Network.shared.getImage(url: restaurant.imageURL) { (imageFound) in
-                let resized = imageFound.resizeImage(to: .annotationImageSize)
-                self.image = resized
-                
-            }
         }
     }
 

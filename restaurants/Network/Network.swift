@@ -13,14 +13,32 @@ import CoreLocation
 class Network {
     
     static let yelpKey = "oXMAqpsZfTY1TpOVzrd-kq6IGlbN5iz-BkS0GLMFJv1loE-Mu1EJio8Ui3cFpk0r_rAzAnLK4ZVzH2aR7jNw6dYwFZznzmiwD4YzwjAvPOx8X8bGPOlM8dOWs_LOXnYx"
-    static let yelpSearchURL = "https://api.yelp.com/v3/businesses/search"
+    static let yelpURL = "https://api.yelp.com/v3/businesses/"
+
     
     static let shared = Network()
     private init() {}
     
-    private func req(params: Parameters?) -> DataRequest {
+    enum RequestType {
+        case search
+        case id
+        case review
+    }
+    
+    private func req(params: Parameters? = nil, restaurant: Restaurant? = nil, requestType: RequestType) -> DataRequest {
+        var url: String {
+            switch requestType {
+            case .search:
+                return "search"
+            case .id:
+                return restaurant!.id
+            case .review:
+                return "\(restaurant!.id)/reviews"
+            }
+        }
+        
         let headers: HTTPHeaders = ["Authorization": "Bearer \(Network.yelpKey)"]
-        let request = AF.request(Network.yelpSearchURL, parameters: params, headers: headers)
+        let request = AF.request(Network.yelpURL + url, parameters: params, headers: headers)
         return request
     }
     
@@ -38,7 +56,7 @@ class Network {
     
     func getRestaurants(coordinate: CLLocationCoordinate2D, restaurantsReturned: @escaping (Result<[Restaurant], Error>) -> Void) {
         let params = coordinate.getParams()
-        let request = req(params: params)
+        let request = req(params: params, requestType: .search)
         request.responseJSON { (response) in
             switch response.result {
             case .success(let jsonAny):
@@ -56,6 +74,17 @@ class Network {
                 print("Error")
             }
         }
+    }
+    
+    func setFullRestaurantInfo(restaurant: inout Restaurant, complete: @escaping (Bool) -> Void) {
+        #warning("need to complete")
+        let request = req(restaurant: restaurant, requestType: .id)
+        
+    }
+    
+    func setRestaurantReviewInfo(restaurant: inout Restaurant, complete: @escaping (Bool) -> Void) {
+        #warning("need to complete")
+        let request = req(restaurant: restaurant, requestType: .review)
         
     }
     

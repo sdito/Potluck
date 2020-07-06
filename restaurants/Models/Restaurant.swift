@@ -9,7 +9,7 @@
 import CoreLocation
 
 struct Restaurant {
-    
+    var id: String
     var name: String
     var latitude: Double
     var longitude: Double
@@ -24,6 +24,7 @@ struct Restaurant {
     
     
     enum CodingKeys: String, CodingKey {
+        case id
         case name
         case latitude
         case longitude
@@ -44,6 +45,7 @@ extension Restaurant: Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let coordinates = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .coordinates)
         
+        id = try container.decode(String.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         latitude = try coordinates.decode(Double.self, forKey: .latitude)
         longitude = try coordinates.decode(Double.self, forKey: .longitude)
