@@ -59,10 +59,13 @@ class StarRatingView: UIView {
             stackView.addArrangedSubview(imageView)
         }
         
-        let label = UILabel()
-        label.textColor = .white
-        label.text = "\(numReviews)"
-        stackView.addArrangedSubview(label)
+        if numReviews > 0 {
+            let label = UILabel()
+            label.textColor = .white
+            label.text = "\(numReviews)"
+            stackView.addArrangedSubview(label)
+        }
+        
         
         self.layer.cornerRadius = 5.0
         

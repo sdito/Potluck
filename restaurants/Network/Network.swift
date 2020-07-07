@@ -82,7 +82,7 @@ class Network {
         
     }
     
-    func setRestaurantReviewInfo(restaurant: inout Restaurant, complete: @escaping (Bool) -> Void) {
+    func setRestaurantReviewInfo(restaurant: Restaurant, reviewsFound: @escaping ([Review]) -> Void) {
         #warning("need to complete")
         let request = req(restaurant: restaurant, requestType: .review)
         request.responseJSON { (response) in
@@ -100,7 +100,7 @@ class Network {
                     }
                 }
                 // Have the reviews here
-                print("Reviews: \(reviews.map({$0.timeCreated}))")
+                reviewsFound(reviews)
             case .failure(_):
                 print("Error")
             }

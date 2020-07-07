@@ -66,5 +66,13 @@ extension UIView {
         self.clipsToBounds = true
     }
     
+    func constrainSides(to view: UIView, distance: CGFloat = 0.0) {
+        NSLayoutConstraint.activate([
+            self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: distance),
+            self.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -distance),
+            self.topAnchor.constraint(equalTo: view.topAnchor, constant: distance),
+            self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -distance)
+        ])
+    }
     
 }
