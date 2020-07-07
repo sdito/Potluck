@@ -85,6 +85,26 @@ class Network {
     func setRestaurantReviewInfo(restaurant: inout Restaurant, complete: @escaping (Bool) -> Void) {
         #warning("need to complete")
         let request = req(restaurant: restaurant, requestType: .review)
+        request.responseJSON { (response) in
+            switch response.result {
+            case .success(let jsonAny):
+                var reviews: [Review] = []
+                if let json = jsonAny as? [String:Any], let reviewsJson = json["reviews"] as? [[String:Any]] {
+                    for r in reviewsJson {
+                        let data = try? JSONSerialization.data(withJSONObject: r, options: [])
+                        if let d = data, let review = try? JSONDecoder().decode(Review.self, from: d) {
+                            reviews.append(review)
+                        } else {
+                            print("Not going through if let for review decoding")
+                        }
+                    }
+                }
+                // Have the reviews here
+                print("Reviews: \(reviews.map({$0.timeCreated}))")
+            case .failure(_):
+                print("Error")
+            }
+        }
         
     }
     

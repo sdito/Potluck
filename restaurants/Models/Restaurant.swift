@@ -17,6 +17,9 @@ struct Restaurant {
     var imageURL: String
     var price: String
     var distance: Double
+    var rating: Double
+    
+    var reviews: [Review] = []
     
     var coordinate: CLLocationCoordinate2D {
         return CLLocationCoordinate2D(latitude: CLLocationDegrees(exactly: latitude)!, longitude: CLLocationDegrees(exactly: longitude)!)
@@ -33,7 +36,7 @@ struct Restaurant {
         case price
         case distance
         case coordinates
-        case response = "businesses"
+        case rating
     }
     
 }
@@ -53,6 +56,21 @@ extension Restaurant: Decodable {
         imageURL = try container.decode(String.self, forKey: .imageURL)
         price = try container.decode(String.self, forKey: .price)
         distance = try container.decode(Double.self, forKey: .distance)
-//
+        rating = try container.decode(Double.self, forKey: .rating)
+    }
+}
+
+
+
+extension Array where Element == Restaurant {
+    func getNewRestaurants(old oldRestaurants: [Restaurant]) -> [Restaurant] {
+        let ids = oldRestaurants.map({$0.id})
+        var newRestaurants: [Restaurant] = []
+        for restaurant in self {
+            if !ids.contains(restaurant.id) {
+                newRestaurants.append(restaurant)
+            }
+        }
+        return newRestaurants
     }
 }

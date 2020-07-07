@@ -10,6 +10,12 @@
 		90009F3B1EF4D15FF2B4CA19 /* Pods_restaurants.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B89F6FBA7BC1CC1A76E4E2 /* Pods_restaurants.framework */; };
 		E215534924B297CC00494E1A /* OverlayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215534824B297CC00494E1A /* OverlayButton.swift */; };
 		E215534D24B2A20E00494E1A /* UIView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215534C24B2A20E00494E1A /* UIView-Extension.swift */; };
+		E215534F24B2C16F00494E1A /* UIButton-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215534E24B2C16F00494E1A /* UIButton-Extension.swift */; };
+		E215535124B2EA1B00494E1A /* RestaurantDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535024B2EA1B00494E1A /* RestaurantDetailVC.swift */; };
+		E215535324B3C9A700494E1A /* Review.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535224B3C9A700494E1A /* Review.swift */; };
+		E215535524B3F29D00494E1A /* Date-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535424B3F29D00494E1A /* Date-Extension.swift */; };
+		E215535724B3F83E00494E1A /* StarRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535624B3F83E00494E1A /* StarRatingView.swift */; };
+		E215535924B4247D00494E1A /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535824B4247D00494E1A /* Fonts.swift */; };
 		E233541624B15F8C00A85DA3 /* Values.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541524B15F8C00A85DA3 /* Values.swift */; };
 		E233541824B1627200A85DA3 /* UIImage-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541724B1627200A85DA3 /* UIImage-Extension.swift */; };
 		E2768DE824B1020F004CB475 /* RestaurantAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2768DE724B1020F004CB475 /* RestaurantAnnotation.swift */; };
@@ -33,6 +39,12 @@
 		D109427AE016A8C91568644A /* Pods-restaurants.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-restaurants.debug.xcconfig"; path = "Target Support Files/Pods-restaurants/Pods-restaurants.debug.xcconfig"; sourceTree = "<group>"; };
 		E215534824B297CC00494E1A /* OverlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayButton.swift; sourceTree = "<group>"; };
 		E215534C24B2A20E00494E1A /* UIView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView-Extension.swift"; sourceTree = "<group>"; };
+		E215534E24B2C16F00494E1A /* UIButton-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton-Extension.swift"; sourceTree = "<group>"; };
+		E215535024B2EA1B00494E1A /* RestaurantDetailVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantDetailVC.swift; sourceTree = "<group>"; };
+		E215535224B3C9A700494E1A /* Review.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Review.swift; sourceTree = "<group>"; };
+		E215535424B3F29D00494E1A /* Date-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date-Extension.swift"; sourceTree = "<group>"; };
+		E215535624B3F83E00494E1A /* StarRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarRatingView.swift; sourceTree = "<group>"; };
+		E215535824B4247D00494E1A /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		E233541524B15F8C00A85DA3 /* Values.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Values.swift; sourceTree = "<group>"; };
 		E233541724B1627200A85DA3 /* UIImage-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage-Extension.swift"; sourceTree = "<group>"; };
 		E2768DE724B1020F004CB475 /* RestaurantAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantAnnotation.swift; sourceTree = "<group>"; };
@@ -88,6 +100,7 @@
 			children = (
 				E2768DEF24B15340004CB475 /* Colors.swift */,
 				E233541524B15F8C00A85DA3 /* Values.swift */,
+				E215535824B4247D00494E1A /* Fonts.swift */,
 			);
 			path = Constants;
 			sourceTree = "<group>";
@@ -134,8 +147,10 @@
 				E27A757124A85CF900E446EE /* CLLocationManager-Extension.swift */,
 				E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */,
 				E233541724B1627200A85DA3 /* UIImage-Extension.swift */,
+				E215534E24B2C16F00494E1A /* UIButton-Extension.swift */,
 				E27A757324AEDD3A00E446EE /* MKMapView-Extension.swift */,
 				E215534C24B2A20E00494E1A /* UIView-Extension.swift */,
+				E215535424B3F29D00494E1A /* Date-Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -144,8 +159,10 @@
 			isa = PBXGroup;
 			children = (
 				E27A756D24A855EC00E446EE /* FindRestaurantVC.swift */,
+				E215535024B2EA1B00494E1A /* RestaurantDetailVC.swift */,
 				E215534824B297CC00494E1A /* OverlayButton.swift */,
 				E2768DE724B1020F004CB475 /* RestaurantAnnotation.swift */,
+				E215535624B3F83E00494E1A /* StarRatingView.swift */,
 				E2768DED24B15284004CB475 /* RestaurantAnnotationView.swift */,
 			);
 			path = UI;
@@ -163,6 +180,7 @@
 			isa = PBXGroup;
 			children = (
 				E2B6A2B624AFECD10070DECA /* Restaurant.swift */,
+				E215535224B3C9A700494E1A /* Review.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -284,15 +302,21 @@
 				E27A757024A85AA100E446EE /* UIViewController-Extension.swift in Sources */,
 				E2768DF024B15340004CB475 /* Colors.swift in Sources */,
 				E27A756E24A855EC00E446EE /* FindRestaurantVC.swift in Sources */,
+				E215535524B3F29D00494E1A /* Date-Extension.swift in Sources */,
 				E27A757224A85CF900E446EE /* CLLocationManager-Extension.swift in Sources */,
 				E215534D24B2A20E00494E1A /* UIView-Extension.swift in Sources */,
 				E27A755A24A8557E00E446EE /* AppDelegate.swift in Sources */,
+				E215535124B2EA1B00494E1A /* RestaurantDetailVC.swift in Sources */,
+				E215535924B4247D00494E1A /* Fonts.swift in Sources */,
 				E2B6A2B724AFECD10070DECA /* Restaurant.swift in Sources */,
 				E2768DE824B1020F004CB475 /* RestaurantAnnotation.swift in Sources */,
+				E215534F24B2C16F00494E1A /* UIButton-Extension.swift in Sources */,
 				E27A755C24A8557E00E446EE /* SceneDelegate.swift in Sources */,
 				E233541624B15F8C00A85DA3 /* Values.swift in Sources */,
 				E27A757624AF9ECC00E446EE /* Network.swift in Sources */,
+				E215535724B3F83E00494E1A /* StarRatingView.swift in Sources */,
 				E2768DEE24B15284004CB475 /* RestaurantAnnotationView.swift in Sources */,
+				E215535324B3C9A700494E1A /* Review.swift in Sources */,
 				E2B6A2B924B007030070DECA /* CLLocationCoordinate2D-Extension.swift in Sources */,
 				E215534924B297CC00494E1A /* OverlayButton.swift in Sources */,
 				E27A757424AEDD3A00E446EE /* MKMapView-Extension.swift in Sources */,

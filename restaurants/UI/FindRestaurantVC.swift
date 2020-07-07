@@ -13,10 +13,13 @@ import CoreLocation
 class FindRestaurantVC: UIViewController {
     
     private var moreRestaurantsButtonShown = false
-    private var latestCenter: CLLocationCoordinate2D?
+    private var locationsSearched: [CLLocationCoordinate2D] = []
+    private var restaurants: [Restaurant] = []
+    let locationManager = CLLocationManager()
+    
     var mapView: MKMapView!
     private var moreRestaurantsButton: OverlayButton?
-    let locationManager = CLLocationManager()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,7 +32,6 @@ class FindRestaurantVC: UIViewController {
     private func setUp () {
         print("Getting to this point")
         if self.locationServicesEnabled() {
-            
             if locationManager.handleAuthorization(on: self) {
                 mapView.showsUserLocation = true
                 mapView.centerOnLocation(locationManager: locationManager)
@@ -38,14 +40,14 @@ class FindRestaurantVC: UIViewController {
                     case .success(let restaurants):
                         self.mapView.showRestaurants(restaurants)
                         self.mapView.getCenterAfterAnimation { (location) in
-                            self.latestCenter = location
+                            self.locationsSearched.append(location)
                         }
+                        self.restaurants = restaurants
                     case .failure(let error):
                         print("Error reading restaurants: \(error.localizedDescription)")
                     }
                 }
             }
-            
         }
     }
     
@@ -66,6 +68,29 @@ class FindRestaurantVC: UIViewController {
             
         ])
     }
+    
+    @objc private func findRecipesAgain() {
+        moreRestaurantsButton!.showLoadingOnButton()
+        let location = mapView.region.center
+        Network.shared.getRestaurants(coordinate: location) { (response) in
+            
+            switch response {
+            case .success(let allRestaurants):
+                // need to add the restaurants here
+                // need to set the new center
+                self.locationsSearched.append(location)
+                let newRestaurants = allRestaurants.getNewRestaurants(old: self.restaurants)
+                self.restaurants.append(contentsOf: newRestaurants)
+                self.mapView.showRestaurants(newRestaurants)
+                
+            case .failure(_):
+                print("Error finding new restaurants")
+            }
+            
+            self.moreRestaurantsButtonShown = false
+            self.moreRestaurantsButton?.hideFromScreen()
+        }
+    }
 }
 
 
@@ -83,18 +108,8 @@ extension FindRestaurantVC: CLLocationManagerDelegate {
 
 extension FindRestaurantVC: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        if let restaurantAnnotationView = view as? RestaurantAnnotationView {
-            let vc = UIViewController()
-            vc.view.backgroundColor = Colors.main
-
-            let label = UILabel()
-            label.translatesAutoresizingMaskIntoConstraints = false
-
-            label.text = restaurantAnnotationView.restaurant.name
-            label.textColor = Colors.secondary
-            vc.view.addSubview(label)
-            label.centerYAnchor.constraint(equalTo: vc.view.centerYAnchor).isActive = true
-            label.centerXAnchor.constraint(equalTo: vc.view.centerXAnchor).isActive = true
+        if let restaurantAnnotationView = view as? RestaurantAnnotationView, let sendRestaurant = restaurantAnnotationView.restaurant {
+            let vc = RestaurantDetailVC(restaurant: sendRestaurant)
             self.present(vc, animated: true, completion: nil)
         }
     }
@@ -102,8 +117,8 @@ extension FindRestaurantVC: MKMapViewDelegate {
     func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
         let newCenter = mapView.region.center
         
-        if let latestCenter = latestCenter {
-            let distance = latestCenter.distance(from: newCenter)
+        if locationsSearched.count > 0 {
+            let distance = newCenter.distance(from: locationsSearched)
             if distance > .distanceToFindNewRestaurants {
                 if !moreRestaurantsButtonShown {
                     print("Show the button")
@@ -111,12 +126,12 @@ extension FindRestaurantVC: MKMapViewDelegate {
                     moreRestaurantsButton = OverlayButton()
                     moreRestaurantsButton!.setTitle("Show more restaurants", for: .normal)
                     mapView.addSubview(moreRestaurantsButton!)
+                    moreRestaurantsButton?.addTarget(self, action: #selector(findRecipesAgain), for: .touchUpInside)
                     moreRestaurantsButton?.showFromBottom(on: mapView)
                 }
                 
             } else {
                 if moreRestaurantsButtonShown {
-                    print("Hide the button")
                     moreRestaurantsButtonShown = false
                     moreRestaurantsButton?.hideFromScreen()
                 }

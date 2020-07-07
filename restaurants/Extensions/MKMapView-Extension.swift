@@ -18,15 +18,16 @@ extension MKMapView {
         }
     }
     
-    func showRestaurants(_ restaurants: [Restaurant]) {
-        let annotations = restaurants.map({RestaurantAnnotation(restaurant: $0)})
-        self.addAnnotations(annotations)
-        return self.fitAllAnnotations()
+    func showRestaurants(_ newRestaurants: [Restaurant]) {
+        let newAnnotations = newRestaurants.map({RestaurantAnnotation(restaurant: $0)})
+        self.addAnnotations(newAnnotations)
+        self.fitAllAnnotations(newAnnotations: newAnnotations)
     }
     
-    func fitAllAnnotations() {
+    func fitAllAnnotations(newAnnotations: [RestaurantAnnotation]) {
+        
         var zoomRect = MKMapRect.null
-        for annotation in annotations {
+        for annotation in newAnnotations {
             let annotationPoint = MKMapPoint(annotation.coordinate)
             let pointRect = MKMapRect(x: annotationPoint.x, y: annotationPoint.y, width: 0.1, height: 0.1);
             zoomRect = zoomRect.union(pointRect);

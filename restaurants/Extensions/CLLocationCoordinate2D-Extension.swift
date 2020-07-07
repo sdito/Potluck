@@ -21,9 +21,14 @@ extension CLLocationCoordinate2D {
         return params
     }
     
-    func distance(from: CLLocationCoordinate2D) -> CLLocationDistance {
-        let destination=CLLocation(latitude: from.latitude, longitude: from.longitude)
-        return CLLocation(latitude: latitude, longitude: longitude).distance(from: destination)
+    func distance(from locations: [CLLocationCoordinate2D]) -> CLLocationDistance {
+        var longest: CLLocationDistance?
+        for location in locations {
+            let destination = CLLocation(latitude: location.latitude, longitude: location.longitude)
+            let distance = CLLocation(latitude: self.latitude, longitude: self.longitude).distance(from: destination)
+            longest = min(distance, longest ?? distance)
+        }
+        return longest ?? 0.0
     }
     
 }
