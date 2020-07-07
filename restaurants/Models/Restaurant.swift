@@ -18,6 +18,7 @@ struct Restaurant {
     var price: String
     var distance: Double
     var rating: Double
+    var reviewCount: Int
     
     var reviews: [Review] = []
     
@@ -37,6 +38,7 @@ struct Restaurant {
         case distance
         case coordinates
         case rating
+        case reviewCount = "review_count"
     }
     
 }
@@ -57,6 +59,7 @@ extension Restaurant: Decodable {
         price = try container.decode(String.self, forKey: .price)
         distance = try container.decode(Double.self, forKey: .distance)
         rating = try container.decode(Double.self, forKey: .rating)
+        reviewCount = try container.decode(Int.self, forKey: .reviewCount)
     }
 }
 

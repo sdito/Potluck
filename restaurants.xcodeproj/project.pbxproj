@@ -16,6 +16,8 @@
 		E215535524B3F29D00494E1A /* Date-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535424B3F29D00494E1A /* Date-Extension.swift */; };
 		E215535724B3F83E00494E1A /* StarRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535624B3F83E00494E1A /* StarRatingView.swift */; };
 		E215535924B4247D00494E1A /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535824B4247D00494E1A /* Fonts.swift */; };
+		E215535B24B4343500494E1A /* PaddingLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535A24B4343500494E1A /* PaddingLabel.swift */; };
+		E215535D24B5007500494E1A /* UIScrollView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535C24B5007500494E1A /* UIScrollView-Extension.swift */; };
 		E233541624B15F8C00A85DA3 /* Values.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541524B15F8C00A85DA3 /* Values.swift */; };
 		E233541824B1627200A85DA3 /* UIImage-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541724B1627200A85DA3 /* UIImage-Extension.swift */; };
 		E2768DE824B1020F004CB475 /* RestaurantAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2768DE724B1020F004CB475 /* RestaurantAnnotation.swift */; };
@@ -45,6 +47,8 @@
 		E215535424B3F29D00494E1A /* Date-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date-Extension.swift"; sourceTree = "<group>"; };
 		E215535624B3F83E00494E1A /* StarRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarRatingView.swift; sourceTree = "<group>"; };
 		E215535824B4247D00494E1A /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
+		E215535A24B4343500494E1A /* PaddingLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddingLabel.swift; sourceTree = "<group>"; };
+		E215535C24B5007500494E1A /* UIScrollView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIScrollView-Extension.swift"; sourceTree = "<group>"; };
 		E233541524B15F8C00A85DA3 /* Values.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Values.swift; sourceTree = "<group>"; };
 		E233541724B1627200A85DA3 /* UIImage-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage-Extension.swift"; sourceTree = "<group>"; };
 		E2768DE724B1020F004CB475 /* RestaurantAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantAnnotation.swift; sourceTree = "<group>"; };
@@ -151,6 +155,7 @@
 				E27A757324AEDD3A00E446EE /* MKMapView-Extension.swift */,
 				E215534C24B2A20E00494E1A /* UIView-Extension.swift */,
 				E215535424B3F29D00494E1A /* Date-Extension.swift */,
+				E215535C24B5007500494E1A /* UIScrollView-Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -161,6 +166,7 @@
 				E27A756D24A855EC00E446EE /* FindRestaurantVC.swift */,
 				E215535024B2EA1B00494E1A /* RestaurantDetailVC.swift */,
 				E215534824B297CC00494E1A /* OverlayButton.swift */,
+				E215535A24B4343500494E1A /* PaddingLabel.swift */,
 				E2768DE724B1020F004CB475 /* RestaurantAnnotation.swift */,
 				E215535624B3F83E00494E1A /* StarRatingView.swift */,
 				E2768DED24B15284004CB475 /* RestaurantAnnotationView.swift */,
@@ -315,6 +321,8 @@
 				E233541624B15F8C00A85DA3 /* Values.swift in Sources */,
 				E27A757624AF9ECC00E446EE /* Network.swift in Sources */,
 				E215535724B3F83E00494E1A /* StarRatingView.swift in Sources */,
+				E215535B24B4343500494E1A /* PaddingLabel.swift in Sources */,
+				E215535D24B5007500494E1A /* UIScrollView-Extension.swift in Sources */,
 				E2768DEE24B15284004CB475 /* RestaurantAnnotationView.swift in Sources */,
 				E215535324B3C9A700494E1A /* Review.swift in Sources */,
 				E2B6A2B924B007030070DECA /* CLLocationCoordinate2D-Extension.swift in Sources */,

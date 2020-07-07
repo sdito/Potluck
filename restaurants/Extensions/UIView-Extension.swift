@@ -60,4 +60,11 @@ extension UIView {
         }
     }
     
+    func fadedBackground() {
+        self.layer.cornerRadius = 5.0
+        self.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        self.clipsToBounds = true
+    }
+    
+    
 }

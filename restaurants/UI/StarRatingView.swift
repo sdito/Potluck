@@ -10,9 +10,9 @@ import UIKit
 
 class StarRatingView: UIView {
     
-    init(stars: Double) {
+    init(stars: Double, numReviews: Int) {
         super.init(frame: .zero)
-        setUp(stars: stars)
+        setUp(stars: stars, numReviews: numReviews)
         
     }
     
@@ -21,13 +21,12 @@ class StarRatingView: UIView {
     }
     
     
-    func setUp(stars: Double) {
+    func setUp(stars: Double, numReviews: Int) {
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.5)
-        self.layer.cornerRadius = 5.0
+        self.fadedBackground()
+        
         let stackView = UIStackView()
         stackView.axis = .horizontal
-        stackView.distribution = .fillEqually
         stackView.spacing = 2.0
         
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -58,8 +57,12 @@ class StarRatingView: UIView {
             }
             imageView.tintColor = Colors.main
             stackView.addArrangedSubview(imageView)
-            
         }
+        
+        let label = UILabel()
+        label.textColor = .white
+        label.text = "\(numReviews)"
+        stackView.addArrangedSubview(label)
         
         self.layer.cornerRadius = 5.0
         

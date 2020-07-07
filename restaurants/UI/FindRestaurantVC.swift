@@ -28,9 +28,19 @@ class FindRestaurantVC: UIViewController {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         setUp()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
 
     private func setUp () {
-        print("Getting to this point")
+        self.title = "Search"
         if self.locationServicesEnabled() {
             if locationManager.handleAuthorization(on: self) {
                 mapView.showsUserLocation = true
@@ -110,7 +120,7 @@ extension FindRestaurantVC: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         if let restaurantAnnotationView = view as? RestaurantAnnotationView, let sendRestaurant = restaurantAnnotationView.restaurant {
             let vc = RestaurantDetailVC(restaurant: sendRestaurant)
-            self.present(vc, animated: true, completion: nil)
+            self.navigationController?.pushViewController(vc, animated: true)
         }
     }
     
