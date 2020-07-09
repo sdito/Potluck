@@ -84,6 +84,11 @@ class Network {
             case .success(let jsonAny):
                 if let json = jsonAny as? [String:Any] {
                     let data = try? JSONSerialization.data(withJSONObject: json, options: [])
+                    if let d = data {
+                        let additionalInfo = try? JSONDecoder().decode(Restaurant.AdditionalInfo.self, from: d)
+                        restaurant.additionalInfo = additionalInfo
+                        complete(true)
+                    }
                 }
             case .failure(_):
                 print("Error")

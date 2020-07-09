@@ -66,11 +66,11 @@ class MapCutoutView: UIView {
         let directions = MKDirections(request: request)
         directions.calculate { [unowned self] response, error in
             guard let unwrappedResponse = response else { return }
-
-        
+            
             if let route = unwrappedResponse.routes.first {
+                let travelTime = route.expectedTravelTime
+                self.addTimeLabel(time: travelTime)
                 self.mapView.addOverlay(route.polyline)
-                
                 self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, edgePadding: UIEdgeInsets(top: 30.0, left: 30.0, bottom: 30.0, right: 30.0), animated: false)
             }
         }
@@ -93,19 +93,34 @@ class MapCutoutView: UIView {
         button.addTarget(self, action: #selector(mapButtonPressed), for: .touchUpInside)
     }
     
+    private func addTimeLabel(time: TimeInterval) {
+        let label = PaddingLabel(top: 2.0, bottom: 2.0, left: 5.0, right: 5.0)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = time.displayForSmallerTimes()
+        label.font = .mediumBold
+        label.textColor = .white
+        label.fadedBackground()
+        mapView.addSubview(label)
+        
+        NSLayoutConstraint.activate([
+            label.trailingAnchor.constraint(equalTo: mapView.trailingAnchor, constant: -5.0),
+            label.bottomAnchor.constraint(equalTo: mapView.bottomAnchor, constant: -5.0)
+        ])
+        
+    }
+    
     @objc private func mapButtonPressed() {
         if let restaurant = restaurant {
             delegate.locationPressed(name: restaurant.name, destination: restaurant.coordinate)
         }
     }
-    
 }
 
 
 extension MapCutoutView: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
-        renderer.strokeColor = Colors.main
+        renderer.strokeColor = .systemBlue
         return renderer
     }
 }

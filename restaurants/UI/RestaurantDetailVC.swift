@@ -245,6 +245,16 @@ class RestaurantDetailVC: UIViewController {
         
         imageView.addImageFromUrl(restaurant.imageURL)
         
+        stackView.addArrangedSubview(createHeadInfoView())
+        
+        
+        // add stuff here
+        if let userLocation = locationManager.getUserLocation() {
+            stackView.addArrangedSubview(MapCutoutView(userLocation: userLocation, userDestination: restaurant.coordinate, restaurant: restaurant, vc: self))
+        }
+        scrollView.setCorrectContentSize()
+        
+        
         Network.shared.setRestaurantReviewInfo(restaurant: restaurant) { (complete) in
             if complete {
                 for review in self.restaurant.reviews {
@@ -255,14 +265,10 @@ class RestaurantDetailVC: UIViewController {
             }
         }
         
-        stackView.addArrangedSubview(createHeadInfoView())
-        
-        
-        // add stuff here
-        if let userLocation = locationManager.getUserLocation() {
-            stackView.addArrangedSubview(MapCutoutView(userLocation: userLocation, userDestination: restaurant.coordinate, restaurant: restaurant, vc: self))
+        Network.shared.setFullRestaurantInfo(restaurant: restaurant) { (complete) in
+            print("Additional restaurant info: \(self.restaurant.additionalInfo)")
         }
-        scrollView.setCorrectContentSize()
+        
     }
 }
 

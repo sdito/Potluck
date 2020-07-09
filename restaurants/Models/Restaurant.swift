@@ -114,13 +114,33 @@ extension Array where Element == Restaurant {
 
 // MARK: Additional info
 extension Restaurant {
-    struct AdditionalInfo {
+    struct AdditionalInfo: Decodable {
         #warning("need to complete")
         var phone: String
         var displayPhone: String
         var photos: [String]
-        var isOpenNow: Bool
-        private var jsonHours: [[String:Any]]
+//        var isOpenNow: Bool
+        var jsonHours: [[String:String]]
+        
+        
+        enum CodingKeys: String, CodingKey {
+            case phone
+            case displayPhone = "display_phone"
+            case photos
+            case jsonHours = "hours"
+        }
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let hoursContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .jsonHours)
+            
+            phone = try container.decode(String.self, forKey: .phone)
+            displayPhone = try container.decode(String.self, forKey: .displayPhone)
+            photos = try container.decode([String].self, forKey: .photos)
+            //isOpenNow = try timeContainer.decode(Bool?.self, forKey: .isOpenNow)
+            jsonHours = try container.decode([[String:String]].self, forKey: .jsonHours)
+        }
+        
     }
 }
 

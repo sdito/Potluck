@@ -25,6 +25,7 @@
 		E2574A2524B58D14006618D7 /* TwoLevelButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2424B58D14006618D7 /* TwoLevelButton.swift */; };
 		E2574A2724B65069006618D7 /* PriceLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2624B65069006618D7 /* PriceLabel.swift */; };
 		E2574A2B24B67DCF006618D7 /* MapCutoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2A24B67DCF006618D7 /* MapCutoutView.swift */; };
+		E2574A2D24B6A537006618D7 /* TimeInterval-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */; };
 		E2768DE824B1020F004CB475 /* RestaurantAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2768DE724B1020F004CB475 /* RestaurantAnnotation.swift */; };
 		E2768DEE24B15284004CB475 /* RestaurantAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2768DED24B15284004CB475 /* RestaurantAnnotationView.swift */; };
 		E2768DF024B15340004CB475 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2768DEF24B15340004CB475 /* Colors.swift */; };
@@ -61,6 +62,7 @@
 		E2574A2424B58D14006618D7 /* TwoLevelButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoLevelButton.swift; sourceTree = "<group>"; };
 		E2574A2624B65069006618D7 /* PriceLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceLabel.swift; sourceTree = "<group>"; };
 		E2574A2A24B67DCF006618D7 /* MapCutoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCutoutView.swift; sourceTree = "<group>"; };
+		E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval-Extension.swift"; sourceTree = "<group>"; };
 		E2768DE724B1020F004CB475 /* RestaurantAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantAnnotation.swift; sourceTree = "<group>"; };
 		E2768DED24B15284004CB475 /* RestaurantAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantAnnotationView.swift; sourceTree = "<group>"; };
 		E2768DEF24B15340004CB475 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 				E215534C24B2A20E00494E1A /* UIView-Extension.swift */,
 				E215535424B3F29D00494E1A /* Date-Extension.swift */,
 				E215535C24B5007500494E1A /* UIScrollView-Extension.swift */,
+				E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -347,6 +350,7 @@
 				E215535324B3C9A700494E1A /* Review.swift in Sources */,
 				E2B6A2B924B007030070DECA /* CLLocationCoordinate2D-Extension.swift in Sources */,
 				E215534924B297CC00494E1A /* OverlayButton.swift in Sources */,
+				E2574A2D24B6A537006618D7 /* TimeInterval-Extension.swift in Sources */,
 				E27A757424AEDD3A00E446EE /* MKMapView-Extension.swift in Sources */,
 				E233541824B1627200A85DA3 /* UIImage-Extension.swift in Sources */,
 			);
