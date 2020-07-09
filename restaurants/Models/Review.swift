@@ -12,8 +12,8 @@ import Foundation
 struct Review {
     var id: String
     var rating: Int
-    var profileURL: String
-    var imageURL: String?
+    var profileURL: String?
+    var imageURL: String? ; #warning("not working when it is nil")
     var reviewerName: String
     var text: String
     var timeCreated: Date?
@@ -41,7 +41,7 @@ extension Review: Decodable {
         id = try container.decode(String.self, forKey: .id)
         rating = try container.decode(Int.self, forKey: .rating)
         profileURL = try user.decode(String.self, forKey: .profileURL)
-        imageURL = try user.decode(String.self, forKey: .imageURL)
+        imageURL = try user.decode(String?.self, forKey: .imageURL)
         reviewerName = try user.decode(String.self, forKey: .reviewerName)
         text = try container.decode(String.self, forKey: .text)
         

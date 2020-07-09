@@ -21,8 +21,12 @@ class RestaurantAnnotationView: MKMarkerAnnotationView {
             calloutOffset = CGPoint(x: -5, y: 5)
             rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
             displayPriority = .required
-            
-            
+            let stackView = UIStackView()
+            stackView.axis = .horizontal
+            stackView.spacing = 5.0
+            stackView.addArrangedSubview(StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount, noBackgroundColor: true))
+            stackView.addArrangedSubview(PriceLabel(price: restaurant.price))
+            detailCalloutAccessoryView = stackView
         }
     }
 

@@ -7,5 +7,6 @@ target 'restaurants' do
 
 pod 'Alamofire'
 pod 'AlamofireImage', '~> 4.1'
+pod 'SkeletonView'
 
 end

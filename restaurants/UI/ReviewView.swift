@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 class ReviewView: UIView {
 
@@ -22,7 +23,7 @@ class ReviewView: UIView {
     
     func setUp(review: Review) {
         
-        self.backgroundColor = .secondarySystemBackground
+        self.backgroundColor = .systemBackground
         self.translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = UIStackView()
@@ -39,7 +40,7 @@ class ReviewView: UIView {
         nameStackView.spacing = 7.5
         let profileImageView = UIImageView()
         let userName = UILabel()
-        
+        userName.font = .secondaryTitle
         stackView.addArrangedSubview(nameStackView)
 
         nameStackView.addArrangedSubview(profileImageView)
@@ -55,18 +56,31 @@ class ReviewView: UIView {
             profileImageView.heightAnchor.constraint(equalToConstant: profileImageViewWidth),
             profileImageView.widthAnchor.constraint(equalToConstant: profileImageViewWidth)
         ])
-
         
         userName.text = review.reviewerName
-
-        stackView.addArrangedSubview(StarRatingView(stars: Double(review.rating), numReviews: 0))
         
+        let starsStackView = UIStackView()
+        starsStackView.axis = .horizontal
+        starsStackView.spacing = 4.0
+        starsStackView.addArrangedSubview(StarRatingView(stars: Double(review.rating), numReviews: 0, noBackgroundColor: true))
         
-        if let imageURL = review.imageURL {
-            Network.shared.getImage(url: imageURL) { (img) in
-                profileImageView.image = img
-            }
+        if let date = review.timeCreated {
+            let timeAgoLabel = UILabel()
+            timeAgoLabel.text = date.getDisplayTime()
+            timeAgoLabel.textColor = .tertiaryLabel
+            timeAgoLabel.font = .smallerThanNormal
+            starsStackView.addArrangedSubview(timeAgoLabel)
         }
+        
+        stackView.addArrangedSubview(starsStackView)
+            
+        let textLabel = UILabel()
+        textLabel.text = review.text
+        textLabel.textColor = .secondaryLabel
+        textLabel.numberOfLines = 0
+        stackView.addArrangedSubview(textLabel)
+        
+        profileImageView.addImageFromUrl(review.imageURL, backupImage: "person.crop.circle")
         
     }
 

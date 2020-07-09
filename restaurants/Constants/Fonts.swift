@@ -11,4 +11,8 @@ import UIKit
 
 extension UIFont {
     static let createdTitle = UIFont.systemFont(ofSize: 25.0, weight: .heavy)
+    static let secondaryTitle = UIFont.systemFont(ofSize: 17.0, weight: .bold)
+    static let smallerThanNormal = UIFont.systemFont(ofSize: 13.0)
+    static let smallBold = UIFont.systemFont(ofSize: 10.0, weight: .bold)
+    static let mediumBold = UIFont.systemFont(ofSize: 13.0, weight: .bold)
 }

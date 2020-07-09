@@ -76,14 +76,22 @@ class Network {
         }
     }
     
-    func setFullRestaurantInfo(restaurant: inout Restaurant, complete: @escaping (Bool) -> Void) {
+    func setFullRestaurantInfo(restaurant: Restaurant, complete: @escaping (Bool) -> Void) {
         #warning("need to complete")
         let request = req(restaurant: restaurant, requestType: .id)
-        
+        request.responseJSON { (response) in
+            switch response.result {
+            case .success(let jsonAny):
+                if let json = jsonAny as? [String:Any] {
+                    let data = try? JSONSerialization.data(withJSONObject: json, options: [])
+                }
+            case .failure(_):
+                print("Error")
+            }
+        }
     }
     
-    func setRestaurantReviewInfo(restaurant: Restaurant, reviewsFound: @escaping ([Review]) -> Void) {
-        #warning("need to complete")
+    func setRestaurantReviewInfo(restaurant: Restaurant, complete: @escaping (Bool) -> Void) {
         let request = req(restaurant: restaurant, requestType: .review)
         request.responseJSON { (response) in
             switch response.result {
@@ -96,11 +104,13 @@ class Network {
                             reviews.append(review)
                         } else {
                             print("Not going through if let for review decoding")
+                            print(r)
                         }
                     }
                 }
                 // Have the reviews here
-                reviewsFound(reviews)
+                restaurant.reviews = reviews
+                complete(true)
             case .failure(_):
                 print("Error")
             }

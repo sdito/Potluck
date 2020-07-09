@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 class RestaurantDetailVC: UIViewController {
     
@@ -16,9 +17,9 @@ class RestaurantDetailVC: UIViewController {
     private var headerContainerView: UIView!
     private var headerTopConstraint: NSLayoutConstraint!
     private var headerHeightConstraint: NSLayoutConstraint!
-    
+
     private var restaurant: Restaurant!
-    
+    private let locationManager = CLLocationManager()
     // UI values
     private var navigationTitleHidden = true
     private var distanceOfImageView: CGFloat = 10000.0
@@ -40,6 +41,88 @@ class RestaurantDetailVC: UIViewController {
         setUp()
     }
     
+    private func createHeadInfoView() -> UIView {
+        
+        let outside = UIView()
+        let container = UIView()
+        let inside = UIView()
+        outside.backgroundColor = .systemBackground
+        container.backgroundColor = .secondarySystemBackground
+        container.translatesAutoresizingMaskIntoConstraints = false
+        inside.translatesAutoresizingMaskIntoConstraints = false
+        outside.translatesAutoresizingMaskIntoConstraints = false
+        outside.addSubview(container)
+        container.addSubview(inside)
+        container.constrainSides(to: outside, distance: 10.0)
+        inside.constrainSides(to: container, distance: 6.0)
+
+        let newSV = UIStackView()
+        newSV.translatesAutoresizingMaskIntoConstraints = false
+        newSV.axis = .vertical
+        newSV.spacing = 17.5
+        newSV.alignment = .leading
+        
+        let innerStackView = UIStackView()
+        innerStackView.translatesAutoresizingMaskIntoConstraints = false
+        innerStackView.axis = .horizontal
+        innerStackView.spacing = 5.0
+        innerStackView.alignment = .leading
+        
+        inside.addSubview(newSV)
+        newSV.addArrangedSubview(innerStackView)
+        newSV.constrainSides(to: inside, distance: 10.0)
+
+        for category in [restaurant.price] + restaurant.categories {
+            #warning("if its too long, goes off screen. need to put innerStackView inside of a scroll view")
+            let label = PaddingLabel(top: 5.0, bottom: 5.0, left: 5.0, right: 5.0)
+            label.text = category
+            label.font = .smallBold
+            label.backgroundColor = Colors.main
+            label.layer.cornerRadius = 3.0
+            label.clipsToBounds = true
+            innerStackView.addArrangedSubview(label)
+        }
+        
+        
+        
+        let openLabel = UILabel()
+        openLabel.font = .mediumBold
+        if restaurant.isOpenNow {
+            openLabel.textColor = .systemGreen
+            openLabel.text = "Open"
+        } else {
+            openLabel.textColor = .systemRed
+            openLabel.text = "Closed"
+        }
+        
+        newSV.addArrangedSubview(openLabel)
+        
+        let buttonsSV = UIStackView()
+        buttonsSV.axis = .horizontal
+        buttonsSV.spacing = 15.0
+        buttonsSV.distribution = .fillEqually
+        buttonsSV.alignment = .center
+        buttonsSV.addArrangedSubview(TwoLevelButton(text: "Web", imageText: "desktopcomputer"))
+        buttonsSV.addArrangedSubview(TwoLevelButton(text: "Call", imageText: "phone"))
+        buttonsSV.addArrangedSubview(TwoLevelButton(text: "Menu", imageText: "book"))
+        
+        newSV.addArrangedSubview(buttonsSV)
+        buttonsSV.widthAnchor.constraint(equalTo: newSV.widthAnchor).isActive = true
+
+        container.layer.cornerRadius = 6.0
+        inside.layer.cornerRadius = 5.0
+        inside.clipsToBounds = true
+        inside.backgroundColor = .secondarySystemBackground
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            inside.layer.borderWidth = 1.0
+            inside.layer.borderColor = Colors.secondary.cgColor
+        }
+
+        return outside
+        
+    }
+
     private func setUpScrollView() -> UIScrollView {
         let sv = UIScrollView()
         sv.delegate = self
@@ -138,11 +221,11 @@ class RestaurantDetailVC: UIViewController {
     
     
     private func setUp() {
+        self.view.backgroundColor = .secondarySystemBackground
         self.title = ""
+        print(restaurant.transactions)
         self.setNavigationBarColor(color: Colors.navigationBarColor.withAlphaComponent(0.0))
         self.navigationController?.navigationBar.tintColor = Colors.main
-        
-        view.backgroundColor = .systemBackground
         
         scrollView = setUpScrollView()
         stackView = setUpStackView()
@@ -160,14 +243,10 @@ class RestaurantDetailVC: UIViewController {
         imageView.layoutIfNeeded()
         distanceOfImageView = imageView.bounds.height - (self.navigationController?.navigationBar.bounds.height ?? 0.0)
         
-        Network.shared.getImage(url: restaurant.imageURL) { (img) in
-            self.imageView.image = img
-        }
+        imageView.addImageFromUrl(restaurant.imageURL)
         
-        Network.shared.setRestaurantReviewInfo(restaurant: restaurant) { (reviews) in
-            print("Done adding the reviews, now add them to the UI: \(reviews.map({$0.reviewerName}))")
-            if reviews.count > 0 {
-                self.restaurant.reviews = reviews
+        Network.shared.setRestaurantReviewInfo(restaurant: restaurant) { (complete) in
+            if complete {
                 for review in self.restaurant.reviews {
                     let reviewView = ReviewView(review: review)
                     self.stackView.addArrangedSubview(reviewView)
@@ -176,21 +255,19 @@ class RestaurantDetailVC: UIViewController {
             }
         }
         
-        for i in 1...10 {
-            let label = UILabel()
-            label.text = "\(i)"
-            stackView.addArrangedSubview(label)
+        stackView.addArrangedSubview(createHeadInfoView())
+        
+        
+        // add stuff here
+        if let userLocation = locationManager.getUserLocation() {
+            stackView.addArrangedSubview(MapCutoutView(userLocation: userLocation, userDestination: restaurant.coordinate, restaurant: restaurant, vc: self))
         }
-        
-        
         scrollView.setCorrectContentSize()
-        
     }
-    
-
 }
 
 
+// MARK: UIScrollViewDelegate
 
 extension RestaurantDetailVC: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -208,7 +285,13 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
             let availableOffset = min(offsetY, minOffsetY)
             let contentRectOffsetY = availableOffset / distanceOfImageView
             headerTopConstraint?.constant = view.frame.origin.y
-            headerHeightConstraint?.constant = distanceOfImageView - offset
+            let newConstant = distanceOfImageView - offset
+            if newConstant < 0.0 {
+                headerHeightConstraint?.constant = 0.0
+            } else {
+                headerHeightConstraint?.constant = newConstant
+            }
+            
             imageView.layer.contentsRect = CGRect(x: 0, y: -contentRectOffsetY, width: 1, height: 1)
         }
         
@@ -252,3 +335,19 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
         
     }
 }
+
+
+// MARK: MapCutoutViewDelegate
+
+extension RestaurantDetailVC: MapCutoutViewDelegate {
+    func locationPressed(name: String, destination: CLLocationCoordinate2D) {
+        print("Map selected for \(name), with a location of latitude - \(destination.latitude) and longitude - \(destination.longitude)")
+        //self.openMaps(coordinate: destination, name: name)
+        self.actionSheet(actions: [
+            ("Drive", { [weak self] in self?.openMaps(coordinate: destination, name: name, method: "driving") }),
+            ("Walk", { [weak self] in self?.openMaps(coordinate: destination, name: name, method: "walk") }),
+            ("Transit", { [weak self] in self?.openMaps(coordinate: destination, name: name, method: "transit") })
+        ])
+    }
+}
+

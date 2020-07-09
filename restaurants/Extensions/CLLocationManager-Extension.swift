@@ -30,6 +30,15 @@ extension CLLocationManager {
         }
     }
     
+    func getUserLocation() -> CLLocationCoordinate2D? {
+        let status = CLLocationManager.authorizationStatus()
+        if status == .authorizedAlways || status == .authorizedWhenInUse {
+            return self.location?.coordinate
+        } else {
+            return nil
+        }
+    }
+    
 }
 
 

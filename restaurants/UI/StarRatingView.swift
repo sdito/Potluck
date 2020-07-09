@@ -10,9 +10,9 @@ import UIKit
 
 class StarRatingView: UIView {
     
-    init(stars: Double, numReviews: Int) {
+    init(stars: Double, numReviews: Int, noBackgroundColor: Bool = false) {
         super.init(frame: .zero)
-        setUp(stars: stars, numReviews: numReviews)
+        setUp(stars: stars, numReviews: numReviews, noBackgroundColor: noBackgroundColor)
         
     }
     
@@ -21,9 +21,12 @@ class StarRatingView: UIView {
     }
     
     
-    func setUp(stars: Double, numReviews: Int) {
+    func setUp(stars: Double, numReviews: Int, noBackgroundColor: Bool = false) {
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.fadedBackground()
+        
+        if !noBackgroundColor {
+            self.fadedBackground()
+        }
         
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -38,7 +41,6 @@ class StarRatingView: UIView {
             stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -3.0)
         ])
         
-        print("Set UI with number of stars")
         var numberStarsLeft = stars
         
         for _ in 1...5 {
