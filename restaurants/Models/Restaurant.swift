@@ -5,7 +5,7 @@
 //  Created by Steven Dito on 7/3/20.
 //  Copyright © 2020 Steven Dito. All rights reserved.
 //
-
+import UIKit
 import CoreLocation
 
 class Restaurant: Decodable {
@@ -15,7 +15,7 @@ class Restaurant: Decodable {
     var longitude: Double
     var url: String
     var imageURL: String
-    var price: String
+    var price: String?
     var distance: Double
     var rating: Double
     var reviewCount: Int
@@ -30,6 +30,27 @@ class Restaurant: Decodable {
         return CLLocationCoordinate2D(latitude: CLLocationDegrees(exactly: latitude)!, longitude: CLLocationDegrees(exactly: longitude)!)
     }
     
+    var openNowDescription: NSAttributedString {
+        
+        let attributedStringGreenColor = [NSAttributedString.Key.foregroundColor : UIColor.systemGreen]
+        let attributedStringRedColor = [NSAttributedString.Key.foregroundColor : UIColor.systemRed]
+        print(Date.getDayOfWeek())
+        
+        if let currDays = self.additionalInfo?.currentDayData {
+            for d in currDays {
+                print(d.start, d.end)
+            }
+        }
+        
+        if isOpenNow {
+            return NSAttributedString(string: "Open now", attributes: attributedStringGreenColor)
+        } else {
+            return NSAttributedString(string: "Closed now", attributes: attributedStringRedColor)
+        }
+        
+    }
+    
+    
     required init(from decoder: Decoder) throws {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -42,7 +63,7 @@ class Restaurant: Decodable {
         longitude = try coordinates.decode(Double.self, forKey: .longitude)
         url = try container.decode(String.self, forKey: .url)
         imageURL = try container.decode(String.self, forKey: .imageURL)
-        price = try container.decode(String.self, forKey: .price)
+        price = try? container.decode(String?.self, forKey: .price)
         distance = try container.decode(Double.self, forKey: .distance)
         rating = try container.decode(Double.self, forKey: .rating)
         reviewCount = try container.decode(Int.self, forKey: .reviewCount)
@@ -119,29 +140,65 @@ extension Restaurant {
         var phone: String
         var displayPhone: String
         var photos: [String]
-//        var isOpenNow: Bool
-        var jsonHours: [[String:String]]
+        var hours: [Hours]
         
+        var currentDayData: [Day] {
+            var days: [Day] = []
+            let currDay = Date.convertWeekdayFromAppleToYelp(appleDate: Date.getDayOfWeek())
+            for d in hours {
+                for a in d.open {
+                    if a.day == currDay {
+                        days.append(a)
+                    }
+                }
+            }
+            return days
+        }
         
         enum CodingKeys: String, CodingKey {
             case phone
             case displayPhone = "display_phone"
             case photos
-            case jsonHours = "hours"
+            case hours
         }
         
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            let hoursContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .jsonHours)
             
             phone = try container.decode(String.self, forKey: .phone)
             displayPhone = try container.decode(String.self, forKey: .displayPhone)
             photos = try container.decode([String].self, forKey: .photos)
-            //isOpenNow = try timeContainer.decode(Bool?.self, forKey: .isOpenNow)
-            jsonHours = try container.decode([[String:String]].self, forKey: .jsonHours)
+            hours = try container.decode([Hours].self, forKey: .hours)
+            
         }
-        
     }
+    
+    struct Hours: Decodable {
+        var open: [Day]
+        var hoursType: String
+        var isOpenNow: Bool
+        
+        enum CodingKeys: String, CodingKey {
+            case open
+            case hoursType = "hours_type"
+            case isOpenNow = "is_open_now"
+        }
+    }
+    
+    struct Day: Decodable {
+        var isOvernight: Bool
+        var start: String
+        var end: String
+        var day: Int
+        
+        enum CodingKeys: String, CodingKey {
+            case isOvernight = "is_overnight"
+            case start
+            case end
+            case day
+        }
+    }
+    
 }
 
 
@@ -150,8 +207,8 @@ extension Restaurant {
 extension Restaurant {
     struct YelpLocation: Decodable {
         var address1: String
-        var address2: String
-        var address3: String
+        var address2: String?
+        var address3: String?
         var city: String
         var zipCode: String
         var country: String

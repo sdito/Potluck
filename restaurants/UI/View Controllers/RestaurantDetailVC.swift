@@ -15,8 +15,11 @@ class RestaurantDetailVC: UIViewController {
     private var stackView: UIStackView!
     private var imageView: UIImageView!
     private var headerContainerView: UIView!
+    private var timeOpenLabel: UILabel!
+    
     private var headerTopConstraint: NSLayoutConstraint!
     private var headerHeightConstraint: NSLayoutConstraint!
+    
 
     private var restaurant: Restaurant!
     private let locationManager = CLLocationManager()
@@ -42,7 +45,7 @@ class RestaurantDetailVC: UIViewController {
     }
     
     private func createHeadInfoView() -> UIView {
-        
+        #warning("need to move this to its own class")
         let outside = UIView()
         let container = UIView()
         let inside = UIView()
@@ -62,40 +65,34 @@ class RestaurantDetailVC: UIViewController {
         newSV.spacing = 17.5
         newSV.alignment = .leading
         
-        let innerStackView = UIStackView()
-        innerStackView.translatesAutoresizingMaskIntoConstraints = false
-        innerStackView.axis = .horizontal
-        innerStackView.spacing = 5.0
-        innerStackView.alignment = .leading
-        
         inside.addSubview(newSV)
-        newSV.addArrangedSubview(innerStackView)
         newSV.constrainSides(to: inside, distance: 10.0)
-
+        
+        var scrollingViewsToAdd: [UIView] = []
         for category in [restaurant.price] + restaurant.categories {
             #warning("if its too long, goes off screen. need to put innerStackView inside of a scroll view")
-            let label = PaddingLabel(top: 5.0, bottom: 5.0, left: 5.0, right: 5.0)
-            label.text = category
-            label.font = .smallBold
-            label.backgroundColor = Colors.main
-            label.layer.cornerRadius = 3.0
-            label.clipsToBounds = true
-            innerStackView.addArrangedSubview(label)
+            if let category = category {
+                let label = PaddingLabel(top: 5.0, bottom: 5.0, left: 5.0, right: 5.0)
+                label.text = category
+                label.font = .smallBold
+                label.backgroundColor = Colors.main
+                label.layer.cornerRadius = 3.0
+                label.clipsToBounds = true
+                scrollingViewsToAdd.append(label)
+            }
         }
         
+        let stringsForViews: [String] = restaurant.price == nil ? restaurant.categories : restaurant.categories + [restaurant.price!]
+        let viewsToAdd = stringsForViews.createViewsForDisplay()
+        let scrollingView = ScrollingStackView(subViews: viewsToAdd)
+        newSV.addArrangedSubview(scrollingView)
+        scrollingView.widthAnchor.constraint(equalTo: newSV.widthAnchor).isActive = true
         
         
-        let openLabel = UILabel()
-        openLabel.font = .mediumBold
-        if restaurant.isOpenNow {
-            openLabel.textColor = .systemGreen
-            openLabel.text = "Open"
-        } else {
-            openLabel.textColor = .systemRed
-            openLabel.text = "Closed"
-        }
-        
-        newSV.addArrangedSubview(openLabel)
+        timeOpenLabel = UILabel()
+        timeOpenLabel.font = .mediumBold
+        timeOpenLabel.attributedText = restaurant.openNowDescription
+        newSV.addArrangedSubview(timeOpenLabel)
         
         let buttonsSV = UIStackView()
         buttonsSV.axis = .horizontal
@@ -181,6 +178,7 @@ class RestaurantDetailVC: UIViewController {
         
         NSLayoutConstraint.activate([
             titleStackView.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 10),
+            titleStackView.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: -10),
             titleStackView.bottomAnchor.constraint(equalTo: imageView.bottomAnchor, constant: -10),
         ])
     }
@@ -244,11 +242,8 @@ class RestaurantDetailVC: UIViewController {
         distanceOfImageView = imageView.bounds.height - (self.navigationController?.navigationBar.bounds.height ?? 0.0)
         
         imageView.addImageFromUrl(restaurant.imageURL)
-        
         stackView.addArrangedSubview(createHeadInfoView())
         
-        
-        // add stuff here
         if let userLocation = locationManager.getUserLocation() {
             stackView.addArrangedSubview(MapCutoutView(userLocation: userLocation, userDestination: restaurant.coordinate, restaurant: restaurant, vc: self))
         }
@@ -266,7 +261,10 @@ class RestaurantDetailVC: UIViewController {
         }
         
         Network.shared.setFullRestaurantInfo(restaurant: restaurant) { (complete) in
-            print("Additional restaurant info: \(self.restaurant.additionalInfo)")
+            #warning("need to complete")
+            if complete {
+                let newDescription = self.restaurant.openNowDescription
+            }
         }
         
     }

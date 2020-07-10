@@ -55,7 +55,8 @@ class Network {
     }
     
     func getRestaurants(coordinate: CLLocationCoordinate2D, restaurantsReturned: @escaping (Result<[Restaurant], Error>) -> Void) {
-        let params = coordinate.getParams()
+        var params = coordinate.getParams()
+        params["term"] = "restaurants"
         let request = req(params: params, requestType: .search)
         request.responseJSON { (response) in
             switch response.result {
@@ -63,15 +64,25 @@ class Network {
                 var restaurants: [Restaurant] = []
                 if let json = jsonAny as? [String:Any], let restaurantsJson = json["businesses"] as? [[String:Any]] {
                     for r in restaurantsJson {
-                        let data = try? JSONSerialization.data (withJSONObject: r, options: [])
-                        if let data = data, let restaurant = try? JSONDecoder().decode(Restaurant.self, from: data) {
-                            restaurants.append(restaurant)
+                        do {
+                            let data = try JSONSerialization.data (withJSONObject: r, options: [])
+                            do {
+                                let restaurant = try JSONDecoder().decode(Restaurant.self, from: data)
+                                restaurants.append(restaurant)
+                            } catch {
+                                print(r)
+                                print(error)
+                            }
+                        } catch {
+                            print(error)
                         }
+                        
                     }
                 }
                 restaurantsReturned(Result.success(restaurants))
-            case .failure(_):
-                print("Error")
+            case .failure(let error):
+                print("Error: getRestaurants")
+                print(error)
             }
         }
     }
@@ -90,13 +101,15 @@ class Network {
                         complete(true)
                     }
                 }
-            case .failure(_):
-                print("Error")
+            case .failure(let error):
+                print("Error: setFullRestaurantInfo")
+                print(error)
             }
         }
     }
     
     func setRestaurantReviewInfo(restaurant: Restaurant, complete: @escaping (Bool) -> Void) {
+        
         let request = req(restaurant: restaurant, requestType: .review)
         request.responseJSON { (response) in
             switch response.result {
@@ -116,8 +129,9 @@ class Network {
                 // Have the reviews here
                 restaurant.reviews = reviews
                 complete(true)
-            case .failure(_):
-                print("Error")
+            case .failure(let error):
+                print("Error: setRestaurantReviewInfo")
+                print(error)
             }
         }
         

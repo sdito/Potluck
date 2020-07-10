@@ -10,6 +10,61 @@ import Foundation
 
 
 extension Date {
+    
+    /*
+     
+    Apple
+       Sunday - 1
+       Monday - 2
+       Tuesday - 3
+       Wednesday - 4
+       Thursday - 5
+       Friday - 6
+       Saturday - 7
+    
+    Yelp
+       Sunday - 6
+       Monday - 0
+       Tuesday - 1
+       Wednesday - 2
+       Thursday - 3
+       Friday - 4
+       Saturday - 5
+     
+    */
+    
+    static func convertWeekdayFromYelpToApple(yelpDate: Int) -> Int {
+        let dict: [Int:Int] = [
+        /* Sunday */     6: 1,
+        /* Monday */     0: 2,
+        /* Tuesday */    1: 3,
+        /* Wednesday */  2: 4,
+        /* Thursday */   3: 5,
+        /* Friday */     4: 6,
+        /* Saturday */   5: 7,
+        ]
+        return dict[yelpDate]!
+    }
+    
+    static func convertWeekdayFromAppleToYelp(appleDate: Int) -> Int {
+        let dict: [Int:Int] = [
+        /* Sunday */     1: 6,
+        /* Monday */     2: 0,
+        /* Tuesday */    3: 1,
+        /* Wednesday */  4: 2,
+        /* Thursday */   5: 3,
+        /* Friday */     6: 4,
+        /* Saturday */   7: 5,
+        ]
+        return dict[appleDate]!
+    }
+    
+    
+    static func getDayOfWeek() -> Int {
+        let day = Calendar.current.component(.weekday, from: Date())
+        return day
+    }
+    
     static func convertYelpStringDate(_ str: String) -> Date? {
         // 2016-09-28 08:55:29 is an example
         let dateFormatter = DateFormatter()

@@ -25,7 +25,9 @@ class RestaurantAnnotationView: MKMarkerAnnotationView {
             stackView.axis = .horizontal
             stackView.spacing = 5.0
             stackView.addArrangedSubview(StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount, noBackgroundColor: true))
-            stackView.addArrangedSubview(PriceLabel(price: restaurant.price))
+            if let price = restaurant.price {
+                stackView.addArrangedSubview(PriceLabel(price: price))
+            }
             detailCalloutAccessoryView = stackView
         }
     }
