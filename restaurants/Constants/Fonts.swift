@@ -15,4 +15,5 @@ extension UIFont {
     static let smallerThanNormal = UIFont.systemFont(ofSize: 13.0)
     static let smallBold = UIFont.systemFont(ofSize: 10.0, weight: .bold)
     static let mediumBold = UIFont.systemFont(ofSize: 13.0, weight: .bold)
+    static let largerBold = UIFont.systemFont(ofSize: 16.0, weight: .bold)
 }

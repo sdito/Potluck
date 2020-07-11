@@ -98,4 +98,13 @@ extension UIView {
         ])
     }
     
+    func constrainSidesUnique(to view: UIView, top: CGFloat, leading: CGFloat, bottom: CGFloat, trailing: CGFloat) {
+        NSLayoutConstraint.activate([
+            self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leading),
+            self.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -trailing),
+            self.topAnchor.constraint(equalTo: view.topAnchor, constant: top),
+            self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -bottom)
+        ])
+    }
+    
 }

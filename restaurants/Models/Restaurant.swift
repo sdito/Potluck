@@ -20,8 +20,7 @@ class Restaurant: Decodable {
     var rating: Double
     var reviewCount: Int
     var categories: [String]
-    var transactions: [String]
-    var isOpenNow = true
+    var transactions: [YelpTransaction]
     var reviews: [Review] = []
     var additionalInfo: AdditionalInfo?
     var address: YelpLocation
@@ -30,7 +29,7 @@ class Restaurant: Decodable {
         return CLLocationCoordinate2D(latitude: CLLocationDegrees(exactly: latitude)!, longitude: CLLocationDegrees(exactly: longitude)!)
     }
     
-    var openNowDescription: NSAttributedString {
+    var openNowDescription: NSAttributedString? {
         
         let attributedStringGreenColor = [NSAttributedString.Key.foregroundColor : UIColor.systemGreen]
         let attributedStringRedColor = [NSAttributedString.Key.foregroundColor : UIColor.systemRed]
@@ -41,11 +40,13 @@ class Restaurant: Decodable {
                 print(d.start, d.end)
             }
         }
-        
-        if isOpenNow {
+        let boolean = self.additionalInfo?.hours.first?.isOpenNow
+        if boolean == true {
             return NSAttributedString(string: "Open now", attributes: attributedStringGreenColor)
-        } else {
+        } else if boolean == false {
             return NSAttributedString(string: "Closed now", attributes: attributedStringRedColor)
+        } else {
+            return nil
         }
         
     }
@@ -67,7 +68,7 @@ class Restaurant: Decodable {
         distance = try container.decode(Double.self, forKey: .distance)
         rating = try container.decode(Double.self, forKey: .rating)
         reviewCount = try container.decode(Int.self, forKey: .reviewCount)
-        transactions = try container.decode([String].self, forKey: .transactions)
+        transactions = try container.decode([YelpTransaction].self, forKey: .transactions)
         address = try container.decode(YelpLocation.self, forKey: .address)
         
         var tempCategories: [String] = []
@@ -79,7 +80,7 @@ class Restaurant: Decodable {
         
     }
     
-    init(id: String, name: String, latitude: Double, longitude: Double, url: String, imageURL: String, price: String, distance: Double, rating: Double, reviewCount: Int, categories: [String], transactions: [String], address: YelpLocation) {
+    init(id: String, name: String, latitude: Double, longitude: Double, url: String, imageURL: String, price: String, distance: Double, rating: Double, reviewCount: Int, categories: [String], transactions: [YelpTransaction], address: YelpLocation) {
         self.id = id
         self.name = name
         self.latitude = latitude
@@ -113,6 +114,13 @@ class Restaurant: Decodable {
     }
     
     
+    enum YelpTransaction: String, Decodable, CaseIterable {
+        case pickup
+        case delivery
+        case restaurantReservation = "restaurant_reservation"
+    }
+    
+    
     
 }
 
@@ -136,7 +144,6 @@ extension Array where Element == Restaurant {
 // MARK: Additional info
 extension Restaurant {
     struct AdditionalInfo: Decodable {
-        #warning("need to complete")
         var phone: String
         var displayPhone: String
         var photos: [String]

@@ -68,30 +68,16 @@ class RestaurantDetailVC: UIViewController {
         inside.addSubview(newSV)
         newSV.constrainSides(to: inside, distance: 10.0)
         
-        var scrollingViewsToAdd: [UIView] = []
-        for category in [restaurant.price] + restaurant.categories {
-            #warning("if its too long, goes off screen. need to put innerStackView inside of a scroll view")
-            if let category = category {
-                let label = PaddingLabel(top: 5.0, bottom: 5.0, left: 5.0, right: 5.0)
-                label.text = category
-                label.font = .smallBold
-                label.backgroundColor = Colors.main
-                label.layer.cornerRadius = 3.0
-                label.clipsToBounds = true
-                scrollingViewsToAdd.append(label)
-            }
-        }
+        #error("need to use WebVC")
         
-        let stringsForViews: [String] = restaurant.price == nil ? restaurant.categories : restaurant.categories + [restaurant.price!]
-        let viewsToAdd = stringsForViews.createViewsForDisplay()
+        let viewsToAdd = restaurant.categories.createViewsForDisplay()
         let scrollingView = ScrollingStackView(subViews: viewsToAdd)
         newSV.addArrangedSubview(scrollingView)
         scrollingView.widthAnchor.constraint(equalTo: newSV.widthAnchor).isActive = true
         
-        
         timeOpenLabel = UILabel()
         timeOpenLabel.font = .mediumBold
-        timeOpenLabel.attributedText = restaurant.openNowDescription
+        timeOpenLabel.text = " "
         newSV.addArrangedSubview(timeOpenLabel)
         
         let buttonsSV = UIStackView()
@@ -99,6 +85,7 @@ class RestaurantDetailVC: UIViewController {
         buttonsSV.spacing = 15.0
         buttonsSV.distribution = .fillEqually
         buttonsSV.alignment = .center
+        
         buttonsSV.addArrangedSubview(TwoLevelButton(text: "Web", imageText: "desktopcomputer"))
         buttonsSV.addArrangedSubview(TwoLevelButton(text: "Call", imageText: "phone"))
         buttonsSV.addArrangedSubview(TwoLevelButton(text: "Menu", imageText: "book"))
@@ -244,10 +231,13 @@ class RestaurantDetailVC: UIViewController {
         imageView.addImageFromUrl(restaurant.imageURL)
         stackView.addArrangedSubview(createHeadInfoView())
         
+        stackView.addArrangedSubview(RestaurantCategoriesView(restaurant: restaurant))
+        
         if let userLocation = locationManager.getUserLocation() {
             stackView.addArrangedSubview(MapCutoutView(userLocation: userLocation, userDestination: restaurant.coordinate, restaurant: restaurant, vc: self))
         }
         scrollView.setCorrectContentSize()
+        
         
         
         Network.shared.setRestaurantReviewInfo(restaurant: restaurant) { (complete) in
@@ -263,6 +253,8 @@ class RestaurantDetailVC: UIViewController {
         Network.shared.setFullRestaurantInfo(restaurant: restaurant) { (complete) in
             #warning("need to complete")
             if complete {
+                print("Open now description: \(self.restaurant.openNowDescription)")
+                self.timeOpenLabel.attributedText = self.restaurant.openNowDescription
                 let newDescription = self.restaurant.openNowDescription
             }
         }

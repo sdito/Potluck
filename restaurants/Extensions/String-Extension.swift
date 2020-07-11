@@ -9,6 +9,32 @@
 import UIKit
 
 
+extension String {
+    func getAffirmativeOrNegativeAttributedString(_ affirmative: Bool) -> NSAttributedString {
+        var image: UIImage {
+            if affirmative {
+                let img = UIImage(systemName: "checkmark")!.withTintColor(.systemGreen)
+                return img
+            } else {
+                let img = UIImage(systemName: "slash.circle")!.withTintColor(.systemRed)
+                return img
+            }
+        }
+        return self.addImageAtBeginning(image: image)
+        
+    }
+    
+    func addImageAtBeginning(image: UIImage) -> NSAttributedString {
+        let string = NSMutableAttributedString()
+        let imageAttachment = NSTextAttachment()
+        imageAttachment.image = image
+        let imageString = NSAttributedString(attachment: imageAttachment)
+        string.append(imageString)
+        string.append(NSAttributedString(string: " \(self)"))
+        return string
+    }
+}
+
 
 extension Array where Element == String {
     func createViewsForDisplay() -> [UIView] {
@@ -24,4 +50,5 @@ extension Array where Element == String {
         }
         return scrollingViewsToAdd
     }
+    
 }

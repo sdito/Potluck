@@ -64,14 +64,14 @@ class MapCutoutView: UIView {
         request.transportType = .automobile
 
         let directions = MKDirections(request: request)
-        directions.calculate { [unowned self] response, error in
+        directions.calculate { [weak self] response, error in
             guard let unwrappedResponse = response else { return }
             
-            if let route = unwrappedResponse.routes.first {
+            if let route = unwrappedResponse.routes.first, self != nil {
                 let travelTime = route.expectedTravelTime
-                self.addTimeLabel(time: travelTime)
-                self.mapView.addOverlay(route.polyline)
-                self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, edgePadding: UIEdgeInsets(top: 30.0, left: 30.0, bottom: 30.0, right: 30.0), animated: false)
+                self!.addTimeLabel(time: travelTime)
+                self!.mapView.addOverlay(route.polyline)
+                self!.mapView.setVisibleMapRect(route.polyline.boundingMapRect, edgePadding: UIEdgeInsets(top: 30.0, left: 30.0, bottom: 30.0, right: 30.0), animated: false)
             }
         }
     }
