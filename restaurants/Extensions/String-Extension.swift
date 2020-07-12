@@ -10,6 +10,8 @@ import UIKit
 
 
 extension String {
+
+    
     func getAffirmativeOrNegativeAttributedString(_ affirmative: Bool) -> NSAttributedString {
         var image: UIImage {
             if affirmative {

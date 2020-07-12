@@ -15,7 +15,7 @@ class RestaurantDetailVC: UIViewController {
     private var stackView: UIStackView!
     private var imageView: UIImageView!
     private var headerContainerView: UIView!
-    private var timeOpenLabel: UILabel!
+    private var headerDetailView: HeaderDetailView!
     
     private var headerTopConstraint: NSLayoutConstraint!
     private var headerHeightConstraint: NSLayoutConstraint!
@@ -50,70 +50,6 @@ class RestaurantDetailVC: UIViewController {
         if navBarColor != nil {
             self.setNavigationBarColor(color: navBarColor!)
         }
-    }
-    
-    private func createHeadInfoView() -> UIView {
-        #warning("need to move this to its own class")
-        let outside = UIView()
-        let container = UIView()
-        let inside = UIView()
-        outside.backgroundColor = .systemBackground
-        container.backgroundColor = .secondarySystemBackground
-        container.translatesAutoresizingMaskIntoConstraints = false
-        inside.translatesAutoresizingMaskIntoConstraints = false
-        outside.translatesAutoresizingMaskIntoConstraints = false
-        outside.addSubview(container)
-        container.addSubview(inside)
-        container.constrainSides(to: outside, distance: 10.0)
-        inside.constrainSides(to: container, distance: 6.0)
-
-        let newSV = UIStackView()
-        newSV.translatesAutoresizingMaskIntoConstraints = false
-        newSV.axis = .vertical
-        newSV.spacing = 17.5
-        newSV.alignment = .leading
-        
-        inside.addSubview(newSV)
-        newSV.constrainSides(to: inside, distance: 10.0)
-        
-        let viewsToAdd = restaurant.categories.createViewsForDisplay()
-        let scrollingView = ScrollingStackView(subViews: viewsToAdd)
-        newSV.addArrangedSubview(scrollingView)
-        scrollingView.widthAnchor.constraint(equalTo: newSV.widthAnchor).isActive = true
-        
-        timeOpenLabel = UILabel()
-        timeOpenLabel.font = .mediumBold
-        timeOpenLabel.text = " "
-        newSV.addArrangedSubview(timeOpenLabel)
-        
-        let buttonsSV = UIStackView()
-        buttonsSV.axis = .horizontal
-        buttonsSV.spacing = 15.0
-        buttonsSV.distribution = .fillEqually
-        buttonsSV.alignment = .center
-        
-        let webButton = TwoLevelButton(text: "Web", imageText: "desktopcomputer")
-        webButton.addTarget(self, action: #selector(openWebForUrl), for: .touchUpInside)
-        
-        buttonsSV.addArrangedSubview(webButton)
-        buttonsSV.addArrangedSubview(TwoLevelButton(text: "Call", imageText: "phone"))
-        buttonsSV.addArrangedSubview(TwoLevelButton(text: "Menu", imageText: "book"))
-        
-        newSV.addArrangedSubview(buttonsSV)
-        buttonsSV.widthAnchor.constraint(equalTo: newSV.widthAnchor).isActive = true
-
-        container.layer.cornerRadius = 6.0
-        inside.layer.cornerRadius = 5.0
-        inside.clipsToBounds = true
-        inside.backgroundColor = .secondarySystemBackground
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            inside.layer.borderWidth = 1.0
-            inside.layer.borderColor = Colors.secondary.cgColor
-        }
-
-        return outside
-        
     }
 
     private func setUpScrollView() -> UIScrollView {
@@ -239,7 +175,15 @@ class RestaurantDetailVC: UIViewController {
         distanceOfImageView = imageView.bounds.height - (self.navigationController?.navigationBar.bounds.height ?? 0.0)
         
         imageView.addImageFromUrl(restaurant.imageURL)
-        stackView.addArrangedSubview(createHeadInfoView())
+        headerDetailView = HeaderDetailView(restaurant: restaurant, vc: self)
+        stackView.addArrangedSubview(headerDetailView)
+        
+        #warning("test remove later")
+        let button = UIButton()
+        button.setTitle("Go look at more photos", for: .normal)
+        stackView.addArrangedSubview(button)
+        button.addTarget(self, action: #selector(openPhotosController), for: .touchUpInside)
+        #warning("end test")
         
         stackView.addArrangedSubview(RestaurantCategoriesView(restaurant: restaurant))
         
@@ -263,9 +207,9 @@ class RestaurantDetailVC: UIViewController {
         Network.shared.setFullRestaurantInfo(restaurant: restaurant) { (complete) in
             #warning("need to complete")
             if complete {
-                print("Open now description: \(self.restaurant.openNowDescription)")
-                self.timeOpenLabel.attributedText = self.restaurant.openNowDescription
                 let newDescription = self.restaurant.openNowDescription
+                self.headerDetailView.timeOpenLabel.attributedText = newDescription
+                
             }
         }
         
@@ -348,13 +292,20 @@ extension RestaurantDetailVC: MapCutoutViewDelegate {
     }
 }
 
+// MARK: HeaderDetailViewDelegate
+extension RestaurantDetailVC: HeaderDetailViewDelegate {
+    func urlPressedToOpen() {
+        self.navigationController?.pushViewController(WebVC(url: restaurant.url), animated: true)
+    }
+}
 
 
 
 // MARK: Selectors
-
 extension RestaurantDetailVC {
-    @objc private func openWebForUrl() {
-        self.navigationController?.pushViewController(WebVC(url: restaurant.url), animated: true)
+    #warning("test")
+    @objc private func openPhotosController() {
+        self.navigationController?.pushViewController(PhotosVC(photos: restaurant.additionalInfo?.photos ?? []), animated: true)
     }
+    #warning("end test")
 }
