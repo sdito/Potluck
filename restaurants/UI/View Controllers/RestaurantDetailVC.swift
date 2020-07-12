@@ -23,11 +23,12 @@ class RestaurantDetailVC: UIViewController {
 
     private var restaurant: Restaurant!
     private let locationManager = CLLocationManager()
+    
     // UI values
     private var navigationTitleHidden = true
     private var distanceOfImageView: CGFloat = 10000.0
     private var latestAlpha = 0.0
-    
+    private var navBarColor: UIColor?
     
     init(restaurant: Restaurant) {
         self.restaurant = restaurant
@@ -42,6 +43,13 @@ class RestaurantDetailVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setUp()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if navBarColor != nil {
+            self.setNavigationBarColor(color: navBarColor!)
+        }
     }
     
     private func createHeadInfoView() -> UIView {
@@ -68,8 +76,6 @@ class RestaurantDetailVC: UIViewController {
         inside.addSubview(newSV)
         newSV.constrainSides(to: inside, distance: 10.0)
         
-        #error("need to use WebVC")
-        
         let viewsToAdd = restaurant.categories.createViewsForDisplay()
         let scrollingView = ScrollingStackView(subViews: viewsToAdd)
         newSV.addArrangedSubview(scrollingView)
@@ -86,7 +92,10 @@ class RestaurantDetailVC: UIViewController {
         buttonsSV.distribution = .fillEqually
         buttonsSV.alignment = .center
         
-        buttonsSV.addArrangedSubview(TwoLevelButton(text: "Web", imageText: "desktopcomputer"))
+        let webButton = TwoLevelButton(text: "Web", imageText: "desktopcomputer")
+        webButton.addTarget(self, action: #selector(openWebForUrl), for: .touchUpInside)
+        
+        buttonsSV.addArrangedSubview(webButton)
         buttonsSV.addArrangedSubview(TwoLevelButton(text: "Call", imageText: "phone"))
         buttonsSV.addArrangedSubview(TwoLevelButton(text: "Menu", imageText: "book"))
         
@@ -209,7 +218,8 @@ class RestaurantDetailVC: UIViewController {
         self.view.backgroundColor = .secondarySystemBackground
         self.title = ""
         print(restaurant.transactions)
-        self.setNavigationBarColor(color: Colors.navigationBarColor.withAlphaComponent(0.0))
+        navBarColor = Colors.navigationBarColor.withAlphaComponent(0.0)
+        self.setNavigationBarColor(color: navBarColor!)
         self.navigationController?.navigationBar.tintColor = Colors.main
         
         scrollView = setUpScrollView()
@@ -291,27 +301,22 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
             imageView.layer.contentsRect = CGRect(x: 0, y: -contentRectOffsetY, width: 1, height: 1)
         }
         
-        
-
         let secondOffset = scrollView.contentOffset.y
-        
         if secondOffset > distanceOfImageView {
             
             if navigationTitleHidden {
                 self.title = restaurant.name
                 navigationTitleHidden = false
             }
-            
             if latestAlpha != 1.0 {
-                self.setNavigationBarColor(color: Colors.navigationBarColor.withAlphaComponent(1.0))
+                navBarColor = Colors.navigationBarColor.withAlphaComponent(1.0)
+                self.setNavigationBarColor(color: navBarColor!)
             }
         } else {
-            
             if !navigationTitleHidden {
                 self.title = ""
                 navigationTitleHidden = true
             }
-            
             var ratio: Double {
                 if secondOffset < 0.0 {
                     return 0.0
@@ -319,16 +324,12 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
                     return Double((secondOffset / distanceOfImageView) * 100).rounded() / 100
                 }
             }
-            
             if ratio != latestAlpha {
-                self.setNavigationBarColor(color: Colors.navigationBarColor.withAlphaComponent(CGFloat(ratio)))
-                
+                navBarColor = Colors.navigationBarColor.withAlphaComponent(CGFloat(ratio))
+                self.setNavigationBarColor(color: navBarColor!)
                 latestAlpha = ratio
             }
-            
         }
-        
-        
     }
 }
 
@@ -347,3 +348,13 @@ extension RestaurantDetailVC: MapCutoutViewDelegate {
     }
 }
 
+
+
+
+// MARK: Selectors
+
+extension RestaurantDetailVC {
+    @objc private func openWebForUrl() {
+        self.navigationController?.pushViewController(WebVC(url: restaurant.url), animated: true)
+    }
+}

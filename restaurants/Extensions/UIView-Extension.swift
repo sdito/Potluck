@@ -44,8 +44,7 @@ extension UIView {
         }
     }
     
-    func showFromBottom(on view: UIView) {
-        print("Should show the button")
+    func showFromBottom(on view: UIView, extraDistance: CGFloat = .overlayDistanceFromBottom) {
         
         let originalConstraint = self.topAnchor.constraint(equalTo: view.bottomAnchor)
         
@@ -57,7 +56,7 @@ extension UIView {
         // Animate the view going into place
         // Distance from the bottom is .overlayDistanceFromBottom
         self.layoutIfNeeded()
-        let distanceNeeded: CGFloat = .overlayDistanceFromBottom - self.frame.size.height
+        let distanceNeeded: CGFloat = extraDistance - self.frame.size.height
         let transformation = CGAffineTransform(translationX: 0, y: distanceNeeded)
         
         UIView.animate(withDuration: 0.3, animations: {
@@ -65,21 +64,27 @@ extension UIView {
         }) { (done) in
             originalConstraint.isActive = false
             self.transform = CGAffineTransform.identity // remove the transformation
-            self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: .overlayDistanceFromBottom).isActive = true
+            self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: extraDistance).isActive = true
         }
-        
     }
     
-    func hideFromScreen() {
+    func showAgainAlignAtBottom() {
+        UIView.animate(withDuration: 0.3) {
+            self.transform = CGAffineTransform.identity
+        }
+    }
+    
+    func hideFromScreen(removeAtEnd: Bool = true) {
         if let view = self.findViewController()?.view {
             let distanceNeeded = view.frame.size.height - self.frame.origin.y
             let transformation = CGAffineTransform(translationX: 0, y: distanceNeeded)
             UIView.animate(withDuration: 0.3, animations: {
                 self.transform = transformation
             }) { (true) in
-                self.removeFromSuperview()
+                if removeAtEnd {
+                    self.removeFromSuperview()
+                }
             }
-            
         }
     }
     
