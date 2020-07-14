@@ -45,6 +45,7 @@
 		E27A757224A85CF900E446EE /* CLLocationManager-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27A757124A85CF900E446EE /* CLLocationManager-Extension.swift */; };
 		E27A757424AEDD3A00E446EE /* MKMapView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27A757324AEDD3A00E446EE /* MKMapView-Extension.swift */; };
 		E27A757624AF9ECC00E446EE /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27A757524AF9ECC00E446EE /* Network.swift */; };
+		E284DC0924BBD82100790A29 /* SinglePhotoVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E284DC0824BBD82100790A29 /* SinglePhotoVC.swift */; };
 		E2B6A2B724AFECD10070DECA /* Restaurant.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B6A2B624AFECD10070DECA /* Restaurant.swift */; };
 		E2B6A2B924B007030070DECA /* CLLocationCoordinate2D-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */; };
 /* End PBXBuildFile section */
@@ -91,6 +92,7 @@
 		E27A757124A85CF900E446EE /* CLLocationManager-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocationManager-Extension.swift"; sourceTree = "<group>"; };
 		E27A757324AEDD3A00E446EE /* MKMapView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MKMapView-Extension.swift"; sourceTree = "<group>"; };
 		E27A757524AF9ECC00E446EE /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
+		E284DC0824BBD82100790A29 /* SinglePhotoVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinglePhotoVC.swift; sourceTree = "<group>"; };
 		E2B6A2B624AFECD10070DECA /* Restaurant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Restaurant.swift; sourceTree = "<group>"; };
 		E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocationCoordinate2D-Extension.swift"; sourceTree = "<group>"; };
 		F1B89F6FBA7BC1CC1A76E4E2 /* Pods_restaurants.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_restaurants.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -132,6 +134,7 @@
 				E215535024B2EA1B00494E1A /* RestaurantDetailVC.swift */,
 				E2778DDE24B96CAD00151F29 /* WebVC.swift */,
 				E2778DE224BBA1BF00151F29 /* PhotosVC.swift */,
+				E284DC0824BBD82100790A29 /* SinglePhotoVC.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -383,6 +386,7 @@
 				E215535524B3F29D00494E1A /* Date-Extension.swift in Sources */,
 				E27A757224A85CF900E446EE /* CLLocationManager-Extension.swift in Sources */,
 				E2574A2524B58D14006618D7 /* TwoLevelButton.swift in Sources */,
+				E284DC0924BBD82100790A29 /* SinglePhotoVC.swift in Sources */,
 				E215535F24B5220500494E1A /* ReviewView.swift in Sources */,
 				E215534D24B2A20E00494E1A /* UIView-Extension.swift in Sources */,
 				E27A755A24A8557E00E446EE /* AppDelegate.swift in Sources */,

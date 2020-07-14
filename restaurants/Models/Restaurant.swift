@@ -33,13 +33,7 @@ class Restaurant: Decodable {
         
         let attributedStringGreenColor = [NSAttributedString.Key.foregroundColor : UIColor.systemGreen]
         let attributedStringRedColor = [NSAttributedString.Key.foregroundColor : UIColor.systemRed]
-        print(Date.getDayOfWeek())
         
-        if let currDays = self.additionalInfo?.currentDayData {
-            for d in currDays {
-                print(d.start, d.end)
-            }
-        }
         let boolean = self.additionalInfo?.hours.first?.isOpenNow
         if boolean == true {
             return NSAttributedString(string: "Open now", attributes: attributedStringGreenColor)
@@ -49,6 +43,31 @@ class Restaurant: Decodable {
             return nil
         }
         
+    }
+    
+    var systemTime: [SystemTime]? = {
+        
+        if let timesFound = additionalInfo?.hours {
+            var systemTimes: [SystemTime] = []
+            for time in timesFound {
+                for open in time.open {
+                    // have the open value now, now just need to convert it
+                    let dayStart = open.start
+                    let dayEnd = open.end
+                    
+                    let newSystemTime = SystemTime(rawStartValue: Int(dayStart) ?? 0,
+                                                   weekday: Date.convertWeekdayFromYelpToStandard(yelpDate: open.day),
+                                                   start: dayStart.convertFromStringToDisplayTime(),
+                                                   end: dayEnd.convertFromStringToDisplayTime())
+                    
+                    systemTimes.append(newSystemTime)
+                    
+                }
+            }
+            return systemTimes
+        } else {
+            return nil
+        }
     }
     
     
@@ -149,18 +168,7 @@ extension Restaurant {
         var photos: [String]
         var hours: [Hours]
         
-        var currentDayData: [Day] {
-            var days: [Day] = []
-            let currDay = Date.convertWeekdayFromAppleToYelp(appleDate: Date.getDayOfWeek())
-            for d in hours {
-                for a in d.open {
-                    if a.day == currDay {
-                        days.append(a)
-                    }
-                }
-            }
-            return days
-        }
+
         
         enum CodingKeys: String, CodingKey {
             case phone
@@ -190,6 +198,11 @@ extension Restaurant {
             case hoursType = "hours_type"
             case isOpenNow = "is_open_now"
         }
+        
+        func test() {
+            
+        }
+        
     }
     
     struct Day: Decodable {
@@ -232,5 +245,31 @@ extension Restaurant {
             case state
             case displayAddress = "display_address"
         }
+    }
+}
+
+
+
+extension Restaurant {
+    #warning("need to use")
+    struct SystemTime {
+        
+        var rawStartValue: Int // used for ordering
+        var weekday: Weekday
+        var start: String
+        var end: String
+        
+        enum Weekday {
+            case sunday
+            case monday
+            case tuesday
+            case wednesday
+            case thursday
+            case friday
+            case saturday
+        }
+
+        
+        
     }
 }

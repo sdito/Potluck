@@ -10,6 +10,16 @@ import UIKit
 
 
 extension UIButton {
+    
+    override open var intrinsicContentSize: CGSize {
+        let intrinsicContentSize = super.intrinsicContentSize
+
+        let adjustedWidth = intrinsicContentSize.width + titleEdgeInsets.left + titleEdgeInsets.right
+        let adjustedHeight = intrinsicContentSize.height + titleEdgeInsets.top + titleEdgeInsets.bottom
+
+        return CGSize(width: adjustedWidth, height: adjustedHeight)
+    }
+    
     func showLoadingOnButton() {
         self.isUserInteractionEnabled = false
         let activityIndicator = UIActivityIndicatorView()

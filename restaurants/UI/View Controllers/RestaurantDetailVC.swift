@@ -16,11 +16,11 @@ class RestaurantDetailVC: UIViewController {
     private var imageView: UIImageView!
     private var headerContainerView: UIView!
     private var headerDetailView: HeaderDetailView!
+    private var viewAllPhotosButton: UIButton!
     
     private var headerTopConstraint: NSLayoutConstraint!
     private var headerHeightConstraint: NSLayoutConstraint!
     
-
     private var restaurant: Restaurant!
     private let locationManager = CLLocationManager()
     
@@ -29,6 +29,9 @@ class RestaurantDetailVC: UIViewController {
     private var distanceOfImageView: CGFloat = 10000.0
     private var latestAlpha = 0.0
     private var navBarColor: UIColor?
+    private let morePhotosNormalTitle = "More photos"
+    private let morePhotosScrolledTitle = "Release for photos"
+    private var haveMorePhotosShowOnRelease = false
     
     init(restaurant: Restaurant) {
         self.restaurant = restaurant
@@ -88,25 +91,43 @@ class RestaurantDetailVC: UIViewController {
     }
     
     private func setTitleInfo() {
-        let starRatingView = StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount)
-        
         let titleStackView = UIStackView()
         titleStackView.alignment = .leading
         titleStackView.translatesAutoresizingMaskIntoConstraints = false
         titleStackView.axis = .vertical
         titleStackView.spacing = 3.0
         
-        let titleLabel = PaddingLabel(top: 2.0, bottom: 2.0, left: 5.0, right: 5.0)
+        
+        let titleLabel = PaddingLabel(top: 0.0, bottom: 0.0, left: 5.0, right: 5.0)
         titleLabel.numberOfLines = 2
         titleLabel.text = restaurant.name
         titleLabel.font = .createdTitle
         titleLabel.textColor = .white
         titleLabel.fadedBackground()
         
+        #warning("messed up on jack's urban eats")
+        viewAllPhotosButton = UIButton()
+        viewAllPhotosButton.titleLabel?.font = .smallBold
+        viewAllPhotosButton.titleEdgeInsets = UIEdgeInsets(top: 0.0, left: 4.0, bottom: 0.0, right: 4.0)
+        viewAllPhotosButton.translatesAutoresizingMaskIntoConstraints = false
+        viewAllPhotosButton.fadedBackground()
+        viewAllPhotosButton.setTitle(morePhotosNormalTitle, for: .normal)
+        viewAllPhotosButton.addTarget(self, action: #selector(openPhotosController), for: .touchUpInside)
+        
+        let starRatingView = StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount)
+        
+        let starsStackView = UIStackView(arrangedSubviews: [starRatingView, UIView(), viewAllPhotosButton])
+        starsStackView.alignment = .fill
+        starsStackView.spacing = 15.0
+        starsStackView.translatesAutoresizingMaskIntoConstraints = false
+        starsStackView.axis = .horizontal
+        
         titleStackView.addArrangedSubview(titleLabel)
-        titleStackView.addArrangedSubview(starRatingView)
+        titleStackView.addArrangedSubview(starsStackView)
         
         imageView.addSubview(titleStackView)
+        
+        starsStackView.widthAnchor.constraint(equalTo: titleStackView.widthAnchor).isActive = true
         
         NSLayoutConstraint.activate([
             titleStackView.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 10),
@@ -177,13 +198,7 @@ class RestaurantDetailVC: UIViewController {
         imageView.addImageFromUrl(restaurant.imageURL)
         headerDetailView = HeaderDetailView(restaurant: restaurant, vc: self)
         stackView.addArrangedSubview(headerDetailView)
-        
-        #warning("test remove later")
-        let button = UIButton()
-        button.setTitle("Go look at more photos", for: .normal)
-        stackView.addArrangedSubview(button)
-        button.addTarget(self, action: #selector(openPhotosController), for: .touchUpInside)
-        #warning("end test")
+
         
         stackView.addArrangedSubview(RestaurantCategoriesView(restaurant: restaurant))
         
@@ -209,7 +224,11 @@ class RestaurantDetailVC: UIViewController {
             if complete {
                 let newDescription = self.restaurant.openNowDescription
                 self.headerDetailView.timeOpenLabel.attributedText = newDescription
-                
+            }
+            if let dateData = self.restaurant.systemTime {
+                for day in dateData {
+                    print(day)
+                }
             }
         }
         
@@ -220,6 +239,13 @@ class RestaurantDetailVC: UIViewController {
 // MARK: UIScrollViewDelegate
 
 extension RestaurantDetailVC: UIScrollViewDelegate {
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if haveMorePhotosShowOnRelease {
+            openPhotosController()
+        }
+    }
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let navHeight = (navigationController?.navigationBar.frame.height ?? 0.0)
         let offset = scrollView.contentOffset.y - navHeight
@@ -227,6 +253,15 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
         if offset < 0.0 {
             // Scrolling down: Scale
             headerHeightConstraint?.constant = distanceOfImageView - offset
+            
+            if offset < -100.0 {
+                // Check for more photos release for more button, if panned up enough and released more photos will be shown from scrollViewDidEndDragging
+                haveMorePhotosShowOnRelease = true
+                viewAllPhotosButton.setTitle(morePhotosScrolledTitle, for: .normal)
+            } else {
+                haveMorePhotosShowOnRelease = false
+                viewAllPhotosButton.setTitle(morePhotosNormalTitle, for: .normal)
+            }
         } else {
             // Scrolling up: Parallax
             let parallaxFactor: CGFloat = 0.25
@@ -303,9 +338,7 @@ extension RestaurantDetailVC: HeaderDetailViewDelegate {
 
 // MARK: Selectors
 extension RestaurantDetailVC {
-    #warning("test")
     @objc private func openPhotosController() {
         self.navigationController?.pushViewController(PhotosVC(photos: restaurant.additionalInfo?.photos ?? []), animated: true)
     }
-    #warning("end test")
 }

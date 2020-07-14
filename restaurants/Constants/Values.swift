@@ -20,3 +20,7 @@ extension CLLocationDistance {
 extension CGFloat {
     static let overlayDistanceFromBottom: CGFloat = -25.0
 }
+
+extension String {
+    static let photosToSinglePhotoID = "PhotoVC-SinglePhotoVC"
+}

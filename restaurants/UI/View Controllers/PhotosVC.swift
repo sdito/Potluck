@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import Hero
 
 // Simple-ish squared, two column collection view to display photos, will be used in multiple places
 // In the future, might need ability to have headers to split the photos by date (i.e. visit to a restaurant)
@@ -44,6 +44,7 @@ class PhotosVC: UIViewController {
         self.setNavigationBarColor(color: Colors.navigationBarColor)
     }
     
+
     private func setUpCollectionView() {
         self.title = "Photos"
         self.view.backgroundColor = .systemBackground
@@ -97,6 +98,19 @@ extension PhotosVC: UICollectionViewDelegate, UICollectionViewDataSource {
         }
         
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cellSelected = collectionView.cellForItem(at: indexPath) as! PhotoCell
+        cellSelected.imageView.hero.id = .photosToSinglePhotoID
+        let imageFromCell = cellSelected.imageView.image
+        if let image = imageFromCell {
+            let newVC = SinglePhotoVC(image: image, imageURL: nil, cell: cellSelected)
+            newVC.modalPresentationStyle = .overFullScreen
+            self.present(newVC, animated: true)
+            
+        }
+        
     }
 
 }

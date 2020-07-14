@@ -10,8 +10,16 @@ import UIKit
 
 
 extension String {
-
     
+    
+    func convertFromStringToDisplayTime() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HHmm"
+        let date = dateFormatter.date(from: self)
+        dateFormatter.dateFormat = "h:mm a"
+        return dateFormatter.string(from: date!)
+    }
+
     func getAffirmativeOrNegativeAttributedString(_ affirmative: Bool) -> NSAttributedString {
         var image: UIImage {
             if affirmative {

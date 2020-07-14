@@ -25,7 +25,6 @@ class PhotoCell: UICollectionViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(imageView)
         imageView.constrainSides(to: self)
-        imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor).isActive = true
         imageView.backgroundColor = .secondarySystemBackground
         imageView.isSkeletonable = true
         imageView.contentMode = .scaleAspectFill

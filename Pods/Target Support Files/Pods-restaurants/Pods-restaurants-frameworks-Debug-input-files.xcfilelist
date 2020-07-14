@@ -1,4 +1,5 @@
 ${PODS_ROOT}/Target Support Files/Pods-restaurants/Pods-restaurants-frameworks.sh
 ${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework
 ${BUILT_PRODUCTS_DIR}/AlamofireImage/AlamofireImage.framework
+${BUILT_PRODUCTS_DIR}/Hero/Hero.framework
 ${BUILT_PRODUCTS_DIR}/SkeletonView/SkeletonView.framework
