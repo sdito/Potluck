@@ -46,18 +46,18 @@ extension Date {
         return dict[yelpDate]!
     }
     
-//    static func convertWeekdayFromAppleToYelp(appleDate: Int) -> Int {
-//        let dict: [Int:Int] = [
-//        /* Sunday */     1: 6,
-//        /* Monday */     2: 0,
-//        /* Tuesday */    3: 1,
-//        /* Wednesday */  4: 2,
-//        /* Thursday */   5: 3,
-//        /* Friday */     6: 4,
-//        /* Saturday */   7: 5,
-//        ]
-//        return dict[appleDate]!
-//    }
+    static func convertWeekdayFromAppleToStandard(appleDate: Int) -> Restaurant.SystemTime.Weekday {
+        let dict: [Int:Restaurant.SystemTime.Weekday] = [
+        /* Sunday */     1: .sunday,
+        /* Monday */     2: .monday,
+        /* Tuesday */    3: .tuesday,
+        /* Wednesday */  4: .wednesday,
+        /* Thursday */   5: .thursday,
+        /* Friday */     6: .friday,
+        /* Saturday */   7: .saturday,
+        ]
+        return dict[appleDate]!
+    }
     
     
     static func getDayOfWeek() -> Int {

@@ -16,6 +16,7 @@ class SinglePhotoVC: UIViewController {
     private var scrollView: UIScrollView!
     private var doneButton: UIButton!
     private var initialTouchPoint: CGPoint?
+    private var minimumAlpha: CGFloat = 0.5
     
     
     init(image: UIImage?, imageURL: String?, cell: PhotoCell?) {
@@ -125,8 +126,18 @@ class SinglePhotoVC: UIViewController {
             initialTouchPoint = touchPoint
         case .changed:
             if let initialTouchPoint = initialTouchPoint {
-                if (touchPoint.y - initialTouchPoint.y > 0) {
-                    self.view.frame = CGRect(x: 0, y: touchPoint.y - initialTouchPoint.y, width: self.view.frame.size.width, height: self.view.frame.size.height)
+                let difference = touchPoint.y - initialTouchPoint.y
+                if (difference > 0) {
+                    let viewHeight = self.view.frame.size.height
+                    self.view.frame = CGRect(x: 0, y: touchPoint.y - initialTouchPoint.y, width: self.view.frame.size.width, height: viewHeight)
+                    let ratio = (viewHeight - difference) / viewHeight
+                    // use ratio to set alpha on view when being dragged
+                    if ratio < 0.95 {
+                        let newAlphaValue = 1.0 - (minimumAlpha - (minimumAlpha*ratio))
+                        self.view.alpha = newAlphaValue
+                    } else {
+                        self.view.alpha = 1.0 // close enough to the top, just set to 1.0
+                    }
                 }
             }
             
@@ -137,6 +148,7 @@ class SinglePhotoVC: UIViewController {
                     dismissSinglePhoto()
                 } else {
                     UIView.animate(withDuration: 0.3, animations: {
+                        self.view.alpha = 1.0
                         self.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height)
                     })
                 }

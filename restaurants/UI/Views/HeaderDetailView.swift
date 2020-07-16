@@ -11,6 +11,7 @@ import UIKit
 
 protocol HeaderDetailViewDelegate: class {
     func urlPressedToOpen()
+    func moreInfoOnHeaderPressed()
 }
 
 
@@ -18,10 +19,15 @@ class HeaderDetailView: UIView {
     
     private weak var delegate: HeaderDetailViewDelegate!
     var timeOpenLabel: UILabel!
+    var inside: UIView!
+    var container: UIView!
+    var newSV: UIStackView!
+    var restaurant: Restaurant!
     
     init(restaurant: Restaurant, vc: UIViewController) {
         super.init(frame: .zero)
-        setUp(restaurant: restaurant, vc: vc)
+        self.restaurant = restaurant
+        setUp(vc: vc)
         
     }
     
@@ -29,12 +35,33 @@ class HeaderDetailView: UIView {
         super.init(coder: coder)
     }
     
-    private func setUp(restaurant: Restaurant, vc: UIViewController) {
+    private func setUp(vc: UIViewController) {
         print("Being set up")
         self.delegate = vc as? HeaderDetailViewDelegate
         self.translatesAutoresizingMaskIntoConstraints = false
-        let container = UIView()
-        let inside = UIView()
+        
+        setUpContainers()
+        setUpOuterStackView()
+        setUpTopScrollingAndButton()
+        setUpTimeOpenLabel()
+        setUpActionButtons()
+        
+
+        container.layer.cornerRadius = 6.0
+        inside.layer.cornerRadius = 5.0
+        inside.clipsToBounds = true
+        inside.backgroundColor = .secondarySystemBackground
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.inside.layer.borderWidth = 1.0
+            self.inside.layer.borderColor = Colors.secondary.cgColor
+        }
+
+    }
+    
+    private func setUpContainers() {
+        container = UIView()
+        inside = UIView()
         self.backgroundColor = .systemBackground
         container.backgroundColor = .secondarySystemBackground
         container.translatesAutoresizingMaskIntoConstraints = false
@@ -44,8 +71,10 @@ class HeaderDetailView: UIView {
         container.addSubview(inside)
         container.constrainSides(to: self, distance: 10.0)
         inside.constrainSides(to: container, distance: 6.0)
-
-        let newSV = UIStackView()
+    }
+    
+    private func setUpOuterStackView() {
+        newSV = UIStackView()
         newSV.translatesAutoresizingMaskIntoConstraints = false
         newSV.axis = .vertical
         newSV.spacing = 17.5
@@ -53,17 +82,33 @@ class HeaderDetailView: UIView {
 
         inside.addSubview(newSV)
         newSV.constrainSides(to: inside, distance: 10.0)
-
+    }
+    
+    private func setUpTopScrollingAndButton() {
+        let disclosureButton = UIButton(type: .detailDisclosure)
+        disclosureButton.tintColor = Colors.main
+        disclosureButton.addTarget(self, action: #selector(moreInfoOnHeaderPressedSelector), for: .touchUpInside)
         let viewsToAdd = restaurant.categories.createViewsForDisplay()
         let scrollingView = ScrollingStackView(subViews: viewsToAdd)
-        newSV.addArrangedSubview(scrollingView)
-        scrollingView.widthAnchor.constraint(equalTo: newSV.widthAnchor).isActive = true
-
+        
+        let topStackView = UIStackView(arrangedSubviews: [scrollingView, UIView(), disclosureButton])
+        topStackView.translatesAutoresizingMaskIntoConstraints = false
+        topStackView.spacing = 10.0
+        topStackView.axis = .horizontal
+        topStackView.distribution = .fill
+        newSV.addArrangedSubview(topStackView)
+        topStackView.widthAnchor.constraint(equalTo: newSV.widthAnchor).isActive = true
+        
+    }
+    
+    private func setUpTimeOpenLabel() {
         timeOpenLabel = UILabel()
         timeOpenLabel.font = .mediumBold
         timeOpenLabel.text = " "
         newSV.addArrangedSubview(timeOpenLabel)
-
+    }
+    
+    private func setUpActionButtons() {
         let buttonsSV = UIStackView()
         buttonsSV.axis = .horizontal
         buttonsSV.spacing = 15.0
@@ -79,21 +124,16 @@ class HeaderDetailView: UIView {
 
         newSV.addArrangedSubview(buttonsSV)
         buttonsSV.widthAnchor.constraint(equalTo: newSV.widthAnchor).isActive = true
-
-        container.layer.cornerRadius = 6.0
-        inside.layer.cornerRadius = 5.0
-        inside.clipsToBounds = true
-        inside.backgroundColor = .secondarySystemBackground
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            inside.layer.borderWidth = 1.0
-            inside.layer.borderColor = Colors.secondary.cgColor
-        }
-
     }
+    
+    
     
     @objc private func openWebForUrl() {
         delegate.urlPressedToOpen()
+    }
+    
+    @objc private func moreInfoOnHeaderPressedSelector() {
+        delegate.moreInfoOnHeaderPressed()
     }
 
 }

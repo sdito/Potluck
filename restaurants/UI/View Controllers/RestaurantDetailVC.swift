@@ -48,6 +48,12 @@ class RestaurantDetailVC: UIViewController {
         setUp()
     }
     
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        scrollView.contentOffset = CGPoint(x: 0, y: 0) // top image can get messed up otherwise
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if navBarColor != nil {
@@ -331,6 +337,10 @@ extension RestaurantDetailVC: MapCutoutViewDelegate {
 extension RestaurantDetailVC: HeaderDetailViewDelegate {
     func urlPressedToOpen() {
         self.navigationController?.pushViewController(WebVC(url: restaurant.url), animated: true)
+    }
+    
+    func moreInfoOnHeaderPressed() {
+        self.navigationController?.pushViewController(RestaurantSpecificInfoVC(restaurant: restaurant), animated: true)
     }
 }
 

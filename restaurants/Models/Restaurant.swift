@@ -45,8 +45,7 @@ class Restaurant: Decodable {
         
     }
     
-    var systemTime: [SystemTime]? = {
-        
+    var systemTime: [SystemTime]? {
         if let timesFound = additionalInfo?.hours {
             var systemTimes: [SystemTime] = []
             for time in timesFound {
@@ -61,7 +60,6 @@ class Restaurant: Decodable {
                                                    end: dayEnd.convertFromStringToDisplayTime())
                     
                     systemTimes.append(newSystemTime)
-                    
                 }
             }
             return systemTimes
@@ -259,7 +257,7 @@ extension Restaurant {
         var start: String
         var end: String
         
-        enum Weekday {
+        enum Weekday: CaseIterable {
             case sunday
             case monday
             case tuesday
@@ -267,6 +265,26 @@ extension Restaurant {
             case thursday
             case friday
             case saturday
+            
+            var description: String {
+                switch self {
+                case .sunday:
+                    return "Sunday"
+                case .monday:
+                    return "Monday"
+                case .tuesday:
+                    return "Tuesday"
+                case .wednesday:
+                    return "Wednesday"
+                case .thursday:
+                    return "Thursday"
+                case .friday:
+                    return "Friday"
+                case .saturday:
+                    return "Saturday"
+                }
+            }
+            
         }
 
         
