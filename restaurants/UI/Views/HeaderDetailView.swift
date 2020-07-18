@@ -12,6 +12,7 @@ import UIKit
 protocol HeaderDetailViewDelegate: class {
     func urlPressedToOpen()
     func moreInfoOnHeaderPressed()
+    func callRestaurant()
 }
 
 
@@ -117,9 +118,12 @@ class HeaderDetailView: UIView {
 
         let webButton = TwoLevelButton(text: "Web", imageText: "desktopcomputer")
         webButton.addTarget(self, action: #selector(openWebForUrl), for: .touchUpInside)
-
         buttonsSV.addArrangedSubview(webButton)
-        buttonsSV.addArrangedSubview(TwoLevelButton(text: "Call", imageText: "phone"))
+        
+        let callButton = TwoLevelButton(text: "Call", imageText: "phone")
+        callButton.addTarget(self, action: #selector(callRestaurantPressed), for: .touchUpInside)
+        buttonsSV.addArrangedSubview(callButton)
+        
         buttonsSV.addArrangedSubview(TwoLevelButton(text: "Menu", imageText: "book"))
 
         newSV.addArrangedSubview(buttonsSV)
@@ -134,6 +138,10 @@ class HeaderDetailView: UIView {
     
     @objc private func moreInfoOnHeaderPressedSelector() {
         delegate.moreInfoOnHeaderPressed()
+    }
+    
+    @objc private func callRestaurantPressed() {
+        delegate.callRestaurant()
     }
 
 }

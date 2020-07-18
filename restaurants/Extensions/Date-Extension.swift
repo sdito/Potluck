@@ -59,10 +59,32 @@ extension Date {
         return dict[appleDate]!
     }
     
+    func getFourDigitTimeValue() -> Int {
+        let calendar = Calendar.current
+        var hour = String(calendar.component(.hour, from: self))
+        var minutes = String(calendar.component(.minute, from: self))
+        
+        if hour.count == 1 {
+            hour = "0\(hour)"
+        }
+        
+        if minutes.count == 1 {
+            minutes = "0\(minutes)"
+        }
+        
+        let combined = Int("\(hour)\(minutes)")!
+        return combined
+    }
     
     static func getDayOfWeek() -> Int {
         let day = Calendar.current.component(.weekday, from: Date())
         return day
+    }
+    
+    static func getWeekday() -> Restaurant.SystemTime.Weekday {
+        let dayOfWeek = Date.getDayOfWeek()
+        let value = Date.convertWeekdayFromAppleToStandard(appleDate: dayOfWeek)
+        return value
     }
     
     static func convertYelpStringDate(_ str: String) -> Date? {

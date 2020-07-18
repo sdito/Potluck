@@ -34,14 +34,31 @@ class Restaurant: Decodable {
         let attributedStringGreenColor = [NSAttributedString.Key.foregroundColor : UIColor.systemGreen]
         let attributedStringRedColor = [NSAttributedString.Key.foregroundColor : UIColor.systemRed]
         
-        let boolean = self.additionalInfo?.hours.first?.isOpenNow
-        if boolean == true {
-            return NSAttributedString(string: "Open now", attributes: attributedStringGreenColor)
-        } else if boolean == false {
-            return NSAttributedString(string: "Closed now", attributes: attributedStringRedColor)
-        } else {
-            return nil
+        guard let isOpenNow = self.additionalInfo?.hours.first?.isOpenNow, let systemTime = systemTime else { return NSAttributedString(string: " ") } // return an empty string so UI doesnt shift when this is updated
+        
+        let fullString = NSMutableAttributedString()
+        
+        var attributedString: NSMutableAttributedString {
+            if isOpenNow {
+                return NSMutableAttributedString(string: "Open now", attributes: attributedStringGreenColor)
+            } else  {
+                return NSMutableAttributedString(string: "Closed now", attributes: attributedStringRedColor)
+            }
         }
+        
+        fullString.append(attributedString)
+        
+        // Need to use rawStart and rawEnd to decide on which set of hours to use
+        // Need to convert current time to the four digit int value
+        
+        let currentDateDigitValue = Date().getFourDigitTimeValue()
+        let addition = NSAttributedString(string: SystemTime.descriptionForCurrentTime(systemTime: systemTime, isOpenNow: isOpenNow, currentTime: currentDateDigitValue))
+        
+        fullString.append(NSAttributedString(string: " - "))
+        fullString.append(addition)
+        
+        
+        return fullString
         
     }
     
@@ -55,6 +72,7 @@ class Restaurant: Decodable {
                     let dayEnd = open.end
                     
                     let newSystemTime = SystemTime(rawStartValue: Int(dayStart) ?? 0,
+                                                   rawEndValue: Int(dayEnd) ?? 0,
                                                    weekday: Date.convertWeekdayFromYelpToStandard(yelpDate: open.day),
                                                    start: dayStart.convertFromStringToDisplayTime(),
                                                    end: dayEnd.convertFromStringToDisplayTime())
@@ -135,6 +153,17 @@ class Restaurant: Decodable {
         case pickup
         case delivery
         case restaurantReservation = "restaurant_reservation"
+        
+        var description: String {
+            switch self {
+            case .pickup:
+                return "Pickup"
+            case .delivery:
+                return "Delivery"
+            case .restaurantReservation:
+                return "Restaurant reservations"
+            }
+        }
     }
     
     
@@ -253,6 +282,7 @@ extension Restaurant {
     struct SystemTime {
         
         var rawStartValue: Int // used for ordering
+        var rawEndValue: Int
         var weekday: Weekday
         var start: String
         var end: String
@@ -286,8 +316,60 @@ extension Restaurant {
             }
             
         }
+        
+        static func descriptionForCurrentTime(systemTime: [SystemTime], isOpenNow: Bool, currentTime: Int) -> String {
+            
+            // get the current day's systemTime
+            let currentDayTime = systemTime.getCurrentDaysValues()
+            
+            if currentDayTime.count > 0 {
+                switch isOpenNow {
+                case true:
+                    var timeFound: String? // time closing
+                    // find the block it is currently in
+                    for time in currentDayTime {
+                        if time.rawStartValue...time.rawEndValue ~= currentTime {
+                            timeFound = time.end
+                        }
+                    }
+                    
+                    if let timeFound = timeFound {
+                        return "Closes at \(timeFound)"
+                    } else {
+                        return "Closes soon"
+                    }
+                case false:
+                    var timeFound: String?
+                    var distance = Int.max
+                    
+                    for time in currentDayTime {
+                        if currentTime < time.rawStartValue {
+                            if time.rawStartValue - currentTime < distance {
+                                timeFound = time.start
+                                distance = time.rawStartValue - currentTime
+                            }
+                        }
+                    }
+                    
+                    if let timeFound = timeFound {
+                        return "Opens at \(timeFound)"
+                    } else {
+                        return "Open tomorrow"; #warning("technically could be closed the next day")
+                    }
+                    
+                    
+                }
+            } else {
+                return "Not open today"
+            }
+        }
+    }
+}
 
-        
-        
+
+extension Array where Element == Restaurant.SystemTime {
+    func getCurrentDaysValues() -> [Restaurant.SystemTime] {
+        let weekday = Date.getWeekday()
+        return self.filter({$0.weekday == weekday})
     }
 }

@@ -228,8 +228,10 @@ class RestaurantDetailVC: UIViewController {
         Network.shared.setFullRestaurantInfo(restaurant: restaurant) { (complete) in
             #warning("need to complete")
             if complete {
-                let newDescription = self.restaurant.openNowDescription
-                self.headerDetailView.timeOpenLabel.attributedText = newDescription
+                if let newDescription = self.restaurant.openNowDescription {
+                    self.headerDetailView.timeOpenLabel.attributedText = newDescription
+                }
+                
             }
             if let dateData = self.restaurant.systemTime {
                 for day in dateData {
@@ -335,6 +337,11 @@ extension RestaurantDetailVC: MapCutoutViewDelegate {
 
 // MARK: HeaderDetailViewDelegate
 extension RestaurantDetailVC: HeaderDetailViewDelegate {
+    func callRestaurant() {
+        guard let additionalInfo = restaurant.additionalInfo, let callUrl = URL(string: "tel://\(additionalInfo.phone)") else { return }
+        UIApplication.shared.open(callUrl) // handles action sheet
+    }
+    
     func urlPressedToOpen() {
         self.navigationController?.pushViewController(WebVC(url: restaurant.url), animated: true)
     }

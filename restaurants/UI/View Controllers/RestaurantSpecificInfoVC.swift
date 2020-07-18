@@ -63,7 +63,6 @@ class RestaurantSpecificInfoVC: UIViewController {
         self.setNavigationBarColor(color: Colors.navigationBarColor)
     }
     
-    
     func setUp(restaurant: Restaurant) {
         self.view.backgroundColor = .systemBackground
         self.title = "More info"
@@ -77,10 +76,7 @@ class RestaurantSpecificInfoVC: UIViewController {
         tableView.dataSource = self
         self.view.addSubview(tableView)
         tableView.constrainSides(to: self.view)
-        
     }
-    
-    
 
 }
 
@@ -142,8 +138,9 @@ extension RestaurantSpecificInfoVC: UITableViewDelegate, UITableViewDataSource {
         case .transactions(let transactions):
             let defaultCell = UITableViewCell(style: .default, reuseIdentifier: nil)
             let transaction = transactions[indexPath.row]
-            defaultCell.textLabel?.text = "\(transaction)"
-            defaultCell.detailTextLabel?.text = "Detail"
+            let affirmative = restaurant.transactions.contains(transaction)
+            let cellText = transaction.description.getAffirmativeOrNegativeAttributedString(affirmative)
+            defaultCell.textLabel?.attributedText = cellText
             return defaultCell
         }
         
