@@ -17,12 +17,15 @@ class RestaurantDetailVC: UIViewController {
     private var headerContainerView: UIView!
     private var headerDetailView: HeaderDetailView!
     private var viewAllPhotosButton: UIButton!
-    
+    private var titleLabel: PaddingLabel!
+    private weak var cellOriginatedFrom: RestaurantCell?
+    private var imageAlreadyFound: UIImage?
     private var headerTopConstraint: NSLayoutConstraint!
     private var headerHeightConstraint: NSLayoutConstraint!
     
     private var restaurant: Restaurant!
     private let locationManager = CLLocationManager()
+    private var starRatingView: StarRatingView!
     
     // UI values
     private var navigationTitleHidden = true
@@ -33,8 +36,10 @@ class RestaurantDetailVC: UIViewController {
     private let morePhotosScrolledTitle = "Release for photos"
     private var haveMorePhotosShowOnRelease = false
     
-    init(restaurant: Restaurant) {
+    init(restaurant: Restaurant, fromCell: RestaurantCell? = nil, imageAlreadyFound: UIImage?) {
         self.restaurant = restaurant
+        self.cellOriginatedFrom = fromCell
+        self.imageAlreadyFound = imageAlreadyFound
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -52,6 +57,9 @@ class RestaurantDetailVC: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         scrollView.contentOffset = CGPoint(x: 0, y: 0) // top image can get messed up otherwise
+        if let cell = cellOriginatedFrom {
+            cell.removeHeroValues()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -104,7 +112,7 @@ class RestaurantDetailVC: UIViewController {
         titleStackView.spacing = 3.0
         
         
-        let titleLabel = PaddingLabel(top: 0.0, bottom: 0.0, left: 5.0, right: 5.0)
+        titleLabel = PaddingLabel(top: 0.0, bottom: 0.0, left: 5.0, right: 5.0)
         titleLabel.numberOfLines = 2
         titleLabel.text = restaurant.name
         titleLabel.font = .createdTitle
@@ -120,7 +128,7 @@ class RestaurantDetailVC: UIViewController {
         viewAllPhotosButton.setTitle(morePhotosNormalTitle, for: .normal)
         viewAllPhotosButton.addTarget(self, action: #selector(openPhotosController), for: .touchUpInside)
         
-        let starRatingView = StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount)
+        starRatingView = StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount)
         
         let starsStackView = UIStackView(arrangedSubviews: [starRatingView, UIView(), viewAllPhotosButton])
         starsStackView.alignment = .fill
@@ -175,9 +183,14 @@ class RestaurantDetailVC: UIViewController {
         ])
     }
 
-    
+    private func setUpHero() {
+        titleLabel.hero.id = .recipeHomeToDetailTitle
+        imageView.hero.id = .recipeHomeToDetailImageView
+        starRatingView.hero.id = .recipeHomeToDetailStarRatingView
+    }
     
     private func setUp() {
+        
         self.view.backgroundColor = .secondarySystemBackground
         self.title = ""
         print(restaurant.transactions)
@@ -201,7 +214,13 @@ class RestaurantDetailVC: UIViewController {
         imageView.layoutIfNeeded()
         distanceOfImageView = imageView.bounds.height - (self.navigationController?.navigationBar.bounds.height ?? 0.0)
         
-        imageView.addImageFromUrl(restaurant.imageURL)
+        if let imageAlreadyFound = imageAlreadyFound {
+            imageView.image = imageAlreadyFound
+            imageView.isUserInteractionEnabled = true
+        } else {
+            imageView.addImageFromUrl(restaurant.imageURL)
+        }
+    
         headerDetailView = HeaderDetailView(restaurant: restaurant, vc: self)
         stackView.addArrangedSubview(headerDetailView)
 
@@ -213,6 +232,7 @@ class RestaurantDetailVC: UIViewController {
         }
         scrollView.setCorrectContentSize()
         
+        setUpHero()
         
         
         Network.shared.setRestaurantReviewInfo(restaurant: restaurant) { (complete) in

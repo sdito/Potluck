@@ -10,6 +10,9 @@ import UIKit
 
 class StarRatingView: UIView {
     
+    private var starViews: [UIImageView] = []
+    private var numReviewsLabel: UILabel!
+    
     init(stars: Double, numReviews: Int, noBackgroundColor: Bool = false) {
         super.init(frame: .zero)
         setUp(stars: stars, numReviews: numReviews, noBackgroundColor: noBackgroundColor)
@@ -20,8 +23,33 @@ class StarRatingView: UIView {
         super.init(coder: coder)
     }
     
+    func updateNumberOfStarsAndReviews(stars: Double, numReviews: Int) {
+        var numberStarsLeft = stars
+        for starView in starViews {
+            if numberStarsLeft > 0.99 {
+                // add a full star at the end
+                starView.image = UIImage(systemName: "star.fill")
+                numberStarsLeft -= 1.0
+            } else if numberStarsLeft > 0.01 {
+                // add a half star at the end
+                starView.image = UIImage(systemName: "star.lefthalf.fill")
+                numberStarsLeft = 0.0
+            } else {
+                // add an empty star at the end
+                starView.image = UIImage(systemName: "star")
+            }
+        }
+        
+        if numReviews > 0 {
+            numReviewsLabel.text = "\(numReviews)"
+        } else {
+            numReviewsLabel.removeFromSuperview()
+        }
+        
+    }
     
-    func setUp(stars: Double, numReviews: Int, noBackgroundColor: Bool = false) {
+    
+    private func setUp(stars: Double, numReviews: Int, noBackgroundColor: Bool = false) {
         self.translatesAutoresizingMaskIntoConstraints = false
         
         if !noBackgroundColor {
@@ -43,8 +71,10 @@ class StarRatingView: UIView {
         
         var numberStarsLeft = stars
         
-        for _ in 1...5 {
+        for num in 1...5 {
             let imageView = UIImageView()
+            imageView.tag = num
+            starViews.append(imageView)
             if numberStarsLeft > 0.99 {
                 // add a full star at the end
                 imageView.image = UIImage(systemName: "star.fill")
@@ -62,16 +92,14 @@ class StarRatingView: UIView {
         }
         
         if numReviews > 0 {
-            let label = UILabel()
-            label.textColor = .white
-            label.text = "\(numReviews)"
-            stackView.addArrangedSubview(label)
+            numReviewsLabel = UILabel()
+            numReviewsLabel.textColor = .white
+            numReviewsLabel.text = "\(numReviews)"
+            stackView.addArrangedSubview(numReviewsLabel)
         }
         
         
         self.layer.cornerRadius = 5.0
-        
-        
         
     }
     

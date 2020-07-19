@@ -12,9 +12,21 @@ import CoreLocation
 
 class FindRestaurantVC: UIViewController {
     
+    private var restaurantListVC: RestaurantListVC!
     private var moreRestaurantsButtonShown = false
     private var locationsSearched: [CLLocationCoordinate2D] = []
-    private var restaurants: [Restaurant] = []
+    private var restaurants: [Restaurant] = [] {
+        didSet {
+            if restaurantListVC != nil {
+                self.restaurantListVC.restaurants = self.restaurants
+            }
+        }
+    }
+    private var containerView: UIView!
+    private var childTopAnchor: NSLayoutConstraint!
+    private var lastPanOffset: CGFloat?
+    private var startingChildSizeConstant: CGFloat?
+    
     let locationManager = CLLocationManager()
     
     var mapView: MKMapView!
@@ -27,6 +39,7 @@ class FindRestaurantVC: UIViewController {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         setUp()
+        addChildViewController()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -79,6 +92,71 @@ class FindRestaurantVC: UIViewController {
         ])
     }
     
+    private func addChildViewController() {
+        #warning("need to complete")
+        containerView = UIView()
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(containerView)
+        childTopAnchor = containerView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: self.view.frame.height/2)
+        
+        NSLayoutConstraint.activate([
+            containerView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            containerView.heightAnchor.constraint(equalTo: self.view.heightAnchor, constant: -.heightDistanceBetweenChildOverParent),
+            childTopAnchor
+        ])
+        
+        
+        
+        restaurantListVC = RestaurantListVC()
+        addChild(restaurantListVC)
+        restaurantListVC.view.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(restaurantListVC.view)
+        
+        restaurantListVC.view.constrainSides(to: containerView)
+        restaurantListVC.didMove(toParent: self)
+        
+        
+        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleFullScreenPanningSelector))
+        self.view.addGestureRecognizer(panGestureRecognizer)
+
+    }
+    
+    @objc private func handleFullScreenPanningSelector(sender: UIPanGestureRecognizer) {
+        let touchPoint = sender.location(in: self.view.window)
+        switch sender.state {
+        case .began:
+            lastPanOffset = touchPoint.y
+            startingChildSizeConstant = childTopAnchor.constant
+        case .changed:
+            if let lastPanOffset = lastPanOffset {
+            
+                let difference = touchPoint.y - lastPanOffset
+                childTopAnchor.constant += (difference * 1.5) // 1.5 or else it will scroll back up too slow and require multiple swipes
+                
+                // if it is going to go too high off the screen
+                if childTopAnchor.constant < .heightDistanceBetweenChildOverParent {
+                    childTopAnchor.constant = .heightDistanceBetweenChildOverParent
+                }
+                
+                
+                // if it is going to go too low off the screen
+                // constant should be 2* .heightDistanceBetweenChildOverParent
+                #warning("left off here")
+                let distanceAboveBottom = self.view.frame.height - childTopAnchor.constant
+                let allowedDistance = 2 * CGFloat.heightDistanceBetweenChildOverParent
+                if distanceAboveBottom < allowedDistance {
+                    print("Too close to the bottom, move it up")
+                    childTopAnchor.constant = self.view.frame.height - allowedDistance
+                }
+                
+                self.lastPanOffset = touchPoint.y
+            }
+        default:
+            break
+        }
+    }
+    
     @objc private func findRecipesAgain() {
         moreRestaurantsButton!.showLoadingOnButton()
         let location = mapView.region.center
@@ -119,7 +197,7 @@ extension FindRestaurantVC: CLLocationManagerDelegate {
 extension FindRestaurantVC: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         if let restaurantAnnotationView = view as? RestaurantAnnotationView, let sendRestaurant = restaurantAnnotationView.restaurant {
-            let vc = RestaurantDetailVC(restaurant: sendRestaurant)
+            let vc = RestaurantDetailVC(restaurant: sendRestaurant, imageAlreadyFound: nil)
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
@@ -137,7 +215,7 @@ extension FindRestaurantVC: MKMapViewDelegate {
                     moreRestaurantsButton!.setTitle("Show more restaurants", for: .normal)
                     mapView.addSubview(moreRestaurantsButton!)
                     moreRestaurantsButton?.addTarget(self, action: #selector(findRecipesAgain), for: .touchUpInside)
-                    moreRestaurantsButton?.showFromBottom(on: mapView)
+                    moreRestaurantsButton?.showFromBottom(on: restaurantListVC.view)
                 }
                 
             } else {

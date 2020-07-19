@@ -104,12 +104,6 @@ class SinglePhotoVC: UIViewController {
         }
     }
     
-    private func setUpGestureRecognizerForDismissing() {
-        let gestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panGestureSelector(sender:)))
-        self.view.addGestureRecognizer(gestureRecognizer)
-    }
-    
-    
     @objc private func dismissSinglePhoto() {
         self.hero.dismissViewController {
             if let cell = self.cellToResetIdAfter {
@@ -117,6 +111,11 @@ class SinglePhotoVC: UIViewController {
                 cell.imageView.hero.id = ""
             }
         }
+    }
+    
+    private func setUpGestureRecognizerForDismissing() {
+        let gestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panGestureSelector(sender:)))
+        self.view.addGestureRecognizer(gestureRecognizer)
     }
     
     @objc private func panGestureSelector(sender: UIPanGestureRecognizer) {

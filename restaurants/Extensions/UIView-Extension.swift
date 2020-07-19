@@ -45,27 +45,20 @@ extension UIView {
     }
     
     func showFromBottom(on view: UIView, extraDistance: CGFloat = .overlayDistanceFromBottom) {
-        
-        let originalConstraint = self.topAnchor.constraint(equalTo: view.bottomAnchor)
-        
-        NSLayoutConstraint.activate([
-            originalConstraint,
-            self.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        ])
-        
-        // Animate the view going into place
-        // Distance from the bottom is .overlayDistanceFromBottom
+        self.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        let constraint = self.topAnchor.constraint(equalTo: view.topAnchor)
+        let value = -10 - self.frame.height
+        constraint.isActive = true
         self.layoutIfNeeded()
-        let distanceNeeded: CGFloat = extraDistance - self.frame.size.height
-        let transformation = CGAffineTransform(translationX: 0, y: distanceNeeded)
+        let transformation = CGAffineTransform.init(translationX: 0, y: value)
         
         UIView.animate(withDuration: 0.3, animations: {
             self.transform = transformation
-        }) { (done) in
-            originalConstraint.isActive = false
-            self.transform = CGAffineTransform.identity // remove the transformation
-            self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: extraDistance).isActive = true
+        }) { (complete) in
+            self.transform = CGAffineTransform.identity
+            constraint.constant = value
         }
+        
     }
     
     func showAgainAlignAtBottom() {

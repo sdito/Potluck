@@ -14,13 +14,14 @@ class PhotoCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setUp()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
     
-    func setUp() {
+    private func setUp() {
         imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(imageView)

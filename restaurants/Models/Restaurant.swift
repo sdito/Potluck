@@ -328,9 +328,23 @@ extension Restaurant {
                     var timeFound: String? // time closing
                     // find the block it is currently in
                     for time in currentDayTime {
-                        if time.rawStartValue...time.rawEndValue ~= currentTime {
-                            timeFound = time.end
+                        print(time)
+                        let start = time.rawStartValue
+                        let end = time.rawEndValue
+                        if end > start {
+                            if time.rawStartValue...time.rawEndValue ~= currentTime {
+                                timeFound = time.end
+                            }
+                        } else {
+                            // example would be start is 11 am and end is 2 am
+                            // need to see if time is greater than the start or lesser than the beginning
+                            
+                            if currentTime < end || currentTime > start {
+                                timeFound = time.end
+                            }
+                            
                         }
+                        
                     }
                     
                     if let timeFound = timeFound {

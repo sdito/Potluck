@@ -82,7 +82,6 @@ extension PhotosVC: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let imageUrl = photos[indexPath.row]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PhotoCell
-        cell.setUp()
         
         // add the image to the imageView
         let key = "\(indexPath.section).\(indexPath.row)" as NSString

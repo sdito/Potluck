@@ -19,8 +19,12 @@ extension CLLocationDistance {
 
 extension CGFloat {
     static let overlayDistanceFromBottom: CGFloat = -25.0
+    static let heightDistanceBetweenChildOverParent: CGFloat = 50.0
 }
 
 extension String {
     static let photosToSinglePhotoID = "PhotoVC-SinglePhotoVC"
+    static let recipeHomeToDetailTitle = "recipeHomeToDetailTitle"
+    static let recipeHomeToDetailImageView = "recipeHomeToDetailImageView"
+    static let recipeHomeToDetailStarRatingView = "recipeHomeToDetailStarRatingView"
 }
