@@ -47,9 +47,9 @@ extension UIView {
     func showFromBottom(on view: UIView, extraDistance: CGFloat = .overlayDistanceFromBottom) {
         self.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         let constraint = self.topAnchor.constraint(equalTo: view.topAnchor)
+        self.layoutIfNeeded()
         let value = -10 - self.frame.height
         constraint.isActive = true
-        self.layoutIfNeeded()
         let transformation = CGAffineTransform.init(translationX: 0, y: value)
         
         UIView.animate(withDuration: 0.3, animations: {
@@ -85,6 +85,13 @@ extension UIView {
         self.layer.cornerRadius = 5.0
         self.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         self.clipsToBounds = true
+    }
+    
+    func toClearBackground() {
+        self.backgroundColor = UIColor.black.withAlphaComponent(0.0)
+//        UIView.animate(withDuration: 0.1) {
+//            
+//        }
     }
     
     func constrainSides(to view: UIView, distance: CGFloat = 0.0) {

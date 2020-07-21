@@ -18,6 +18,7 @@ class RestaurantListVC: UIViewController {
         didSet {
             tableView.hideSkeleton()
             tableView.stopSkeletonAnimation()
+            imageCache.removeAllObjects()
             tableView.reloadData()
         }
     }
@@ -47,7 +48,7 @@ class RestaurantListVC: UIViewController {
         
         tableView.delegate = self
         tableView.dataSource = self
-        
+        tableView.rowHeight = UITableView.automaticDimension
     }
     
     
@@ -55,7 +56,7 @@ class RestaurantListVC: UIViewController {
 }
 
 // MARK: TableView
-extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
+extension RestaurantListVC: UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return restaurants.count
     }
@@ -64,7 +65,7 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: restaurantCellReuseIdentifier) as! RestaurantCell
         let restaurant = restaurants[indexPath.row]
         cell.setUp(restaurant: restaurant)
-        
+        cell.hideSkeleton()
         let key = "\(indexPath.section).\(indexPath.row)" as NSString
         if let cachedImage = imageCache.object(forKey: key) {
             cell.restaurantImageView.image = cachedImage
@@ -85,9 +86,9 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
         //print(restaurant.name)
         let cell = tableView.cellForRow(at: indexPath) as! RestaurantCell
         cell.setUpForHero()
-        
         self.parent?.navigationController?.isHeroEnabled = true
         self.parent?.navigationController?.pushViewController(RestaurantDetailVC(restaurant: restaurant, fromCell: cell, imageAlreadyFound: cell.restaurantImageView.image), animated: true)
+        self.tableView.cellForRow(at: indexPath)?.isSelected = false
     }
 }
 

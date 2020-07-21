@@ -14,6 +14,8 @@ class RestaurantCell: UITableViewCell {
     var restaurantImageView: UIImageView!
     private var stackView: UIStackView!
     private var starRatingView: StarRatingView!
+    private var distanceLabel: UILabel!
+    
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -32,6 +34,7 @@ class RestaurantCell: UITableViewCell {
         stackView.distribution = .fill
         stackView.alignment = .leading
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.spacing = 7.5
         self.addSubview(stackView)
         stackView.constrainSides(to: self, distance: 15.0)
         
@@ -47,19 +50,46 @@ class RestaurantCell: UITableViewCell {
         restaurantImageView = UIImageView()
         restaurantImageView.translatesAutoresizingMaskIntoConstraints = false
         
-        let dimension = self.contentView.frame.width / 4.0
+        let dimension = self.contentView.frame.width / 3.0
         restaurantImageView.heightAnchor.constraint(equalToConstant: dimension).isActive = true
         restaurantImageView.widthAnchor.constraint(equalToConstant: dimension).isActive = true
         restaurantImageView.backgroundColor = .secondarySystemBackground
         restaurantImageView.layer.cornerRadius = 5.0
         restaurantImageView.clipsToBounds = true
-        stackView.addArrangedSubview(restaurantImageView)
         
+        let outerStackView = UIStackView()
+        outerStackView.translatesAutoresizingMaskIntoConstraints = false
+        outerStackView.axis = .horizontal
+        outerStackView.addArrangedSubview(restaurantImageView)
+        outerStackView.distribution = .fill
+        outerStackView.alignment = .leading
+        outerStackView.spacing = 5.0
+        
+        let innerStackView = UIStackView()
+        innerStackView.translatesAutoresizingMaskIntoConstraints = false
+        innerStackView.axis = .vertical
+        innerStackView.alignment = .leading
+        innerStackView.distribution = .fill
+        innerStackView.spacing = 3.0
+        
+        distanceLabel = UILabel()
+        distanceLabel.translatesAutoresizingMaskIntoConstraints = false
+        distanceLabel.textColor = .secondaryLabel
+        
+        innerStackView.addArrangedSubview(distanceLabel)
+        
+        outerStackView.addArrangedSubview(innerStackView)
+        stackView.addArrangedSubview(outerStackView)
+        
+        #warning("should add the categories as views")
     }
     
     func setUp(restaurant: Restaurant) {
         titleLabel.text = restaurant.name
         starRatingView.updateNumberOfStarsAndReviews(stars: restaurant.rating, numReviews: restaurant.reviewCount)
+        let miles = (Measurement(value: restaurant.distance, unit: UnitLength.meters).converted(to: UnitLength.miles).value * 10).rounded() / 10.0
+        distanceLabel.text = "\(miles) miles away"
+        
     }
     
     func setUpForHero() {
@@ -75,11 +105,13 @@ class RestaurantCell: UITableViewCell {
     }
     
     func setUpForSkeleton() {
-        #warning("not working")
+        #warning("not working as expected")
+        self.isSkeletonable = true
         self.titleLabel.text = "This is the example title"
         self.titleLabel.isSkeletonable = true
         self.restaurantImageView.isSkeletonable = true
         self.starRatingView.isSkeletonable = true
+        
     }
     
 }

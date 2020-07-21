@@ -47,20 +47,31 @@ class RestaurantDetailVC: UIViewController {
         super.init(coder: coder)
     }
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setUp()
     }
     
-    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         scrollView.contentOffset = CGPoint(x: 0, y: 0) // top image can get messed up otherwise
-        if let cell = cellOriginatedFrom {
-            cell.removeHeroValues()
+        
+        // only when vc is being destroyed this needs to be checked
+        if self.isMovingFromParent {
+            if let cell = cellOriginatedFrom {
+                cell.removeHeroValues()
+            }
         }
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        if self.isMovingFromParent {
+            // cleans up the animation for these two views
+            titleLabel.toClearBackground()
+            starRatingView.toClearBackground()
+        }
+    }
+    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -233,7 +244,6 @@ class RestaurantDetailVC: UIViewController {
         scrollView.setCorrectContentSize()
         
         setUpHero()
-        
         
         Network.shared.setRestaurantReviewInfo(restaurant: restaurant) { (complete) in
             if complete {

@@ -58,7 +58,7 @@ class FindRestaurantVC: UIViewController {
             if locationManager.handleAuthorization(on: self) {
                 mapView.showsUserLocation = true
                 mapView.centerOnLocation(locationManager: locationManager)
-                Network.shared.getRestaurants(coordinate: locationManager.location!.coordinate) { result in
+                Network.shared.getRestaurants(coordinate: locationManager.location?.coordinate ?? .simulatorDefault) { result in
                     switch result {
                     case .success(let restaurants):
                         self.mapView.showRestaurants(restaurants)
@@ -93,7 +93,7 @@ class FindRestaurantVC: UIViewController {
     }
     
     private func addChildViewController() {
-        #warning("need to complete")
+        #warning("need to put finishing touches")
         containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(containerView)
@@ -139,14 +139,11 @@ class FindRestaurantVC: UIViewController {
                     childTopAnchor.constant = .heightDistanceBetweenChildOverParent
                 }
                 
-                
                 // if it is going to go too low off the screen
                 // constant should be 2* .heightDistanceBetweenChildOverParent
-                #warning("left off here")
                 let distanceAboveBottom = self.view.frame.height - childTopAnchor.constant
                 let allowedDistance = 2 * CGFloat.heightDistanceBetweenChildOverParent
                 if distanceAboveBottom < allowedDistance {
-                    print("Too close to the bottom, move it up")
                     childTopAnchor.constant = self.view.frame.height - allowedDistance
                 }
                 
@@ -167,9 +164,8 @@ class FindRestaurantVC: UIViewController {
                 // need to add the restaurants here
                 // need to set the new center
                 self.locationsSearched.append(location)
-                let newRestaurants = allRestaurants.getNewRestaurants(old: self.restaurants)
-                self.restaurants.append(contentsOf: newRestaurants)
-                self.mapView.showRestaurants(newRestaurants)
+                self.restaurants = allRestaurants
+                self.mapView.showRestaurants(allRestaurants)
                 
             case .failure(_):
                 print("Error finding new restaurants")

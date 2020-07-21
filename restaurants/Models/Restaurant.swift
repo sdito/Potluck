@@ -253,14 +253,14 @@ extension Restaurant {
 
 extension Restaurant {
     struct YelpLocation: Decodable {
-        var address1: String
+        var address1: String?
         var address2: String?
         var address3: String?
-        var city: String
-        var zipCode: String
-        var country: String
-        var state: String
-        var displayAddress: [String]
+        var city: String?
+        var zipCode: String?
+        var country: String?
+        var state: String?
+        var displayAddress: [String]?
         
         enum CodingKeys: String, CodingKey {
             case address1
