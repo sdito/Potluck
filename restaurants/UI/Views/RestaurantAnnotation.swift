@@ -14,12 +14,14 @@ class RestaurantAnnotation: NSObject, MKAnnotation {
     let locationName: String?
     let coordinate: CLLocationCoordinate2D
     let restaurant: Restaurant
+    let place: Int
     
-    init(restaurant: Restaurant) {
+    init(restaurant: Restaurant, place: Int) {
         self.title = restaurant.name
         self.locationName = restaurant.price
         self.coordinate = restaurant.coordinate
         self.restaurant = restaurant
+        self.place = place
     }
     
 }

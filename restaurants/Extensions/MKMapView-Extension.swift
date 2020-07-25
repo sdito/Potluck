@@ -19,7 +19,12 @@ extension MKMapView {
     }
     
     func showRestaurants(_ newRestaurants: [Restaurant]) {
-        let newAnnotations = newRestaurants.map({RestaurantAnnotation(restaurant: $0)})
+        var newAnnotations: [RestaurantAnnotation] = []
+        for (index, restaurant) in newRestaurants.enumerated() {
+            let newAnnotation = RestaurantAnnotation(restaurant: restaurant, place: index + 1)
+            newAnnotations.append(newAnnotation)
+        }
+        
         self.addAnnotations(newAnnotations)
         self.fitAllAnnotations(newAnnotations: newAnnotations)
     }

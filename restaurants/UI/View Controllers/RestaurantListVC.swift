@@ -64,7 +64,7 @@ extension RestaurantListVC: UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: restaurantCellReuseIdentifier) as! RestaurantCell
         let restaurant = restaurants[indexPath.row]
-        cell.setUp(restaurant: restaurant)
+        cell.setUp(restaurant: restaurant, place: indexPath.row + 1)
         cell.hideSkeleton()
         let key = "\(indexPath.section).\(indexPath.row)" as NSString
         if let cachedImage = imageCache.object(forKey: key) {
@@ -77,7 +77,6 @@ extension RestaurantListVC: UITableViewDelegate {
                 self.imageCache.setObject(img, forKey: key)
             }
         }
-        
         return cell
     }
     

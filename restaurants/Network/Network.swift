@@ -79,7 +79,10 @@ class Network {
                         
                     }
                 }
-                restaurantsReturned(Result.success(restaurants))
+                let sortedRestaurants = restaurants.sorted { (one, two) -> Bool in
+                    one.distance < two.distance
+                }
+                restaurantsReturned(Result.success(sortedRestaurants))
             case .failure(let error):
                 print("Error: getRestaurants")
                 print(error)

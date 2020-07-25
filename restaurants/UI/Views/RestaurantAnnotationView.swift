@@ -12,11 +12,14 @@ import MapKit
 class RestaurantAnnotationView: MKMarkerAnnotationView {
     
     var restaurant: Restaurant!
+    var place: Int!
     
     override var annotation: MKAnnotation? {
         willSet {
             guard let restaurantAnnotation = newValue as? RestaurantAnnotation else { return }
             restaurant = restaurantAnnotation.restaurant
+            place = restaurantAnnotation.place
+
             canShowCallout = true
             calloutOffset = CGPoint(x: -5, y: 5)
             rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
@@ -29,6 +32,12 @@ class RestaurantAnnotationView: MKMarkerAnnotationView {
                 stackView.addArrangedSubview(PriceLabel(price: price))
             }
             detailCalloutAccessoryView = stackView
+            markerTintColor = Colors.main
+            
+            #warning("this is how to put the number for each restaurant to match in the list")
+            if let place = place {
+                glyphText = "\(place)"
+            }
         }
     }
 
