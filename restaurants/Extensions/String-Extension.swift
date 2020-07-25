@@ -20,7 +20,7 @@ extension String {
         return dateFormatter.string(from: date!)
     }
 
-    func getAffirmativeOrNegativeAttributedString(_ affirmative: Bool) -> NSAttributedString {
+    func getAffirmativeOrNegativeAttributedString(_ affirmative: Bool, font: UIFont? = nil) -> NSAttributedString {
         var image: UIImage {
             if affirmative {
                 let img = UIImage(systemName: "checkmark")!.withTintColor(.systemGreen)
@@ -30,17 +30,23 @@ extension String {
                 return img
             }
         }
-        return self.addImageAtBeginning(image: image)
+        return self.addImageAtBeginning(image: image, font: font)
         
     }
     
-    func addImageAtBeginning(image: UIImage) -> NSAttributedString {
+    func addImageAtBeginning(image: UIImage, font: UIFont? = nil) -> NSAttributedString {
+        
         let string = NSMutableAttributedString()
         let imageAttachment = NSTextAttachment()
         imageAttachment.image = image
         let imageString = NSAttributedString(attachment: imageAttachment)
         string.append(imageString)
         string.append(NSAttributedString(string: " \(self)"))
+        if let font = font {
+            let length = string.length
+            let range = NSRange(location: 0, length: length)
+            string.addAttribute(NSAttributedString.Key.font, value: font, range: range)
+        }
         return string
     }
 }

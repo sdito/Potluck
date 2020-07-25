@@ -16,6 +16,10 @@ class RestaurantCell: UITableViewCell {
     private var starRatingView: StarRatingView!
     private var distanceLabel: UILabel!
     
+    #warning("need to make sure im using it")
+    private var reservationsLabel: UILabel!
+    private var deliveryLabel: UILabel!
+    private var takeoutLabel: UILabel!
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -81,7 +85,39 @@ class RestaurantCell: UITableViewCell {
         outerStackView.addArrangedSubview(innerStackView)
         stackView.addArrangedSubview(outerStackView)
         
-        #warning("should add the categories as views")
+        
+        // Set up transactions labels, in stack view
+        #warning("should put this in a vertical stack below miles away")
+        deliveryLabel = PaddingLabel(top: 3.0, bottom: 3.0, left: 5.0, right: 5.0)
+        takeoutLabel = PaddingLabel(top: 3.0, bottom: 3.0, left: 5.0, right: 5.0)
+        reservationsLabel = PaddingLabel(top: 3.0, bottom: 3.0, left: 5.0, right: 5.0)
+        
+        [deliveryLabel, takeoutLabel, reservationsLabel].forEach { (lab) in
+            lab?.translatesAutoresizingMaskIntoConstraints = false
+            lab?.textAlignment = .center
+            lab?.backgroundColor = .secondarySystemBackground
+            lab?.layer.cornerRadius = 5.0
+            lab?.clipsToBounds = true
+        }
+        
+        
+        
+        deliveryLabel.attributedText = NSAttributedString(string: "Delivery")
+        takeoutLabel.attributedText = NSAttributedString(string: "Pickup")
+        reservationsLabel.attributedText = NSAttributedString(string: "Reservations")
+        
+        // set them all equal widths to each other
+
+        
+        let transactionsStackView = UIStackView(arrangedSubviews: [deliveryLabel, takeoutLabel, reservationsLabel])
+        transactionsStackView.axis = .vertical
+        transactionsStackView.spacing = 7.5
+        transactionsStackView.distribution = .fillEqually
+        transactionsStackView.alignment = .leading
+        
+        innerStackView.addArrangedSubview(transactionsStackView)
+        
+        
     }
     
     func setUp(restaurant: Restaurant) {
@@ -89,7 +125,9 @@ class RestaurantCell: UITableViewCell {
         starRatingView.updateNumberOfStarsAndReviews(stars: restaurant.rating, numReviews: restaurant.reviewCount)
         let miles = (Measurement(value: restaurant.distance, unit: UnitLength.meters).converted(to: UnitLength.miles).value * 10).rounded() / 10.0
         distanceLabel.text = "\(miles) miles away"
-        
+        deliveryLabel.attributedText = "Delivery".getAffirmativeOrNegativeAttributedString(restaurant.transactions.contains(.delivery), font: UIFont.mediumBold)
+        takeoutLabel.attributedText = "Pickup".getAffirmativeOrNegativeAttributedString(restaurant.transactions.contains(.pickup), font: UIFont.mediumBold)
+        reservationsLabel.attributedText = "Reservations".getAffirmativeOrNegativeAttributedString(restaurant.transactions.contains(.restaurantReservation), font: UIFont.mediumBold)
     }
     
     func setUpForHero() {
