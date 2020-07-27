@@ -26,6 +26,7 @@ class FindRestaurantVC: UIViewController {
     private var childTopAnchor: NSLayoutConstraint!
     private var lastPanOffset: CGFloat?
     private var startingChildSizeConstant: CGFloat?
+    private var middleConstraintConstantForChild: CGFloat?
     
     let locationManager = CLLocationManager()
     
@@ -61,7 +62,7 @@ class FindRestaurantVC: UIViewController {
                 Network.shared.getRestaurants(coordinate: locationManager.location?.coordinate ?? .simulatorDefault) { result in
                     switch result {
                     case .success(let restaurants):
-                        self.mapView.showRestaurants(restaurants)
+                        self.mapView.showRestaurants(restaurants, fitInTopHalf: true)
                         self.mapView.getCenterAfterAnimation { (location) in
                             self.locationsSearched.append(location)
                         }
@@ -98,7 +99,7 @@ class FindRestaurantVC: UIViewController {
         containerView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(containerView)
         childTopAnchor = containerView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: self.view.frame.height/2)
-        
+        middleConstraintConstantForChild = childTopAnchor.constant
         NSLayoutConstraint.activate([
             containerView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
@@ -124,6 +125,8 @@ class FindRestaurantVC: UIViewController {
     
     @objc private func handleFullScreenPanningSelector(sender: UIPanGestureRecognizer) {
         let touchPoint = sender.location(in: self.view.window)
+        let allowedDistance = 2 * CGFloat.heightDistanceBetweenChildOverParent
+        let touchPointY = touchPoint.y
         switch sender.state {
         case .began:
             lastPanOffset = touchPoint.y
@@ -142,16 +145,81 @@ class FindRestaurantVC: UIViewController {
                 // if it is going to go too low off the screen
                 // constant should be 2* .heightDistanceBetweenChildOverParent
                 let distanceAboveBottom = self.view.frame.height - childTopAnchor.constant
-                let allowedDistance = 2 * CGFloat.heightDistanceBetweenChildOverParent
+                
                 if distanceAboveBottom < allowedDistance {
                     childTopAnchor.constant = self.view.frame.height - allowedDistance
                 }
                 
                 self.lastPanOffset = touchPoint.y
             }
+        case .ended:
+            
+            // Dragging ended, either need to put all the way at the top, at exact middle, or all the way at the bottom
+            // split the screen into thirds, whatever third it ends up in is the position it goes to
+            
+            let velocityRaw = sender.velocity(in: self.view.window).y
+            let absoluteVelocity = abs(velocityRaw)
+            
+            if absoluteVelocity > 400.0 { // arbitrary number to decide what counts as a gesture for swiping up/down the whole list
+                if velocityRaw < 0.0 {
+                    // negative is scroll all the way up
+                    scrollChildToTop()
+                } else {
+                    // positive is all the way down
+                    scrollChildToBottom(allowedDistance: allowedDistance)
+                }
+            } else {
+               #warning("need to complete, accountedDistance and accountedHeight are accurate values")
+                // Either need to scroll to the top, middle, or bottom
+                
+                // for accountedDistance, 0.0 is the true top
+                let accountedDistance = touchPointY - allowedDistance
+                let accountedHeight = containerView.frame.height - allowedDistance
+                print("Accounted height: \(accountedHeight), Accounted distance: \(accountedDistance)")
+                let rangePortion = accountedHeight / 3.0
+                
+                let topRange = 0.0..<rangePortion
+                let mediumRange = topRange.upperBound..<rangePortion*2.0
+                let bottomRange = mediumRange.upperBound...
+                
+                if topRange ~= accountedDistance {
+                    scrollChildToTop()
+                } else if mediumRange ~= accountedDistance {
+                    scrollChildToMiddle()
+                } else if bottomRange ~= touchPointY {
+                    scrollChildToBottom(allowedDistance: allowedDistance)
+                }
+                
+            }
+            
         default:
             break
         }
+    }
+    
+    private func scrollChildToTop() {
+        UIView.animate(withDuration: 0.3) {
+            self.childTopAnchor.constant = .heightDistanceBetweenChildOverParent
+            self.view.layoutIfNeeded()
+        }
+        
+    }
+    
+    private func scrollChildToMiddle() {
+        if let constant = middleConstraintConstantForChild {
+            UIView.animate(withDuration: 0.3) {
+                self.childTopAnchor.constant = constant
+                self.view.layoutIfNeeded()
+            }
+        }
+    }
+    
+    private func scrollChildToBottom(allowedDistance: CGFloat) {
+        UIView.animate(withDuration: 0.3) {
+            self.childTopAnchor.constant = self.view.frame.height - allowedDistance
+            self.view.layoutIfNeeded()
+        }
+        
     }
     
     @objc private func findRecipesAgain() {
@@ -165,7 +233,7 @@ class FindRestaurantVC: UIViewController {
                 // need to set the new center
                 self.locationsSearched.append(location)
                 self.restaurants = allRestaurants
-                self.mapView.showRestaurants(allRestaurants)
+                self.mapView.showRestaurants(allRestaurants, fitInTopHalf: false)
                 
             case .failure(_):
                 print("Error finding new restaurants")

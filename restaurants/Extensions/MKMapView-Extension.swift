@@ -18,7 +18,8 @@ extension MKMapView {
         }
     }
     
-    func showRestaurants(_ newRestaurants: [Restaurant]) {
+    
+    func showRestaurants(_ newRestaurants: [Restaurant], fitInTopHalf: Bool) {
         var newAnnotations: [RestaurantAnnotation] = []
         for (index, restaurant) in newRestaurants.enumerated() {
             let newAnnotation = RestaurantAnnotation(restaurant: restaurant, place: index + 1)
@@ -26,10 +27,10 @@ extension MKMapView {
         }
         
         self.addAnnotations(newAnnotations)
-        self.fitAllAnnotations(newAnnotations: newAnnotations)
+        self.fitAllAnnotations(newAnnotations: newAnnotations, fitInTopHalf: fitInTopHalf)
     }
     
-    func fitAllAnnotations(newAnnotations: [RestaurantAnnotation]) {
+    func fitAllAnnotations(newAnnotations: [RestaurantAnnotation], fitInTopHalf: Bool) {
         
         var zoomRect = MKMapRect.null
         for annotation in newAnnotations {
@@ -37,7 +38,16 @@ extension MKMapView {
             let pointRect = MKMapRect(x: annotationPoint.x, y: annotationPoint.y, width: 0.1, height: 0.1);
             zoomRect = zoomRect.union(pointRect);
         }
-        setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50), animated: true)
+        if fitInTopHalf {
+            zoomRect.size.height = zoomRect.size.height * 2
+            self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 20, left: 50, bottom: 100, right: 50), animated: true)
+        } else {
+            self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 50, left: 50, bottom: 120, right: 50), animated: true)
+        }
+    }
+    
+    func updateAllAnnotationZoom(topHalf: Bool) {
+        let rect = self.annotationVisibleRect
         
     }
     

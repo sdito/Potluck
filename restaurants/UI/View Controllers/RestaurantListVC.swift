@@ -22,6 +22,7 @@ class RestaurantListVC: UIViewController {
             tableView.reloadData()
         }
     }
+    
     private let restaurantCellReuseIdentifier = "restaurantCellReuseIdentifier"
     private var tableView: UITableView!
 
@@ -31,6 +32,7 @@ class RestaurantListVC: UIViewController {
         setUpTableView()
         self.tableView.register(RestaurantCell.self, forCellReuseIdentifier: restaurantCellReuseIdentifier)
         tableView.showAnimatedGradientSkeleton(transition: .none)
+        
     }
     
     private func setUpTableView() {
