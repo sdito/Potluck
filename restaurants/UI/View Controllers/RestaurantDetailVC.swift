@@ -195,9 +195,9 @@ class RestaurantDetailVC: UIViewController {
     }
 
     private func setUpHero() {
-        titleLabel.hero.id = .recipeHomeToDetailTitle
-        imageView.hero.id = .recipeHomeToDetailImageView
-        starRatingView.hero.id = .recipeHomeToDetailStarRatingView
+        titleLabel.hero.id = .restaurantHomeToDetailTitle
+        imageView.hero.id = .restaurantHomeToDetailImageView
+        starRatingView.hero.id = .restaurantHomeToDetailStarRatingView
     }
     
     private func setUp() {

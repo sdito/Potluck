@@ -8,7 +8,6 @@
 
 import UIKit
 import Hero
-import SkeletonView
 
 class RestaurantListVC: UIViewController {
     
@@ -16,29 +15,25 @@ class RestaurantListVC: UIViewController {
     
     var restaurants: [Restaurant] = [] {
         didSet {
-            tableView.hideSkeleton()
-            tableView.stopSkeletonAnimation()
             imageCache.removeAllObjects()
             tableView.reloadData()
         }
     }
     
     private let restaurantCellReuseIdentifier = "restaurantCellReuseIdentifier"
-    private var tableView: UITableView!
+    var tableView: UITableView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .secondarySystemBackground
         setUpTableView()
         self.tableView.register(RestaurantCell.self, forCellReuseIdentifier: restaurantCellReuseIdentifier)
-        tableView.showAnimatedGradientSkeleton(transition: .none)
         
     }
     
     private func setUpTableView() {
         tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.isSkeletonable = true
         self.view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
@@ -53,12 +48,25 @@ class RestaurantListVC: UIViewController {
         tableView.rowHeight = UITableView.automaticDimension
     }
     
+    func scrollTableViewToTop() {
+        guard tableView != nil && tableView.numberOfRows(inSection: 0) > 0 else { return }
+        tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
+    }
     
+    func scrollToRestaurant(_ restaurant: Restaurant) {
+        #warning("will not scroll to the last few rows, need to fix")
+        
+        let indexToScrollTo = restaurants.firstIndex { (rest) -> Bool in rest.id == restaurant.id }
+        guard let index = indexToScrollTo else { return }
+        #warning("also issue with image cache")
+        tableView.scrollToRow(at: IndexPath(row: index, section: 0), at: .top, animated: true)
+        
+    }
 
 }
 
 // MARK: TableView
-extension RestaurantListVC: UITableViewDelegate {
+extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return restaurants.count
     }
@@ -67,7 +75,6 @@ extension RestaurantListVC: UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: restaurantCellReuseIdentifier) as! RestaurantCell
         let restaurant = restaurants[indexPath.row]
         cell.setUp(restaurant: restaurant, place: indexPath.row + 1)
-        cell.hideSkeleton()
         let key = "\(indexPath.section).\(indexPath.row)" as NSString
         if let cachedImage = imageCache.object(forKey: key) {
             cell.restaurantImageView.image = cachedImage
@@ -88,22 +95,17 @@ extension RestaurantListVC: UITableViewDelegate {
         let cell = tableView.cellForRow(at: indexPath) as! RestaurantCell
         cell.setUpForHero()
         self.parent?.navigationController?.isHeroEnabled = true
-        self.parent?.navigationController?.pushViewController(RestaurantDetailVC(restaurant: restaurant, fromCell: cell, imageAlreadyFound: cell.restaurantImageView.image), animated: true)
+        
+        var imageToSend: UIImage? {
+            if cell.restaurantImageView.isSkeletonActive {
+                return nil
+            } else {
+                return cell.restaurantImageView.image
+            }
+        }
+        
+        self.parent?.navigationController?.pushViewController(RestaurantDetailVC(restaurant: restaurant, fromCell: cell, imageAlreadyFound: imageToSend), animated: true)
         self.tableView.cellForRow(at: indexPath)?.isSelected = false
     }
 }
 
-
-
-// MARK: SkeletonView
-extension RestaurantListVC: SkeletonTableViewDataSource {
-    
-    func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
-    }
-
-    
-    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
-        return restaurantCellReuseIdentifier
-    }
-}

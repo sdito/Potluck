@@ -6,6 +6,7 @@
 //  Copyright © 2020 Steven Dito. All rights reserved.
 //
 
+
 import UIKit
 import MapKit
 import CoreLocation
@@ -14,7 +15,7 @@ class FindRestaurantVC: UIViewController {
     
     private var restaurantListVC: RestaurantListVC!
     private var moreRestaurantsButtonShown = false
-    private var locationsSearched: [CLLocationCoordinate2D] = []
+    
     private var restaurants: [Restaurant] = [] {
         didSet {
             if restaurantListVC != nil {
@@ -27,12 +28,18 @@ class FindRestaurantVC: UIViewController {
     private var lastPanOffset: CGFloat?
     private var startingChildSizeConstant: CGFloat?
     private var middleConstraintConstantForChild: CGFloat?
-    
     let locationManager = CLLocationManager()
-    
     var mapView: MKMapView!
     private var moreRestaurantsButton: OverlayButton?
+    private var childPosition: ChildPosition = .middle
+    private var restaurantSelectedView: RestaurantSelectedView?
+    private var userMovedMapView = false
     
+    private enum ChildPosition {
+        case top
+        case middle
+        case bottom
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,6 +48,7 @@ class FindRestaurantVC: UIViewController {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         setUp()
         addChildViewController()
+        setUpMapViewPanGestureRecognizer()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -59,13 +67,14 @@ class FindRestaurantVC: UIViewController {
             if locationManager.handleAuthorization(on: self) {
                 mapView.showsUserLocation = true
                 mapView.centerOnLocation(locationManager: locationManager)
+                let location = locationManager.location?.coordinate ?? .simulatorDefault
                 Network.shared.getRestaurants(coordinate: locationManager.location?.coordinate ?? .simulatorDefault) { result in
                     switch result {
                     case .success(let restaurants):
-                        self.mapView.showRestaurants(restaurants, fitInTopHalf: true)
-                        self.mapView.getCenterAfterAnimation { (location) in
-                            self.locationsSearched.append(location)
-                        }
+                        self.userMovedMapView = false
+                        self.moreRestaurantsButtonShown = false
+                        self.moreRestaurantsButton?.hideFromScreen()
+                        self.mapView.showRestaurants(restaurants, fitInTopHalf: true, coordinateForNonUserLocationSearch: nil)
                         self.restaurants = restaurants
                     case .failure(let error):
                         print("Error reading restaurants: \(error.localizedDescription)")
@@ -84,17 +93,11 @@ class FindRestaurantVC: UIViewController {
         
         self.view.addSubview(mapView)
         
-        NSLayoutConstraint.activate([
-            mapView.topAnchor.constraint(equalTo: view.topAnchor),
-            mapView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            mapView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-        ])
+        mapView.constrainSides(to: self.view)
+        
     }
     
     private func addChildViewController() {
-        #warning("need to put finishing touches")
         containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(containerView)
@@ -106,8 +109,6 @@ class FindRestaurantVC: UIViewController {
             containerView.heightAnchor.constraint(equalTo: self.view.heightAnchor, constant: -.heightDistanceBetweenChildOverParent),
             childTopAnchor
         ])
-        
-        
         
         restaurantListVC = RestaurantListVC()
         addChild(restaurantListVC)
@@ -169,7 +170,6 @@ class FindRestaurantVC: UIViewController {
                     scrollChildToBottom(allowedDistance: allowedDistance)
                 }
             } else {
-               #warning("need to complete, accountedDistance and accountedHeight are accurate values")
                 // Either need to scroll to the top, middle, or bottom
                 
                 // for accountedDistance, 0.0 is the true top
@@ -189,7 +189,6 @@ class FindRestaurantVC: UIViewController {
                 } else if bottomRange ~= touchPointY {
                     scrollChildToBottom(allowedDistance: allowedDistance)
                 }
-                
             }
             
         default:
@@ -197,32 +196,63 @@ class FindRestaurantVC: UIViewController {
         }
     }
     
+    private func setUpMapViewPanGestureRecognizer() {
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(self.didDragMap(_:)))
+        panGesture.delegate = self
+        mapView.addGestureRecognizer(panGesture)
+    }
+
+    @objc private func didDragMap(_ sender: UIGestureRecognizer) {
+        if sender.state == .ended {
+            if !userMovedMapView {
+                userMovedMapView = true
+                moreRestaurantsButtonShown = true
+                moreRestaurantsButton = OverlayButton()
+                moreRestaurantsButton!.setTitle("Redo search here", for: .normal)
+                mapView.addSubview(moreRestaurantsButton!)
+                moreRestaurantsButton?.addTarget(self, action: #selector(findRestaurantsAgain), for: .touchUpInside)
+                moreRestaurantsButton?.showFromBottom(on: restaurantListVC.view)
+            }
+        }
+    }
+    
     private func scrollChildToTop() {
+        childPosition = .top
         UIView.animate(withDuration: 0.3) {
             self.childTopAnchor.constant = .heightDistanceBetweenChildOverParent
             self.view.layoutIfNeeded()
         }
         
+        
     }
     
     private func scrollChildToMiddle() {
         if let constant = middleConstraintConstantForChild {
+            childPosition = .middle
             UIView.animate(withDuration: 0.3) {
                 self.childTopAnchor.constant = constant
+                if !self.userMovedMapView {
+                    self.mapView.updateAllAnnotationZoom(topHalf: true)
+                }
                 self.view.layoutIfNeeded()
             }
         }
     }
     
     private func scrollChildToBottom(allowedDistance: CGFloat) {
+        childPosition = .bottom
         UIView.animate(withDuration: 0.3) {
             self.childTopAnchor.constant = self.view.frame.height - allowedDistance
+            if !self.userMovedMapView {
+                self.mapView.updateAllAnnotationZoom(topHalf: false)
+            }
             self.view.layoutIfNeeded()
         }
         
     }
     
-    @objc private func findRecipesAgain() {
+    @objc private func findRestaurantsAgain() {
+        userMovedMapView = false
         moreRestaurantsButton!.showLoadingOnButton()
         let location = mapView.region.center
         Network.shared.getRestaurants(coordinate: location) { (response) in
@@ -231,10 +261,10 @@ class FindRestaurantVC: UIViewController {
             case .success(let allRestaurants):
                 // need to add the restaurants here
                 // need to set the new center
-                self.locationsSearched.append(location)
+                self.mapView.removeAnnotations(self.mapView?.annotations ?? [])
                 self.restaurants = allRestaurants
-                self.mapView.showRestaurants(allRestaurants, fitInTopHalf: false)
-                
+                self.mapView.showRestaurants(allRestaurants, fitInTopHalf: self.childPosition == .middle, coordinateForNonUserLocationSearch: location)
+                self.restaurantListVC.scrollTableViewToTop()
             case .failure(_):
                 print("Error finding new restaurants")
             }
@@ -258,6 +288,7 @@ extension FindRestaurantVC: CLLocationManagerDelegate {
     }
 }
 
+// MARK: MKMapViewDelegate
 extension FindRestaurantVC: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         if let restaurantAnnotationView = view as? RestaurantAnnotationView, let sendRestaurant = restaurantAnnotationView.restaurant {
@@ -266,30 +297,50 @@ extension FindRestaurantVC: MKMapViewDelegate {
         }
     }
     
-    func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
-        let newCenter = mapView.region.center
-        
-        if locationsSearched.count > 0 {
-            let distance = newCenter.distance(from: locationsSearched)
-            if distance > .distanceToFindNewRestaurants {
-                if !moreRestaurantsButtonShown {
-                    print("Show the button")
-                    moreRestaurantsButtonShown = true
-                    moreRestaurantsButton = OverlayButton()
-                    moreRestaurantsButton!.setTitle("Show more restaurants", for: .normal)
-                    mapView.addSubview(moreRestaurantsButton!)
-                    moreRestaurantsButton?.addTarget(self, action: #selector(findRecipesAgain), for: .touchUpInside)
-                    moreRestaurantsButton?.showFromBottom(on: restaurantListVC.view)
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        // Scroll to the correct cell
+        if let restaurantAnnotation = view as? RestaurantAnnotationView, let annotationRestaurant = restaurantAnnotation.restaurant {
+            if childPosition == .middle {
+                restaurantListVC.scrollToRestaurant(annotationRestaurant)
+            } else if childPosition == .bottom {
+                restaurantSelectedView = RestaurantSelectedView(restaurant: annotationRestaurant)
+                
+                if restaurantSelectedView?.superview == nil {
+                    // need to actually add to the view
+                    self.mapView.addSubview(restaurantSelectedView!)
+                    NSLayoutConstraint.activate([
+                        
+                    ])
                 }
                 
-            } else {
-                if moreRestaurantsButtonShown {
-                    moreRestaurantsButtonShown = false
-                    moreRestaurantsButton?.hideFromScreen()
-                }
+                self.mapView.addSubview(restaurantSelectedView!)
             }
-            
         }
+        
+        
     }
     
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        // Only need to handle pin for search center location
+        guard annotation is MKPointAnnotation else { return nil }
+        let identifier = "Annotation"
+        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+        if annotationView == nil {
+            annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            annotationView!.canShowCallout = true
+        } else {
+            annotationView!.annotation = annotation
+        }
+        return annotationView
+    }
+
+}
+
+
+// MARK: UIGestureRecognizerDelegate
+extension FindRestaurantVC: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
 }

@@ -19,19 +19,25 @@ extension MKMapView {
     }
     
     
-    func showRestaurants(_ newRestaurants: [Restaurant], fitInTopHalf: Bool) {
-        var newAnnotations: [RestaurantAnnotation] = []
+    func showRestaurants(_ newRestaurants: [Restaurant], fitInTopHalf: Bool, coordinateForNonUserLocationSearch: CLLocationCoordinate2D?) {
+        var newAnnotations: [MKAnnotation] = []
         for (index, restaurant) in newRestaurants.enumerated() {
             let newAnnotation = RestaurantAnnotation(restaurant: restaurant, place: index + 1)
             newAnnotations.append(newAnnotation)
+        }
+        
+        if let coordinateForNonUserLocationSearch = coordinateForNonUserLocationSearch {
+            let searchAnnotation = MKPointAnnotation()
+            searchAnnotation.title = "Search location"
+            searchAnnotation.coordinate = coordinateForNonUserLocationSearch
+            newAnnotations.append(searchAnnotation)
         }
         
         self.addAnnotations(newAnnotations)
         self.fitAllAnnotations(newAnnotations: newAnnotations, fitInTopHalf: fitInTopHalf)
     }
     
-    func fitAllAnnotations(newAnnotations: [RestaurantAnnotation], fitInTopHalf: Bool) {
-        
+    func fitAllAnnotations(newAnnotations: [MKAnnotation], fitInTopHalf: Bool) {
         var zoomRect = MKMapRect.null
         for annotation in newAnnotations {
             let annotationPoint = MKMapPoint(annotation.coordinate)
@@ -47,14 +53,8 @@ extension MKMapView {
     }
     
     func updateAllAnnotationZoom(topHalf: Bool) {
-        let rect = self.annotationVisibleRect
-        
-    }
-    
-    func getCenterAfterAnimation(centerFound: @escaping (CLLocationCoordinate2D) -> Void) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            centerFound(self.region.center)
-        }
+        let annotations = self.annotations.filter({$0 !== self.userLocation}) // need to remove userLocation else zooming will include it when not desired
+        fitAllAnnotations(newAnnotations: annotations, fitInTopHalf: topHalf)
     }
     
 }

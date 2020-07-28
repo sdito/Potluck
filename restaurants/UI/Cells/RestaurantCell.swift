@@ -131,9 +131,9 @@ class RestaurantCell: UITableViewCell {
     }
     
     func setUpForHero() {
-        self.titleLabel.hero.id = .recipeHomeToDetailTitle
-        self.restaurantImageView.hero.id = .recipeHomeToDetailImageView
-        self.starRatingView.hero.id = .recipeHomeToDetailStarRatingView
+        self.titleLabel.hero.id = .restaurantHomeToDetailTitle
+        self.restaurantImageView.hero.id = .restaurantHomeToDetailImageView
+        self.starRatingView.hero.id = .restaurantHomeToDetailStarRatingView
     }
     
     func removeHeroValues() {

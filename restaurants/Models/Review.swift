@@ -13,7 +13,7 @@ struct Review {
     var id: String
     var rating: Int
     var profileURL: String?
-    var imageURL: String? ; #warning("not working when it is nil")
+    var imageURL: String?
     var reviewerName: String
     var text: String
     var timeCreated: Date?
