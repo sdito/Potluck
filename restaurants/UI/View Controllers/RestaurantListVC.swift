@@ -9,6 +9,8 @@
 import UIKit
 import Hero
 
+
+
 class RestaurantListVC: UIViewController {
     
     private var imageCache = NSCache<NSString, UIImage>()
@@ -90,6 +92,9 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        #warning("alert parent that the row was selected to update the selected pin")
+        
         let restaurant = restaurants[indexPath.row]
         //print(restaurant.name)
         let cell = tableView.cellForRow(at: indexPath) as! RestaurantCell
@@ -103,7 +108,6 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
                 return cell.restaurantImageView.image
             }
         }
-        
         self.parent?.navigationController?.pushViewController(RestaurantDetailVC(restaurant: restaurant, fromCell: cell, imageAlreadyFound: imageToSend), animated: true)
         self.tableView.cellForRow(at: indexPath)?.isSelected = false
     }

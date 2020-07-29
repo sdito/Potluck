@@ -48,7 +48,7 @@ class RestaurantCell: UITableViewCell {
         titleLabel.numberOfLines = 0
         stackView.addArrangedSubview(titleLabel)
         
-        starRatingView = StarRatingView(stars: 0, numReviews: 1, noBackgroundColor: true)
+        starRatingView = StarRatingView(stars: 0, numReviews: 1, forceWhite: false, noBackgroundColor: true)
         stackView.addArrangedSubview(starRatingView)
         
         restaurantImageView = UIImageView()

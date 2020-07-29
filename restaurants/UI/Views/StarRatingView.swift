@@ -13,9 +13,9 @@ class StarRatingView: UIView {
     private var starViews: [UIImageView] = []
     private var numReviewsLabel: UILabel!
     
-    init(stars: Double, numReviews: Int, noBackgroundColor: Bool = false) {
+    init(stars: Double, numReviews: Int, forceWhite: Bool, noBackgroundColor: Bool = false) {
         super.init(frame: .zero)
-        setUp(stars: stars, numReviews: numReviews, noBackgroundColor: noBackgroundColor)
+        setUp(stars: stars, numReviews: numReviews, forceWhite: forceWhite, noBackgroundColor: noBackgroundColor)
         
     }
     
@@ -49,7 +49,7 @@ class StarRatingView: UIView {
     }
     
     
-    private func setUp(stars: Double, numReviews: Int, noBackgroundColor: Bool = false) {
+    private func setUp(stars: Double, numReviews: Int, forceWhite: Bool, noBackgroundColor: Bool = false) {
         self.translatesAutoresizingMaskIntoConstraints = false
         
         if !noBackgroundColor {
@@ -93,7 +93,10 @@ class StarRatingView: UIView {
         
         if numReviews > 0 {
             numReviewsLabel = UILabel()
-            numReviewsLabel.textColor = .white
+            
+            numReviewsLabel.textColor = forceWhite ? .white : .label
+            
+            
             numReviewsLabel.text = "\(numReviews)"
             stackView.addArrangedSubview(numReviewsLabel)
         }

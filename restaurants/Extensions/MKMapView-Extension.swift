@@ -18,6 +18,12 @@ extension MKMapView {
         }
     }
     
+    func deselectAllAnnotations() {
+        self.annotations.forEach { (annotation) in
+            self.deselectAnnotation(annotation, animated: true)
+        }
+    }
+    
     
     func showRestaurants(_ newRestaurants: [Restaurant], fitInTopHalf: Bool, coordinateForNonUserLocationSearch: CLLocationCoordinate2D?) {
         var newAnnotations: [MKAnnotation] = []

@@ -62,7 +62,7 @@ class ReviewView: UIView {
         let starsStackView = UIStackView()
         starsStackView.axis = .horizontal
         starsStackView.spacing = 4.0
-        starsStackView.addArrangedSubview(StarRatingView(stars: Double(review.rating), numReviews: 0, noBackgroundColor: true))
+        starsStackView.addArrangedSubview(StarRatingView(stars: Double(review.rating), numReviews: 0, forceWhite: false, noBackgroundColor: true))
         
         if let date = review.timeCreated {
             let timeAgoLabel = UILabel()

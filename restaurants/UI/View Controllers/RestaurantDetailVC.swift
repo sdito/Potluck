@@ -139,7 +139,7 @@ class RestaurantDetailVC: UIViewController {
         viewAllPhotosButton.setTitle(morePhotosNormalTitle, for: .normal)
         viewAllPhotosButton.addTarget(self, action: #selector(openPhotosController), for: .touchUpInside)
         
-        starRatingView = StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount)
+        starRatingView = StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount, forceWhite: true)
         
         let starsStackView = UIStackView(arrangedSubviews: [starRatingView, UIView(), viewAllPhotosButton])
         starsStackView.alignment = .fill

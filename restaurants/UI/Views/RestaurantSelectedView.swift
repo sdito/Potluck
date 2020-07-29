@@ -7,16 +7,40 @@
 //
 
 import UIKit
+import Hero
+
+
+protocol RestaurantSelectedViewDelegate: class {
+    func nextButtonSelected(rest: Restaurant)
+    func previousButtonSelected(rest: Restaurant)
+    func restaurantSelected(rest: Restaurant)
+}
+
 
 class RestaurantSelectedView: UIView {
     
+    private var restaurant: Restaurant!
+    
+    private weak var delegate: RestaurantSelectedViewDelegate!
+    
+    private var wholeStackView: UIStackView!
     private var outerStackView: UIStackView!
     private var innerTopStackView: UIStackView!
     private var topRightStackView: UIStackView!
     
-    init(restaurant: Restaurant) {
+    var imageView: UIImageView!
+    private var titleLabel: UILabel!
+    private var starRatingView: StarRatingView!
+    private var moneyAndTypeLabel: UILabel!
+    
+    private let backButtonTag = 11
+    private let forwardButtonTag = 12
+    private var backAndForwardButtons: [UIButton] = []
+    
+    init(restaurant: Restaurant, isFirst: Bool, isLast: Bool, vc: UIViewController) {
         super.init(frame: .zero)
-        setUp(restaurant: restaurant)
+        self.delegate = vc as? RestaurantSelectedViewDelegate
+        setUp(restaurant: restaurant, isFirst: isFirst, isLast: isLast)
         
     }
     
@@ -24,14 +48,91 @@ class RestaurantSelectedView: UIView {
         super.init(coder: coder)
     }
     
-    private func setUp(restaurant: Restaurant) {
+    func updateWithNewRestaurant(restaurant: Restaurant, isFirst: Bool, isLast: Bool) {
+        if self.restaurant.id != restaurant.id {
+            self.restaurant = restaurant
+            titleLabel.text = restaurant.name
+            starRatingView.updateNumberOfStarsAndReviews(stars: restaurant.rating, numReviews: restaurant.reviewCount)
+            imageView.addImageFromUrl(restaurant.imageURL, skeleton: true)
+            setMoneyAndTypeLabelText(restaurant)
+            
+            for potentialView in wholeStackView.subviews {
+                if potentialView.tag == backButtonTag {
+                    if isFirst {
+                        potentialView.isUserInteractionEnabled = false
+                        potentialView.alpha = 0.0
+                    } else {
+                        potentialView.isUserInteractionEnabled = true
+                        potentialView.alpha = 1.0
+                    }
+                } else if potentialView.tag == forwardButtonTag {
+                    if isLast {
+                        potentialView.isUserInteractionEnabled = false
+                        potentialView.alpha = 0.0
+                    } else {
+                        potentialView.isUserInteractionEnabled = true
+                        potentialView.alpha = 1.0
+                    }
+                }
+            }
+            
+        }
+        
+    }
+    
+    private func setUp(restaurant: Restaurant, isFirst: Bool, isLast: Bool) {
+        self.restaurant = restaurant
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.backgroundColor = .systemPink
+        self.backgroundColor = .secondarySystemBackground
+        
+        setUpWholeStackView()
+        setUpBackAndNextButtons(isFirst: isFirst, isLast: isLast)
         setUpOuterStackView()
         setUpInnerTopStackView()
         setUpImageView(restaurant: restaurant)
         setUpTopRightStackView()
         setUpTopRightContents(restaurant: restaurant)
+        
+        self.layoutIfNeeded()
+        self.shadowAndRounded(cornerRadius: 10.0)
+        
+        layerButtonForTouchEvents()
+        
+    }
+    
+    private func setUpWholeStackView() {
+        wholeStackView = UIStackView()
+        wholeStackView.translatesAutoresizingMaskIntoConstraints = false
+        wholeStackView.spacing = 5.0
+        wholeStackView.distribution = .fill
+        wholeStackView.alignment = .fill
+        wholeStackView.axis = .horizontal
+        self.addSubview(wholeStackView)
+        wholeStackView.constrainSides(to: self, distance: 10.0)
+    }
+    
+    private func setUpBackAndNextButtons(isFirst: Bool, isLast: Bool) {
+        #warning("need to use isFirst and isLast")
+        let buttonData = [(backButtonTag, "<"), (forwardButtonTag, ">")]
+        for data in buttonData {
+            let newButton = SizeChangeButton(sizeDifference: .large)
+            newButton.translatesAutoresizingMaskIntoConstraints = false
+            wholeStackView.addArrangedSubview(newButton)
+            newButton.setTitle(data.1, for: .normal)
+            newButton.tag = data.0
+            newButton.setTitleColor(Colors.main, for: .normal)
+            newButton.titleLabel?.font = .largerBold
+            newButton.widthAnchor.constraint(equalToConstant: 20.0).isActive = true
+            newButton.addTarget(self, action: #selector(backOrForwardPressed), for: .touchUpInside)
+            
+            backAndForwardButtons.append(newButton)
+            
+            if (isFirst && data.0 == backButtonTag) || (isLast && data.0 == forwardButtonTag) {
+                newButton.isUserInteractionEnabled = false
+                newButton.alpha = 0.0
+            }
+            
+        }
     }
     
     private func setUpOuterStackView() {
@@ -41,8 +142,8 @@ class RestaurantSelectedView: UIView {
         outerStackView.spacing = 5.0
         outerStackView.distribution = .fill
         outerStackView.alignment = .fill
-        self.addSubview(outerStackView)
-        outerStackView.constrainSides(to: self, distance: 10.0)
+        
+        wholeStackView.insertArrangedSubview(outerStackView, at: 1)
     }
     
     private func setUpInnerTopStackView() {
@@ -59,7 +160,7 @@ class RestaurantSelectedView: UIView {
     
     private func setUpImageView(restaurant: Restaurant) {
         // left side of innerTopStackView
-        let imageView = UIImageView()
+        imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         let imageViewWidth = UIScreen.main.bounds.width / 4.0
         imageView.backgroundColor = .tertiarySystemBackground
@@ -70,7 +171,7 @@ class RestaurantSelectedView: UIView {
         imageView.heightAnchor.constraint(equalToConstant: imageViewWidth).isActive = true
         imageView.widthAnchor.constraint(equalToConstant: imageViewWidth).isActive = true
         
-        imageView.addImageFromUrl(restaurant.imageURL)
+        imageView.addImageFromUrl(restaurant.imageURL, skeleton: true)
         
         innerTopStackView.addArrangedSubview(imageView)
     }
@@ -88,18 +189,80 @@ class RestaurantSelectedView: UIView {
     private func setUpTopRightContents(restaurant: Restaurant) {
         // Label with title
         // Star view
-        // Dollar sign
+        // Dollar sign and food type
         
-        let title = UILabel()
-        title.translatesAutoresizingMaskIntoConstraints = false
-        title.text = restaurant.name
-        title.font = .largerBold
-        topRightStackView.addArrangedSubview(title)
+        titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.text = restaurant.name
+        titleLabel.font = .largerBold
+        titleLabel.numberOfLines = 2
+        topRightStackView.addArrangedSubview(titleLabel)
         
-        let starView = StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount, noBackgroundColor: true)
-        topRightStackView.addArrangedSubview(starView)
         
+        starRatingView = StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount, forceWhite: false, noBackgroundColor: true)
+        topRightStackView.addArrangedSubview(starRatingView)
+        
+        moneyAndTypeLabel = UILabel()
+        moneyAndTypeLabel.translatesAutoresizingMaskIntoConstraints = false
+        setMoneyAndTypeLabelText(restaurant)
+        moneyAndTypeLabel.textColor = .secondaryLabel
+        topRightStackView.addArrangedSubview(moneyAndTypeLabel)
         
     }
     
+    private func setMoneyAndTypeLabelText(_ rest: Restaurant) {
+        moneyAndTypeLabel.text = "\(rest.price ?? "$$") · \(rest.categories.joined(separator: ", "))"
+    }
+    
+    
+    private func layerButtonForTouchEvents() {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        outerStackView.addSubview(button)
+        
+        button.constrainSides(to: outerStackView)
+        
+        button.addTarget(self, action: #selector(touchDown), for: [.touchDown, .touchDragEnter])
+        button.addTarget(self, action: #selector(touchUp), for: [.touchDragExit, .touchUpInside])
+        button.addTarget(self, action: #selector(buttonSelected), for: .touchUpInside)
+    }
+    
+    func setUpForHero() {
+        self.isHeroEnabled = true
+        self.titleLabel.hero.id = .restaurantHomeToDetailTitle
+        self.imageView.hero.id = .restaurantHomeToDetailImageView
+        self.starRatingView.hero.id = .restaurantHomeToDetailStarRatingView
+    }
+    
+    
+    @objc private func touchDown() {
+        // Transform the view to show it is being selected
+        UIView.animate(withDuration: 0.2, animations: {
+            self.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+        })
+    }
+
+    @objc private func touchUp() {
+        // Transform the view back to normal
+        UIView.animate(withDuration: 0.2, animations: {
+            self.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+        })
+    }
+    
+    
+    @objc private func buttonSelected() {
+        delegate.restaurantSelected(rest: restaurant)
+    }
+    
+    @objc private func backOrForwardPressed(sender: UIButton) {
+        if sender.tag == backButtonTag {
+            delegate.previousButtonSelected(rest: restaurant)
+        } else if sender.tag == forwardButtonTag {
+            delegate.nextButtonSelected(rest: restaurant)
+        }
+    }
+    
 }
+
+
+
