@@ -15,7 +15,7 @@ class FindRestaurantVC: UIViewController {
     
     private var restaurantListVC: RestaurantListVC!
     private var moreRestaurantsButtonShown = false
-    
+    private var selectedViewTransitionStyle: RestaurantSelectedView.UpdateStyle = .none
     private var restaurants: [Restaurant] = [] {
         didSet {
             if restaurantListVC != nil {
@@ -279,7 +279,8 @@ class FindRestaurantVC: UIViewController {
             let isFirst = restaurants.first?.id == annotationRestaurant.id
             let isLast = restaurants.last?.id == annotationRestaurant.id
             if let restSelectedView = restaurantSelectedView {
-                restSelectedView.updateWithNewRestaurant(restaurant: annotationRestaurant, isFirst: isFirst, isLast: isLast)
+                restSelectedView.updateWithNewRestaurant(restaurant: annotationRestaurant, isFirst: isFirst, isLast: isLast, updateStyle: selectedViewTransitionStyle)
+                selectedViewTransitionStyle = .none
             } else {
                 restaurantSelectedView = RestaurantSelectedView(restaurant: annotationRestaurant, isFirst: isFirst, isLast: isLast, vc: self)
                 self.view.addSubview(restaurantSelectedView!)
@@ -366,11 +367,11 @@ extension FindRestaurantVC: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        print("Did select")
         // Scroll to the correct cell
         if let restaurantAnnotation = view as? RestaurantAnnotationView, let annotationRestaurant = restaurantAnnotation.restaurant {
             createSelectedRestaurantView(annotationRestaurant: annotationRestaurant)
         }
+        
     }
 
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
@@ -385,6 +386,7 @@ extension FindRestaurantVC: MKMapViewDelegate {
             }
         }
     }
+    
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         // Only need to handle pin for search center location
@@ -432,6 +434,7 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
             for annotation in allAnnotations {
                 if let restAnnotation = annotation as? RestaurantAnnotation {
                     if restAnnotation.place == numToFind {
+                        selectedViewTransitionStyle = .forward
                         mapView.selectAnnotation(restAnnotation, animated: true)
                     }
                 }
@@ -449,6 +452,7 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
             for annotation in allAnnotations {
                 if let restAnnotation = annotation as? RestaurantAnnotation {
                     if restAnnotation.place == numToFind {
+                        selectedViewTransitionStyle = .back
                         mapView.selectAnnotation(restAnnotation, animated: true)
                     }
                 }

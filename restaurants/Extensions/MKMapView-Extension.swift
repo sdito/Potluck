@@ -11,6 +11,8 @@
 import MapKit
 
 extension MKMapView {
+
+    
     func centerOnLocation(locationManager: CLLocationManager) {
         if let location = locationManager.location?.coordinate {
             let region = MKCoordinateRegion.init(center: location, latitudinalMeters: 7_000, longitudinalMeters: 7_000)
