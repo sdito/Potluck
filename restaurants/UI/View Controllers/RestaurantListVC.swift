@@ -8,7 +8,7 @@
 
 import UIKit
 import Hero
-
+import SkeletonView
 
 
 class RestaurantListVC: UIViewController {
@@ -17,6 +17,7 @@ class RestaurantListVC: UIViewController {
     
     var restaurants: [Restaurant] = [] {
         didSet {
+            self.view.appEndSkeleton()
             imageCache.removeAllObjects()
             tableView.reloadData()
         }
@@ -31,11 +32,14 @@ class RestaurantListVC: UIViewController {
         setUpTableView()
         self.tableView.register(RestaurantCell.self, forCellReuseIdentifier: restaurantCellReuseIdentifier)
         
+        self.tableView.appStartSkeleton()
+        
     }
     
     private func setUpTableView() {
         tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.isSkeletonable = true
         self.view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
@@ -48,6 +52,7 @@ class RestaurantListVC: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = UITableView.automaticDimension
+        
     }
     
     func scrollTableViewToTop() {
@@ -68,7 +73,7 @@ class RestaurantListVC: UIViewController {
 }
 
 // MARK: TableView
-extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
+extension RestaurantListVC: UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return restaurants.count
     }
@@ -113,3 +118,15 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
+
+// MARK: Skeleton View
+extension RestaurantListVC: SkeletonTableViewDataSource {
+    
+    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
+       return restaurantCellReuseIdentifier
+    }
+    
+    func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 10
+    }
+}

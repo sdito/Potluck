@@ -80,6 +80,7 @@ class RestaurantSelectedView: UIView {
         }
         
         let dummyWidth = self.frame.width
+        let dummyHeight = self.frame.height
         // extra width equal to the extra distance needed, whole view width minus dummyWidth, divided by two (view is centered)
         let extraWidth = (UIScreen.main.bounds.width - dummyWidth) / 2.0
         
@@ -92,7 +93,6 @@ class RestaurantSelectedView: UIView {
             
             NSLayoutConstraint.activate([
                 dummyView.widthAnchor.constraint(equalToConstant: dummyWidth),
-                dummyView.heightAnchor.constraint(equalToConstant: self.frame.height),
                 dummyView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
                 
             ])
@@ -288,6 +288,8 @@ class RestaurantSelectedView: UIView {
         moneyAndTypeLabel.translatesAutoresizingMaskIntoConstraints = false
         setMoneyAndTypeLabelText(restaurant)
         moneyAndTypeLabel.textColor = .secondaryLabel
+        moneyAndTypeLabel.font = .mediumBold
+        moneyAndTypeLabel.numberOfLines = 2
         topRightStackView.addArrangedSubview(moneyAndTypeLabel)
         
     }

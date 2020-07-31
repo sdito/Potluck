@@ -116,9 +116,8 @@ class RestaurantCell: UITableViewCell {
         transactionsStackView.alignment = .leading
         
         innerStackView.addArrangedSubview(transactionsStackView)
-        
-        
     }
+    
     
     func setUp(restaurant: Restaurant, place: Int) {
         titleLabel.text = "\(place). \(restaurant.name)"
@@ -144,12 +143,18 @@ class RestaurantCell: UITableViewCell {
     
     func setUpForSkeleton() {
         #warning("not working as expected")
+        
         self.isSkeletonable = true
         self.titleLabel.text = "This is the example title"
         self.titleLabel.isSkeletonable = true
         self.restaurantImageView.isSkeletonable = true
         self.starRatingView.isSkeletonable = true
         
+        
+        
     }
     
 }
+
+
+

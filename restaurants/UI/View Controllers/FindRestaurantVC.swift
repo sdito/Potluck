@@ -118,7 +118,6 @@ class FindRestaurantVC: UIViewController {
         restaurantListVC.view.constrainSides(to: containerView)
         restaurantListVC.didMove(toParent: self)
         
-        
         let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleFullScreenPanningSelector))
         self.containerView.addGestureRecognizer(panGestureRecognizer)
 
@@ -239,10 +238,7 @@ class FindRestaurantVC: UIViewController {
     }
     
     private func scrollChildToMiddle() {
-
         // If an annotation is currently selected, scroll to that row in the table view
-        #warning("need to complete")
-        
         if let constant = middleConstraintConstantForChild {
             childPosition = .middle
             handleShowingOrHidingSelectedView()
@@ -348,12 +344,21 @@ class FindRestaurantVC: UIViewController {
 
 // MARK: CLLocationManagerDelegate
 extension FindRestaurantVC: CLLocationManagerDelegate {
-    #warning("see if i need to complete this")
+    
     func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
         print("probably need to complete")
     }
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         print("Need to complete: \(status.rawValue)")
+        switch status {
+        case .notDetermined, .restricted, .denied:
+            #warning("see if i need to complete this")
+            print("Need to decide")
+        case .authorizedAlways, .authorizedWhenInUse:
+            setUp()
+        @unknown default:
+            break
+        }
     }
 }
 
@@ -366,11 +371,29 @@ extension FindRestaurantVC: MKMapViewDelegate {
         }
     }
     
+    #warning("move to extension eventually")
+    private func handleMapZooming(distanceFromTop: CGFloat, distanceFromBottom: CGFloat) {
+        print("Potentially need to handle map zooming")
+        let mapRect = mapView.region
+        let spanHeight = mapRect.span.latitudeDelta
+        let spanWidth = mapRect.span.longitudeDelta
+        let center = mapRect.center
+        let centerLatitude = center.latitude
+        print(spanHeight, spanWidth, centerLatitude)
+        
+        
+        
+    }
+    
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         // Scroll to the correct cell
         if let restaurantAnnotation = view as? RestaurantAnnotationView, let annotationRestaurant = restaurantAnnotation.restaurant {
             createSelectedRestaurantView(annotationRestaurant: annotationRestaurant)
         }
+        
+        let bottomDistance = containerView.bounds.height - childTopAnchor.constant
+        
+        handleMapZooming(distanceFromTop: restaurantSelectedView?.bounds.height ?? 0.0, distanceFromBottom: bottomDistance)
         
     }
 
@@ -443,6 +466,7 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
     }
     
     func previousButtonSelected(rest: Restaurant) {
+        
         let allAnnotations = mapView.annotations
         let indexOfCurrRestaurant = restaurants.firstIndex { (r) -> Bool in
             r.id == rest.id
@@ -459,5 +483,8 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
             }
         }
     }
+    
+    
+    
     
 }
