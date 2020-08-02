@@ -150,7 +150,7 @@ extension WebVC: WKUIDelegate, WKNavigationDelegate, UIScrollViewDelegate {
             }
         } else if contentOffset > lastContentOffset {
             if containerViewIsShown {
-                containerView.hideFromScreen(removeAtEnd: false)
+                containerView.hideFromScreenSwipe(removeAtEnd: false)
                 containerViewIsShown = false
             }
         } else {

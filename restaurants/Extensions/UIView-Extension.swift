@@ -11,6 +11,31 @@ import SkeletonView
 
 extension UIView {
     
+    @discardableResult
+    func addGestureToIncreaseAndDecreaseSizeOnPresses() -> UIButton {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(button)
+        button.constrainSides(to: self)
+        button.addTarget(self, action: #selector(touchDown), for: [.touchDown, .touchDragEnter])
+        button.addTarget(self, action: #selector(touchUp), for: [.touchDragExit, .touchUpInside, .touchCancel])
+        return button
+    }
+    
+    @objc private func touchDown() {
+        // Transform the view to show it is being selected
+        UIView.animate(withDuration: 0.2, animations: {
+            self.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+        })
+    }
+
+    @objc private func touchUp() {
+        // Transform the view back to normal
+        UIView.animate(withDuration: 0.2, animations: {
+            self.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+        })
+    }
+    
     func setGradientBackground(colorOne: UIColor, colorTwo: UIColor) {
         let gradientLayer = CAGradientLayer()
         gradientLayer.frame = bounds
@@ -46,7 +71,8 @@ extension UIView {
     
     func showFromBottom(on view: UIView, extraDistance: CGFloat = .overlayDistanceFromBottom) {
         self.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        self.bottomAnchor.constraint(equalTo: view.topAnchor, constant: -10.0).isActive = true
+        let bottomConstraint = self.bottomAnchor.constraint(equalTo: view.topAnchor, constant: -10.0)
+        bottomConstraint.isActive = true
         
         self.layoutIfNeeded()
         self.alpha = 0.0
@@ -57,18 +83,34 @@ extension UIView {
         
     }
     
+
+    
+    func hideFromScreenSwipe(removeAtEnd: Bool = true) {
+        if let view = self.findViewController()?.view {
+            let distanceNeeded = view.frame.size.height - self.frame.origin.y
+            let transformation = CGAffineTransform(translationX: 0, y: distanceNeeded)
+            UIView.animate(withDuration: 0.3, animations: {
+                self.transform = transformation
+            }) { (true) in
+                if removeAtEnd {
+                    self.removeFromSuperview()
+                }
+            }
+        }
+    }
+    
     func showAgainAlignAtBottom() {
         UIView.animate(withDuration: 0.3) {
             self.transform = CGAffineTransform.identity
         }
     }
     
-    func shadowAndRounded(cornerRadius: CGFloat) {
+    func shadowAndRounded(cornerRadius: CGFloat, shadowRadius: CGFloat = 6.0) {
         self.layer.cornerRadius = cornerRadius
         self.layer.shadowColor = UIColor.black.cgColor
         self.layer.shadowOffset = CGSize(width: 0.0, height: 0.0)
         self.layer.shadowOpacity = 0.6
-        self.layer.shadowRadius = 6.0
+        self.layer.shadowRadius = shadowRadius
         
     }
     

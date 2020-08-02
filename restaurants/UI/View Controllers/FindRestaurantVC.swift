@@ -110,7 +110,7 @@ class FindRestaurantVC: UIViewController {
             childTopAnchor
         ])
         
-        restaurantListVC = RestaurantListVC()
+        restaurantListVC = RestaurantListVC(owner: self)
         addChild(restaurantListVC)
         restaurantListVC.view.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(restaurantListVC.view)
@@ -372,16 +372,65 @@ extension FindRestaurantVC: MKMapViewDelegate {
     }
     
     #warning("move to extension eventually")
-    private func handleMapZooming(distanceFromTop: CGFloat, distanceFromBottom: CGFloat) {
+    private func handleMapZooming(distanceFromTop: CGFloat, distanceFromBottom: CGFloat, pointToCheck: CLLocationCoordinate2D) {
         print("Potentially need to handle map zooming")
         let mapRect = mapView.region
-        let spanHeight = mapRect.span.latitudeDelta
-        let spanWidth = mapRect.span.longitudeDelta
+        
+        let spanHeight = CGFloat(mapRect.span.latitudeDelta)
+        let spanWidth = CGFloat(mapRect.span.longitudeDelta)
         let center = mapRect.center
-        let centerLatitude = center.latitude
-        print(spanHeight, spanWidth, centerLatitude)
+
         
+        let actualViewHeight = mapView.bounds.height
         
+        let topToRemoveRatio = distanceFromTop / actualViewHeight
+        let bottomToRemoveRatio = distanceFromBottom / actualViewHeight
+        
+        let topSpanToRemove = spanHeight * topToRemoveRatio
+        let bottomSpanToRemove = spanHeight * bottomToRemoveRatio
+        
+        let newMapHeight = spanHeight - topSpanToRemove - bottomSpanToRemove
+        
+        // need to get the new center now
+        var originalCoordinateLatitude = center.latitude
+        originalCoordinateLatitude += Double(bottomSpanToRemove) / 2.0
+        originalCoordinateLatitude -= Double(topSpanToRemove) / 2.0
+        
+        let newCenterCoordinate = CLLocationCoordinate2D(latitude: originalCoordinateLatitude, longitude: center.longitude)
+        
+        let paddingPercent: CGFloat = 0.8
+        let newSpan = MKCoordinateRegion(center: newCenterCoordinate, span: MKCoordinateSpan(latitudeDelta: CLLocationDegrees(newMapHeight * paddingPercent),
+                                                                                             longitudeDelta: CLLocationDegrees(spanWidth * paddingPercent)))
+        /*
+        print("\n")
+        print("Top ratio: \(topToRemoveRatio), Bottom ratio: \(bottomToRemoveRatio)")
+        print("Top to remove: \(topSpanToRemove), Bottom to remove: \(bottomSpanToRemove)")
+        print("Span height: \(spanHeight)")
+        print("Centers: new: \(newSpan.center.latitude), old: \(mapRect.center.latitude)")
+        print("Height: new: \(newSpan.span.latitudeDelta), old: \(mapRect.span.latitudeDelta)")
+        print("Coordinates: \(pointToCheck.latitude), \(pointToCheck.longitude)")
+        */
+        
+        // Span should  be good here, now need to figure out if the new point is in the span
+        
+        // Horizontal
+        let minimumLongitude = newSpan.center.longitude - newSpan.span.longitudeDelta / 2.0
+        let maximumLongitude = newSpan.center.longitude + newSpan.span.longitudeDelta / 2.0
+        
+        // Vertical
+        let minimumLatitude = newSpan.center.latitude - newSpan.span.latitudeDelta / 2.0
+        let maximumLatitude = newSpan.center.latitude + newSpan.span.latitudeDelta / 2.0
+        
+        let inLongitude = minimumLongitude...maximumLongitude ~= pointToCheck.longitude
+        let inLatitude = minimumLatitude...maximumLatitude ~= pointToCheck.latitude
+        
+        // Some slight issues with horizontal
+        // Need to bring them all in by lets say 20%, just alter the span
+        print(mapView.region)
+        
+        if !inLongitude || !inLatitude {
+            mapView.setCenter(pointToCheck, animated: true)
+        }
         
     }
     
@@ -391,9 +440,19 @@ extension FindRestaurantVC: MKMapViewDelegate {
             createSelectedRestaurantView(annotationRestaurant: annotationRestaurant)
         }
         
-        let bottomDistance = containerView.bounds.height - childTopAnchor.constant
+        var bottomDistance = containerView.bounds.height - childTopAnchor.constant
         
-        handleMapZooming(distanceFromTop: restaurantSelectedView?.bounds.height ?? 0.0, distanceFromBottom: bottomDistance)
+        if moreRestaurantsButtonShown, let mrbs = moreRestaurantsButton {
+            print("Height added again: \(mrbs.bounds.height)")
+            bottomDistance += mrbs.bounds.height + 10.0 // 10.0 for the constraint distance
+            
+            
+        }
+        
+        if let coord = view.annotation?.coordinate {
+            handleMapZooming(distanceFromTop: restaurantSelectedView?.bounds.height ?? 0.0, distanceFromBottom: bottomDistance, pointToCheck: coord)
+        }
+        
         
     }
 
@@ -427,6 +486,12 @@ extension FindRestaurantVC: MKMapViewDelegate {
 
 }
 
+extension FindRestaurantVC: RestaurantCellDelegate {
+    func mapButtonPressed(restaurant: Restaurant) {
+        selectRestaurantAnnotation(rest: restaurant)
+    }
+}
+
 
 // MARK: UIGestureRecognizerDelegate
 extension FindRestaurantVC: UIGestureRecognizerDelegate {
@@ -448,31 +513,25 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
     }
     
     func nextButtonSelected(rest: Restaurant) {
-        let allAnnotations = mapView.annotations
-        let indexOfCurrRestaurant = restaurants.firstIndex { (r) -> Bool in
-            r.id == rest.id
-        }
-        if let index = indexOfCurrRestaurant {
-            let numToFind = index + 2
-            for annotation in allAnnotations {
-                if let restAnnotation = annotation as? RestaurantAnnotation {
-                    if restAnnotation.place == numToFind {
-                        selectedViewTransitionStyle = .forward
-                        mapView.selectAnnotation(restAnnotation, animated: true)
-                    }
-                }
-            }
-        }
+        selectRestaurantAnnotationHelper(rest: rest, indexDifference: 2)
     }
     
     func previousButtonSelected(rest: Restaurant) {
+        selectRestaurantAnnotationHelper(rest: rest, indexDifference: 0)
         
+    }
+    
+    private func selectRestaurantAnnotation(rest: Restaurant) {
+        selectRestaurantAnnotationHelper(rest: rest, indexDifference: 1)
+    }
+    
+    private func selectRestaurantAnnotationHelper(rest: Restaurant, indexDifference: Int)  {
         let allAnnotations = mapView.annotations
         let indexOfCurrRestaurant = restaurants.firstIndex { (r) -> Bool in
             r.id == rest.id
         }
         if let index = indexOfCurrRestaurant {
-            let numToFind = index
+            let numToFind = index + indexDifference
             for annotation in allAnnotations {
                 if let restAnnotation = annotation as? RestaurantAnnotation {
                     if restAnnotation.place == numToFind {
@@ -482,6 +541,7 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
                 }
             }
         }
+        
     }
     
     

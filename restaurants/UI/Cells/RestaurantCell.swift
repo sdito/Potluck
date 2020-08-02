@@ -8,15 +8,27 @@
 
 import UIKit
 
+
+
+protocol RestaurantCellDelegate: class {
+    func mapButtonPressed(restaurant: Restaurant)
+}
+
+
+
 class RestaurantCell: UITableViewCell {
     
-    private var titleLabel: UILabel!
+    private var restaurant: Restaurant!
+    private weak var delegate: RestaurantCellDelegate!
+    
+    var titleLabel: UILabel!
     var restaurantImageView: UIImageView!
     private var stackView: UIStackView!
     private var starRatingView: StarRatingView!
     private var distanceLabel: UILabel!
+    private var innerStackView: UIStackView!
+    private var outerStackView: UIStackView!
     
-    #warning("need to make sure im using it")
     private var reservationsLabel: UILabel!
     private var deliveryLabel: UILabel!
     private var takeoutLabel: UILabel!
@@ -27,12 +39,21 @@ class RestaurantCell: UITableViewCell {
         setUpForSkeleton()
     }
     
-    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
     
     private func setUpUiElements() {
+        setUpMainStackView()
+        setUpTitleLabel()
+        setUpStarRatingStack()
+        setUpImageView()
+        setUpOuterStackView()
+        setUpInnerStackView()
+        setUpTransactions()
+    }
+    
+    private func setUpMainStackView() {
         stackView = UIStackView()
         stackView.axis = .vertical
         stackView.distribution = .fill
@@ -41,16 +62,41 @@ class RestaurantCell: UITableViewCell {
         stackView.spacing = 7.5
         self.addSubview(stackView)
         stackView.constrainSides(to: self, distance: 15.0)
-        
+    }
+    
+    private func setUpTitleLabel() {
         titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = .createdTitle
         titleLabel.numberOfLines = 0
         stackView.addArrangedSubview(titleLabel)
-        
+    }
+    
+    private func setUpStarRatingStack() {
+        let starRatingStackView = UIStackView()
+        starRatingStackView.translatesAutoresizingMaskIntoConstraints = false
+        starRatingStackView.spacing = 10.0
+        starRatingStackView.alignment = .leading
+        starRatingStackView.distribution = .fill
+    
         starRatingView = StarRatingView(stars: 0, numReviews: 1, forceWhite: false, noBackgroundColor: true)
-        stackView.addArrangedSubview(starRatingView)
         
+        starRatingStackView.addArrangedSubview(starRatingView)
+        
+        let mapButton = UIButton()
+        mapButton.translatesAutoresizingMaskIntoConstraints = false
+        let config = UIImage.SymbolConfiguration(scale: .large)
+        let mapImage = UIImage(systemName: "map", withConfiguration: config)!
+        mapButton.setImage(mapImage, for: .normal)
+        mapButton.tintColor = Colors.main
+        mapButton.addTarget(self, action: #selector(mapButtonSelected), for: .touchUpInside)
+        
+        starRatingStackView.addArrangedSubview(mapButton)
+        
+        stackView.addArrangedSubview(starRatingStackView)
+    }
+    
+    private func setUpImageView() {
         restaurantImageView = UIImageView()
         restaurantImageView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -60,16 +106,53 @@ class RestaurantCell: UITableViewCell {
         restaurantImageView.backgroundColor = .secondarySystemBackground
         restaurantImageView.layer.cornerRadius = 5.0
         restaurantImageView.clipsToBounds = true
+    }
+    
+    private func setUpTransactions() {
+        // Set up transactions labels, in stack view
+            deliveryLabel = PaddingLabel(top: 3.0, bottom: 3.0, left: 5.0, right: 5.0)
+            takeoutLabel = PaddingLabel(top: 3.0, bottom: 3.0, left: 5.0, right: 5.0)
+            reservationsLabel = PaddingLabel(top: 3.0, bottom: 3.0, left: 5.0, right: 5.0)
+            
+            [deliveryLabel, takeoutLabel, reservationsLabel].forEach { (lab) in
+                lab?.translatesAutoresizingMaskIntoConstraints = false
+                lab?.textAlignment = .left
+                lab?.backgroundColor = .secondarySystemBackground
+                lab?.layer.cornerRadius = 5.0
+                lab?.clipsToBounds = true
+            }
+            
+            
+            deliveryLabel.attributedText = NSAttributedString(string: "Delivery")
+            takeoutLabel.attributedText = NSAttributedString(string: "Pickup")
+            reservationsLabel.attributedText = NSAttributedString(string: "Reservations")
+            
         
-        let outerStackView = UIStackView()
+            let transactionsStackView = UIStackView(arrangedSubviews: [deliveryLabel, takeoutLabel, reservationsLabel])
+            // set them all equal widths to each other
+            deliveryLabel.widthAnchor.constraint(equalTo: takeoutLabel.widthAnchor).isActive = true
+            takeoutLabel.widthAnchor.constraint(equalTo: reservationsLabel.widthAnchor).isActive = true
+            
+            transactionsStackView.axis = .vertical
+            transactionsStackView.spacing = 7.5
+            transactionsStackView.distribution = .fillEqually
+            transactionsStackView.alignment = .leading
+            
+            innerStackView.addArrangedSubview(transactionsStackView)
+    }
+    
+    private func setUpOuterStackView() {
+        outerStackView = UIStackView()
         outerStackView.translatesAutoresizingMaskIntoConstraints = false
         outerStackView.axis = .horizontal
         outerStackView.addArrangedSubview(restaurantImageView)
         outerStackView.distribution = .fill
         outerStackView.alignment = .leading
         outerStackView.spacing = 5.0
-        
-        let innerStackView = UIStackView()
+    }
+    
+    private func setUpInnerStackView() {
+        innerStackView = UIStackView()
         innerStackView.translatesAutoresizingMaskIntoConstraints = false
         innerStackView.axis = .vertical
         innerStackView.alignment = .leading
@@ -84,42 +167,12 @@ class RestaurantCell: UITableViewCell {
         
         outerStackView.addArrangedSubview(innerStackView)
         stackView.addArrangedSubview(outerStackView)
-        
-        // Set up transactions labels, in stack view
-        deliveryLabel = PaddingLabel(top: 3.0, bottom: 3.0, left: 5.0, right: 5.0)
-        takeoutLabel = PaddingLabel(top: 3.0, bottom: 3.0, left: 5.0, right: 5.0)
-        reservationsLabel = PaddingLabel(top: 3.0, bottom: 3.0, left: 5.0, right: 5.0)
-        
-        [deliveryLabel, takeoutLabel, reservationsLabel].forEach { (lab) in
-            lab?.translatesAutoresizingMaskIntoConstraints = false
-            lab?.textAlignment = .left
-            lab?.backgroundColor = .secondarySystemBackground
-            lab?.layer.cornerRadius = 5.0
-            lab?.clipsToBounds = true
-        }
-        
-        
-        
-        deliveryLabel.attributedText = NSAttributedString(string: "Delivery")
-        takeoutLabel.attributedText = NSAttributedString(string: "Pickup")
-        reservationsLabel.attributedText = NSAttributedString(string: "Reservations")
-        
-    
-        let transactionsStackView = UIStackView(arrangedSubviews: [deliveryLabel, takeoutLabel, reservationsLabel])
-        // set them all equal widths to each other
-        deliveryLabel.widthAnchor.constraint(equalTo: takeoutLabel.widthAnchor).isActive = true
-        takeoutLabel.widthAnchor.constraint(equalTo: reservationsLabel.widthAnchor).isActive = true
-        
-        transactionsStackView.axis = .vertical
-        transactionsStackView.spacing = 7.5
-        transactionsStackView.distribution = .fillEqually
-        transactionsStackView.alignment = .leading
-        
-        innerStackView.addArrangedSubview(transactionsStackView)
     }
     
-    
-    func setUp(restaurant: Restaurant, place: Int) {
+    func setUp(restaurant: Restaurant, place: Int, vc: UIViewController) {
+        self.restaurant = restaurant
+        self.delegate = vc as? RestaurantCellDelegate
+        self.tag = place - 1
         titleLabel.text = "\(place). \(restaurant.name)"
         starRatingView.updateNumberOfStarsAndReviews(stars: restaurant.rating, numReviews: restaurant.reviewCount)
         let miles = (Measurement(value: restaurant.distance, unit: UnitLength.meters).converted(to: UnitLength.miles).value * 10).rounded() / 10.0
@@ -144,14 +197,17 @@ class RestaurantCell: UITableViewCell {
     func setUpForSkeleton() {
         #warning("not working as expected")
         
-        self.isSkeletonable = true
+        //self.isSkeletonable = true
         self.titleLabel.text = "This is the example title"
         self.titleLabel.isSkeletonable = true
         self.restaurantImageView.isSkeletonable = true
         self.starRatingView.isSkeletonable = true
         
         
-        
+    }
+    
+    @objc private func mapButtonSelected() {
+        delegate.mapButtonPressed(restaurant: restaurant)
     }
     
 }
