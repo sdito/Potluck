@@ -145,8 +145,8 @@ class RestaurantListVC: UIViewController {
     }
     
     @objc private func searchBarPressed() {
-        #warning("need to complete")
-        print("Search bar pressed")
+        #warning("need to send information, complete")
+        self.navigationController?.pushViewController(SearchRestaurantsVC(), animated: true)
     }
     
     private func setUpTableView() {

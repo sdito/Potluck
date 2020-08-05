@@ -62,7 +62,7 @@ class FindRestaurantVC: UIViewController {
     }
 
     private func setUp () {
-        self.title = "Search"
+        self.title = "Explore"
         if self.locationServicesEnabled() {
             if locationManager.handleAuthorization(on: self) {
                 mapView.showsUserLocation = true
