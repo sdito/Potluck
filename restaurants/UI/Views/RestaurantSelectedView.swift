@@ -309,6 +309,8 @@ class RestaurantSelectedView: UIView {
         button.addTarget(self, action: #selector(touchDown), for: [.touchDown, .touchDragEnter])
         button.addTarget(self, action: #selector(touchUp), for: [.touchDragExit, .touchUpInside])
         button.addTarget(self, action: #selector(buttonSelected), for: .touchUpInside)
+        
+        
     }
 
     

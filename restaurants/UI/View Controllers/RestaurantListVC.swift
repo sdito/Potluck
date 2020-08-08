@@ -10,7 +10,6 @@ import UIKit
 import Hero
 import SkeletonView
 
-
 class RestaurantListVC: UIViewController {
     
     private var imageCache = NSCache<NSString, UIImage>()

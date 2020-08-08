@@ -21,6 +21,8 @@ extension CLLocationCoordinate2D {
             "latitude": latitude,
             "longitude": longitude
         ]
+        
+        
         return params
     }
     

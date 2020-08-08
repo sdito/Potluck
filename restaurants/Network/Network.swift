@@ -56,7 +56,7 @@ class Network {
     
     func getRestaurants(coordinate: CLLocationCoordinate2D, restaurantsReturned: @escaping (Result<[Restaurant], Error>) -> Void) {
         var params = coordinate.getParams()
-        params["term"] = "restaurants"
+        params["categories"] = "creperies"
         let request = req(params: params, requestType: .search)
         request.responseJSON { (response) in
             switch response.result {
