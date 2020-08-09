@@ -22,6 +22,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.windowScene = windowScene
         window?.rootViewController = UINavigationController(rootViewController: FindRestaurantVC())
         window?.makeKeyAndVisible()
+        
+        Network.shared.setUpInitialRun()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

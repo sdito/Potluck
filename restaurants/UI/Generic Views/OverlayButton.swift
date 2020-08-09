@@ -27,7 +27,7 @@ class OverlayButton: UIButton {
         self.clipsToBounds = true
         self.translatesAutoresizingMaskIntoConstraints = false
         self.contentEdgeInsets = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
-        
+        self.titleLabel?.font = .largerBold
         self.addTarget(self, action: #selector(touchDown), for: [.touchDown, .touchDragEnter])
         self.addTarget(self, action: #selector(touchUp), for: [.touchDragExit, .touchUpInside])
         

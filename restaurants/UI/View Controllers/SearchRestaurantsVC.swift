@@ -14,20 +14,21 @@ class SearchRestaurantsVC: UIViewController {
     private var tableViewDisplay: TableViewDisplay = .none
     
     private var locationResults: [String] = []
+    private var searchTypeResults: Network.YelpCategories = []
     
     private let cellReuseIdentifier: String = "reuseIdentifierSR"
     private let searchBarHeight: CGFloat = 50.0
+    private let currentLocation = "Current location"
+    
     private var searchTypeSearchBar: UISearchBar!
     private var locationSearchBar: UISearchBar!
     private var tableView: UITableView!
     private var request: MKLocalSearchCompleter!
     
     private enum TableViewDisplay {
-        #warning("need to use")
         case searchType
         case location
         case none
-        
     }
     
     override func viewDidLoad() {
@@ -37,7 +38,9 @@ class SearchRestaurantsVC: UIViewController {
         self.navigationController?.navigationBar.tintColor = Colors.main
         setUpTopSearchBars()
         setUpTableView()
+        setUpOverlaySearchButton()
         setUpSearchCompleter()
+        locationResults = [currentLocation]
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -68,6 +71,7 @@ class SearchRestaurantsVC: UIViewController {
             locationSearchBar.topAnchor.constraint(equalTo: searchTypeSearchBar.bottomAnchor),
             locationSearchBar.heightAnchor.constraint(equalToConstant: searchBarHeight)
         ])
+        locationSearchBar.setImage(<#T##iconImage: UIImage?##UIImage?#>, for: <#T##UISearchBar.Icon#>, state: <#T##UIControl.State#>)
         
         
         searchTypeSearchBar.delegate = self
@@ -93,6 +97,17 @@ class SearchRestaurantsVC: UIViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
     }
     
+    private func setUpOverlaySearchButton() {
+        let overlayButton = OverlayButton()
+        overlayButton.setTitle("Find restaurants", for: .normal)
+        self.view.addSubview(overlayButton)
+        
+        NSLayoutConstraint.activate([
+            overlayButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+            overlayButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -30.0)
+        ])
+    }
+    
     
     private func setUpSearchCompleter() {
         request = MKLocalSearchCompleter()
@@ -114,7 +129,7 @@ extension SearchRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch tableViewDisplay {
         case .searchType:
-            return 30
+            return searchTypeResults.count
         case .location:
             return locationResults.count
         case .none:
@@ -127,7 +142,7 @@ extension SearchRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
         var cellText: String {
             switch tableViewDisplay {
             case .searchType:
-                return "Search type: \(indexPath.row)"
+                return searchTypeResults[indexPath.row].title
             case .location:
                 return locationResults[indexPath.row]
             case .none:
@@ -139,8 +154,30 @@ extension SearchRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        #warning("need to complete")
-        
+        tableView.deselectRow(at: indexPath, animated: true)
+        switch tableViewDisplay {
+        case .searchType:
+            #warning("need to complete")
+            searchTypeSearchBar.text = searchTypeResults[indexPath.row].title
+            searchTypeSearchBar.endEditing(true)
+        case .location:
+            locationSearchBar.text = locationResults[indexPath.row]
+            locationSearchBar.endEditing(true)
+        case .none:
+            break
+        }
+        tableViewDisplay = .none
+        tableView.reloadData()
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView == tableView {
+            [locationSearchBar, searchTypeSearchBar].forEach { (bar) in
+                if let bar = bar {
+                    bar.endEditing(true)
+                }
+            }
+        }
     }
     
 }
@@ -149,10 +186,10 @@ extension SearchRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
 extension SearchRestaurantsVC: MKLocalSearchCompleterDelegate {
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
         locationResults = completer.results.map({"\($0.title) \($0.subtitle)"})
+        locationResults.insert(currentLocation, at: 0)
         if tableViewDisplay == .location {
             tableView.reloadData()
         }
-        
     }
 }
 
@@ -172,12 +209,34 @@ extension SearchRestaurantsVC: UISearchBarDelegate {
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText != "" {
-            request.queryFragment = searchText
-        } else {
-            locationResults = []
-            tableView.reloadData()
+        switch tableViewDisplay {
+        case .searchType:
+            let lowerSearchText = searchText.lowercased()
+            if searchText != "" {
+
+                var filteredResults: Network.YelpCategories = []
+                
+                for element in Network.shared.yelpCategories {
+                    let lowerText = element.title.lowercased()
+                    if lowerText.contains(lowerSearchText) {
+                        filteredResults.append(element)
+                    }
+                }
+                searchTypeResults = filteredResults
+                
+            } else {
+                searchTypeResults = []
+            }
+        case .location:
+            if searchText != "" {
+                request.queryFragment = searchText
+            } else {
+                locationResults = [currentLocation]
+            }
+        case .none:
+            break
         }
+        tableView.reloadData()
     }
     
 }

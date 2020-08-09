@@ -35,6 +35,10 @@ class FindRestaurantVC: UIViewController {
     private var restaurantSelectedView: RestaurantSelectedView?
     private var userMovedMapView = false
     
+    private let previousIndex = 0
+    private let nextIndex = 2
+    private let currIndex = 1
+    
     private enum ChildPosition {
         case top
         case middle
@@ -513,16 +517,15 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
     }
     
     func nextButtonSelected(rest: Restaurant) {
-        selectRestaurantAnnotationHelper(rest: rest, indexDifference: 2)
+        selectRestaurantAnnotationHelper(rest: rest, indexDifference: nextIndex)
     }
     
     func previousButtonSelected(rest: Restaurant) {
-        selectRestaurantAnnotationHelper(rest: rest, indexDifference: 0)
-        
+        selectRestaurantAnnotationHelper(rest: rest, indexDifference: previousIndex)
     }
     
     private func selectRestaurantAnnotation(rest: Restaurant) {
-        selectRestaurantAnnotationHelper(rest: rest, indexDifference: 1)
+        selectRestaurantAnnotationHelper(rest: rest, indexDifference: currIndex)
     }
     
     private func selectRestaurantAnnotationHelper(rest: Restaurant, indexDifference: Int)  {
@@ -534,8 +537,16 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
             let numToFind = index + indexDifference
             for annotation in allAnnotations {
                 if let restAnnotation = annotation as? RestaurantAnnotation {
-                    if restAnnotation.place == numToFind {
+                    
+                    if indexDifference == previousIndex {
                         selectedViewTransitionStyle = .back
+                    } else if indexDifference == nextIndex {
+                        selectedViewTransitionStyle = .forward
+                    } else {
+                        selectedViewTransitionStyle = .none
+                    }
+                    
+                    if restAnnotation.place == numToFind {
                         mapView.selectAnnotation(restAnnotation, animated: true)
                     }
                 }

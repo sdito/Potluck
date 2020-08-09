@@ -12,10 +12,11 @@ import CoreLocation
 
 class Network {
     
-    static let yelpKey = "oXMAqpsZfTY1TpOVzrd-kq6IGlbN5iz-BkS0GLMFJv1loE-Mu1EJio8Ui3cFpk0r_rAzAnLK4ZVzH2aR7jNw6dYwFZznzmiwD4YzwjAvPOx8X8bGPOlM8dOWs_LOXnYx"
-    static let yelpURL = "https://api.yelp.com/v3/businesses/"
-
+    typealias YelpCategories = [(alias: String?, title: String)]
+    var yelpCategories: YelpCategories = []
     
+    static let yelpKey = "oXMAqpsZfTY1TpOVzrd-kq6IGlbN5iz-BkS0GLMFJv1loE-Mu1EJio8Ui3cFpk0r_rAzAnLK4ZVzH2aR7jNw6dYwFZznzmiwD4YzwjAvPOx8X8bGPOlM8dOWs_LOXnYx"
+    static let yelpURL = "https://api.yelp.com/v3/"
     static let shared = Network()
     private init() {}
     
@@ -23,17 +24,20 @@ class Network {
         case search
         case id
         case review
+        case categories
     }
     
     private func req(params: Parameters? = nil, restaurant: Restaurant? = nil, requestType: RequestType) -> DataRequest {
         var url: String {
             switch requestType {
             case .search:
-                return "search"
+                return "businesses/search"
             case .id:
-                return restaurant!.id
+                return "businesses/\(restaurant!.id)"
             case .review:
-                return "\(restaurant!.id)/reviews"
+                return "businesses/\(restaurant!.id)/reviews"
+            case .categories:
+                return "categories"
             }
         }
         
@@ -56,7 +60,7 @@ class Network {
     
     func getRestaurants(coordinate: CLLocationCoordinate2D, restaurantsReturned: @escaping (Result<[Restaurant], Error>) -> Void) {
         var params = coordinate.getParams()
-        params["categories"] = "creperies"
+        params["categories"] = "restaurants"
         let request = req(params: params, requestType: .search)
         request.responseJSON { (response) in
             switch response.result {
@@ -138,6 +142,38 @@ class Network {
             }
         }
         
+    }
+    
+    func setUpInitialRun() {
+        setCategoriesForYelpSearch()
+    }
+    
+    private func setCategoriesForYelpSearch() {
+        let countryCode = "en_\(Locale.current.regionCode ?? "US")"
+        let params: [String:Any] = [
+            "locale": countryCode
+        ]
+        
+        let request = req(params: params, requestType: .categories)
+        request.responseJSON { (response) in
+            switch response.result {
+            case .success(let jsonAny):
+                var results: YelpCategories = []
+                guard let jsonData = jsonAny as? [String:Any] else { return }
+                guard let arrayOfJson = jsonData["categories"] as? [[String:Any]] else { return }
+                for element in arrayOfJson {
+                    
+                    if let aliases = element["parent_aliases"] as? [String], aliases.contains("restaurants") {
+                        guard let alias = element["alias"] as? String, let title = element["title"] as? String else { return }
+                        results.append((alias, title))
+                    }
+                    
+                }
+                self.yelpCategories = results
+            case .failure(_):
+                print("Error, something went wrong on setCategoriesForYelpSearch")
+            }
+        }
     }
     
     

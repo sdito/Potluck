@@ -190,7 +190,6 @@ class RestaurantSelectedView: UIView {
     }
     
     private func setUpBackAndNextButtons(isFirst: Bool, isLast: Bool) {
-        #warning("need to use isFirst and isLast")
         let buttonData = [(backButtonTag, "<"), (forwardButtonTag, ">")]
         for data in buttonData {
             let newButton = SizeChangeButton(sizeDifference: .large)
@@ -209,7 +208,6 @@ class RestaurantSelectedView: UIView {
                 newButton.isUserInteractionEnabled = false
                 newButton.alpha = 0.0
             }
-            
         }
     }
     
@@ -252,7 +250,6 @@ class RestaurantSelectedView: UIView {
         imageView.widthAnchor.constraint(equalToConstant: imageViewWidth).isActive = true
         
         if !isDummy {
-            #warning("constraint is broken for some reason on dummy")
             imageView.addImageFromUrl(restaurant.imageURL, skeleton: true)
         }
         
