@@ -9,16 +9,27 @@
 import UIKit
 import MapKit
 
+
+protocol SearchCompleteDelegate: class {
+    func newSearchCompleted(searchType: Network.YelpCategory, locationText: String?)
+}
+
+
 class SearchRestaurantsVC: UIViewController {
     
+    weak var delegate: SearchCompleteDelegate!
+    
+    private var previousLocationSearches: [String] = []
+    private var searchType: Network.YelpCategory!
+    private var searchLocation: String!
+    
     private var tableViewDisplay: TableViewDisplay = .none
-    
     private var locationResults: [String] = []
-    private var searchTypeResults: Network.YelpCategories = []
+    private var searchTypeResults: Network.YelpCategories = Network.commonSearches
     
+    private let recentLocationSearchesKey = "recentLocationSearchesKey"
     private let cellReuseIdentifier: String = "reuseIdentifierSR"
     private let searchBarHeight: CGFloat = 50.0
-    private let currentLocation = "Current location"
     
     private var searchTypeSearchBar: UISearchBar!
     private var locationSearchBar: UISearchBar!
@@ -31,6 +42,17 @@ class SearchRestaurantsVC: UIViewController {
         case none
     }
     
+    init(searchType: Network.YelpCategory?, searchLocation: String?, control: UIViewController) {
+        self.searchType = searchType ?? ("restaurants", "Restaurants")
+        self.searchLocation = searchLocation ?? .currentLocation
+        self.delegate = control as? SearchCompleteDelegate
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
@@ -40,7 +62,10 @@ class SearchRestaurantsVC: UIViewController {
         setUpTableView()
         setUpOverlaySearchButton()
         setUpSearchCompleter()
-        locationResults = [currentLocation]
+        readRecentLocationSearchesFromUserDefaults()
+        
+        locationResults = [.currentLocation, .mapLocation] + previousLocationSearches
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -71,11 +96,21 @@ class SearchRestaurantsVC: UIViewController {
             locationSearchBar.topAnchor.constraint(equalTo: searchTypeSearchBar.bottomAnchor),
             locationSearchBar.heightAnchor.constraint(equalToConstant: searchBarHeight)
         ])
-        locationSearchBar.setImage(<#T##iconImage: UIImage?##UIImage?#>, for: <#T##UISearchBar.Icon#>, state: <#T##UIControl.State#>)
         
+        searchTypeSearchBar.setImage(.bookImage, for: .search, state: .normal)
+        locationSearchBar.setImage(.locationImage, for: .search, state: .normal)
         
-        searchTypeSearchBar.delegate = self
-        locationSearchBar.delegate = self
+        searchTypeSearchBar.placeholder = "Restaurant type"
+        locationSearchBar.placeholder = "Location"
+        
+        searchTypeSearchBar.text = searchType.title
+        locationSearchBar.text = searchLocation
+        
+        [searchTypeSearchBar, locationSearchBar].forEach({ (bar) in
+            bar?.delegate = self
+            bar?.searchTextField.font = .mediumBold
+        })
+        
         
     }
     
@@ -106,20 +141,48 @@ class SearchRestaurantsVC: UIViewController {
             overlayButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
             overlayButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -30.0)
         ])
+        
+        overlayButton.addTarget(self, action: #selector(executeSearch), for: .touchUpInside)
     }
     
     
     private func setUpSearchCompleter() {
         request = MKLocalSearchCompleter()
         request.resultTypes = .query
-        // possibilities
-        /*[.airport, .amusementPark, .aquarium, .atm, .bakery, .bank, .beach, .brewery, .cafe, .campground, .carRental, .evCharger, .fireStation,
+        /*
+         possibilities
+         
+           .airport, .amusementPark, .aquarium, .atm, .bakery, .bank, .beach, .brewery, .cafe, .campground, .carRental, .evCharger, .fireStation,
            .fitnessCenter, .foodMarket, .gasStation, .hospital, .hotel, .laundry, .library, .marina, .movieTheater, .museum, .nationalPark,
            .nightlife, .park, .parking, .pharmacy, .police, .postOffice, .publicTransport, .restaurant, .restroom, .school, .stadium, .store,
-           .theater, .university, .winery, .zoo,]) */
+           .theater, .university, .winery, .zoo
+         */
     
         request.pointOfInterestFilter = .init(including: [.airport, .beach, .campground, .publicTransport])
         request.delegate = self
+    }
+    
+    
+    @objc private func executeSearch() {
+        self.navigationController?.popViewController(animated: true)
+        
+        if searchLocation != .currentLocation && searchLocation != .mapLocation {
+            if !previousLocationSearches.contains(searchLocation) {
+                if previousLocationSearches.count > 10 {
+                    previousLocationSearches.removeLast()
+                }
+                UserDefaults.standard.set([searchLocation] + previousLocationSearches, forKey: recentLocationSearchesKey)
+            }
+            
+        }
+        
+        
+        delegate.newSearchCompleted(searchType: searchType, locationText: searchLocation)
+    }
+    
+    private func readRecentLocationSearchesFromUserDefaults() {
+        let defaults = UserDefaults.standard
+        previousLocationSearches = defaults.array(forKey: recentLocationSearchesKey) as? [String] ?? []
     }
     
 }
@@ -139,17 +202,27 @@ extension SearchRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier)!
-        var cellText: String {
+        var location = false
+        var cellText: NSAttributedString {
             switch tableViewDisplay {
             case .searchType:
-                return searchTypeResults[indexPath.row].title
+                return NSAttributedString(string: searchTypeResults[indexPath.row].title)
             case .location:
-                return locationResults[indexPath.row]
+                let locationText = locationResults[indexPath.row]
+                if locationText == .currentLocation {
+                    location = true
+                    return locationText.addImageAtBeginning(image: .locationImage, color: Colors.locationColor)
+                } else if locationText == .mapLocation {
+                    return locationText.addImageAtBeginning(image: .mapImage, color: Colors.locationColor)
+                } else {
+                    return NSAttributedString(string: locationText)
+                }
+                
             case .none:
-                return ""
+                return NSAttributedString()
             }
         }
-        cell.textLabel?.text = cellText
+        cell.textLabel?.attributedText = cellText
         return cell
     }
     
@@ -157,11 +230,14 @@ extension SearchRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         switch tableViewDisplay {
         case .searchType:
-            #warning("need to complete")
-            searchTypeSearchBar.text = searchTypeResults[indexPath.row].title
+            let newText = searchTypeResults[indexPath.row]
+            searchType = newText
+            searchTypeSearchBar.text = newText.title
             searchTypeSearchBar.endEditing(true)
         case .location:
-            locationSearchBar.text = locationResults[indexPath.row]
+            let newText = locationResults[indexPath.row]
+            searchLocation = newText
+            locationSearchBar.text = newText
             locationSearchBar.endEditing(true)
         case .none:
             break
@@ -186,7 +262,8 @@ extension SearchRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
 extension SearchRestaurantsVC: MKLocalSearchCompleterDelegate {
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
         locationResults = completer.results.map({"\($0.title) \($0.subtitle)"})
-        locationResults.insert(currentLocation, at: 0)
+        locationResults.insert(.currentLocation, at: 0)
+        locationResults.insert(.mapLocation, at: 1)
         if tableViewDisplay == .location {
             tableView.reloadData()
         }
@@ -197,8 +274,10 @@ extension SearchRestaurantsVC: MKLocalSearchCompleterDelegate {
 // MARK: UISearchBarDelegate
 extension SearchRestaurantsVC: UISearchBarDelegate {
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        
         if searchBar === locationSearchBar {
             tableViewDisplay = .location
+            searchBar.text = ""
         } else if searchBar == searchTypeSearchBar {
             tableViewDisplay = .searchType
         } else {
@@ -206,6 +285,14 @@ extension SearchRestaurantsVC: UISearchBarDelegate {
         }
         
         tableView.reloadData()
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        if searchBar === locationSearchBar {
+            if locationSearchBar.text == "" {
+                locationSearchBar.text = searchLocation
+            }
+        }
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -224,19 +311,37 @@ extension SearchRestaurantsVC: UISearchBarDelegate {
                 }
                 searchTypeResults = filteredResults
                 
+                let matched = searchTypeResults.filter({$0.title.lowercased() == lowerSearchText})
+                if matched.count > 0 {
+                    searchType = matched[0]
+                } else {
+                    searchType = (alias: nil, title: searchText)
+                }
+                // if contains, set to with the alias, else set with alias as nil, always with title to searchType
+                
+                
             } else {
-                searchTypeResults = []
+                searchTypeResults = Network.commonSearches
             }
+            
+            
         case .location:
             if searchText != "" {
                 request.queryFragment = searchText
+                searchLocation = searchText
             } else {
-                locationResults = [currentLocation]
+                locationResults = [.currentLocation, .mapLocation] + previousLocationSearches
             }
+            
+            
         case .none:
             break
         }
         tableView.reloadData()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        executeSearch()
     }
     
 }

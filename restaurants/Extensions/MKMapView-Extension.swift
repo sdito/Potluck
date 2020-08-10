@@ -27,18 +27,11 @@ extension MKMapView {
     }
     
     
-    func showRestaurants(_ newRestaurants: [Restaurant], fitInTopHalf: Bool, coordinateForNonUserLocationSearch: CLLocationCoordinate2D?) {
+    func showRestaurants(_ newRestaurants: [Restaurant], fitInTopHalf: Bool) {
         var newAnnotations: [MKAnnotation] = []
         for (index, restaurant) in newRestaurants.enumerated() {
             let newAnnotation = RestaurantAnnotation(restaurant: restaurant, place: index + 1)
             newAnnotations.append(newAnnotation)
-        }
-        
-        if let coordinateForNonUserLocationSearch = coordinateForNonUserLocationSearch {
-            let searchAnnotation = MKPointAnnotation()
-            searchAnnotation.title = "Search location"
-            searchAnnotation.coordinate = coordinateForNonUserLocationSearch
-            newAnnotations.append(searchAnnotation)
         }
         
         self.addAnnotations(newAnnotations)

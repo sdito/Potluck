@@ -13,6 +13,14 @@ import CoreLocation
 
 class FindRestaurantVC: UIViewController {
     
+    var restaurantSearchBar: RestaurantSearchBar?
+    
+    var restaurantSearch = Network.RestaurantSearch(yelpCategory: nil, location: nil, coordinate: nil) {
+        didSet {
+            restaurantSearchBar?.update(searchInfo: self.restaurantSearch)
+        }
+    }
+    
     private var restaurantListVC: RestaurantListVC!
     private var moreRestaurantsButtonShown = false
     private var selectedViewTransitionStyle: RestaurantSelectedView.UpdateStyle = .none
@@ -47,6 +55,7 @@ class FindRestaurantVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setUpView()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -72,18 +81,8 @@ class FindRestaurantVC: UIViewController {
                 mapView.showsUserLocation = true
                 mapView.centerOnLocation(locationManager: locationManager)
                 let location = locationManager.location?.coordinate ?? .simulatorDefault
-                Network.shared.getRestaurants(coordinate: locationManager.location?.coordinate ?? .simulatorDefault) { result in
-                    switch result {
-                    case .success(let restaurants):
-                        self.userMovedMapView = false
-                        self.moreRestaurantsButtonShown = false
-                        self.moreRestaurantsButton?.hideFromScreen()
-                        self.mapView.showRestaurants(restaurants, fitInTopHalf: true, coordinateForNonUserLocationSearch: nil)
-                        self.restaurants = restaurants
-                    case .failure(let error):
-                        print("Error reading restaurants: \(error.localizedDescription)")
-                    }
-                }
+                restaurantSearch = Network.RestaurantSearch(yelpCategory: nil, location: .currentLocation, coordinate: location)
+                getRestaurantsFromPreSetRestaurantSearch(initial: true)
             }
         }
     }
@@ -316,32 +315,44 @@ class FindRestaurantVC: UIViewController {
                 createSelectedRestaurantView(annotationRestaurant: selectedRest)
             }
         }
-        
-        
     }
     
+    
     @objc private func findRestaurantsAgain() {
+        #warning("use the base function for this, this is just Map Location, use whatever the current search term is")
         userMovedMapView = false
         moreRestaurantsButton!.showLoadingOnButton()
         let location = mapView.region.center
-        Network.shared.getRestaurants(coordinate: location) { (response) in
-            
+        restaurantSearch.coordinate = location
+        restaurantSearch.location = .mapLocation
+        // Call getRestaurantsFromPreSetRestaurantSearch now
+        
+        getRestaurantsFromPreSetRestaurantSearch(initial: false)
+    }
+    
+    private func getRestaurantsFromPreSetRestaurantSearch(initial: Bool) {
+        if !initial {
+            moreRestaurantsButton?.showLoadingOnButton()
+        }
+        
+        Network.shared.getRestaurants(restaurantSearch: restaurantSearch) { (response) in
             switch response {
-            case .success(let allRestaurants):
-                // need to add the restaurants here
-                // need to set the new center
+            case .success(let newRestaurants):
                 self.mapView.removeAnnotations(self.mapView?.annotations ?? [])
-                self.restaurants = allRestaurants
-                self.mapView.showRestaurants(allRestaurants, fitInTopHalf: self.childPosition == .middle, coordinateForNonUserLocationSearch: location)
+                self.mapView.showRestaurants(newRestaurants, fitInTopHalf: self.childPosition == .middle)
                 self.restaurantListVC.scrollTableViewToTop()
+                self.restaurants = newRestaurants
             case .failure(_):
-                print("Error finding new restaurants")
+                print("Error finding restaurants")
             }
-            
+            self.userMovedMapView = false
+            self.restaurantSearchBar?.doneWithRestaurantSearch()
             self.moreRestaurantsButtonShown = false
             self.moreRestaurantsButton?.hideFromScreen()
         }
+        
     }
+    
 }
 
 
@@ -552,10 +563,30 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
                 }
             }
         }
+    }
+}
+
+// MARK: SearchRestaurantsVCDelegate
+extension FindRestaurantVC: SearchCompleteDelegate {
+    func newSearchCompleted(searchType: Network.YelpCategory, locationText: String?) {
+        
+        if let locationText = locationText {
+            restaurantSearch.location = locationText
+            if locationText == .currentLocation {
+                restaurantSearch.coordinate = locationManager.location?.coordinate ?? .simulatorDefault
+            } else if locationText == .mapLocation {
+                restaurantSearch.coordinate = mapView.centerCoordinate
+            } else {
+                restaurantSearch.coordinate = nil
+            }
+        }
+        restaurantSearch.yelpCategory = searchType
+        
+        
+        restaurantSearchBar?.update(searchInfo: restaurantSearch)
+        
+        getRestaurantsFromPreSetRestaurantSearch(initial: false)
+        
         
     }
-    
-    
-    
-    
 }

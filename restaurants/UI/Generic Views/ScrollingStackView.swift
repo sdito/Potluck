@@ -44,7 +44,7 @@ class ScrollingStackView: UIView {
         stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
-        stackView.alignment = .leading
+        stackView.alignment = .center
         stackView.spacing = 5.0
         
         for view in subviews {

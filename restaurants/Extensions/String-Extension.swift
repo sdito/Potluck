@@ -34,7 +34,7 @@ extension String {
         
     }
     
-    func addImageAtBeginning(image: UIImage, font: UIFont? = nil) -> NSAttributedString {
+    func addImageAtBeginning(image: UIImage, font: UIFont? = nil, color: UIColor? = nil) -> NSAttributedString {
         
         let string = NSMutableAttributedString()
         let imageAttachment = NSTextAttachment()
@@ -42,11 +42,19 @@ extension String {
         let imageString = NSAttributedString(attachment: imageAttachment)
         string.append(imageString)
         string.append(NSAttributedString(string: " \(self)"))
+        
         if let font = font {
             let length = string.length
             let range = NSRange(location: 0, length: length)
             string.addAttribute(NSAttributedString.Key.font, value: font, range: range)
         }
+        
+        if let color = color {
+            let length = string.length
+            let range = NSRange(location: 0, length: length)
+            string.addAttribute(NSAttributedString.Key.foregroundColor, value: color, range: range)
+        }
+        
         return string
     }
 }

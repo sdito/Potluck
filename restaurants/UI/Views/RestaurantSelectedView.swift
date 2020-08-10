@@ -192,7 +192,7 @@ class RestaurantSelectedView: UIView {
     private func setUpBackAndNextButtons(isFirst: Bool, isLast: Bool) {
         let buttonData = [(backButtonTag, "<"), (forwardButtonTag, ">")]
         for data in buttonData {
-            let newButton = SizeChangeButton(sizeDifference: .large)
+            let newButton = SizeChangeButton(sizeDifference: .large, restingColor: Colors.secondary, selectedColor: Colors.main)
             newButton.translatesAutoresizingMaskIntoConstraints = false
             wholeStackView.addArrangedSubview(newButton)
             newButton.setTitle(data.1, for: .normal)

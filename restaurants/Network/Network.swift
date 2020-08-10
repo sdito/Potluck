@@ -12,8 +12,27 @@ import CoreLocation
 
 class Network {
     
-    typealias YelpCategories = [(alias: String?, title: String)]
+    typealias YelpCategory = (alias: String?, title: String)
+    typealias YelpCategories = [YelpCategory]
     var yelpCategories: YelpCategories = []
+    private let baseCategories: YelpCategories = ["Delivery", "Takeout", "Outdoor Seating"].map({(nil, $0)})
+    static let commonSearches: YelpCategories = [("pizza", "Pizza"),
+                                                 ("chinese", "Chinese"),
+                                                 ("mexican", "Mexican"),
+                                                 ("thai", "Thai"),
+                                                 ("burgers", "Burgers"),
+                                                 ("italian", "Italian"),
+                                                 ("seafood", "Seafood"),
+                                                 ("steak", "Steakhouses"),
+                                                 ("korean", "Korean"),
+                                                 ("japanese", "Japanese"),
+                                                 ("breakfast_brunch", "Breakfast & Brunch"),
+                                                 ("vietnamese", "Vietnamese"),
+                                                 ("sandwiches", "Sandwiches"),
+                                                 ("vegetarian", "Vegetarian"),
+                                                 ("sushi", "Sushi Bars"),
+                                                 ("newamerican", "American")]
+    
     
     static let yelpKey = "oXMAqpsZfTY1TpOVzrd-kq6IGlbN5iz-BkS0GLMFJv1loE-Mu1EJio8Ui3cFpk0r_rAzAnLK4ZVzH2aR7jNw6dYwFZznzmiwD4YzwjAvPOx8X8bGPOlM8dOWs_LOXnYx"
     static let yelpURL = "https://api.yelp.com/v3/"
@@ -25,6 +44,18 @@ class Network {
         case id
         case review
         case categories
+    }
+    
+    struct RestaurantSearch {
+        var yelpCategory: YelpCategory?
+        var location: String?
+        var coordinate: CLLocationCoordinate2D?
+        
+        enum LocationType {
+            case currentLocation
+            case mapLocation
+            case text
+        }
     }
     
     private func req(params: Parameters? = nil, restaurant: Restaurant? = nil, requestType: RequestType) -> DataRequest {
@@ -58,9 +89,52 @@ class Network {
         }
     }
     
-    func getRestaurants(coordinate: CLLocationCoordinate2D, restaurantsReturned: @escaping (Result<[Restaurant], Error>) -> Void) {
-        var params = coordinate.getParams()
-        params["categories"] = "restaurants"
+    func getRestaurants(restaurantSearch: RestaurantSearch, restaurantsReturned: @escaping (Result<[Restaurant], Error>) -> Void) {
+        
+        var params: [String:Any] = [:]
+        
+        if let coordinate = restaurantSearch.coordinate {
+            params = coordinate.getParams()
+        }
+        
+        #warning("to do")
+        /*
+         
+         need to add YelpCategory to the searching
+         need to add optional location text, to use when searching for a city specifically without a coordinate
+         need to have either coordinate or location text
+         
+         YelpCategory = (alias: String?, title: String)
+         if alias is nil, then parameter is 'term' and 'categories' is restaurants as before
+         else parameter is 'categories' and the alias
+         
+         location for location text when no coordinate
+         
+         */
+        
+        
+        if let yelpCategory = restaurantSearch.yelpCategory {
+            
+            if let alias = yelpCategory.alias {
+                params["categories"] = alias
+            } else {
+                params["term"] = yelpCategory.title
+                params["categories"] = "restaurants"
+            }
+            
+        } else {
+            params["categories"] = "restaurants"
+        }
+        
+        if let locationText = restaurantSearch.location, restaurantSearch.coordinate == nil {
+            if locationText != .currentLocation && locationText != .mapLocation {
+                params["location"] = locationText
+            }
+            
+        }
+        
+        
+        
         let request = req(params: params, requestType: .search)
         request.responseJSON { (response) in
             switch response.result {
@@ -169,12 +243,11 @@ class Network {
                     }
                     
                 }
-                self.yelpCategories = results
+                self.yelpCategories = self.baseCategories + results
             case .failure(_):
                 print("Error, something went wrong on setCategoriesForYelpSearch")
             }
         }
     }
-    
     
 }

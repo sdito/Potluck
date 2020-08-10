@@ -12,4 +12,5 @@ struct Colors {
     static let main = UIColor(red: 200.0/255.0, green: 100.0/255.0, blue: 0.0/255.0, alpha: 1.0)
     static let secondary = UIColor(red: 160.0/255.0, green: 80.0/255.0, blue: 0.0/255.0, alpha: 1.0)
     static let navigationBarColor = UIColor.systemBackground
+    static let locationColor = UIColor.systemTeal
 }

@@ -6,6 +6,7 @@
 //  Copyright © 2020 Steven Dito. All rights reserved.
 //
 
+import UIKit
 import CoreGraphics
 import CoreLocation
 
@@ -29,4 +30,14 @@ extension String {
     static let restaurantHomeToDetailStarRatingView = "restaurantHomeToDetailStarRatingView"
     static let restaurantAnnotationIdentifier = "restaurantAnnotationIdentifier"
     static let searchLocationAnnotationIdentifier = "searchLocationAnnotationIdentifier"
+    static let currentLocation = "Current location"
+    static let mapLocation = "Map location"
+}
+
+extension UIImage {
+    static let locationImage = UIImage(systemName: "location.fill")!.withTintColor(Colors.locationColor)
+    static let mapImage = UIImage(systemName: "map.fill")!.withTintColor(Colors.locationColor)
+    static let clearImage = UIImage(systemName: "xmark.circle")!.withTintColor(Colors.main)
+    static var bookImage = UIImage(systemName: "book")!
+    static let magnifyingGlassImage = UIImage(systemName: "magnifyingglass")
 }

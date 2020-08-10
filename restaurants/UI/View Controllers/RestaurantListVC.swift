@@ -14,7 +14,9 @@ class RestaurantListVC: UIViewController {
     
     private var imageCache = NSCache<NSString, UIImage>()
     private var owner: UIViewController!
+    private var searchCompleteDelegate: SearchCompleteDelegate!
     private var topContainerView: UIView!
+    private var commonSearchButtons: [SizeChangeButton] = []
     private let topViewPadding: CGFloat = 7.0
     
     var restaurants: [Restaurant] = [] {
@@ -30,6 +32,7 @@ class RestaurantListVC: UIViewController {
     
     init(owner: UIViewController) {
         self.owner = owner
+        self.searchCompleteDelegate = owner as? SearchCompleteDelegate
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -43,7 +46,6 @@ class RestaurantListVC: UIViewController {
         setUpPortionAboveTableView()
         setUpTableView()
         self.tableView.register(RestaurantCell.self, forCellReuseIdentifier: restaurantCellReuseIdentifier)
-        
         self.tableView.appStartSkeleton()
         
     }
@@ -79,9 +81,14 @@ class RestaurantListVC: UIViewController {
         
         topShowSlideView.layer.cornerRadius = 2.0
         
-        let buttonSearchView = UIView()
-        buttonSearchView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let buttonSearchView = RestaurantSearchBar()
+        
         topContainerView.addSubview(buttonSearchView)
+        
+        if let parent = owner as? FindRestaurantVC {
+            parent.restaurantSearchBar = buttonSearchView
+        }
         
         NSLayoutConstraint.activate([
             buttonSearchView.topAnchor.constraint(equalTo: topShowSlideView.bottomAnchor, constant: 15.0),
@@ -90,62 +97,72 @@ class RestaurantListVC: UIViewController {
             buttonSearchView.heightAnchor.constraint(equalToConstant: 30.0)
         ])
         
-        buttonSearchView.backgroundColor = .tertiarySystemBackground
-        buttonSearchView.layer.cornerRadius = 4.0
-        buttonSearchView.clipsToBounds = true
-        
-        let searchStackView = UIStackView()
-        searchStackView.translatesAutoresizingMaskIntoConstraints = false
-        searchStackView.axis = .horizontal
-        searchStackView.distribution = .fill
-        searchStackView.alignment = .center
-        searchStackView.spacing = 7.0
-        
-        buttonSearchView.addSubview(searchStackView)
-        
-        searchStackView.constrainSides(to: buttonSearchView, distance: 4.0)
-        
-        
-        let searchImage = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        searchImage.tintColor = Colors.main
-        
-        searchImage.widthAnchor.constraint(equalTo: searchImage.heightAnchor).isActive = true
-        
-        searchStackView.addArrangedSubview(searchImage)
-        
-        let searchTypeLabel = UILabel()
-        let locationLabel = UILabel()
-        
-        searchTypeLabel.translatesAutoresizingMaskIntoConstraints = false
-        locationLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        searchTypeLabel.font = .mediumBold
-        locationLabel.font = .smallBold
-        
-        searchTypeLabel.textColor = .label
-        locationLabel.textColor = .secondaryLabel
-        
-        searchTypeLabel.text = "Restaurants"
-        locationLabel.text = "Current location"
-        
-        searchTypeLabel.textAlignment = .left
-        locationLabel.textAlignment = .left
-        
-        searchStackView.addArrangedSubview(searchTypeLabel)
-        searchStackView.addArrangedSubview(locationLabel)
-        
-        let fixerView = UIView()
-        searchStackView.addArrangedSubview(fixerView)
-        
-        
-        // buttonSearchView for touch recognition
         let topGestureButton = buttonSearchView.addGestureToIncreaseAndDecreaseSizeOnPresses()
         topGestureButton.addTarget(self, action: #selector(searchBarPressed), for: .touchUpInside)
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        let testViewForScrollingButtons = UIView()
+        testViewForScrollingButtons.translatesAutoresizingMaskIntoConstraints = false
+        topContainerView.addSubview(testViewForScrollingButtons)
+        
+        NSLayoutConstraint.activate([
+            testViewForScrollingButtons.topAnchor.constraint(equalTo: buttonSearchView.bottomAnchor, constant: topViewPadding),
+            testViewForScrollingButtons.leadingAnchor.constraint(equalTo: topContainerView.leadingAnchor),
+            testViewForScrollingButtons.trailingAnchor.constraint(equalTo: topContainerView.trailingAnchor),
+            testViewForScrollingButtons.bottomAnchor.constraint(equalTo: topContainerView.bottomAnchor)
+        ])
+        
+        // add a clear button to the common search buttons
+        #warning("need to complete ^")
+        let clearButton = SizeChangeButton(sizeDifference: .medium, restingColor: Colors.secondary, selectedColor: Colors.main)
+        clearButton.setImage(.clearImage, for: .normal)
+        clearButton.tintColor = .label
+        commonSearchButtons.append(clearButton)
+        
+        for (i, search) in Network.commonSearches.enumerated() {
+            let button = SizeChangeButton(sizeDifference: .medium, restingColor: .secondaryLabel, selectedColor: .label)
+            button.layer.cornerRadius = 4.0
+            button.clipsToBounds = true
+            button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.setTitle(search.title, for: .normal)
+            button.titleLabel?.font = .mediumBold
+            button.backgroundColor = .quaternarySystemFill
+            button.tag = i
+            button.addTarget(self, action: #selector(commonSearchesPressed(sender:)), for: .touchUpInside)
+            commonSearchButtons.append(button)
+        }
+        
+        let scrollingStackView = ScrollingStackView(subViews: commonSearchButtons)
+        testViewForScrollingButtons.addSubview(scrollingStackView)
+        scrollingStackView.constrainSides(to: testViewForScrollingButtons)
+    }
+    
+    @objc private func commonSearchesPressed(sender: UIButton) {
+        let search = Network.commonSearches[sender.tag]
+        print(search.alias!, search.title)
+        searchCompleteDelegate.newSearchCompleted(searchType: search, locationText: nil)
+        //sender.backgroundColor = .systemPink
+        
+        commonSearchButtons.forEach({$0.setTitleColor($0.restingColor, for: .normal)})
+        
+        sender.setTitleColor(Colors.main, for: .normal)
     }
     
     @objc private func searchBarPressed() {
-        #warning("need to send information, complete")
-        self.navigationController?.pushViewController(SearchRestaurantsVC(), animated: true)
+        if let parent = owner as? FindRestaurantVC {
+            let searchInfo = parent.restaurantSearch
+            
+            self.navigationController?.pushViewController(SearchRestaurantsVC(searchType: searchInfo.yelpCategory, searchLocation: searchInfo.location ?? "Current location", control: owner), animated: true)
+        }
+        
     }
     
     private func setUpTableView() {
@@ -236,7 +253,7 @@ extension RestaurantListVC: UITableViewDelegate {
 }
 
 
-#warning("doesnt work smh")
+#warning("doesn't work")
 // MARK: Skeleton View
 extension RestaurantListVC: SkeletonTableViewDataSource {
     
@@ -248,3 +265,6 @@ extension RestaurantListVC: SkeletonTableViewDataSource {
         return 10
     }
 }
+
+
+
