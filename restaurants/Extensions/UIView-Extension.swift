@@ -11,6 +11,31 @@ import SkeletonView
 
 extension UIView {
     
+    func showNotificationStyleText(str: String) {
+        #warning("need to actually use correctly")
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .smallBold
+        label.textAlignment = .center
+        label.textColor = .label
+        label.text = str
+        label.backgroundColor = Colors.secondary
+        self.addSubview(label)
+        label.widthAnchor.constraint(equalTo: label.heightAnchor).isActive = true
+        label.layoutIfNeeded()
+        NSLayoutConstraint.activate([
+            label.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: label.bounds.height / 3.0),
+            label.topAnchor.constraint(equalTo: self.topAnchor, constant: -(label.bounds.height / 3.0))
+        ])
+        label.clipsToBounds = true
+        label.layer.cornerRadius = label.bounds.height / 2.0
+        for _ in 1...100 {
+            print(label.frame, label.bounds)
+        }
+        
+        
+    }
+    
     @discardableResult
     func addGestureToIncreaseAndDecreaseSizeOnPresses() -> UIButton {
         let button = UIButton()

@@ -35,6 +35,7 @@ class SearchRestaurantsVC: UIViewController {
     private var locationSearchBar: UISearchBar!
     private var tableView: UITableView!
     private var request: MKLocalSearchCompleter!
+    private var startWithLocation = false
     
     private enum TableViewDisplay {
         case searchType
@@ -42,10 +43,11 @@ class SearchRestaurantsVC: UIViewController {
         case none
     }
     
-    init(searchType: Network.YelpCategory?, searchLocation: String?, control: UIViewController) {
+    init(searchType: Network.YelpCategory?, searchLocation: String?, control: UIViewController, startWithLocation: Bool) {
         self.searchType = searchType ?? ("restaurants", "Restaurants")
         self.searchLocation = searchLocation ?? .currentLocation
         self.delegate = control as? SearchCompleteDelegate
+        self.startWithLocation = startWithLocation
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -112,6 +114,15 @@ class SearchRestaurantsVC: UIViewController {
         })
         
         
+        self.view.hero.id = .searchBarTransitionType
+        
+        if startWithLocation {
+            locationSearchBar.becomeFirstResponder()
+        } else {
+            searchTypeSearchBar.becomeFirstResponder()
+        }
+        
+        
     }
     
     private func setUpTableView() {
@@ -130,6 +141,7 @@ class SearchRestaurantsVC: UIViewController {
         ])
         
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
+        tableView.tableFooterView = UIView()
     }
     
     private func setUpOverlaySearchButton() {

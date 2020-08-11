@@ -7,13 +7,20 @@
 //
 
 import UIKit
+import Hero
 
 class RestaurantSearchBar: UIView {
     
+    var areViewsHidden = false
     private var searchTypeLabel: UILabel!
     private var locationLabel: UILabel!
     private var searchImage: UIImageView!
     private var activityView: UIActivityIndicatorView?
+    
+    enum SearchOption {
+        case type
+        case location
+    }
     
     init() {
         super.init(frame: .zero)
@@ -54,6 +61,22 @@ class RestaurantSearchBar: UIView {
         self.activityView?.removeFromSuperview()
     }
     
+    func beginHeroAnimation() {
+        areViewsHidden = true
+        self.subviews.forEach { (v) in
+            v.alpha = 0.0
+        }
+    }
+    
+    func endHeroAnimation() {
+        areViewsHidden = false
+        self.subviews.forEach { (v) in
+            UIView.animate(withDuration: 0.3) {
+                v.alpha = 1.0
+            }
+        }
+    }
+    
     func setUp() {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.backgroundColor = .tertiarySystemBackground
@@ -70,7 +93,6 @@ class RestaurantSearchBar: UIView {
         self.addSubview(searchStackView)
         
         searchStackView.constrainSides(to: self, distance: 4.0)
-        
         
         searchImage = UIImageView(image: .magnifyingGlassImage)
         searchImage.tintColor = Colors.main
@@ -102,6 +124,20 @@ class RestaurantSearchBar: UIView {
         
         let fixerView = UIView()
         searchStackView.addArrangedSubview(fixerView)
+        
+        self.hero.id = .searchBarTransitionType
+    }
+    
+    func findIfSearchTypeOrLocationPressed(point: CGPoint) -> SearchOption {
+        
+        let middlePointOfViews = searchTypeLabel.frame.maxX
+        
+        if point.x < middlePointOfViews {
+            return .type
+        } else {
+            return .location
+        }
+        
     }
     
 }

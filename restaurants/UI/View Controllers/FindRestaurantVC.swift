@@ -11,17 +11,28 @@ import UIKit
 import MapKit
 import CoreLocation
 
+
+protocol SearchUpdatedFromMasterDelegate: class {
+    func newSearch(search: Network.RestaurantSearch)
+}
+
+
 class FindRestaurantVC: UIViewController {
     
-    var restaurantSearchBar: RestaurantSearchBar?
+    weak var delegate: SearchUpdatedFromMasterDelegate?
     
+    var restaurantSearchBar: RestaurantSearchBar?
     var restaurantSearch = Network.RestaurantSearch(yelpCategory: nil, location: nil, coordinate: nil) {
         didSet {
             restaurantSearchBar?.update(searchInfo: self.restaurantSearch)
+            delegate?.newSearch(search: self.restaurantSearch)
         }
     }
-    
-    private var restaurantListVC: RestaurantListVC!
+    private var restaurantListVC: RestaurantListVC! {
+        didSet {
+            delegate = self.restaurantListVC
+        }
+    }
     private var moreRestaurantsButtonShown = false
     private var selectedViewTransitionStyle: RestaurantSelectedView.UpdateStyle = .none
     private var restaurants: [Restaurant] = [] {
@@ -114,6 +125,7 @@ class FindRestaurantVC: UIViewController {
         ])
         
         restaurantListVC = RestaurantListVC(owner: self)
+        
         addChild(restaurantListVC)
         restaurantListVC.view.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(restaurantListVC.view)
@@ -569,22 +581,22 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
 // MARK: SearchRestaurantsVCDelegate
 extension FindRestaurantVC: SearchCompleteDelegate {
     func newSearchCompleted(searchType: Network.YelpCategory, locationText: String?) {
-        
+        // use a temp search
+        var tempSearch = restaurantSearch
         if let locationText = locationText {
-            restaurantSearch.location = locationText
+            tempSearch.location = locationText
             if locationText == .currentLocation {
-                restaurantSearch.coordinate = locationManager.location?.coordinate ?? .simulatorDefault
+                tempSearch.coordinate = locationManager.location?.coordinate ?? .simulatorDefault
             } else if locationText == .mapLocation {
-                restaurantSearch.coordinate = mapView.centerCoordinate
+                tempSearch.coordinate = mapView.centerCoordinate
             } else {
-                restaurantSearch.coordinate = nil
+                tempSearch.coordinate = nil
             }
         }
-        restaurantSearch.yelpCategory = searchType
+        tempSearch.yelpCategory = searchType
+        restaurantSearchBar?.update(searchInfo: tempSearch)
         
-        
-        restaurantSearchBar?.update(searchInfo: restaurantSearch)
-        
+        restaurantSearch = tempSearch
         getRestaurantsFromPreSetRestaurantSearch(initial: false)
         
         

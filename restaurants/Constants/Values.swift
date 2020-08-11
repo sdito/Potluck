@@ -32,12 +32,17 @@ extension String {
     static let searchLocationAnnotationIdentifier = "searchLocationAnnotationIdentifier"
     static let currentLocation = "Current location"
     static let mapLocation = "Map location"
+    
+    static let searchBarTransitionType = "searchBarTransitionType"
+    static let searchBarTransitionLocation = "searchBarTransitionLocation"
 }
 
 extension UIImage {
     static let locationImage = UIImage(systemName: "location.fill")!.withTintColor(Colors.locationColor)
     static let mapImage = UIImage(systemName: "map.fill")!.withTintColor(Colors.locationColor)
     static let clearImage = UIImage(systemName: "xmark.circle")!.withTintColor(Colors.main)
-    static var bookImage = UIImage(systemName: "book")!
+    static let bookImage = UIImage(systemName: "book")!
     static let magnifyingGlassImage = UIImage(systemName: "magnifyingglass")
+    static let filterButton = UIImage(systemName: "line.horizontal.3.decrease.circle")!
+    
 }

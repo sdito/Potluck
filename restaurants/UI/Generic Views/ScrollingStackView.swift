@@ -11,7 +11,7 @@ import UIKit
 class ScrollingStackView: UIView {
     
     private var scrollView: UIScrollView!
-    var stackView: UIStackView!
+    private var stackView: UIStackView!
     
     init(subViews: [UIView]) {
         super.init(frame: .zero)
@@ -28,7 +28,7 @@ class ScrollingStackView: UIView {
         setUpStackView(subviews: subviews)
     }
     
-    func setUpScrollView() {
+    private func setUpScrollView() {
         self.translatesAutoresizingMaskIntoConstraints = false
         scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -39,7 +39,7 @@ class ScrollingStackView: UIView {
         scrollView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
     }
     
-    func setUpStackView(subviews: [UIView]) {
+    private func setUpStackView(subviews: [UIView]) {
         
         stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -55,6 +55,16 @@ class ScrollingStackView: UIView {
         scrollView.addSubview(stackView)
         stackView.constrainSides(to: scrollView)
         stackView.heightAnchor.constraint(equalTo: scrollView.heightAnchor).isActive = true
-
     }
+    
+    func updateToScrollToIncludeFirstSelectedButton() {
+        for subview in stackView.subviews {
+            guard let button = subview as? UIButton else { return }
+            if button.isSelected {
+                scrollView.scrollRectToVisible(subview.frame, animated: true)
+                break
+            }
+        }
+    }
+    
 }
