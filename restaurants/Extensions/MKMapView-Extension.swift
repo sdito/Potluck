@@ -11,7 +11,75 @@
 import MapKit
 
 extension MKMapView {
+    
+    func handleMapZooming(distanceFromTop: CGFloat, distanceFromBottom: CGFloat, pointToCheck: CLLocationCoordinate2D, aboveExactCenter: Bool) {
+        let mapRect = self.region
+        
+        let spanHeight = CGFloat(mapRect.span.latitudeDelta)
+        let spanWidth = CGFloat(mapRect.span.longitudeDelta)
+        let center = mapRect.center
 
+        let actualViewHeight = self.bounds.height
+        
+        let topToRemoveRatio = distanceFromTop / actualViewHeight
+        let bottomToRemoveRatio = distanceFromBottom / actualViewHeight
+        
+        let topSpanToRemove = spanHeight * topToRemoveRatio
+        let bottomSpanToRemove = spanHeight * bottomToRemoveRatio
+        
+        let newMapHeight = spanHeight - topSpanToRemove - bottomSpanToRemove
+        
+        // need to get the new center now
+        var originalCoordinateLatitude = center.latitude
+        originalCoordinateLatitude += Double(bottomSpanToRemove) / 2.0
+        originalCoordinateLatitude -= Double(topSpanToRemove) / 2.0
+        
+        let newCenterCoordinate = CLLocationCoordinate2D(latitude: originalCoordinateLatitude, longitude: center.longitude)
+        
+        let paddingPercent: CGFloat = 0.8
+        let newSpan = MKCoordinateRegion(center: newCenterCoordinate, span: MKCoordinateSpan(latitudeDelta: CLLocationDegrees(newMapHeight * paddingPercent),
+                                                                                             longitudeDelta: CLLocationDegrees(spanWidth * paddingPercent)))
+        /*
+        print("\n")
+        print("Top ratio: \(topToRemoveRatio), Bottom ratio: \(bottomToRemoveRatio)")
+        print("Top to remove: \(topSpanToRemove), Bottom to remove: \(bottomSpanToRemove)")
+        print("Span height: \(spanHeight)")
+        print("Centers: new: \(newSpan.center.latitude), old: \(mapRect.center.latitude)")
+        print("Height: new: \(newSpan.span.latitudeDelta), old: \(mapRect.span.latitudeDelta)")
+        print("Coordinates: \(pointToCheck.latitude), \(pointToCheck.longitude)")
+        */
+        
+        // Span should  be good here, now need to figure out if the new point is in the span
+        
+        // Horizontal
+        let minimumLongitude = newSpan.center.longitude - newSpan.span.longitudeDelta / 2.0
+        let maximumLongitude = newSpan.center.longitude + newSpan.span.longitudeDelta / 2.0
+        
+        // Vertical
+        let minimumLatitude = newSpan.center.latitude - newSpan.span.latitudeDelta / 2.0
+        let maximumLatitude = newSpan.center.latitude + newSpan.span.latitudeDelta / 2.0
+        
+        let inLongitude = minimumLongitude...maximumLongitude ~= pointToCheck.longitude
+        let inLatitude = minimumLatitude...maximumLatitude ~= pointToCheck.latitude
+        
+        // Some slight issues with horizontal
+        // Need to bring them all in by lets say 20%, just alter the span
+        
+        if !inLongitude || !inLatitude {
+            if !aboveExactCenter {
+                // set to the exact middle of the map
+                self.setCenter(pointToCheck, animated: true)
+            } else {
+                // child is being shown, show it a little above the center
+                // change the center Y coordinate to be in the upper top middle region
+                // 37.9547500610352 is an example latitude coordinate
+                let latitudeSpan = self.region.span.latitudeDelta
+                let quarterDifference = latitudeSpan * 0.2
+                let newPointToCheck = CLLocationCoordinate2D(latitude: pointToCheck.latitude - quarterDifference, longitude: pointToCheck.longitude)
+                self.setCenter(newPointToCheck, animated: true)
+            }
+        }
+    }
     
     func centerOnLocation(locationManager: CLLocationManager) {
         if let location = locationManager.location?.coordinate {

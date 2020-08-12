@@ -42,13 +42,13 @@ class FindRestaurantVC: UIViewController {
             }
         }
     }
-    private var containerView: UIView!
+    private var containerView = UIView()
     private var childTopAnchor: NSLayoutConstraint!
     private var lastPanOffset: CGFloat?
     private var startingChildSizeConstant: CGFloat?
     private var middleConstraintConstantForChild: CGFloat?
     let locationManager = CLLocationManager()
-    var mapView: MKMapView!
+    var mapView = MKMapView()
     private var moreRestaurantsButton: OverlayButton?
     private var childPosition: ChildPosition = .middle
     private var restaurantSelectedView: RestaurantSelectedView?
@@ -99,7 +99,6 @@ class FindRestaurantVC: UIViewController {
     }
     
     private func setUpView() {
-        mapView = MKMapView()
         mapView.delegate = self
         mapView.translatesAutoresizingMaskIntoConstraints = false
         mapView.showsTraffic = false
@@ -112,7 +111,6 @@ class FindRestaurantVC: UIViewController {
     }
     
     private func addChildViewController() {
-        containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(containerView)
         childTopAnchor = containerView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: self.view.frame.height/2)
@@ -337,8 +335,6 @@ class FindRestaurantVC: UIViewController {
         let location = mapView.region.center
         restaurantSearch.coordinate = location
         restaurantSearch.location = .mapLocation
-        // Call getRestaurantsFromPreSetRestaurantSearch now
-        
         getRestaurantsFromPreSetRestaurantSearch(initial: false)
     }
     
@@ -350,7 +346,7 @@ class FindRestaurantVC: UIViewController {
         Network.shared.getRestaurants(restaurantSearch: restaurantSearch) { (response) in
             switch response {
             case .success(let newRestaurants):
-                self.mapView.removeAnnotations(self.mapView?.annotations ?? [])
+                self.mapView.removeAnnotations(self.mapView.annotations )
                 self.mapView.showRestaurants(newRestaurants, fitInTopHalf: self.childPosition == .middle)
                 self.restaurantListVC.scrollTableViewToTop()
                 self.restaurants = newRestaurants
@@ -398,69 +394,6 @@ extension FindRestaurantVC: MKMapViewDelegate {
         }
     }
     
-    #warning("move to extension eventually")
-    private func handleMapZooming(distanceFromTop: CGFloat, distanceFromBottom: CGFloat, pointToCheck: CLLocationCoordinate2D) {
-        print("Potentially need to handle map zooming")
-        let mapRect = mapView.region
-        
-        let spanHeight = CGFloat(mapRect.span.latitudeDelta)
-        let spanWidth = CGFloat(mapRect.span.longitudeDelta)
-        let center = mapRect.center
-
-        
-        let actualViewHeight = mapView.bounds.height
-        
-        let topToRemoveRatio = distanceFromTop / actualViewHeight
-        let bottomToRemoveRatio = distanceFromBottom / actualViewHeight
-        
-        let topSpanToRemove = spanHeight * topToRemoveRatio
-        let bottomSpanToRemove = spanHeight * bottomToRemoveRatio
-        
-        let newMapHeight = spanHeight - topSpanToRemove - bottomSpanToRemove
-        
-        // need to get the new center now
-        var originalCoordinateLatitude = center.latitude
-        originalCoordinateLatitude += Double(bottomSpanToRemove) / 2.0
-        originalCoordinateLatitude -= Double(topSpanToRemove) / 2.0
-        
-        let newCenterCoordinate = CLLocationCoordinate2D(latitude: originalCoordinateLatitude, longitude: center.longitude)
-        
-        let paddingPercent: CGFloat = 0.8
-        let newSpan = MKCoordinateRegion(center: newCenterCoordinate, span: MKCoordinateSpan(latitudeDelta: CLLocationDegrees(newMapHeight * paddingPercent),
-                                                                                             longitudeDelta: CLLocationDegrees(spanWidth * paddingPercent)))
-        /*
-        print("\n")
-        print("Top ratio: \(topToRemoveRatio), Bottom ratio: \(bottomToRemoveRatio)")
-        print("Top to remove: \(topSpanToRemove), Bottom to remove: \(bottomSpanToRemove)")
-        print("Span height: \(spanHeight)")
-        print("Centers: new: \(newSpan.center.latitude), old: \(mapRect.center.latitude)")
-        print("Height: new: \(newSpan.span.latitudeDelta), old: \(mapRect.span.latitudeDelta)")
-        print("Coordinates: \(pointToCheck.latitude), \(pointToCheck.longitude)")
-        */
-        
-        // Span should  be good here, now need to figure out if the new point is in the span
-        
-        // Horizontal
-        let minimumLongitude = newSpan.center.longitude - newSpan.span.longitudeDelta / 2.0
-        let maximumLongitude = newSpan.center.longitude + newSpan.span.longitudeDelta / 2.0
-        
-        // Vertical
-        let minimumLatitude = newSpan.center.latitude - newSpan.span.latitudeDelta / 2.0
-        let maximumLatitude = newSpan.center.latitude + newSpan.span.latitudeDelta / 2.0
-        
-        let inLongitude = minimumLongitude...maximumLongitude ~= pointToCheck.longitude
-        let inLatitude = minimumLatitude...maximumLatitude ~= pointToCheck.latitude
-        
-        // Some slight issues with horizontal
-        // Need to bring them all in by lets say 20%, just alter the span
-        print(mapView.region)
-        
-        if !inLongitude || !inLatitude {
-            mapView.setCenter(pointToCheck, animated: true)
-        }
-        
-    }
-    
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         // Scroll to the correct cell
         if let restaurantAnnotation = view as? RestaurantAnnotationView, let annotationRestaurant = restaurantAnnotation.restaurant {
@@ -477,7 +410,8 @@ extension FindRestaurantVC: MKMapViewDelegate {
         }
         
         if let coord = view.annotation?.coordinate {
-            handleMapZooming(distanceFromTop: restaurantSelectedView?.bounds.height ?? 0.0, distanceFromBottom: bottomDistance, pointToCheck: coord)
+            
+            mapView.handleMapZooming(distanceFromTop: restaurantSelectedView?.bounds.height ?? 0.0, distanceFromBottom: bottomDistance, pointToCheck: coord, aboveExactCenter: childPosition == .middle)
         }
         
         

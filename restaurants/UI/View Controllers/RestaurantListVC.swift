@@ -18,7 +18,7 @@ class RestaurantListVC: UIViewController {
     private var searchCompleteDelegate: SearchCompleteDelegate!
     private var topContainerView: UIView!
     private var commonSearchButtons: [SizeChangeButton] = []
-    private var restaurantSearchBar: RestaurantSearchBar!
+    private var restaurantSearchBar = RestaurantSearchBar()
     private var scrollingStackViewForSearchButtons: ScrollingStackView!
     private let topViewPadding: CGFloat = 7.0
     
@@ -89,8 +89,6 @@ class RestaurantListVC: UIViewController {
         ])
         topShowSlideView.layer.cornerRadius = 2.0
         
-        restaurantSearchBar = RestaurantSearchBar()
-        
         let filterButton = SizeChangeButton(sizeDifference: .medium, restingColor: .secondaryLabel, selectedColor: .secondaryLabel)
         filterButton.setImage(.filterButton, for: .normal)
         filterButton.translatesAutoresizingMaskIntoConstraints = false
@@ -100,6 +98,7 @@ class RestaurantListVC: UIViewController {
         filterButton.tintColor = .secondaryLabel
         #warning("need to test overlaying a number over the button, to show that there are current filters")
         filterButton.showNotificationStyleText(str: "2")
+        filterButton.addTarget(self, action: #selector(showFilterController), for: .touchUpInside)
         
         let searchBarStack = UIStackView(arrangedSubviews: [restaurantSearchBar, filterButton])
         searchBarStack.translatesAutoresizingMaskIntoConstraints = false
@@ -196,6 +195,9 @@ class RestaurantListVC: UIViewController {
         
     }
     
+    @objc private func showFilterController() {
+        owner.present(FilterRestaurantsVC(), animated: true, completion: nil)
+    }
     
     
     func scrollTableViewToTop() {

@@ -10,10 +10,10 @@ import UIKit
 
 class RestaurantCategoriesView: UIView {
     
-    private var priceLabel: UILabel!
-    private var pickupLabel: UILabel!
-    private var deliveryLabel: UILabel!
-    private var reservationsLabel: UILabel!
+    private var priceLabel = UILabel()
+    private var pickupLabel = UILabel()
+    private var deliveryLabel = UILabel()
+    private var reservationsLabel = UILabel()
     
     private lazy var allLabels = [priceLabel, pickupLabel, deliveryLabel, reservationsLabel]
     
@@ -27,7 +27,6 @@ class RestaurantCategoriesView: UIView {
         super.init(coder: coder)
     }
     
-    
     private func setUp(restaurant: Restaurant) {
         print("Being set up")
         self.translatesAutoresizingMaskIntoConstraints = false
@@ -37,10 +36,9 @@ class RestaurantCategoriesView: UIView {
     }
     
     private func setUpLabels(restaurant: Restaurant) {
-        priceLabel = UILabel(); pickupLabel = UILabel(); deliveryLabel = UILabel(); reservationsLabel = UILabel()
         allLabels.forEach { (label) in
-            label?.font = .mediumBold
-            label?.textAlignment = .left
+            label.font = .mediumBold
+            label.textAlignment = .left
         }
         
         priceLabel.attributedText = (restaurant.price ?? "$$").addImageAtBeginning(image: UIImage(systemName: "dollarsign.circle")!.withTintColor(.systemYellow))
@@ -83,7 +81,7 @@ class RestaurantCategoriesView: UIView {
             
             for _ in 1...2 {
                 let label = labels.popLast()!
-                innerStackView.addArrangedSubview(label!)
+                innerStackView.addArrangedSubview(label)
             }
         }
         

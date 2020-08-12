@@ -21,14 +21,14 @@ class RestaurantSelectedView: UIView {
     
     private var restaurant: Restaurant!
     private weak var delegate: RestaurantSelectedViewDelegate!
-    private var wholeStackView: UIStackView!
-    private var outerStackView: UIStackView!
-    private var innerTopStackView: UIStackView!
-    private var topRightStackView: UIStackView!
-    var imageView: UIImageView!
-    private var titleLabel: UILabel!
+    private var wholeStackView = UIStackView()
+    private var outerStackView = UIStackView()
+    private var innerTopStackView = UIStackView()
+    private var topRightStackView = UIStackView()
+    var imageView = UIImageView()
+    private var titleLabel = UILabel()
     private var starRatingView: StarRatingView!
-    private var moneyAndTypeLabel: UILabel!
+    private var moneyAndTypeLabel = UILabel()
     private let backButtonTag = 11
     private let forwardButtonTag = 12
     private var backAndForwardButtons: [UIButton] = []
@@ -71,16 +71,13 @@ class RestaurantSelectedView: UIView {
     
     func performUpdateAnimation(restaurant: Restaurant, isFirst: Bool, isLast: Bool, updateStyle: UpdateStyle, animationDone: @escaping (Bool) -> Void) {
         
-        #warning("use updateStyle to animate the transition")
-        #warning("move updateStyle animations to extension in the future")
-        
         guard updateStyle != .none else {
             animationDone(true)
             return
         }
         
         let dummyWidth = self.frame.width
-        let dummyHeight = self.frame.height
+        
         // extra width equal to the extra distance needed, whole view width minus dummyWidth, divided by two (view is centered)
         let extraWidth = (UIScreen.main.bounds.width - dummyWidth) / 2.0
         
@@ -96,8 +93,6 @@ class RestaurantSelectedView: UIView {
                 dummyView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
                 
             ])
-            
-            
             
             var transformation: CGAffineTransform {
                 switch updateStyle {
@@ -153,9 +148,6 @@ class RestaurantSelectedView: UIView {
                 }
             }
         }
-        
-        
-        
     }
     
     private func setUp(restaurant: Restaurant, isFirst: Bool, isLast: Bool) {
@@ -177,9 +169,7 @@ class RestaurantSelectedView: UIView {
         layerButtonForTouchEvents()
     }
     
-    
     private func setUpWholeStackView() {
-        wholeStackView = UIStackView()
         wholeStackView.translatesAutoresizingMaskIntoConstraints = false
         wholeStackView.spacing = 5.0
         wholeStackView.distribution = .fill
@@ -212,20 +202,17 @@ class RestaurantSelectedView: UIView {
     }
     
     private func setUpOuterStackView() {
-        outerStackView = UIStackView()
         outerStackView.translatesAutoresizingMaskIntoConstraints = false
         outerStackView.axis = .vertical
         outerStackView.spacing = 5.0
         outerStackView.distribution = .fill
         outerStackView.alignment = .fill
-        
         wholeStackView.insertArrangedSubview(outerStackView, at: 1)
     }
     
     private func setUpInnerTopStackView() {
         // Image view on left
         // Title, stars, etc in a stack view vertically on the right
-        innerTopStackView = UIStackView()
         innerTopStackView.translatesAutoresizingMaskIntoConstraints = false
         innerTopStackView.axis = .horizontal
         innerTopStackView.spacing = 5.0
@@ -236,7 +223,6 @@ class RestaurantSelectedView: UIView {
     
     private func setUpImageView(restaurant: Restaurant, isDummy: Bool = false) {
         // left side of innerTopStackView
-        imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         let imageViewWidth = UIScreen.main.bounds.width / 4.0
         imageView.backgroundColor = .tertiarySystemBackground
@@ -256,7 +242,6 @@ class RestaurantSelectedView: UIView {
     }
     
     private func setUpTopRightStackView() {
-        topRightStackView = UIStackView()
         topRightStackView.translatesAutoresizingMaskIntoConstraints = false
         topRightStackView.axis = .vertical
         topRightStackView.spacing = 5.0
@@ -269,19 +254,15 @@ class RestaurantSelectedView: UIView {
         // Label with title
         // Star view
         // Dollar sign and food type
-        
-        titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = restaurant.name
         titleLabel.font = .largerBold
         titleLabel.numberOfLines = 2
         topRightStackView.addArrangedSubview(titleLabel)
         
-        
         starRatingView = StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount, forceWhite: false, noBackgroundColor: true)
         topRightStackView.addArrangedSubview(starRatingView)
         
-        moneyAndTypeLabel = UILabel()
         moneyAndTypeLabel.translatesAutoresizingMaskIntoConstraints = false
         setMoneyAndTypeLabelText(restaurant)
         moneyAndTypeLabel.textColor = .secondaryLabel

@@ -11,17 +11,18 @@ import SkeletonView
 
 extension UIView {
     
+    static let notificationLabelTag = 7
+    
     func showNotificationStyleText(str: String) {
-        #warning("need to actually use correctly")
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .smallBold
         label.textAlignment = .center
-        label.textColor = .label
+        label.textColor = .white
         label.text = str
         label.backgroundColor = Colors.secondary
         self.addSubview(label)
-        label.widthAnchor.constraint(equalTo: label.heightAnchor).isActive = true
+        label.equalSides()
         label.layoutIfNeeded()
         NSLayoutConstraint.activate([
             label.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: label.bounds.height / 3.0),
@@ -29,11 +30,15 @@ extension UIView {
         ])
         label.clipsToBounds = true
         label.layer.cornerRadius = label.bounds.height / 2.0
-        for _ in 1...100 {
-            print(label.frame, label.bounds)
+        label.tag = UIView.notificationLabelTag
+    }
+    
+    func removeNotificationStyleText() {
+        self.subviews.forEach { (subview) in
+            if subview.tag == UIView.notificationLabelTag {
+                subview.removeFromSuperview()
+            }
         }
-        
-        
     }
     
     @discardableResult
@@ -160,23 +165,7 @@ extension UIView {
         self.backgroundColor = UIColor.black.withAlphaComponent(0.0)
     }
     
-    func constrainSides(to view: UIView, distance: CGFloat = 0.0) {
-        NSLayoutConstraint.activate([
-            self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: distance),
-            self.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -distance),
-            self.topAnchor.constraint(equalTo: view.topAnchor, constant: distance),
-            self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -distance)
-        ])
-    }
     
-    func constrainSidesUnique(to view: UIView, top: CGFloat, leading: CGFloat, bottom: CGFloat, trailing: CGFloat) {
-        NSLayoutConstraint.activate([
-            self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leading),
-            self.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -trailing),
-            self.topAnchor.constraint(equalTo: view.topAnchor, constant: top),
-            self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -bottom)
-        ])
-    }
     
     func animateRemovingWithCompletion(complete: @escaping (Bool) -> Void) {
         // Moves down and alpha becomes zero

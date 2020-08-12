@@ -14,9 +14,13 @@ import Hero
 
 
 class PhotosVC: UIViewController {
+    
+    private var collectionView: UICollectionView!
+    private let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
     private var photos: [String] = []
     private var imageCache = NSCache<NSString, UIImage>()
     private let padding: CGFloat = 2.0
+    private let reuseIdentifier = "photoCellReuseIdentifier"
     
     init(photos: [String]) {
         super.init(nibName: nil, bundle: nil)
@@ -29,12 +33,6 @@ class PhotosVC: UIViewController {
         
     }
     
-    private let reuseIdentifier = "photoCellReuseIdentifier"
-
-    
-    private var collectionView: UICollectionView!
-    private let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
-
     override func viewDidLoad() {
         super.viewDidLoad()
     }
@@ -43,7 +41,6 @@ class PhotosVC: UIViewController {
         super.viewWillAppear(animated)
         self.setNavigationBarColor(color: Colors.navigationBarColor)
     }
-    
 
     private func setUpCollectionView() {
         self.title = "Photos"
@@ -55,7 +52,6 @@ class PhotosVC: UIViewController {
         layout.itemSize = CGSize(width: cellSizeSize - padding/2, height: cellSizeSize - padding)
         layout.minimumInteritemSpacing = 0.0
         
-        
         collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.register(PhotoCell.self, forCellWithReuseIdentifier: reuseIdentifier)
@@ -66,13 +62,11 @@ class PhotosVC: UIViewController {
         collectionView.backgroundColor = UIColor.clear
         self.view.addSubview(collectionView)
         collectionView.constrainSides(to: self.view)
-        
     }
-
 }
 
 
-
+// MARK: Collection view
 extension PhotosVC: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

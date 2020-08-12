@@ -11,7 +11,7 @@ import UIKit
 class StarRatingView: UIView {
     
     private var starViews: [UIImageView] = []
-    private var numReviewsLabel: UILabel!
+    private var numReviewsLabel = UILabel()
     
     init(stars: Double, numReviews: Int, forceWhite: Bool, noBackgroundColor: Bool = false) {
         super.init(frame: .zero)
@@ -92,20 +92,11 @@ class StarRatingView: UIView {
         }
         
         if numReviews > 0 {
-            numReviewsLabel = UILabel()
-            
             numReviewsLabel.textColor = forceWhite ? .white : .label
-            
             
             numReviewsLabel.text = "\(numReviews)"
             stackView.addArrangedSubview(numReviewsLabel)
         }
-        
-        
         self.layer.cornerRadius = 5.0
-        
     }
-    
-    
-    
 }

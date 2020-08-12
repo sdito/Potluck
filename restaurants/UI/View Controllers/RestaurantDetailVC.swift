@@ -11,13 +11,13 @@ import CoreLocation
 
 class RestaurantDetailVC: UIViewController {
     
-    private var scrollView: UIScrollView!
-    private var stackView: UIStackView!
-    private var imageView: UIImageView!
-    private var headerContainerView: UIView!
+    private var scrollView = UIScrollView()
+    private var stackView = UIStackView()
+    private var imageView = UIImageView()
+    private var headerContainerView = UIView()
     private var headerDetailView: HeaderDetailView!
     private var viewAllPhotosButton: UIButton!
-    private var titleLabel: PaddingLabel!
+    private var titleLabel = PaddingLabel(top: 0.0, bottom: 0.0, left: 5.0, right: 5.0)
     private weak var cellOriginatedFrom: RestaurantCell?
     private var imageAlreadyFound: UIImage?
     private var headerTopConstraint: NSLayoutConstraint!
@@ -80,39 +80,30 @@ class RestaurantDetailVC: UIViewController {
         }
     }
 
-    private func setUpScrollView() -> UIScrollView {
-        let sv = UIScrollView()
-        sv.delegate = self
-        sv.alwaysBounceVertical = true
-        sv.showsVerticalScrollIndicator = false
-        sv.translatesAutoresizingMaskIntoConstraints = false
-        sv.contentInsetAdjustmentBehavior = .never
-        return sv
+    private func setUpScrollView() {
+        scrollView.delegate = self
+        scrollView.alwaysBounceVertical = true
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.contentInsetAdjustmentBehavior = .never
     }
     
-    private func setUpStackView() -> UIStackView {
-        let sv = UIStackView()
-        sv.translatesAutoresizingMaskIntoConstraints = false
-        sv.axis = .vertical
-        sv.distribution = .fill
-        sv.spacing = 3.0
-        return sv
+    private func setUpStackView() {
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.distribution = .fill
+        stackView.spacing = 3.0
     }
     
-    private func setUpHeaderContainerView() -> UIView {
-        let view = UIView()
-        view.clipsToBounds = true
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-        
+    private func setUpHeaderContainerView() {
+        headerContainerView.clipsToBounds = true
+        headerContainerView.translatesAutoresizingMaskIntoConstraints = false
     }
     
-    private func setUpImageView() -> UIImageView {
-        let iv = UIImageView()
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        return iv
+    private func setUpImageView() {
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
     }
     
     private func setTitleInfo() {
@@ -122,8 +113,6 @@ class RestaurantDetailVC: UIViewController {
         titleStackView.axis = .vertical
         titleStackView.spacing = 3.0
         
-        
-        titleLabel = PaddingLabel(top: 0.0, bottom: 0.0, left: 5.0, right: 5.0)
         titleLabel.numberOfLines = 2
         titleLabel.text = restaurant.name
         titleLabel.font = .createdTitle
@@ -209,10 +198,10 @@ class RestaurantDetailVC: UIViewController {
         self.setNavigationBarColor(color: navBarColor!)
         self.navigationController?.navigationBar.tintColor = Colors.main
         
-        scrollView = setUpScrollView()
-        stackView = setUpStackView()
-        imageView = setUpImageView()
-        headerContainerView = setUpHeaderContainerView()
+        setUpScrollView()
+        setUpStackView()
+        setUpImageView()
+        setUpHeaderContainerView()
         
         view.addSubview(scrollView)
         headerContainerView.addSubview(imageView)

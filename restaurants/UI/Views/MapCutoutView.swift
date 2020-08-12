@@ -23,21 +23,18 @@ class MapCutoutView: UIView {
     weak var delegate: MapCutoutViewDelegate!
     private var restaurant: Restaurant?
     private let locationManager = CLLocationManager()
-    private var mapView: MKMapView!
+    private var mapView = MKMapView()
     
     init(userLocation: CLLocationCoordinate2D, userDestination: CLLocationCoordinate2D, restaurant: Restaurant, vc: UIViewController) {
         super.init(frame: .zero)
         self.delegate = vc as? MapCutoutViewDelegate
         self.restaurant = restaurant
         setUp(userLocation: userLocation, userDestination: userDestination, restaurant: restaurant)
-        
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
-    
-    
     
     private func setUp(userLocation: CLLocationCoordinate2D, userDestination: CLLocationCoordinate2D, restaurant: Restaurant) {
         self.translatesAutoresizingMaskIntoConstraints = false
@@ -48,7 +45,6 @@ class MapCutoutView: UIView {
     }
     
     private func setUpMapView() {
-        mapView = MKMapView()
         mapView.delegate = self
         mapView.showsUserLocation = true
         mapView.translatesAutoresizingMaskIntoConstraints = false

@@ -31,10 +31,10 @@ class SearchRestaurantsVC: UIViewController {
     private let cellReuseIdentifier: String = "reuseIdentifierSR"
     private let searchBarHeight: CGFloat = 50.0
     
-    private var searchTypeSearchBar: UISearchBar!
-    private var locationSearchBar: UISearchBar!
-    private var tableView: UITableView!
-    private var request: MKLocalSearchCompleter!
+    private var searchTypeSearchBar = UISearchBar()
+    private var locationSearchBar = UISearchBar()
+    private var tableView = UITableView(frame: .zero, style: .plain)
+    private var request = MKLocalSearchCompleter()
     private var startWithLocation = false
     
     private enum TableViewDisplay {
@@ -76,7 +76,7 @@ class SearchRestaurantsVC: UIViewController {
     
     
     private func setUpTopSearchBars() {
-        searchTypeSearchBar = UISearchBar()
+        
         searchTypeSearchBar.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(searchTypeSearchBar)
         
@@ -88,7 +88,6 @@ class SearchRestaurantsVC: UIViewController {
         ])
         
         
-        locationSearchBar = UISearchBar()
         locationSearchBar.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(locationSearchBar)
         
@@ -109,8 +108,8 @@ class SearchRestaurantsVC: UIViewController {
         locationSearchBar.text = searchLocation
         
         [searchTypeSearchBar, locationSearchBar].forEach({ (bar) in
-            bar?.delegate = self
-            bar?.searchTextField.font = .mediumBold
+            bar.delegate = self
+            bar.searchTextField.font = .mediumBold
         })
         
         
@@ -126,7 +125,6 @@ class SearchRestaurantsVC: UIViewController {
     }
     
     private func setUpTableView() {
-        tableView = UITableView(frame: .zero, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
@@ -159,7 +157,7 @@ class SearchRestaurantsVC: UIViewController {
     
     
     private func setUpSearchCompleter() {
-        request = MKLocalSearchCompleter()
+        
         request.resultTypes = .query
         /*
          possibilities
@@ -261,9 +259,7 @@ extension SearchRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if scrollView == tableView {
             [locationSearchBar, searchTypeSearchBar].forEach { (bar) in
-                if let bar = bar {
-                    bar.endEditing(true)
-                }
+                bar.endEditing(true)
             }
         }
     }

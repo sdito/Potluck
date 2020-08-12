@@ -12,9 +12,9 @@ import Hero
 class RestaurantSearchBar: UIView {
     
     var areViewsHidden = false
-    private var searchTypeLabel: UILabel!
-    private var locationLabel: UILabel!
-    private var searchImage: UIImageView!
+    private var searchTypeLabel = UILabel()
+    private var locationLabel = UILabel()
+    private var searchImage = UIImageView(image: .magnifyingGlassImage)
     private var activityView: UIActivityIndicatorView?
     
     enum SearchOption {
@@ -93,16 +93,10 @@ class RestaurantSearchBar: UIView {
         self.addSubview(searchStackView)
         
         searchStackView.constrainSides(to: self, distance: 4.0)
-        
-        searchImage = UIImageView(image: .magnifyingGlassImage)
         searchImage.tintColor = Colors.main
-        
-        searchImage.widthAnchor.constraint(equalTo: searchImage.heightAnchor).isActive = true
+        searchImage.equalSides()
         
         searchStackView.addArrangedSubview(searchImage)
-        
-        searchTypeLabel = UILabel()
-        locationLabel = UILabel()
         
         searchTypeLabel.translatesAutoresizingMaskIntoConstraints = false
         locationLabel.translatesAutoresizingMaskIntoConstraints = false

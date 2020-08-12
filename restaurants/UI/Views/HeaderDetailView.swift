@@ -19,10 +19,10 @@ protocol HeaderDetailViewDelegate: class {
 class HeaderDetailView: UIView {
     
     private weak var delegate: HeaderDetailViewDelegate!
-    var timeOpenLabel: UILabel!
-    var inside: UIView!
-    var container: UIView!
-    var newSV: UIStackView!
+    var timeOpenLabel = UILabel()
+    var inside = UIView()
+    var container = UIView()
+    var newSV = UIStackView()
     var restaurant: Restaurant!
     
     init(restaurant: Restaurant, vc: UIViewController) {
@@ -37,7 +37,6 @@ class HeaderDetailView: UIView {
     }
     
     private func setUp(vc: UIViewController) {
-        print("Being set up")
         self.delegate = vc as? HeaderDetailViewDelegate
         self.translatesAutoresizingMaskIntoConstraints = false
         
@@ -47,7 +46,6 @@ class HeaderDetailView: UIView {
         setUpTimeOpenLabel()
         setUpActionButtons()
         
-
         container.layer.cornerRadius = 6.0
         inside.layer.cornerRadius = 5.0
         inside.clipsToBounds = true
@@ -57,12 +55,9 @@ class HeaderDetailView: UIView {
             self.inside.layer.borderWidth = 1.0
             self.inside.layer.borderColor = Colors.secondary.cgColor
         }
-
     }
     
     private func setUpContainers() {
-        container = UIView()
-        inside = UIView()
         self.backgroundColor = .systemBackground
         container.backgroundColor = .secondarySystemBackground
         container.translatesAutoresizingMaskIntoConstraints = false
@@ -75,7 +70,6 @@ class HeaderDetailView: UIView {
     }
     
     private func setUpOuterStackView() {
-        newSV = UIStackView()
         newSV.translatesAutoresizingMaskIntoConstraints = false
         newSV.axis = .vertical
         newSV.spacing = 17.5
@@ -103,7 +97,6 @@ class HeaderDetailView: UIView {
     }
     
     private func setUpTimeOpenLabel() {
-        timeOpenLabel = UILabel()
         timeOpenLabel.font = .mediumBold
         timeOpenLabel.text = " "
         newSV.addArrangedSubview(timeOpenLabel)
@@ -129,8 +122,6 @@ class HeaderDetailView: UIView {
         newSV.addArrangedSubview(buttonsSV)
         buttonsSV.widthAnchor.constraint(equalTo: newSV.widthAnchor).isActive = true
     }
-    
-    
     
     @objc private func openWebForUrl() {
         delegate.urlPressedToOpen()

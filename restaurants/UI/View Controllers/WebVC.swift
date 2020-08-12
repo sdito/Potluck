@@ -14,10 +14,10 @@ import WebKit
 
 class WebVC: UIViewController {
     
-    private var webView: WKWebView!
-    private var backButton: UIButton!
-    private var forwardButton: UIButton!
-    private var containerView: UIView!
+    private var webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
+    private var backButton = UIButton()
+    private var forwardButton = UIButton()
+    private var containerView = UIView()
     private var lastContentOffset: CGFloat = 0.0
     private var containerViewIsShown = true
     
@@ -42,8 +42,7 @@ class WebVC: UIViewController {
     
     private func setUp(url: String) {
         self.title = url
-        let webConfiguration = WKWebViewConfiguration()
-        webView = WKWebView(frame: .zero, configuration: webConfiguration)
+        
         webView.uiDelegate = self
         webView.navigationDelegate = self
         webView.scrollView.delegate = self
@@ -64,12 +63,10 @@ class WebVC: UIViewController {
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
         
-        backButton = UIButton()
         backButton.translatesAutoresizingMaskIntoConstraints = false
         backButton.setImage(UIImage(systemName: "arrowtriangle.left.fill"), for: .normal)
         backButton.tintColor = Colors.main
         
-        forwardButton = UIButton()
         forwardButton.translatesAutoresizingMaskIntoConstraints = false
         forwardButton.setImage(UIImage(systemName: "arrowtriangle.right.fill"), for: .normal)
         forwardButton.tintColor = Colors.main
@@ -77,7 +74,6 @@ class WebVC: UIViewController {
         stackView.addArrangedSubview(backButton)
         stackView.addArrangedSubview(forwardButton)
         
-        containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
         containerView.backgroundColor = .secondarySystemBackground
         containerView.addSubview(stackView)

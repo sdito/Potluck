@@ -12,9 +12,9 @@ import UIKit
 class SinglePhotoVC: UIViewController {
     
     private weak var cellToResetIdAfter: PhotoCell?
-    private var imageView: UIImageView!
-    private var scrollView: UIScrollView!
-    private var doneButton: UIButton!
+    private var imageView = UIImageView()
+    private var scrollView = UIScrollView()
+    private var doneButton = UIButton()
     private var initialTouchPoint: CGPoint?
     private var minimumAlpha: CGFloat = 0.5
     
@@ -45,14 +45,13 @@ class SinglePhotoVC: UIViewController {
     }
     
     private func setUpDoneButton() {
-        doneButton = UIButton()
         doneButton.translatesAutoresizingMaskIntoConstraints = false
         doneButton.setTitle("Done", for: .normal)
         doneButton.setTitleColor(Colors.main, for: .normal)
         
         self.view.addSubview(doneButton)
         NSLayoutConstraint.activate([
-            doneButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 15.0),
+            doneButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 25),
             doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -5.0),
             doneButton.heightAnchor.constraint(equalToConstant: 40.0)
         ])
@@ -62,7 +61,6 @@ class SinglePhotoVC: UIViewController {
     }
     
     private func setUpScrollView() {
-        scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.minimumZoomScale = 1
         scrollView.maximumZoomScale = 10
@@ -82,7 +80,6 @@ class SinglePhotoVC: UIViewController {
     }
     
     private func setUpImageView(image: UIImage?, imageURL: String?) {
-        imageView = UIImageView()
         imageView.hero.id = .photosToSinglePhotoID
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false

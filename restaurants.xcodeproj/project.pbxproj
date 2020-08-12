@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		90009F3B1EF4D15FF2B4CA19 /* Pods_restaurants.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B89F6FBA7BC1CC1A76E4E2 /* Pods_restaurants.framework */; };
+		E20EA82824E27BDD0064DB86 /* FilterRestaurantsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82724E27BDD0064DB86 /* FilterRestaurantsVC.swift */; };
+		E20EA82A24E282980064DB86 /* SpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82924E282980064DB86 /* SpacerView.swift */; };
+		E20EA82C24E30CBF0064DB86 /* Constraints-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */; };
+		E20EA82E24E36FA00064DB86 /* CheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82D24E36FA00064DB86 /* CheckBox.swift */; };
 		E215534924B297CC00494E1A /* OverlayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215534824B297CC00494E1A /* OverlayButton.swift */; };
 		E215534D24B2A20E00494E1A /* UIView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215534C24B2A20E00494E1A /* UIView-Extension.swift */; };
 		E215534F24B2C16F00494E1A /* UIButton-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215534E24B2C16F00494E1A /* UIButton-Extension.swift */; };
@@ -60,6 +64,10 @@
 /* Begin PBXFileReference section */
 		5B641319D9AB372932E7808D /* Pods-restaurants.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-restaurants.release.xcconfig"; path = "Target Support Files/Pods-restaurants/Pods-restaurants.release.xcconfig"; sourceTree = "<group>"; };
 		D109427AE016A8C91568644A /* Pods-restaurants.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-restaurants.debug.xcconfig"; path = "Target Support Files/Pods-restaurants/Pods-restaurants.debug.xcconfig"; sourceTree = "<group>"; };
+		E20EA82724E27BDD0064DB86 /* FilterRestaurantsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterRestaurantsVC.swift; sourceTree = "<group>"; };
+		E20EA82924E282980064DB86 /* SpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacerView.swift; sourceTree = "<group>"; };
+		E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Constraints-Extension.swift"; sourceTree = "<group>"; };
+		E20EA82D24E36FA00064DB86 /* CheckBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckBox.swift; sourceTree = "<group>"; };
 		E215534824B297CC00494E1A /* OverlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayButton.swift; sourceTree = "<group>"; };
 		E215534C24B2A20E00494E1A /* UIView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView-Extension.swift"; sourceTree = "<group>"; };
 		E215534E24B2C16F00494E1A /* UIButton-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton-Extension.swift"; sourceTree = "<group>"; };
@@ -152,6 +160,7 @@
 				E2778DDE24B96CAD00151F29 /* WebVC.swift */,
 				E2778DE224BBA1BF00151F29 /* PhotosVC.swift */,
 				E284DC0824BBD82100790A29 /* SinglePhotoVC.swift */,
+				E20EA82724E27BDD0064DB86 /* FilterRestaurantsVC.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -159,6 +168,8 @@
 		E2574A2F24B7D37E006618D7 /* Generic Views */ = {
 			isa = PBXGroup;
 			children = (
+				E20EA82D24E36FA00064DB86 /* CheckBox.swift */,
+				E20EA82924E282980064DB86 /* SpacerView.swift */,
 				E215535A24B4343500494E1A /* PaddingLabel.swift */,
 				E215534824B297CC00494E1A /* OverlayButton.swift */,
 				E2574A2624B65069006618D7 /* PriceLabel.swift */,
@@ -242,6 +253,7 @@
 		E27A757724AFC75B00E446EE /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */,
 				E27A756F24A85AA100E446EE /* UIViewController-Extension.swift */,
 				E2574A2224B53348006618D7 /* UIImageView-Extension.swift */,
 				E27A757124A85CF900E446EE /* CLLocationManager-Extension.swift */,
@@ -424,10 +436,12 @@
 				E233541624B15F8C00A85DA3 /* Values.swift in Sources */,
 				E27A757624AF9ECC00E446EE /* Network.swift in Sources */,
 				E2778DD924B7F9DC00151F29 /* String-Extension.swift in Sources */,
+				E20EA82C24E30CBF0064DB86 /* Constraints-Extension.swift in Sources */,
 				E2778DE324BBA1BF00151F29 /* PhotosVC.swift in Sources */,
 				E2778DDF24B96CAD00151F29 /* WebVC.swift in Sources */,
 				E2574A2724B65069006618D7 /* PriceLabel.swift in Sources */,
 				E215535724B3F83E00494E1A /* StarRatingView.swift in Sources */,
+				E20EA82A24E282980064DB86 /* SpacerView.swift in Sources */,
 				E29AF2F724D690F5004C60FC /* SearchRestaurantsVC.swift in Sources */,
 				E2574A3224B7D41D006618D7 /* ScrollingStackView.swift in Sources */,
 				E2705B5624C3C1340049C1A8 /* RestaurantCell.swift in Sources */,
@@ -435,6 +449,8 @@
 				E215535B24B4343500494E1A /* PaddingLabel.swift in Sources */,
 				E2778DE124BB8C0F00151F29 /* HeaderDetailView.swift in Sources */,
 				E215535D24B5007500494E1A /* UIScrollView-Extension.swift in Sources */,
+				E20EA82824E27BDD0064DB86 /* FilterRestaurantsVC.swift in Sources */,
+				E20EA82E24E36FA00064DB86 /* CheckBox.swift in Sources */,
 				E2778DDB24B832A100151F29 /* RestaurantCategoriesView.swift in Sources */,
 				E2768DEE24B15284004CB475 /* RestaurantAnnotationView.swift in Sources */,
 				E2778DE524BBA5B200151F29 /* PhotoCell.swift in Sources */,
