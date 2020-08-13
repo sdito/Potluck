@@ -89,7 +89,9 @@ class Network {
         }
     }
     
-    func getRestaurants(restaurantSearch: RestaurantSearch, restaurantsReturned: @escaping (Result<[Restaurant], Error>) -> Void) {
+    func getRestaurants(restaurantSearch: RestaurantSearch, filters: [String:Any], restaurantsReturned: @escaping (Result<[Restaurant], Error>) -> Void) {
+        
+        #warning("need to actually implement filters")
         
         var params: [String:Any] = [:]
         
@@ -97,7 +99,10 @@ class Network {
             params = coordinate.getParams()
         }
         
-        #warning("to do")
+        for key in filters.keys {
+            params[key] = filters[key]
+        }
+        
         /*
          
          need to add YelpCategory to the searching

@@ -21,6 +21,13 @@ class FindRestaurantVC: UIViewController {
     
     weak var delegate: SearchUpdatedFromMasterDelegate?
     
+    var searchFilters: [String:Any] = [:] {
+        didSet {
+            restaurantListVC.updateNotificationCount()
+            restaurantSearchBar?.showActivityIndicator()
+            getRestaurantsFromPreSetRestaurantSearch(initial: false)
+        }
+    }
     var restaurantSearchBar: RestaurantSearchBar?
     var restaurantSearch = Network.RestaurantSearch(yelpCategory: nil, location: nil, coordinate: nil) {
         didSet {
@@ -339,11 +346,12 @@ class FindRestaurantVC: UIViewController {
     }
     
     private func getRestaurantsFromPreSetRestaurantSearch(initial: Bool) {
+        
         if !initial {
             moreRestaurantsButton?.showLoadingOnButton()
         }
         
-        Network.shared.getRestaurants(restaurantSearch: restaurantSearch) { (response) in
+        Network.shared.getRestaurants(restaurantSearch: restaurantSearch, filters: searchFilters) { (response) in
             switch response {
             case .success(let newRestaurants):
                 self.mapView.removeAnnotations(self.mapView.annotations )

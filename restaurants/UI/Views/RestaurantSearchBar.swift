@@ -48,6 +48,10 @@ class RestaurantSearchBar: UIView {
             activityView?.removeFromSuperview()
         }
         
+        showActivityIndicator()
+    }
+    
+    func showActivityIndicator() {
         activityView = UIActivityIndicatorView()
         activityView!.translatesAutoresizingMaskIntoConstraints = false
         activityView!.backgroundColor = self.backgroundColor

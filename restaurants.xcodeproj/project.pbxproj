@@ -12,6 +12,7 @@
 		E20EA82A24E282980064DB86 /* SpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82924E282980064DB86 /* SpacerView.swift */; };
 		E20EA82C24E30CBF0064DB86 /* Constraints-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */; };
 		E20EA82E24E36FA00064DB86 /* CheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82D24E36FA00064DB86 /* CheckBox.swift */; };
+		E20EA83024E4AE790064DB86 /* CheckBoxCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82F24E4AE790064DB86 /* CheckBoxCell.swift */; };
 		E215534924B297CC00494E1A /* OverlayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215534824B297CC00494E1A /* OverlayButton.swift */; };
 		E215534D24B2A20E00494E1A /* UIView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215534C24B2A20E00494E1A /* UIView-Extension.swift */; };
 		E215534F24B2C16F00494E1A /* UIButton-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215534E24B2C16F00494E1A /* UIButton-Extension.swift */; };
@@ -68,6 +69,7 @@
 		E20EA82924E282980064DB86 /* SpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacerView.swift; sourceTree = "<group>"; };
 		E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Constraints-Extension.swift"; sourceTree = "<group>"; };
 		E20EA82D24E36FA00064DB86 /* CheckBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckBox.swift; sourceTree = "<group>"; };
+		E20EA82F24E4AE790064DB86 /* CheckBoxCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckBoxCell.swift; sourceTree = "<group>"; };
 		E215534824B297CC00494E1A /* OverlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayButton.swift; sourceTree = "<group>"; };
 		E215534C24B2A20E00494E1A /* UIView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView-Extension.swift"; sourceTree = "<group>"; };
 		E215534E24B2C16F00494E1A /* UIButton-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton-Extension.swift"; sourceTree = "<group>"; };
@@ -209,6 +211,7 @@
 		E2778DE624BBA5B600151F29 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				E20EA82F24E4AE790064DB86 /* CheckBoxCell.swift */,
 				E2778DE424BBA5B200151F29 /* PhotoCell.swift */,
 				E2705B5524C3C1340049C1A8 /* RestaurantCell.swift */,
 			);
@@ -432,6 +435,7 @@
 				E2B6A2B724AFECD10070DECA /* Restaurant.swift in Sources */,
 				E2768DE824B1020F004CB475 /* RestaurantAnnotation.swift in Sources */,
 				E215534F24B2C16F00494E1A /* UIButton-Extension.swift in Sources */,
+				E20EA83024E4AE790064DB86 /* CheckBoxCell.swift in Sources */,
 				E27A755C24A8557E00E446EE /* SceneDelegate.swift in Sources */,
 				E233541624B15F8C00A85DA3 /* Values.swift in Sources */,
 				E27A757624AF9ECC00E446EE /* Network.swift in Sources */,

@@ -12,7 +12,7 @@ import UIKit
 class RestaurantSpecificInfoVC: UIViewController {
     
     private var restaurant: Restaurant!
-    private var tableView = UITableView(frame: .zero, style: .insetGrouped)
+    private var tableView = UITableView(frame: .zero, style: .grouped)
     private let currentWeekday = Date.convertWeekdayFromAppleToStandard(appleDate: Date.getDayOfWeek())
     
     enum ReturnType {
@@ -75,6 +75,7 @@ class RestaurantSpecificInfoVC: UIViewController {
         tableView.dataSource = self
         self.view.addSubview(tableView)
         tableView.constrainSides(to: self.view)
+        tableView.allowsSelection = false
     }
 
 }
