@@ -67,11 +67,15 @@ class SearchRestaurantsVC: UIViewController {
         readRecentLocationSearchesFromUserDefaults()
         
         locationResults = [.currentLocation, .mapLocation] + previousLocationSearches
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         self.setNavigationBarColor(color: Colors.navigationBarColor)
+        self.tabBarController?.tabBar.isHidden = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        self.tabBarController?.tabBar.isHidden = false
     }
     
     

@@ -113,8 +113,6 @@ extension UIView {
         
     }
     
-
-    
     func hideFromScreenSwipe(removeAtEnd: Bool = true) {
         if let view = self.findViewController()?.view {
             let distanceNeeded = view.frame.size.height - self.frame.origin.y
@@ -164,8 +162,6 @@ extension UIView {
     func toClearBackground() {
         self.backgroundColor = UIColor.black.withAlphaComponent(0.0)
     }
-    
-    
     
     func animateRemovingWithCompletion(complete: @escaping (Bool) -> Void) {
         // Moves down and alpha becomes zero

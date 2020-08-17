@@ -9,8 +9,18 @@
 import Alamofire
 import AlamofireImage
 import CoreLocation
+import KeychainSwift
 
 class Network {
+    
+    var account: Account? 
+    var loggedIn: Bool {
+        return account != nil
+    }
+    lazy var keychain: KeychainSwift = {
+        let keychain = KeychainSwift()
+        return keychain
+    }()
     
     typealias YelpCategory = (alias: String?, title: String)
     typealias YelpCategories = [YelpCategory]
@@ -39,7 +49,7 @@ class Network {
     static let shared = Network()
     private init() {}
     
-    enum RequestType {
+    enum YelpRequestType {
         case search
         case id
         case review
@@ -58,7 +68,7 @@ class Network {
         }
     }
     
-    private func req(params: Parameters? = nil, restaurant: Restaurant? = nil, requestType: RequestType) -> DataRequest {
+    private func reqYelp(params: Parameters? = nil, restaurant: Restaurant? = nil, requestType: YelpRequestType) -> DataRequest {
         var url: String {
             switch requestType {
             case .search:
@@ -140,7 +150,7 @@ class Network {
         
         
         
-        let request = req(params: params, requestType: .search)
+        let request = reqYelp(params: params, requestType: .search)
         request.responseJSON { (response) in
             switch response.result {
             case .success(let jsonAny):
@@ -175,7 +185,7 @@ class Network {
     
     func setFullRestaurantInfo(restaurant: Restaurant, complete: @escaping (Bool) -> Void) {
         #warning("need to complete")
-        let request = req(restaurant: restaurant, requestType: .id)
+        let request = reqYelp(restaurant: restaurant, requestType: .id)
         request.responseJSON { (response) in
             switch response.result {
             case .success(let jsonAny):
@@ -196,7 +206,7 @@ class Network {
     
     func setRestaurantReviewInfo(restaurant: Restaurant, complete: @escaping (Bool) -> Void) {
         
-        let request = req(restaurant: restaurant, requestType: .review)
+        let request = reqYelp(restaurant: restaurant, requestType: .review)
         request.responseJSON { (response) in
             switch response.result {
             case .success(let jsonAny):
@@ -225,6 +235,7 @@ class Network {
     
     func setUpInitialRun() {
         setCategoriesForYelpSearch()
+        account = Account.readFromKeychain()
     }
     
     private func setCategoriesForYelpSearch() {
@@ -233,7 +244,7 @@ class Network {
             "locale": countryCode
         ]
         
-        let request = req(params: params, requestType: .categories)
+        let request = reqYelp(params: params, requestType: .categories)
         request.responseJSON { (response) in
             switch response.result {
             case .success(let jsonAny):
@@ -254,5 +265,7 @@ class Network {
             }
         }
     }
+    
+    
     
 }

@@ -284,8 +284,8 @@ class RestaurantSelectedView: UIView {
         
         button.constrainSides(to: outerStackView)
         
-        button.addTarget(self, action: #selector(touchDown), for: [.touchDown, .touchDragEnter])
-        button.addTarget(self, action: #selector(touchUp), for: [.touchDragExit, .touchUpInside])
+        button.addTarget(self, action: #selector(touchDownSel), for: [.touchDown, .touchDragEnter])
+        button.addTarget(self, action: #selector(touchUpSel), for: [.touchDragExit, .touchUpInside])
         button.addTarget(self, action: #selector(buttonSelected), for: .touchUpInside)
         
         
@@ -300,14 +300,14 @@ class RestaurantSelectedView: UIView {
     }
     
     
-    @objc private func touchDown() {
+    @objc private func touchDownSel() {
         // Transform the view to show it is being selected
         UIView.animate(withDuration: 0.2, animations: {
             self.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
         })
     }
 
-    @objc private func touchUp() {
+    @objc private func touchUpSel() {
         // Transform the view back to normal
         UIView.animate(withDuration: 0.2, animations: {
             self.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)

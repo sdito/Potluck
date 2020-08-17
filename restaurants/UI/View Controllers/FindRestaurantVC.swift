@@ -11,7 +11,6 @@ import UIKit
 import MapKit
 import CoreLocation
 
-
 protocol SearchUpdatedFromMasterDelegate: class {
     func newSearch(search: Network.RestaurantSearch)
 }
@@ -114,7 +113,7 @@ class FindRestaurantVC: UIViewController {
         self.view.addSubview(mapView)
         
         mapView.constrainSides(to: self.view)
-        
+        edgesForExtendedLayout = [.top, .left, .right]; #warning("need to figure out better")
     }
     
     private func addChildViewController() {

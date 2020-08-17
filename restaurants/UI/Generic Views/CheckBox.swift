@@ -13,7 +13,6 @@ class CheckBox: UIButton {
     #warning("see if it is ever used")
     
     
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.translatesAutoresizingMaskIntoConstraints = false

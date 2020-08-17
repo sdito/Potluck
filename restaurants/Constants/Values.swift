@@ -43,9 +43,16 @@ extension UIImage {
     static let clearImage = UIImage(systemName: "xmark.circle")!.withTintColor(Colors.main)
     static let bookImage = UIImage(systemName: "book")!
     static let magnifyingGlassImage = UIImage(systemName: "magnifyingglass")
+    static let personImage = UIImage(systemName: "person")
     static let filterButton = UIImage(systemName: "line.horizontal.3.decrease.circle")!
     static let unchecked = UIImage(systemName: "square", withConfiguration: UIImage.SymbolConfiguration(scale: .large))!
     static let checked = UIImage(systemName: "checkmark.square", withConfiguration: UIImage.SymbolConfiguration(scale: .large))!
+    static let settingsImage = UIImage(systemName: "gear")!
+    static let eyeImage = UIImage(systemName: "eye")!
+    static let eyeSlashImage = UIImage(systemName: "eye.slash")!
+    static let checkImage = UIImage(systemName: "checkmark")!
+    static let xImage = UIImage(systemName: "xmark")!
+    
     
 }
 

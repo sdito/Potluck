@@ -25,6 +25,26 @@ extension UIView {
         }
     }
     
+    enum Axis {
+        case x
+        case y
+    }
+    
+    @discardableResult
+    func constrainCenter(_ axis: Axis, to view: UIView) -> NSLayoutConstraint {
+        var constraint: NSLayoutConstraint!
+        
+        switch axis {
+        case .x:
+            constraint = self.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        case .y:
+            constraint = self.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        }
+        
+        constraint.isActive = true
+        return constraint
+    }
+    
     @discardableResult
     func constrain(_ selfSide: Side, to view: UIView, _ side: Side, constant: CGFloat = 0.0) -> NSLayoutConstraint {
         guard selfSide.isYAxis == side.isYAxis else {

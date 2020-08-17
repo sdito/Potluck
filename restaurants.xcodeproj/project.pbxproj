@@ -13,6 +13,10 @@
 		E20EA82C24E30CBF0064DB86 /* Constraints-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */; };
 		E20EA82E24E36FA00064DB86 /* CheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82D24E36FA00064DB86 /* CheckBox.swift */; };
 		E20EA83024E4AE790064DB86 /* CheckBoxCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82F24E4AE790064DB86 /* CheckBoxCell.swift */; };
+		E20EA83224E792AD0064DB86 /* ProfileHomeVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA83124E792AD0064DB86 /* ProfileHomeVC.swift */; };
+		E20EA83424E7A98D0064DB86 /* CreateAccountVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA83324E7A98D0064DB86 /* CreateAccountVC.swift */; };
+		E20EA83824E86DF20064DB86 /* LogInField.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA83724E86DF20064DB86 /* LogInField.swift */; };
+		E20EA83A24E870E00064DB86 /* PaddingTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA83924E870E00064DB86 /* PaddingTextField.swift */; };
 		E215534924B297CC00494E1A /* OverlayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215534824B297CC00494E1A /* OverlayButton.swift */; };
 		E215534D24B2A20E00494E1A /* UIView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215534C24B2A20E00494E1A /* UIView-Extension.swift */; };
 		E215534F24B2C16F00494E1A /* UIButton-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215534E24B2C16F00494E1A /* UIButton-Extension.swift */; };
@@ -26,6 +30,10 @@
 		E215535F24B5220500494E1A /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535E24B5220500494E1A /* ReviewView.swift */; };
 		E233541624B15F8C00A85DA3 /* Values.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541524B15F8C00A85DA3 /* Values.swift */; };
 		E233541824B1627200A85DA3 /* UIImage-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541724B1627200A85DA3 /* UIImage-Extension.swift */; };
+		E239840A24E8FEA700F3828C /* Account-Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239840924E8FEA700F3828C /* Account-Network.swift */; };
+		E239840C24E9BAF200F3828C /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239840B24E9BAF200F3828C /* Errors.swift */; };
+		E239841024E9F09800F3828C /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239840F24E9F09800F3828C /* Account.swift */; };
+		E239841224EA03B200F3828C /* SettingsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239841124EA03B200F3828C /* SettingsVC.swift */; };
 		E2574A2324B53348006618D7 /* UIImageView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2224B53348006618D7 /* UIImageView-Extension.swift */; };
 		E2574A2524B58D14006618D7 /* TwoLevelButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2424B58D14006618D7 /* TwoLevelButton.swift */; };
 		E2574A2724B65069006618D7 /* PriceLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2624B65069006618D7 /* PriceLabel.swift */; };
@@ -60,6 +68,7 @@
 		E2B6A2B724AFECD10070DECA /* Restaurant.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B6A2B624AFECD10070DECA /* Restaurant.swift */; };
 		E2B6A2B924B007030070DECA /* CLLocationCoordinate2D-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */; };
 		E2C8E88F24C378AE003DC824 /* RestaurantListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2C8E88E24C378AE003DC824 /* RestaurantListVC.swift */; };
+		E2E180F124E8B3F6004AA4BE /* LogInButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E180F024E8B3F6004AA4BE /* LogInButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +79,10 @@
 		E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Constraints-Extension.swift"; sourceTree = "<group>"; };
 		E20EA82D24E36FA00064DB86 /* CheckBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckBox.swift; sourceTree = "<group>"; };
 		E20EA82F24E4AE790064DB86 /* CheckBoxCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckBoxCell.swift; sourceTree = "<group>"; };
+		E20EA83124E792AD0064DB86 /* ProfileHomeVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHomeVC.swift; sourceTree = "<group>"; };
+		E20EA83324E7A98D0064DB86 /* CreateAccountVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAccountVC.swift; sourceTree = "<group>"; };
+		E20EA83724E86DF20064DB86 /* LogInField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInField.swift; sourceTree = "<group>"; };
+		E20EA83924E870E00064DB86 /* PaddingTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddingTextField.swift; sourceTree = "<group>"; };
 		E215534824B297CC00494E1A /* OverlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayButton.swift; sourceTree = "<group>"; };
 		E215534C24B2A20E00494E1A /* UIView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView-Extension.swift"; sourceTree = "<group>"; };
 		E215534E24B2C16F00494E1A /* UIButton-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton-Extension.swift"; sourceTree = "<group>"; };
@@ -83,6 +96,10 @@
 		E215535E24B5220500494E1A /* ReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewView.swift; sourceTree = "<group>"; };
 		E233541524B15F8C00A85DA3 /* Values.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Values.swift; sourceTree = "<group>"; };
 		E233541724B1627200A85DA3 /* UIImage-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage-Extension.swift"; sourceTree = "<group>"; };
+		E239840924E8FEA700F3828C /* Account-Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Account-Network.swift"; sourceTree = "<group>"; };
+		E239840B24E9BAF200F3828C /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
+		E239840F24E9F09800F3828C /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
+		E239841124EA03B200F3828C /* SettingsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVC.swift; sourceTree = "<group>"; };
 		E2574A2224B53348006618D7 /* UIImageView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView-Extension.swift"; sourceTree = "<group>"; };
 		E2574A2424B58D14006618D7 /* TwoLevelButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoLevelButton.swift; sourceTree = "<group>"; };
 		E2574A2624B65069006618D7 /* PriceLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceLabel.swift; sourceTree = "<group>"; };
@@ -119,6 +136,7 @@
 		E2B6A2B624AFECD10070DECA /* Restaurant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Restaurant.swift; sourceTree = "<group>"; };
 		E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocationCoordinate2D-Extension.swift"; sourceTree = "<group>"; };
 		E2C8E88E24C378AE003DC824 /* RestaurantListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantListVC.swift; sourceTree = "<group>"; };
+		E2E180F024E8B3F6004AA4BE /* LogInButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInButton.swift; sourceTree = "<group>"; };
 		F1B89F6FBA7BC1CC1A76E4E2 /* Pods_restaurants.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_restaurants.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -154,6 +172,9 @@
 		E2574A2E24B7D370006618D7 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				E239841124EA03B200F3828C /* SettingsVC.swift */,
+				E20EA83124E792AD0064DB86 /* ProfileHomeVC.swift */,
+				E20EA83324E7A98D0064DB86 /* CreateAccountVC.swift */,
 				E27A756D24A855EC00E446EE /* FindRestaurantVC.swift */,
 				E2C8E88E24C378AE003DC824 /* RestaurantListVC.swift */,
 				E29AF2F624D690F5004C60FC /* SearchRestaurantsVC.swift */,
@@ -170,6 +191,7 @@
 		E2574A2F24B7D37E006618D7 /* Generic Views */ = {
 			isa = PBXGroup;
 			children = (
+				E2E180F024E8B3F6004AA4BE /* LogInButton.swift */,
 				E20EA82D24E36FA00064DB86 /* CheckBox.swift */,
 				E20EA82924E282980064DB86 /* SpacerView.swift */,
 				E215535A24B4343500494E1A /* PaddingLabel.swift */,
@@ -178,6 +200,8 @@
 				E2574A3124B7D41D006618D7 /* ScrollingStackView.swift */,
 				E2574A2424B58D14006618D7 /* TwoLevelButton.swift */,
 				E263DE2124D0F8E700C0B584 /* SizeChangeButton.swift */,
+				E20EA83724E86DF20064DB86 /* LogInField.swift */,
+				E20EA83924E870E00064DB86 /* PaddingTextField.swift */,
 			);
 			path = "Generic Views";
 			sourceTree = "<group>";
@@ -288,6 +312,8 @@
 			isa = PBXGroup;
 			children = (
 				E27A757524AF9ECC00E446EE /* Network.swift */,
+				E239840924E8FEA700F3828C /* Account-Network.swift */,
+				E239840B24E9BAF200F3828C /* Errors.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -297,6 +323,7 @@
 			children = (
 				E2B6A2B624AFECD10070DECA /* Restaurant.swift */,
 				E215535224B3C9A700494E1A /* Review.swift */,
+				E239840F24E9F09800F3828C /* Account.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -419,8 +446,13 @@
 				E27A757024A85AA100E446EE /* UIViewController-Extension.swift in Sources */,
 				E2768DF024B15340004CB475 /* Colors.swift in Sources */,
 				E27A756E24A855EC00E446EE /* FindRestaurantVC.swift in Sources */,
+				E239841224EA03B200F3828C /* SettingsVC.swift in Sources */,
+				E239840A24E8FEA700F3828C /* Account-Network.swift in Sources */,
 				E215535524B3F29D00494E1A /* Date-Extension.swift in Sources */,
+				E2E180F124E8B3F6004AA4BE /* LogInButton.swift in Sources */,
+				E239840C24E9BAF200F3828C /* Errors.swift in Sources */,
 				E27A757224A85CF900E446EE /* CLLocationManager-Extension.swift in Sources */,
+				E239841024E9F09800F3828C /* Account.swift in Sources */,
 				E263DE2224D0F8E700C0B584 /* SizeChangeButton.swift in Sources */,
 				E2574A2524B58D14006618D7 /* TwoLevelButton.swift in Sources */,
 				E2C8E88F24C378AE003DC824 /* RestaurantListVC.swift in Sources */,
@@ -429,12 +461,14 @@
 				E284DC0924BBD82100790A29 /* SinglePhotoVC.swift in Sources */,
 				E215535F24B5220500494E1A /* ReviewView.swift in Sources */,
 				E215534D24B2A20E00494E1A /* UIView-Extension.swift in Sources */,
+				E20EA83424E7A98D0064DB86 /* CreateAccountVC.swift in Sources */,
 				E27A755A24A8557E00E446EE /* AppDelegate.swift in Sources */,
 				E215535124B2EA1B00494E1A /* RestaurantDetailVC.swift in Sources */,
 				E215535924B4247D00494E1A /* Fonts.swift in Sources */,
 				E2B6A2B724AFECD10070DECA /* Restaurant.swift in Sources */,
 				E2768DE824B1020F004CB475 /* RestaurantAnnotation.swift in Sources */,
 				E215534F24B2C16F00494E1A /* UIButton-Extension.swift in Sources */,
+				E20EA83224E792AD0064DB86 /* ProfileHomeVC.swift in Sources */,
 				E20EA83024E4AE790064DB86 /* CheckBoxCell.swift in Sources */,
 				E27A755C24A8557E00E446EE /* SceneDelegate.swift in Sources */,
 				E233541624B15F8C00A85DA3 /* Values.swift in Sources */,
@@ -448,6 +482,7 @@
 				E20EA82A24E282980064DB86 /* SpacerView.swift in Sources */,
 				E29AF2F724D690F5004C60FC /* SearchRestaurantsVC.swift in Sources */,
 				E2574A3224B7D41D006618D7 /* ScrollingStackView.swift in Sources */,
+				E20EA83824E86DF20064DB86 /* LogInField.swift in Sources */,
 				E2705B5624C3C1340049C1A8 /* RestaurantCell.swift in Sources */,
 				E2574A2B24B67DCF006618D7 /* MapCutoutView.swift in Sources */,
 				E215535B24B4343500494E1A /* PaddingLabel.swift in Sources */,
@@ -461,6 +496,7 @@
 				E215535324B3C9A700494E1A /* Review.swift in Sources */,
 				E2B6A2B924B007030070DECA /* CLLocationCoordinate2D-Extension.swift in Sources */,
 				E215534924B297CC00494E1A /* OverlayButton.swift in Sources */,
+				E20EA83A24E870E00064DB86 /* PaddingTextField.swift in Sources */,
 				E2574A2D24B6A537006618D7 /* TimeInterval-Extension.swift in Sources */,
 				E284DC0B24BE8EC400790A29 /* RestaurantSpecificInfoVC.swift in Sources */,
 				E27A757424AEDD3A00E446EE /* MKMapView-Extension.swift in Sources */,
