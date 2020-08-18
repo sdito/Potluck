@@ -58,7 +58,7 @@ class SearchRestaurantsVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
-        self.title = "Search"
+        self.navigationItem.title = "Search"
         self.navigationController?.navigationBar.tintColor = Colors.main
         setUpTopSearchBars()
         setUpTableView()

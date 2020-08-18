@@ -10,13 +10,7 @@ import UIKit
 import CoreGraphics
 import CoreLocation
 
-extension CGSize {
-    static let annotationImageSize = CGSize(width: 50, height: 50)
-}
 
-extension CLLocationDistance {
-    static let distanceToFindNewRestaurants = 3000.0
-}
 
 extension CGFloat {
     static let overlayDistanceFromBottom: CGFloat = -25.0

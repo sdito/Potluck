@@ -43,7 +43,7 @@ class PhotosVC: UIViewController {
     }
 
     private func setUpCollectionView() {
-        self.title = "Photos"
+        self.navigationItem.title = "Photos"
         self.view.backgroundColor = .systemBackground
         
         layout.scrollDirection = .vertical

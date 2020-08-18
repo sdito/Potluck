@@ -47,6 +47,12 @@ class LogInField: UIView {
         return (valid, message)
     }
     
+    func shakeIfNeeded() {
+        if text?.count == 0 {
+            self.textField.shakeView()
+        }
+    }
+    
     private let viewButton = UIButton()
     private let textField = PaddingTextField()
     private var isValidText: Bool?

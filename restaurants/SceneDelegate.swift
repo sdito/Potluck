@@ -20,17 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
-        
-        let tab = UITabBarController()
-        let home = UINavigationController(rootViewController: ProfileHomeVC())
-        let explore = UINavigationController(rootViewController: FindRestaurantVC())
-        home.tabBarItem = UITabBarItem(title: "Profile", image: .personImage, selectedImage: .personImage)
-        explore.tabBarItem = UITabBarItem(title: "Explore", image: .magnifyingGlassImage, selectedImage: .magnifyingGlassImage)
-        tab.setViewControllers([explore, home], animated: false)
-        tab.tabBar.tintColor = Colors.main
-        tab.tabBar.barTintColor = Colors.navigationBarColor
-        
-        
+        let tab = TabVC()
         window?.rootViewController = tab
         window?.makeKeyAndVisible()
         

@@ -66,5 +66,13 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if Network.shared.loggedIn {
+            Network.shared.account?.logOut()
+            self.showMessage("Logged out of account")
+            self.navigationController?.popViewController(animated: true)
+        }
+    }
+    
     
 }

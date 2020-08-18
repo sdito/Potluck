@@ -11,9 +11,9 @@ import UIKit
 extension UIImageView {
     func addImageFromUrl(_ url: String?, skeleton: Bool = true, backupImage: String? = nil) {
         if let url = url {
-            self.appStartSkeleton()
+            if skeleton { self.appStartSkeleton() }
             Network.shared.getImage(url: url) { (img) in
-                self.appEndSkeleton()
+                if skeleton { self.appEndSkeleton() }
                 self.image = img
             }
         } else if let backup = backupImage {

@@ -33,7 +33,7 @@ class CreateAccountVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
-        self.title = "Account"
+        self.navigationItem.title = "Account"
         setUpStackView()
         setUpInfoLabel()
         setUpTextFields()
@@ -108,10 +108,13 @@ class CreateAccountVC: UIViewController {
     }
     
     @objc func executeCreateOrLogIn() {
-        
-        
+        #warning("need to better handle the alerts, create a view that goes into the stack view that is then removed")
         switch mode! {
         case .createAccount:
+            emailLogInField.shakeIfNeeded()
+            passwordLogInField.shakeIfNeeded()
+            usernameLogInField.shakeIfNeeded()
+            
             let emailIsValid = emailLogInField.isValid
             let passwordIsValid = passwordLogInField.isValid
             let usernameIsValid = usernameLogInField.isValid
@@ -119,16 +122,28 @@ class CreateAccountVC: UIViewController {
             if emailIsValid.0 && usernameIsValid.0 && passwordIsValid.0, let email = emailLogInField.text, let password = passwordLogInField.text, let username = usernameLogInField.text {
                 
                 Network.shared.registerUser(email: email, username: username, password: password) { (result) in
-                    print(result)
+                    switch result {
+                    case .success(let success):
+                        if success {
+                            self.showMessage("Created new account as \(Network.shared.account!.username)")
+                            self.navigationController?.popViewController(animated: true)
+                        }
+                    case .failure(let error):
+                       self.alert(title: "Error", message: error.message)
+                    }
                 }
             } else {
                 var messages = [emailIsValid.1, usernameIsValid.1, passwordIsValid.1].filter({$0 != nil}).map({$0!})
                 if messages.count < 1 {
                     messages = ["Please try again."]
                 }
+                
                 self.alert(title: "Unable to create account", message: messages.joined(separator: "\n\n"))
+            
             }
         case .logIn:
+            emailLogInField.shakeIfNeeded()
+            passwordLogInField.shakeIfNeeded()
             guard let email = emailLogInField.text, let password = passwordLogInField.text, email.count > 0 && password.count > 0 else {
                 self.alert(title: "Unable to log in", message: "Please enter a valid email and password to log in.")
                 return
@@ -136,9 +151,13 @@ class CreateAccountVC: UIViewController {
             Network.shared.retrieveToken(email: email, password: password) { (result) in
                 switch result {
                 case .success(let success):
-                    print(success)
+                    if success {
+                        self.showMessage("Logged into \(Network.shared.account?.username ?? "account")")
+                        self.navigationController?.popViewController(animated: true)
+                    }
                 case .failure(let error):
-                    print(error)
+                    self.alert(title: "Error", message: error.message)
+                    break
                 }
             }
         }

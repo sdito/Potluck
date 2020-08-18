@@ -34,6 +34,8 @@
 		E239840C24E9BAF200F3828C /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239840B24E9BAF200F3828C /* Errors.swift */; };
 		E239841024E9F09800F3828C /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239840F24E9F09800F3828C /* Account.swift */; };
 		E239841224EA03B200F3828C /* SettingsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239841124EA03B200F3828C /* SettingsVC.swift */; };
+		E239841624EB632100F3828C /* TabVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239841524EB632100F3828C /* TabVC.swift */; };
+		E239841824EB642000F3828C /* AddRestaurantVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239841724EB642000F3828C /* AddRestaurantVC.swift */; };
 		E2574A2324B53348006618D7 /* UIImageView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2224B53348006618D7 /* UIImageView-Extension.swift */; };
 		E2574A2524B58D14006618D7 /* TwoLevelButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2424B58D14006618D7 /* TwoLevelButton.swift */; };
 		E2574A2724B65069006618D7 /* PriceLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2624B65069006618D7 /* PriceLabel.swift */; };
@@ -100,6 +102,8 @@
 		E239840B24E9BAF200F3828C /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		E239840F24E9F09800F3828C /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
 		E239841124EA03B200F3828C /* SettingsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVC.swift; sourceTree = "<group>"; };
+		E239841524EB632100F3828C /* TabVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabVC.swift; sourceTree = "<group>"; };
+		E239841724EB642000F3828C /* AddRestaurantVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRestaurantVC.swift; sourceTree = "<group>"; };
 		E2574A2224B53348006618D7 /* UIImageView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView-Extension.swift"; sourceTree = "<group>"; };
 		E2574A2424B58D14006618D7 /* TwoLevelButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoLevelButton.swift; sourceTree = "<group>"; };
 		E2574A2624B65069006618D7 /* PriceLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceLabel.swift; sourceTree = "<group>"; };
@@ -172,6 +176,8 @@
 		E2574A2E24B7D370006618D7 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				E239841524EB632100F3828C /* TabVC.swift */,
+				E239841724EB642000F3828C /* AddRestaurantVC.swift */,
 				E239841124EA03B200F3828C /* SettingsVC.swift */,
 				E20EA83124E792AD0064DB86 /* ProfileHomeVC.swift */,
 				E20EA83324E7A98D0064DB86 /* CreateAccountVC.swift */,
@@ -472,6 +478,7 @@
 				E20EA83024E4AE790064DB86 /* CheckBoxCell.swift in Sources */,
 				E27A755C24A8557E00E446EE /* SceneDelegate.swift in Sources */,
 				E233541624B15F8C00A85DA3 /* Values.swift in Sources */,
+				E239841624EB632100F3828C /* TabVC.swift in Sources */,
 				E27A757624AF9ECC00E446EE /* Network.swift in Sources */,
 				E2778DD924B7F9DC00151F29 /* String-Extension.swift in Sources */,
 				E20EA82C24E30CBF0064DB86 /* Constraints-Extension.swift in Sources */,
@@ -489,6 +496,7 @@
 				E2778DE124BB8C0F00151F29 /* HeaderDetailView.swift in Sources */,
 				E215535D24B5007500494E1A /* UIScrollView-Extension.swift in Sources */,
 				E20EA82824E27BDD0064DB86 /* FilterRestaurantsVC.swift in Sources */,
+				E239841824EB642000F3828C /* AddRestaurantVC.swift in Sources */,
 				E20EA82E24E36FA00064DB86 /* CheckBox.swift in Sources */,
 				E2778DDB24B832A100151F29 /* RestaurantCategoriesView.swift in Sources */,
 				E2768DEE24B15284004CB475 /* RestaurantAnnotationView.swift in Sources */,

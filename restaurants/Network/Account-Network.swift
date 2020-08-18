@@ -12,6 +12,10 @@ extension Network {
     
     static let djangoURL = "http://127.0.0.1:8000/"
     
+    private struct LogInErrorResponse: Decodable {
+        var email: [String]?
+        var username: [String]?
+    }
     
     enum LogInRequestType {
         case logIn
@@ -50,7 +54,7 @@ extension Network {
                 result(Result.success(true))
             } catch let err {
                 print(err)
-                result(Result.failure(.other))
+                result(Result.failure(.unableToLogIn))
             }
         }
     }
@@ -63,7 +67,7 @@ extension Network {
         ]
         
         let req = reqLogIn(params: params, requestType: .createAccount)
-        
+        let decoder = JSONDecoder()
         req.validate().responseJSON { (response) in
             guard let data = response.data, response.error == nil else {
                 completion(Result.failure(.unableToCreateAccount))
@@ -71,16 +75,33 @@ extension Network {
             }
             
             do {
-                let registerResponse = try JSONDecoder().decode(Account.self, from: data)
+                
+                let registerResponse = try decoder.decode(Account.self, from: data)
                 Network.shared.account = registerResponse
                 registerResponse.writeToKeychain()
                 completion(Result.success(true))
             } catch {
                 
+                do {
+                    let res = try decoder.decode(LogInErrorResponse.self, from: data)
+                    var err: Errors.LogIn {
+                        if res.email != nil && res.username != nil {
+                            return .emailAndUsernameInUse
+                        } else if res.email != nil {
+                            return .emailInUse
+                        } else if res.username != nil {
+                            return .emailInUse
+                        } else {
+                            return .unableToLogIn
+                        }
+                    }
+                    completion(Result.failure(err))
+                } catch {
+                    completion(Result.failure(.unableToCreateAccount))
+                }
+                
+                
             }
-            
-            
-            
         }
         
     }

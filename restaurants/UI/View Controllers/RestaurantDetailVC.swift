@@ -192,7 +192,7 @@ class RestaurantDetailVC: UIViewController {
     private func setUp() {
         
         self.view.backgroundColor = .secondarySystemBackground
-        self.title = ""
+        self.navigationItem.title = ""
         print(restaurant.transactions)
         navBarColor = Colors.navigationBarColor.withAlphaComponent(0.0)
         self.setNavigationBarColor(color: navBarColor!)
@@ -311,7 +311,7 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
         if secondOffset > distanceOfImageView {
             
             if navigationTitleHidden {
-                self.title = restaurant.name
+                self.navigationItem.title = restaurant.name
                 navigationTitleHidden = false
             }
             if latestAlpha != 1.0 {
@@ -320,7 +320,7 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
             }
         } else {
             if !navigationTitleHidden {
-                self.title = ""
+                self.navigationItem.title = ""
                 navigationTitleHidden = true
             }
             var ratio: Double {

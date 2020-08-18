@@ -12,6 +12,53 @@ import MapKit
 
 extension UIViewController {
     
+    func showMessage(_ string: String, lastsFor: Double = 3.0) {
+        #warning("need to complete")
+        let upAndDownDuration = 0.125
+        let duration = (upAndDownDuration * 2) + lastsFor
+        let beginningScale: CGFloat = 0.3
+
+        let vc = UIApplication.shared.windows.first!.rootViewController!
+        let label = PaddingLabel(top: 10.0, bottom: 10.0, left: 15.0, right: 15.0)
+        label.backgroundColor = UIColor.tertiarySystemBackground.withAlphaComponent(0.8)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = string
+        label.font = .largerBold
+        label.layer.cornerRadius = 5.0
+        label.numberOfLines = 0
+        label.clipsToBounds = true
+        label.textAlignment = .center
+        label.alpha = 0.0
+        
+        vc.view.addSubview(label)
+        
+        label.centerXAnchor.constraint(equalTo: vc.view.centerXAnchor).isActive = true
+        label.bottomAnchor.constraint(equalTo: vc.view.topAnchor, constant: 0.0).isActive = true
+        label.widthAnchor.constraint(lessThanOrEqualTo: vc.view.widthAnchor, multiplier: 0.9).isActive = true
+        
+        label.transform = CGAffineTransform.identity.scaledBy(x: beginningScale, y: beginningScale)
+        label.layoutIfNeeded()
+        
+        UIView.animateKeyframes(withDuration: duration, delay: 0, animations: {
+            
+            UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: upAndDownDuration/duration, animations: {
+                label.transform = CGAffineTransform(translationX: 0, y: label.bounds.height + 75.0).scaledBy(x: 1.0, y: 1.0)
+                label.alpha = 1.0
+            })
+            
+            UIView.addKeyframe(withRelativeStartTime: (duration - upAndDownDuration) / duration, relativeDuration: upAndDownDuration/duration, animations: {
+                label.transform = CGAffineTransform.identity.scaledBy(x: beginningScale, y: beginningScale)
+                label.alpha = 0.0
+            })
+            
+        }) { (complete) in
+            if complete {
+                label.removeFromSuperview()
+            }
+        }
+        
+    }
+    
     func locationServicesEnabled() -> Bool {
         if CLLocationManager.locationServicesEnabled() {
             return true

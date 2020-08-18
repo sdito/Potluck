@@ -65,7 +65,7 @@ class RestaurantSpecificInfoVC: UIViewController {
     
     func setUp(restaurant: Restaurant) {
         self.view.backgroundColor = .systemBackground
-        self.title = "More info"
+        self.navigationItem.title = "More info"
         setUpTableView()
     }
     

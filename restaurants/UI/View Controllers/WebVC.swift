@@ -41,7 +41,7 @@ class WebVC: UIViewController {
     }
     
     private func setUp(url: String) {
-        self.title = url
+        self.navigationItem.title = url
         
         webView.uiDelegate = self
         webView.navigationDelegate = self

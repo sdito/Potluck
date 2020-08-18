@@ -12,9 +12,8 @@ class ProfileHomeVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .green
+        self.view.backgroundColor = .systemBackground
         self.setNavigationBarColor(color: Colors.navigationBarColor)
-        self.title = "Profile"
         self.navigationController?.navigationBar.tintColor = Colors.main
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: .settingsImage, style: .plain, target: self, action: #selector(rightBarButtonItemSelector))
     }
@@ -26,7 +25,6 @@ class ProfileHomeVC: UIViewController {
         } else {
             self.navigationController?.pushViewController(CreateAccountVC(), animated: true)
         }
-        
     }
     
     
