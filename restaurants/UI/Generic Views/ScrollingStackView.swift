@@ -10,8 +10,12 @@ import UIKit
 
 class ScrollingStackView: UIView {
     
+    var scrollOrigin: CGPoint {
+        return scrollView.contentOffset
+    }
+    
     private var scrollView: UIScrollView!
-    private var stackView: UIStackView!
+    var stackView: UIStackView!
     
     init(subViews: [UIView]) {
         super.init(frame: .zero)

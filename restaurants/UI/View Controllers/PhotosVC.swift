@@ -18,7 +18,7 @@ class PhotosVC: UIViewController {
     private var collectionView: UICollectionView!
     private let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
     private var photos: [String] = []
-    private var imageCache = NSCache<NSString, UIImage>()
+    private let imageCache = NSCache<NSString, UIImage>()
     private let padding: CGFloat = 2.0
     private let reuseIdentifier = "photoCellReuseIdentifier"
     

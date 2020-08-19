@@ -46,7 +46,7 @@ extension UIImage {
     static let eyeSlashImage = UIImage(systemName: "eye.slash")!
     static let checkImage = UIImage(systemName: "checkmark")!
     static let xImage = UIImage(systemName: "xmark")!
-    
+    static let checkmarkCircleImage = UIImage(systemName: "checkmark.circle.fill")!
     
 }
 

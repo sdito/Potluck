@@ -10,7 +10,11 @@ import UIKit
 
 class PhotoCell: UICollectionViewCell {
     
+    
+    var allowsSelection = false
     var imageView: UIImageView!
+    
+    private var selectedImage = UIImageView(image: .checkmarkCircleImage)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,6 +34,21 @@ class PhotoCell: UICollectionViewCell {
         imageView.isSkeletonable = true
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
+        selectedImage.translatesAutoresizingMaskIntoConstraints = false
+        selectedImage.tintColor = Colors.main
+        selectedImage.backgroundColor = .secondarySystemBackground
+    }
+    
+    func updateForShowingSelection(selected: Bool) {
+        if selected {
+            imageView.addSubview(selectedImage)
+            selectedImage.constrain(.trailing, to: imageView, .trailing, constant: 10.0)
+            selectedImage.constrain(.bottom, to: imageView, .bottom, constant: 10.0)
+            selectedImage.layer.cornerRadius = selectedImage.bounds.height / 2.0
+            selectedImage.clipsToBounds = true
+        } else {
+            selectedImage.removeFromSuperview()
+        }
     }
     
 }

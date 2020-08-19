@@ -25,6 +25,7 @@ class Network {
     typealias YelpCategory = (alias: String?, title: String)
     typealias YelpCategories = [YelpCategory]
     var yelpCategories: YelpCategories = []
+    
     private let baseCategories: YelpCategories = ["Delivery", "Takeout", "Outdoor Seating"].map({(nil, $0)})
     static let commonSearches: YelpCategories = [("pizza", "Pizza"),
                                                  ("chinese", "Chinese"),
@@ -148,8 +149,6 @@ class Network {
             
         }
         
-        
-        
         let request = reqYelp(params: params, requestType: .search)
         request.responseJSON { (response) in
             switch response.result {
@@ -175,6 +174,7 @@ class Network {
                 let sortedRestaurants = restaurants.sorted { (one, two) -> Bool in
                     one.distance < two.distance
                 }
+                
                 restaurantsReturned(Result.success(sortedRestaurants))
             case .failure(let error):
                 print("Error: getRestaurants")

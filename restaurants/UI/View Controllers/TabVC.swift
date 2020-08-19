@@ -22,24 +22,22 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
         home.tabBarItem = UITabBarItem(title: nil, image: .personImage, selectedImage: .personImage)
         addRestaurant.tabBarItem = UITabBarItem(title: nil, image: .add, selectedImage: .add)
         explore.tabBarItem = UITabBarItem(title: nil, image: .magnifyingGlassImage, selectedImage: .magnifyingGlassImage)
-        
         self.setViewControllers([explore,addRestaurant, home], animated: false)
         self.tabBar.tintColor = Colors.main
         self.tabBar.barTintColor = Colors.navigationBarColor
         
         for tb in tabBar.items! {
-            print("THIS IS BEING CALLED")
-            print(tb.imageInsets)
+            #warning("not working")
             tb.imageInsets = UIEdgeInsets(top: 5.5, left: 0, bottom: -5.5, right: 0)
 
         }
-        
-
     }
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if viewController.isKind(of: AddRestaurantVC.self) {
-            let vc = UINavigationController(rootViewController: AddRestaurantVC())
+            let baseVC = AddRestaurantVC()
+            
+            let vc = UINavigationController(rootViewController: baseVC)
             self.present(vc, animated: true, completion: nil)
             return false
         }
