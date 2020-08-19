@@ -32,21 +32,31 @@ class ImageSelectorVC: UIViewController {
     private let requestOptions = PHImageRequestOptions()
     private let imageCache = NSCache<NSString, UIImage>()
     private var selectedIndexPaths: Set<IndexPath> = []
+    private let scrollingViewConstant: CGFloat = 10.0
+    private var beginningPoint: CGPoint!
+    private var initialFrame: CGRect!
+    private var touchPoint: CGPoint?
+    private let buffer: CGFloat = 80.0
+    private var senderView: UIView?
+    private var newFakeView: ImageXView?
+    private var timer: Timer?
+    private let timerInterval = 0.05
+    private let stackViewAnimationDuration: TimeInterval = 0.3
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpSelectedImageScrollView()
         setUpCollectionView()
         setUp()
-        
     }
     
     private func setUpSelectedImageScrollView() {
         
         self.view.addSubview(scrollingView)
-        scrollingView.constrain(.leading, to: self.view, .leading, constant: 10.0)
-        scrollingView.constrain(.trailing, to: self.view, .trailing, constant: 10.0)
-        scrollingView.constrain(.top, to: self.view, .top, constant: 10.0)
+        scrollingView.constrain(.leading, to: self.view, .leading, constant: scrollingViewConstant)
+        scrollingView.constrain(.trailing, to: self.view, .trailing, constant: scrollingViewConstant)
+        scrollingView.constrain(.top, to: self.view, .top, constant: scrollingViewConstant)
+        scrollingView.clipsToBounds = false
         
         placeholderView.translatesAutoresizingMaskIntoConstraints = false
         placeholderView.backgroundColor = .clear
@@ -87,6 +97,7 @@ class ImageSelectorVC: UIViewController {
     
     
     private func setUp() {
+        
         requestOptions.isSynchronous = false
         requestOptions.deliveryMode = .highQualityFormat
         PHPhotoLibrary.requestAuthorization { status in
@@ -96,8 +107,12 @@ class ImageSelectorVC: UIViewController {
                 fetchOptions.sortDescriptors = [.init(key: "creationDate", ascending: false)]
                 //fetchOptions.fetchLimit = 500
                 self.allPhotos = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+                
+                
                 DispatchQueue.main.async {
-                    self.collectionView.reloadData()
+                    if !(self.collectionView.numberOfItems(inSection: 0) == self.allPhotos.count) { // means it is already reloaded
+                        self.collectionView.reloadData()
+                    }
                 }
                 
                 print("Found \(self.allPhotos.count) assets")
@@ -112,12 +127,9 @@ class ImageSelectorVC: UIViewController {
         }
     }
     
-    
-    
     private func imageSelected(image: UIImage, index: Int, originFrame: CGRect, cell: UICollectionViewCell) {
-        #warning("need to get the full size image most likely")
-        cell.isUserInteractionEnabled = false
         
+        cell.isUserInteractionEnabled = false
         let animatedView = UIImageView(frame: originFrame)
         animatedView.image = image
         animatedView.contentMode = .scaleAspectFill
@@ -129,63 +141,156 @@ class ImageSelectorVC: UIViewController {
         var newFrame = scrollingView.convert(placeholderView.frame, to: self.view)
         newFrame.origin.x -= scrollingView.scrollOrigin.x
 
-        UIView.animate(withDuration: 0.5, animations: {
+        UIView.animate(withDuration: 0.3, animations: {
             animatedView.frame = newFrame
             animatedView.layoutIfNeeded()
             animatedView.tag = index
         }) { (complete) in
             if complete {
                 animatedView.removeFromSuperview()
-                animatedView.equalSides(size: self.basicSize)
-                self.scrollingView.stackView.insertArrangedSubview(animatedView, at: self.scrollingView.stackView.arrangedSubviews.count - 1)
+                let holderView = ImageXView()
+                holderView.setUp(image: animatedView.image, size: self.basicSize, tag: index)
+                self.scrollingView.stackView.insertArrangedSubview(holderView, at: self.scrollingView.stackView.arrangedSubviews.count - 1)
                 cell.isUserInteractionEnabled = true
-                self.addDeleteButtonToSelectedView(animatedView)
+                self.setUpMoveGestureRecognizer(holderView)
+                holderView.cancelButton.addTarget(self, action: #selector(self.removeImageView(sender:)), for: .touchUpInside)
                 
             }
         }
     }
     
-    private func imageDeselected(index: Int) {
-        scrollingView.stackView.subviews.forEach { (v) in
-            if v.tag == index {
-                v.removeFromSuperview()
+    private func setUpMoveGestureRecognizer(_ v: UIView) {
+        let panGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPressSelector(sender:)))
+        v.addGestureRecognizer(panGestureRecognizer)
+    }
+    
+    private var allowChangesOnNewView = false
+    
+    @objc private func longPressSelector(sender: UILongPressGestureRecognizer) {
+        touchPoint = sender.location(in: self.view)
+        senderView = sender.view
+        
+        let placeholderImage = (senderView as? ImageXView)?.imageView.image
+        
+        guard let touchPoint = touchPoint, let senderView = senderView else { return }
+        let scaleTransform = CGAffineTransform(scaleX: 0.75, y: 0.75)
+        
+        if sender.state == .began {
+            
+            scrollingView.stackView.bringSubviewToFront(senderView)
+            initialFrame = self.scrollingView.scrollView.convert(senderView.frame, to: self.view)
+        
+            beginningPoint = touchPoint
+            newFakeView = ImageXView(frame: initialFrame)
+            newFakeView?.setUp(image: placeholderImage, size: self.basicSize, tag: -1)
+            
+            newFakeView?.center = senderView.center
+            newFakeView?.frame.origin.x -= scrollingView.scrollView.contentOffset.x
+            scrollingView.addSubview(newFakeView!)
+            view.bringSubviewToFront(newFakeView!)
+            
+            senderView.alpha = 0.3
+            senderView.transform = scaleTransform
+            
+            UIView.animate(withDuration: 0.2, animations: {
+                self.newFakeView?.transform = scaleTransform
+            }) { (complete) in
+                if complete {
+                    self.allowChangesOnNewView = true
+                    self.timer = Timer.scheduledTimer(timeInterval: self.timerInterval, target: self, selector: #selector(self.runTimer), userInfo: nil, repeats: true)
+                    
+                }
+            }
+        } else if sender.state == .changed {
+            
+            if allowChangesOnNewView {
+                let newOriginX = (touchPoint.x - beginningPoint.x) + initialFrame.origin.x + scrollingViewConstant
+                let newOriginY = (touchPoint.y - beginningPoint.y) + initialFrame.origin.y + scrollingViewConstant
+                let maximumY = scrollingView.frame.maxY - newFakeView!.bounds.height
+                newFakeView?.frame.origin.x = newOriginX
+                newFakeView?.frame.origin.y = min(maximumY, newOriginY)
+            }
+            
+            scrollingView.indexForViewAtAbsoluteX(touchPoint.x, fromIndex: scrollingView.stackView.arrangedSubviews.firstIndex(of: senderView) ?? 0)
+            
+        } else if sender.state == .ended {
+            timer?.invalidate()
+            let finalIndex = scrollingView.indexForViewAtAbsoluteX(touchPoint.x, fromIndex: scrollingView.stackView.arrangedSubviews.firstIndex(of: senderView) ?? 0)
+            scrollingView.removePlaceholderView()
+            
+            // have to add at final index index from the previous index
+            if let addAtIndex = finalIndex, let previousIndex = scrollingView.stackView.arrangedSubviews.firstIndex(of: senderView) {
+                print("New index: \(addAtIndex), old index: \(previousIndex)")
+                UIView.animate(withDuration: 0.4) {
+                    self.scrollingView.stackView.arrangedSubviews[previousIndex].isHidden = true
+                }
+            } else {
+                // Just go back to the original spot, nothing happened or cancelled
+                UIView.animate(withDuration: 0.2, animations: {
+                    self.newFakeView?.alpha = 0.0
+                    senderView.alpha = 1.0
+                    senderView.transform = .identity
+                }) { (complete) in
+                    if complete {
+                        self.allowChangesOnNewView = false
+                        self.newFakeView?.removeFromSuperview()
+                    }
+                }
+            }
+            
+            
+        }
+    }
+
+    @objc private func runTimer() {
+        
+        let scrollDistance: CGFloat = 10.0
+        let viewWidth = self.view.bounds.width
+        let scrollContentOffsetX = self.scrollingView.scrollView.contentOffset.x
+        if allowChangesOnNewView, let touchPointX = touchPoint?.x, scrollingView.scrollView.contentOverflows {
+            if touchPointX < buffer {
+                if scrollContentOffsetX > 0.0 {
+                    UIView.animate(withDuration: timerInterval) {
+                        self.scrollingView.scrollView.contentOffset.x -= scrollDistance
+                    }
+                }
+            } else if touchPointX > (viewWidth - buffer) {
+                
+                if !self.scrollingView.scrollView.isAtEnd {
+                    UIView.animate(withDuration: timerInterval) {
+                        self.scrollingView.scrollView.contentOffset.x += scrollDistance
+                    }
+                }
             }
         }
     }
     
-    private func addDeleteButtonToSelectedView(_ v: UIView) {
-        v.isUserInteractionEnabled = true
-        let b = UIButton()
-        b.translatesAutoresizingMaskIntoConstraints = false
-        b.setImage(.xImage, for: .normal)
-        v.addSubview(b)
-        b.constrain(.trailing, to: v, .trailing, constant: 3.0)
-        b.constrain(.top, to: v, .top, constant: 3.0)
-        b.tintColor = Colors.main
-        b.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.8)
-        b.clipsToBounds = true
-        b.layoutIfNeeded()
-        b.layer.cornerRadius = b.frame.height / 4.0
-        b.equalSides()
-        b.addTarget(self, action: #selector(removeImageView(sender:)), for: .touchUpInside)
-        b.alpha = 0.0
-        UIView.animate(withDuration: 0.3) {
-            b.alpha = 1.0
+    private func imageDeselected(index: Int) {
+        print("This is being called: \(index)")
+        
+        scrollingView.stackView.arrangedSubviews.forEach { (vEach) in
+            if let v = vEach as? ImageXView {
+                print(v.representativeIndex)
+                if v.representativeIndex == index {
+                    v.removeFromStackViewAnimated(duration: stackViewAnimationDuration)
+                }
+            }
         }
     }
     
     @objc private func removeImageView(sender: UIButton) {
         
-        print("This is being called")
         let indexPath = IndexPath(item: sender.tag, section: 0)
         selectedIndexPaths.remove(indexPath)
         collectionView.reloadItems(at: [indexPath])
-        //sender.removeFromSuperview()
-        sender.superview?.removeFromSuperview()
+        
+        guard let superView = sender.superview else { return }
+        superView.removeFromStackViewAnimated(duration: stackViewAnimationDuration)
     }
     
 }
 
+// MARK: Collection view
 extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return allPhotos.count
@@ -200,10 +305,11 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
         let key = NSString(string: "\(indexPath.row)")
         if let cachedImage = imageCache.object(forKey: key) {
             cell.imageView.image = cachedImage
+            print("Caching image at: \(key)")
         } else {
             imageManager.requestImage(for: asset, targetSize: CGSize(width: layout.itemSize.width * 3.0, height: layout.itemSize.height * 3.0), contentMode: .aspectFit, options: requestOptions) { (image, info) in
                 if let image = image {
-                    print(image.size)
+                    print("Reading image at: \(key)")
                     cell.imageView.image = image
                     self.imageCache.setObject(image, forKey: key)
                 } else {
@@ -223,7 +329,6 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
             let origin = collectionView.convert(cell.frame, to: self.view)
             imageSelected(image: image, index: indexPath.row, originFrame: origin, cell: cell)
         }
-        
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {

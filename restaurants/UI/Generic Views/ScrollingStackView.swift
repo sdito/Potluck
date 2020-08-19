@@ -14,7 +14,43 @@ class ScrollingStackView: UIView {
         return scrollView.contentOffset
     }
     
-    private var scrollView: UIScrollView!
+    private var dropLocationView: UIView?
+    
+    func removePlaceholderView() {
+        dropLocationView?.removeFromSuperview()
+    }
+    
+    @discardableResult
+    func indexForViewAtAbsoluteX(_ x: CGFloat, fromIndex: Int) -> Int? {
+        self.scrollView.clipsToBounds = false
+        self.stackView.clipsToBounds = false
+        
+        dropLocationView?.removeFromSuperview()
+        
+        let offset = scrollView.contentOffset.x
+        let totalDistance = offset + x
+        var widthCounter: CGFloat = 0
+        for (i, view) in stackView.arrangedSubviews.enumerated() {
+            widthCounter += view.bounds.width
+            if widthCounter > totalDistance {
+                
+                guard i != fromIndex && i != fromIndex + 1 else { return nil }
+                
+                dropLocationView = setUpDropLocationView(addTo: view)
+                
+                //self.bringSubviewToFront(dropLocationView!)
+                
+                return i
+                
+            }
+        }
+        
+        let idx = stackView.arrangedSubviews.count - 1
+        
+        return idx
+    }
+    
+    var scrollView: UIScrollView!
     var stackView: UIStackView!
     
     init(subViews: [UIView]) {
@@ -69,6 +105,24 @@ class ScrollingStackView: UIView {
                 break
             }
         }
+    }
+    
+    private func setUpDropLocationView(addTo view: UIView) -> UIView {
+        let dropLocationView = UIView()
+        dropLocationView.clipsToBounds = false
+        dropLocationView.translatesAutoresizingMaskIntoConstraints = false
+        dropLocationView.backgroundColor = .yellow
+        
+        view.addSubview(dropLocationView)
+        dropLocationView.widthAnchor.constraint(equalToConstant: 10.0).isActive = true
+        dropLocationView.heightAnchor.constraint(equalToConstant: self.bounds.height + 10.0).isActive = true
+        dropLocationView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        dropLocationView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: -7.5).isActive = true
+        
+        dropLocationView.layer.cornerRadius = 3.0
+        dropLocationView.clipsToBounds = true
+        
+        return dropLocationView
     }
     
 }

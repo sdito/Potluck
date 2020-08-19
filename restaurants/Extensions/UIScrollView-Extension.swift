@@ -19,4 +19,24 @@ extension UIScrollView {
         
         self.contentSize.height = height
     }
+    
+    /// True if content of a scroll view requires scrolling to see all of it
+    var contentOverflows: Bool {
+        return self.contentSize.width > self.bounds.width
+    }
+    
+    
+    var isAtEnd: Bool {
+        return contentOffset.x >= verticalOffsetForEnd
+    }
+
+
+    var verticalOffsetForEnd: CGFloat {
+        let scrollViewWidth = bounds.width
+        let scrollContentSizeHeight = contentSize.width
+        let rightInset = contentInset.right
+        let scrollViewRightOffset = scrollContentSizeHeight + rightInset - scrollViewWidth
+        return scrollViewRightOffset
+    }
+    
 }

@@ -11,6 +11,15 @@ import SkeletonView
 
 extension UIView {
     
+    func removeFromStackViewAnimated(duration: TimeInterval) {
+        UIView.animate(withDuration: duration, animations: {
+            self.alpha = 0.0
+            self.isHidden = true
+        }) { (complete) in
+            if complete { self.removeFromSuperview() }
+        }
+    }
+    
     func shakeView() {
         let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
         animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.linear)

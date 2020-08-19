@@ -55,7 +55,7 @@ class SubmitRestaurantVC: UIViewController {
         containerView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(containerView)
         containerView.backgroundColor = .flatOrange
-        containerView.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.7).isActive = true
+        containerView.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.66).isActive = true
         containerView.constrain(.bottom, to: self.view, .bottom)
         containerView.constrain(.leading, to: self.view, .leading)
         containerView.constrain(.trailing, to: self.view, .trailing)
