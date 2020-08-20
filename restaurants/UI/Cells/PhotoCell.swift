@@ -7,10 +7,12 @@
 //
 
 import UIKit
+import Photos
 
 class PhotoCell: UICollectionViewCell {
     
-    
+    var creationDate: Date?
+    var asset: PHAsset?
     var allowsSelection = false
     var imageView: UIImageView!
     

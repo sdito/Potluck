@@ -9,7 +9,6 @@
 import UIKit
 
 class ImageXView: UIView {
-    
     var representativeIndex = -1
     
     var imageView = UIImageView()
@@ -54,6 +53,11 @@ class ImageXView: UIView {
         imageView.image = image
         self.equalSides(size: size)
         self.representativeIndex = tag
+    }
+    
+    func showBorderForMoving() {
+        self.layer.borderWidth = 2.0
+        self.layer.borderColor = UIColor.systemYellow.cgColor
     }
 
 }

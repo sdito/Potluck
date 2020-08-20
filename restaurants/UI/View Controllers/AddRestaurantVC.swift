@@ -144,6 +144,5 @@ extension AddRestaurantVC: MKLocalSearchCompleterDelegate {
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
         let results = completer.results.map({($0.title, $0.subtitle)})
         searchResults = results
-        print(currentSelectedSegment)
     }
 }

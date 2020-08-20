@@ -12,7 +12,7 @@ import Photos
 
 
 protocol ImageSelectorDelegate: class {
-    
+    func photosUpdated(to selectedPhotos: [ImageSelectorVC.ImageInfo])
 }
 
 
@@ -20,18 +20,24 @@ class ImageSelectorVC: UIViewController {
     
     weak var delegate: ImageSelectorDelegate!
     
+    private var selectedPhotos: [ImageInfo] = [] {
+        didSet {
+            delegate.photosUpdated(to: self.selectedPhotos)
+        }
+    }
+    private var allPhotos = PHFetchResult<PHAsset>()
+    
     private let placeholderView = UIView()
     private let scrollingView = ScrollingStackView(subViews: [])
     private let basicSize: CGFloat = 80.0
     private var collectionView: UICollectionView!
     private let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
     private let imageManager = PHImageManager.default()
-    private var allPhotos = PHFetchResult<PHAsset>()
     private let padding: CGFloat = 2.0
     private let reuseIdentifier = "photoCellReuseIdentifier"
     private let requestOptions = PHImageRequestOptions()
     private let imageCache = NSCache<NSString, UIImage>()
-    private var selectedIndexPaths: Set<IndexPath> = []
+    //private var selectedIndexPaths: Set<IndexPath> = []
     private let scrollingViewConstant: CGFloat = 10.0
     private var beginningPoint: CGPoint!
     private var initialFrame: CGRect!
@@ -41,14 +47,24 @@ class ImageSelectorVC: UIViewController {
     private var newFakeView: ImageXView?
     private var timer: Timer?
     private let timerInterval = 0.05
-    private let stackViewAnimationDuration: TimeInterval = 0.3
+    private let stackViewAnimationDuration: TimeInterval = 0.4
+    
+    
+    struct ImageInfo {
+        var image: UIImage
+        var asset: PHAsset
+        var date: Date
+        var indexPath: IndexPath
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.backgroundColor = .red
         setUpSelectedImageScrollView()
         setUpCollectionView()
         setUp()
     }
+    
     
     private func setUpSelectedImageScrollView() {
         
@@ -63,6 +79,7 @@ class ImageSelectorVC: UIViewController {
         scrollingView.stackView.addArrangedSubview(placeholderView)
         placeholderView.equalSides(size: basicSize)
         placeholderView.tag = -1
+        
     }
     
     private func setUpCollectionView() {
@@ -92,7 +109,6 @@ class ImageSelectorVC: UIViewController {
         collectionView.constrain(.leading, to: self.view, .leading)
         collectionView.constrain(.trailing, to: self.view, .trailing)
         collectionView.constrain(.bottom, to: self.view, .bottom)
-        
     }
     
     
@@ -105,10 +121,8 @@ class ImageSelectorVC: UIViewController {
             case .authorized:
                 let fetchOptions = PHFetchOptions()
                 fetchOptions.sortDescriptors = [.init(key: "creationDate", ascending: false)]
-                //fetchOptions.fetchLimit = 500
+                
                 self.allPhotos = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-                
-                
                 DispatchQueue.main.async {
                     if !(self.collectionView.numberOfItems(inSection: 0) == self.allPhotos.count) { // means it is already reloaded
                         self.collectionView.reloadData()
@@ -171,6 +185,7 @@ class ImageSelectorVC: UIViewController {
         senderView = sender.view
         
         let placeholderImage = (senderView as? ImageXView)?.imageView.image
+        let tagPlaceholder = (senderView as? ImageXView)?.representativeIndex ?? -1
         
         guard let touchPoint = touchPoint, let senderView = senderView else { return }
         let scaleTransform = CGAffineTransform(scaleX: 0.75, y: 0.75)
@@ -182,8 +197,8 @@ class ImageSelectorVC: UIViewController {
         
             beginningPoint = touchPoint
             newFakeView = ImageXView(frame: initialFrame)
-            newFakeView?.setUp(image: placeholderImage, size: self.basicSize, tag: -1)
-            
+            newFakeView?.setUp(image: placeholderImage, size: self.basicSize, tag: tagPlaceholder)
+            newFakeView?.showBorderForMoving()
             newFakeView?.center = senderView.center
             newFakeView?.frame.origin.x -= scrollingView.scrollView.contentOffset.x
             scrollingView.addSubview(newFakeView!)
@@ -220,9 +235,29 @@ class ImageSelectorVC: UIViewController {
             
             // have to add at final index index from the previous index
             if let addAtIndex = finalIndex, let previousIndex = scrollingView.stackView.arrangedSubviews.firstIndex(of: senderView) {
-                print("New index: \(addAtIndex), old index: \(previousIndex)")
-                UIView.animate(withDuration: 0.4) {
-                    self.scrollingView.stackView.arrangedSubviews[previousIndex].isHidden = true
+                let placeHolderView = ImageXView()
+                placeHolderView.setUp(image: newFakeView?.imageView.image, size: self.basicSize, tag: newFakeView?.representativeIndex ?? -1)
+                placeHolderView.isHidden = true
+                placeHolderView.cancelButton.addTarget(self, action: #selector(self.removeImageView(sender:)), for: .touchUpInside)
+                self.setUpMoveGestureRecognizer(placeHolderView)
+                self.scrollingView.stackView.arrangedSubviews[previousIndex].removeFromStackViewAnimated(duration: self.stackViewAnimationDuration)
+                self.scrollingView.stackView.insertArrangedSubview(placeHolderView, at: addAtIndex)
+                newFakeView?.removeFromSuperview()
+                
+                // need to update the selectedPhotos array
+                var tempArray = selectedPhotos
+                let changingElement = tempArray.remove(at: previousIndex)
+                let placeholder = ImageInfo(image: UIImage(), asset: PHAsset(), date: Date(), indexPath: IndexPath(row: -1, section: -1))
+                tempArray.insert(placeholder, at: previousIndex)
+                tempArray.insert(changingElement, at: addAtIndex)
+                tempArray.removeAll { (imgInfo) -> Bool in
+                    imgInfo.indexPath == placeholder.indexPath
+                }
+                selectedPhotos = tempArray
+                print(selectedPhotos.count, addAtIndex, previousIndex)
+                
+                UIView.animate(withDuration: 0.3) {
+                    placeHolderView.isHidden = false
                 }
             } else {
                 // Just go back to the original spot, nothing happened or cancelled
@@ -244,7 +279,7 @@ class ImageSelectorVC: UIViewController {
 
     @objc private func runTimer() {
         
-        let scrollDistance: CGFloat = 10.0
+        let scrollDistance: CGFloat = 15.0
         let viewWidth = self.view.bounds.width
         let scrollContentOffsetX = self.scrollingView.scrollView.contentOffset.x
         if allowChangesOnNewView, let touchPointX = touchPoint?.x, scrollingView.scrollView.contentOverflows {
@@ -266,7 +301,6 @@ class ImageSelectorVC: UIViewController {
     }
     
     private func imageDeselected(index: Int) {
-        print("This is being called: \(index)")
         
         scrollingView.stackView.arrangedSubviews.forEach { (vEach) in
             if let v = vEach as? ImageXView {
@@ -279,12 +313,12 @@ class ImageSelectorVC: UIViewController {
     }
     
     @objc private func removeImageView(sender: UIButton) {
-        
-        let indexPath = IndexPath(item: sender.tag, section: 0)
-        selectedIndexPaths.remove(indexPath)
+        guard let superView = sender.superview as? ImageXView else { return }
+        let indexPath = IndexPath(item: superView.representativeIndex, section: 0)
+        selectedPhotos.removeAll { (info) -> Bool in
+            info.indexPath == indexPath
+        }
         collectionView.reloadItems(at: [indexPath])
-        
-        guard let superView = sender.superview else { return }
         superView.removeFromStackViewAnimated(duration: stackViewAnimationDuration)
     }
     
@@ -300,8 +334,12 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PhotoCell
         cell.imageView.image = nil
         cell.allowsSelection = true
-        cell.updateForShowingSelection(selected: selectedIndexPaths.contains(indexPath))
+        cell.updateForShowingSelection(selected: selectedPhotos.contains(where: {$0.indexPath == indexPath}))
         let asset = allPhotos.object(at: indexPath.row) as PHAsset
+        let creationDate = asset.creationDate
+        cell.creationDate = creationDate
+        cell.asset = asset
+        
         let key = NSString(string: "\(indexPath.row)")
         if let cachedImage = imageCache.object(forKey: key) {
             cell.imageView.image = cachedImage
@@ -323,17 +361,18 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! PhotoCell
-        if let image = cell.imageView.image {
-            selectedIndexPaths.insert(indexPath)
+        if let image = cell.imageView.image, let asset = cell.asset, let date = asset.creationDate {
+            selectedPhotos.append(ImageInfo(image: image, asset: asset, date: date, indexPath: indexPath))
             cell.updateForShowingSelection(selected: true)
             let origin = collectionView.convert(cell.frame, to: self.view)
             imageSelected(image: image, index: indexPath.row, originFrame: origin, cell: cell)
+            
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! PhotoCell
-        selectedIndexPaths.remove(indexPath)
+        selectedPhotos = selectedPhotos.filter({$0.indexPath != indexPath})
         cell.updateForShowingSelection(selected: false)
         imageDeselected(index: indexPath.row)
     }

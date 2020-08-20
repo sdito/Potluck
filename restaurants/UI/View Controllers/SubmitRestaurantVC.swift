@@ -11,8 +11,6 @@ import UIKit
 
 class SubmitRestaurantVC: UIViewController {
     
-    
-    
     private let containerView = UIView()
     private var name: String!
     private var address: String!
@@ -20,6 +18,7 @@ class SubmitRestaurantVC: UIViewController {
     init(name: String, address: String) {
         self.name = name
         self.address = address
+        Network.shared.getRestaurantFromPartialData(name: name, fullAddress: address)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -70,13 +69,12 @@ class SubmitRestaurantVC: UIViewController {
         vc.didMove(toParent: self)
         vc.delegate = self
     }
-    
-    
-    
 }
 
 
 extension SubmitRestaurantVC: ImageSelectorDelegate {
-    
-    
+    func photosUpdated(to selectedPhotos: [ImageSelectorVC.ImageInfo]) {
+        print(selectedPhotos.map({$0.indexPath.row}))
+        #warning("need to use")
+    }
 }

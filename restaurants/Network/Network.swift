@@ -230,7 +230,11 @@ class Network {
                 print(error)
             }
         }
-        
+    }
+    
+    func getRestaurantFromPartialData(name: String, fullAddress: String) {
+        #warning("need to complete")
+        print(name, fullAddress)
     }
     
     func setUpInitialRun() {
@@ -265,7 +269,4 @@ class Network {
             }
         }
     }
-    
-    
-    
 }

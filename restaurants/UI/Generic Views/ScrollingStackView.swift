@@ -33,15 +33,9 @@ class ScrollingStackView: UIView {
         for (i, view) in stackView.arrangedSubviews.enumerated() {
             widthCounter += view.bounds.width
             if widthCounter > totalDistance {
-                
                 guard i != fromIndex && i != fromIndex + 1 else { return nil }
-                
                 dropLocationView = setUpDropLocationView(addTo: view)
-                
-                //self.bringSubviewToFront(dropLocationView!)
-                
                 return i
-                
             }
         }
         
@@ -111,7 +105,7 @@ class ScrollingStackView: UIView {
         let dropLocationView = UIView()
         dropLocationView.clipsToBounds = false
         dropLocationView.translatesAutoresizingMaskIntoConstraints = false
-        dropLocationView.backgroundColor = .yellow
+        dropLocationView.backgroundColor = .systemYellow
         
         view.addSubview(dropLocationView)
         dropLocationView.widthAnchor.constraint(equalToConstant: 10.0).isActive = true
@@ -121,6 +115,8 @@ class ScrollingStackView: UIView {
         
         dropLocationView.layer.cornerRadius = 3.0
         dropLocationView.clipsToBounds = true
+        
+        self.bringSubviewToFront(dropLocationView)
         
         return dropLocationView
     }
