@@ -232,9 +232,72 @@ class Network {
         }
     }
     
-    func getRestaurantFromPartialData(name: String, fullAddress: String) {
+    func getRestaurantFromPartialData(name: String, fullAddress: String, restaurantFound: @escaping (Result<Restaurant, Errors.YelpAddress>) -> Void) {
         #warning("need to complete")
-        print(name, fullAddress)
+        let (potentialParams, missing) = extractAddress(address: fullAddress)
+        
+    }
+    
+    private func isoCode(for countryName: String) -> String? {
+        let locale = Locale(identifier: "en")
+        return Locale.isoRegionCodes.first(where: { (code) -> Bool in
+            locale.localizedString(forRegionCode: code)?.compare(countryName, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+        })
+    }
+    
+    private func extractAddress(address: String) -> (found: [String:String], missing: [String]) {
+        
+        let appToYelp: [String:String] = [
+            "Street": "address1",
+            "City": "city",
+            "State": "state",
+            "Country": "country",
+            "ZIP": "zip_code"
+        ]
+        
+        var values: [String:String] = [:]
+        let notAlwaysNeeded = [appToYelp["ZIP"]!]
+        var missing: [String] = appToYelp.values.map({String($0)}).filter { (str) -> Bool in
+            !notAlwaysNeeded.contains(str)
+        }
+        
+        
+        let detectorType: NSTextCheckingResult.CheckingType = [.address]
+        do {
+            let detector = try NSDataDetector(types: detectorType.rawValue)
+            let results = detector.matches(in: address, options: [], range: NSRange(location: 0, length: address.utf16.count))
+            for result in results {
+                guard let components = result.components else { continue }
+                for component in components.keys {
+                    let key = component.rawValue
+                    guard var value = components[component], let yelpKey = appToYelp[key] else { continue }
+                    
+                    if key == "Country" {
+                        guard let isoValue = isoCode(for: value) else { continue }
+                        value = isoValue
+                    }
+                    
+                    missing.removeAll(where: {$0 == yelpKey})
+                    values[yelpKey] = value
+                }
+                
+            }
+        } catch {
+            print(error)
+        }
+        
+        // Can work to place "**" or other nonsense in place of state in some instances, only do if only state is missing (or only one item is missing)
+        if missing.count == 1 {
+            let onlyMissing = missing[0]
+            if onlyMissing == appToYelp["State"]! {
+                values[onlyMissing] = "**"
+                missing = []
+            }
+        }
+        
+        
+        return (values, missing)
+        
     }
     
     func setUpInitialRun() {

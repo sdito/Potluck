@@ -18,7 +18,6 @@ class SubmitRestaurantVC: UIViewController {
     init(name: String, address: String) {
         self.name = name
         self.address = address
-        Network.shared.getRestaurantFromPartialData(name: name, fullAddress: address)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -68,6 +67,12 @@ class SubmitRestaurantVC: UIViewController {
         vc.view.constrainSides(to: containerView)
         vc.didMove(toParent: self)
         vc.delegate = self
+    }
+    
+    private func findAssociatedRestaurant() {
+        Network.shared.getRestaurantFromPartialData(name: name, fullAddress: address) { (result) in
+            print(result)
+        }
     }
 }
 

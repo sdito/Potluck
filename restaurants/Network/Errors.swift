@@ -34,6 +34,11 @@ struct Errors {
                 return "Email and username are in use. If you have already created an account, please log in instead of creating an account."
             }
         }
-        
     }
+    
+    enum YelpAddress: Error {
+        case unableToConvertAddress
+        case unableToFindYelpRestaurant
+    }
+    
 }
