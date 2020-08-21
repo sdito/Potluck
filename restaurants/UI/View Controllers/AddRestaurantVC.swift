@@ -40,6 +40,7 @@ class AddRestaurantVC: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
         self.navigationController?.navigationBar.tintColor = Colors.main
+        self.setNavigationBarColor(color: Colors.navigationBarColor)
         setUpCancelButton()
         setUpSearchBar()
         setUpSearchOptions()
@@ -58,8 +59,8 @@ class AddRestaurantVC: UIViewController {
         self.view.addSubview(cancelButton)
         cancelButton.setTitle("Cancel", for: .normal)
         cancelButton.titleLabel?.font = .largerBold
-        cancelButton.constrain(.top, to: self.view, .top, constant: 10)
-        cancelButton.constrain(.leading, to: self.view, .leading, constant: 10)
+        cancelButton.constrain(.top, to: self.view, .top, constant: 30.0)
+        cancelButton.constrain(.leading, to: self.view, .leading, constant: 10.0)
         cancelButton.addTarget(self, action: #selector(remove), for: .touchUpInside)
         
     }

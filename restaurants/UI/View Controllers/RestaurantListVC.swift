@@ -250,7 +250,8 @@ extension RestaurantListVC: UITableViewDelegate {
             cell.restaurantImageView.image = cachedImage
         } else {
             cell.restaurantImageView.appStartSkeleton()
-            Network.shared.getImage(url: restaurant.imageURL) { (img) in
+            Network.shared.getImage(url: restaurant.imageURL) { [weak self] (img) in
+                guard let self = self else { return }
                 cell.restaurantImageView.appEndSkeleton()
                 cell.restaurantImageView.image = img
                 self.imageCache.setObject(img, forKey: key)

@@ -73,6 +73,8 @@
 		E2B6A2B924B007030070DECA /* CLLocationCoordinate2D-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */; };
 		E2C8E88F24C378AE003DC824 /* RestaurantListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2C8E88E24C378AE003DC824 /* RestaurantListVC.swift */; };
 		E2DC2F2724EDCED0002C6A07 /* ImageXView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DC2F2624EDCED0002C6A07 /* ImageXView.swift */; };
+		E2DC2F3C24EF3CD7002C6A07 /* MapLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DC2F3B24EF3CD7002C6A07 /* MapLocationView.swift */; };
+		E2DC2F3E24EFAE7F002C6A07 /* PHAsset-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */; };
 		E2E180F124E8B3F6004AA4BE /* LogInButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E180F024E8B3F6004AA4BE /* LogInButton.swift */; };
 /* End PBXBuildFile section */
 
@@ -146,6 +148,8 @@
 		E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocationCoordinate2D-Extension.swift"; sourceTree = "<group>"; };
 		E2C8E88E24C378AE003DC824 /* RestaurantListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantListVC.swift; sourceTree = "<group>"; };
 		E2DC2F2624EDCED0002C6A07 /* ImageXView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageXView.swift; sourceTree = "<group>"; };
+		E2DC2F3B24EF3CD7002C6A07 /* MapLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapLocationView.swift; sourceTree = "<group>"; };
+		E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PHAsset-Extension.swift"; sourceTree = "<group>"; };
 		E2E180F024E8B3F6004AA4BE /* LogInButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInButton.swift; sourceTree = "<group>"; };
 		F1B89F6FBA7BC1CC1A76E4E2 /* Pods_restaurants.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_restaurants.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -184,8 +188,8 @@
 			children = (
 				E239841524EB632100F3828C /* TabVC.swift */,
 				E239841724EB642000F3828C /* AddRestaurantVC.swift */,
-				E239841B24ECA23F00F3828C /* ImageSelectorVC.swift */,
 				E239841924EC6C7500F3828C /* SubmitRestaurantVC.swift */,
+				E239841B24ECA23F00F3828C /* ImageSelectorVC.swift */,
 				E239841124EA03B200F3828C /* SettingsVC.swift */,
 				E20EA83124E792AD0064DB86 /* ProfileHomeVC.swift */,
 				E20EA83324E7A98D0064DB86 /* CreateAccountVC.swift */,
@@ -223,6 +227,7 @@
 		E2574A3024B7D397006618D7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E2DC2F3B24EF3CD7002C6A07 /* MapLocationView.swift */,
 				E2DC2F2624EDCED0002C6A07 /* ImageXView.swift */,
 				E29AF2F824E08A53004C60FC /* RestaurantSearchBar.swift */,
 				E271233D24CFD40400A1CC2B /* RestaurantSelectedView.swift */,
@@ -308,6 +313,7 @@
 				E215535C24B5007500494E1A /* UIScrollView-Extension.swift */,
 				E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */,
 				E2778DD824B7F9DC00151F29 /* String-Extension.swift */,
+				E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -461,6 +467,7 @@
 				E2DC2F2724EDCED0002C6A07 /* ImageXView.swift in Sources */,
 				E27A757024A85AA100E446EE /* UIViewController-Extension.swift in Sources */,
 				E2768DF024B15340004CB475 /* Colors.swift in Sources */,
+				E2DC2F3E24EFAE7F002C6A07 /* PHAsset-Extension.swift in Sources */,
 				E27A756E24A855EC00E446EE /* FindRestaurantVC.swift in Sources */,
 				E239841224EA03B200F3828C /* SettingsVC.swift in Sources */,
 				E239840A24E8FEA700F3828C /* Account-Network.swift in Sources */,
@@ -520,6 +527,7 @@
 				E239841C24ECA23F00F3828C /* ImageSelectorVC.swift in Sources */,
 				E284DC0B24BE8EC400790A29 /* RestaurantSpecificInfoVC.swift in Sources */,
 				E27A757424AEDD3A00E446EE /* MKMapView-Extension.swift in Sources */,
+				E2DC2F3C24EF3CD7002C6A07 /* MapLocationView.swift in Sources */,
 				E233541824B1627200A85DA3 /* UIImage-Extension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

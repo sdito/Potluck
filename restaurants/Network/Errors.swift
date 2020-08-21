@@ -37,7 +37,7 @@ struct Errors {
     }
     
     enum YelpAddress: Error {
-        case unableToConvertAddress
+        case unableToConvertAddress(missing: [String], valuesFound: [String:String])
         case unableToFindYelpRestaurant
     }
     

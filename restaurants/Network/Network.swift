@@ -55,6 +55,7 @@ class Network {
         case id
         case review
         case categories
+        case match
     }
     
     struct RestaurantSearch {
@@ -80,6 +81,8 @@ class Network {
                 return "businesses/\(restaurant!.id)/reviews"
             case .categories:
                 return "categories"
+            case .match:
+                return "businesses/matches"
             }
         }
         
@@ -171,8 +174,9 @@ class Network {
                         
                     }
                 }
+                
                 let sortedRestaurants = restaurants.sorted { (one, two) -> Bool in
-                    one.distance < two.distance
+                    one.distance ?? 0.0 < two.distance ?? 0.0
                 }
                 
                 restaurantsReturned(Result.success(sortedRestaurants))
@@ -232,10 +236,25 @@ class Network {
         }
     }
     
-    func getRestaurantFromPartialData(name: String, fullAddress: String, restaurantFound: @escaping (Result<Restaurant, Errors.YelpAddress>) -> Void) {
-        #warning("need to complete")
-        let (potentialParams, missing) = extractAddress(address: fullAddress)
-        
+    func getRestaurantFromPartialData(name: String, fullAddress: String, restaurantFound: @escaping (Result<[Restaurant], Errors.YelpAddress>) -> Void) {
+        print("getRestaurantFromPartialData is being called")
+        var (potentialParams, missing) = extractAddress(address: fullAddress)
+        if missing.count == 0 {
+            potentialParams["name"] = name
+            let request = reqYelp(params: potentialParams, requestType: .match)
+            request.responseJSON { (response) in
+                switch response.result {
+                case .success(let jsonAny):
+                    if let json = jsonAny as? [String:Any], let restaurantsJson = json["businesses"] as? [[String:Any]] {
+                        print(restaurantsJson)
+                    }
+                case .failure(let error):
+                    print(error.errorDescription)
+                }
+            }
+        } else {
+            restaurantFound(Result.failure(.unableToConvertAddress(missing: missing, valuesFound: potentialParams)))
+        }
     }
     
     private func isoCode(for countryName: String) -> String? {

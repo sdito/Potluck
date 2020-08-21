@@ -12,6 +12,7 @@ import Photos
 
 
 protocol ImageSelectorDelegate: class {
+    func scrollViewContentOffset(scrollView: UIScrollView)
     func photosUpdated(to selectedPhotos: [ImageSelectorVC.ImageInfo])
 }
 
@@ -26,7 +27,7 @@ class ImageSelectorVC: UIViewController {
         }
     }
     private var allPhotos = PHFetchResult<PHAsset>()
-    
+    private var allowChangesOnNewView = false
     private let placeholderView = UIView()
     private let scrollingView = ScrollingStackView(subViews: [])
     private let basicSize: CGFloat = 80.0
@@ -37,7 +38,6 @@ class ImageSelectorVC: UIViewController {
     private let reuseIdentifier = "photoCellReuseIdentifier"
     private let requestOptions = PHImageRequestOptions()
     private let imageCache = NSCache<NSString, UIImage>()
-    //private var selectedIndexPaths: Set<IndexPath> = []
     private let scrollingViewConstant: CGFloat = 10.0
     private var beginningPoint: CGPoint!
     private var initialFrame: CGRect!
@@ -59,7 +59,6 @@ class ImageSelectorVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .red
         setUpSelectedImageScrollView()
         setUpCollectionView()
         setUp()
@@ -79,13 +78,11 @@ class ImageSelectorVC: UIViewController {
         scrollingView.stackView.addArrangedSubview(placeholderView)
         placeholderView.equalSides(size: basicSize)
         placeholderView.tag = -1
-        
+        placeholderView.isHidden = true
     }
     
+    
     private func setUpCollectionView() {
-        
-        self.view.backgroundColor = .systemBackground
-        
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 2.0
         let cellSizeSize = self.view.frame.width / 3
@@ -95,12 +92,12 @@ class ImageSelectorVC: UIViewController {
         collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.register(PhotoCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-
+        collectionView.backgroundColor = .tertiarySystemBackground
+        
         collectionView.setCollectionViewLayout(layout, animated: false)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.showsVerticalScrollIndicator = false
-        collectionView.backgroundColor = UIColor.clear
         collectionView.allowsMultipleSelection = true
         
         self.view.addSubview(collectionView)
@@ -109,7 +106,11 @@ class ImageSelectorVC: UIViewController {
         collectionView.constrain(.leading, to: self.view, .leading)
         collectionView.constrain(.trailing, to: self.view, .trailing)
         collectionView.constrain(.bottom, to: self.view, .bottom)
+        
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(ImageSelectorVC.longPress(longPressGestureRecognizer:)))
+        collectionView.addGestureRecognizer(longPressRecognizer)
     }
+    
     
     
     private func setUp() {
@@ -150,12 +151,20 @@ class ImageSelectorVC: UIViewController {
         animatedView.clipsToBounds = true
         
         self.view.addSubview(animatedView)
-        animatedView.backgroundColor = .green
         
         var newFrame = scrollingView.convert(placeholderView.frame, to: self.view)
         newFrame.origin.x -= scrollingView.scrollOrigin.x
+        
+        if scrollingView.stackView.arrangedSubviews.count > 1 {
+            
+            // need to do since the view is always hidden for animation purposes
+            // can't shift it over when adding at the 0th index
+            newFrame.origin.x += scrollingView.stackView.spacing
+        }
+        
 
         UIView.animate(withDuration: 0.3, animations: {
+            self.placeholderView.isHidden = false
             animatedView.frame = newFrame
             animatedView.layoutIfNeeded()
             animatedView.tag = index
@@ -168,7 +177,7 @@ class ImageSelectorVC: UIViewController {
                 cell.isUserInteractionEnabled = true
                 self.setUpMoveGestureRecognizer(holderView)
                 holderView.cancelButton.addTarget(self, action: #selector(self.removeImageView(sender:)), for: .touchUpInside)
-                
+                self.placeholderView.isHidden = true
             }
         }
     }
@@ -178,7 +187,20 @@ class ImageSelectorVC: UIViewController {
         v.addGestureRecognizer(panGestureRecognizer)
     }
     
-    private var allowChangesOnNewView = false
+    @objc func longPress(longPressGestureRecognizer: UILongPressGestureRecognizer) {
+
+        if longPressGestureRecognizer.state == UIGestureRecognizer.State.began {
+            let touchPoint = longPressGestureRecognizer.location(in: collectionView)
+            if let indexPath = collectionView.indexPathForItem(at: touchPoint) {
+                let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell
+                let asset = allPhotos.object(at: indexPath.row) as PHAsset
+                cell?.imageView.hero.id = .photosToSinglePhotoID
+                self.navigationController?.present(SinglePhotoVC(image: cell?.imageView.image, imageURL: nil, cell: cell, asset: asset), animated: true, completion: nil)
+            }
+        }
+    }
+    
+    
     
     @objc private func longPressSelector(sender: UILongPressGestureRecognizer) {
         touchPoint = sender.location(in: self.view)
@@ -254,7 +276,6 @@ class ImageSelectorVC: UIViewController {
                     imgInfo.indexPath == placeholder.indexPath
                 }
                 selectedPhotos = tempArray
-                print(selectedPhotos.count, addAtIndex, previousIndex)
                 
                 UIView.animate(withDuration: 0.3) {
                     placeHolderView.isHidden = false
@@ -272,13 +293,10 @@ class ImageSelectorVC: UIViewController {
                     }
                 }
             }
-            
-            
         }
     }
 
     @objc private func runTimer() {
-        
         let scrollDistance: CGFloat = 15.0
         let viewWidth = self.view.bounds.width
         let scrollContentOffsetX = self.scrollingView.scrollView.contentOffset.x
@@ -301,7 +319,6 @@ class ImageSelectorVC: UIViewController {
     }
     
     private func imageDeselected(index: Int) {
-        
         scrollingView.stackView.arrangedSubviews.forEach { (vEach) in
             if let v = vEach as? ImageXView {
                 print(v.representativeIndex)
@@ -321,7 +338,6 @@ class ImageSelectorVC: UIViewController {
         collectionView.reloadItems(at: [indexPath])
         superView.removeFromStackViewAnimated(duration: stackViewAnimationDuration)
     }
-    
 }
 
 // MARK: Collection view
@@ -343,11 +359,10 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
         let key = NSString(string: "\(indexPath.row)")
         if let cachedImage = imageCache.object(forKey: key) {
             cell.imageView.image = cachedImage
-            print("Caching image at: \(key)")
         } else {
+            
             imageManager.requestImage(for: asset, targetSize: CGSize(width: layout.itemSize.width * 3.0, height: layout.itemSize.height * 3.0), contentMode: .aspectFit, options: requestOptions) { (image, info) in
                 if let image = image {
-                    print("Reading image at: \(key)")
                     cell.imageView.image = image
                     self.imageCache.setObject(image, forKey: key)
                 } else {
@@ -375,6 +390,12 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
         selectedPhotos = selectedPhotos.filter({$0.indexPath != indexPath})
         cell.updateForShowingSelection(selected: false)
         imageDeselected(index: indexPath.row)
+    }
+    
+    
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        delegate.scrollViewContentOffset(scrollView: collectionView)
     }
     
     

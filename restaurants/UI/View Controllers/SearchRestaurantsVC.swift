@@ -70,6 +70,7 @@ class SearchRestaurantsVC: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
         self.setNavigationBarColor(color: Colors.navigationBarColor)
         self.tabBarController?.tabBar.isHidden = true
     }

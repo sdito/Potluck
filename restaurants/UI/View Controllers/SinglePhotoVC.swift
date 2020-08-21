@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import Photos
 
 class SinglePhotoVC: UIViewController {
     
@@ -17,11 +17,11 @@ class SinglePhotoVC: UIViewController {
     private var doneButton = UIButton()
     private var initialTouchPoint: CGPoint?
     private var minimumAlpha: CGFloat = 0.5
+    private var initialViewOriginY: CGFloat = .zero
     
-    
-    init(image: UIImage?, imageURL: String?, cell: PhotoCell?) {
+    init(image: UIImage?, imageURL: String?, cell: PhotoCell?, asset: PHAsset?) {
         super.init(nibName: nil, bundle: nil)
-        setUp(image: image, imageURL: imageURL, cell: cell)
+        setUp(image: image, imageURL: imageURL, cell: cell, asset: asset)
     }
     
     required init?(coder: NSCoder) {
@@ -31,16 +31,17 @@ class SinglePhotoVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
+        //self.modalPresentationStyle = .overCurrentContext
     }
 
-    private func setUp(image: UIImage?, imageURL: String?, cell: PhotoCell?) {
+    private func setUp(image: UIImage?, imageURL: String?, cell: PhotoCell?, asset: PHAsset?) {
         self.cellToResetIdAfter = cell
         self.hero.isEnabled = true
         self.view.backgroundColor = .systemBackground
         
         setUpDoneButton()
         setUpScrollView()
-        setUpImageView(image: image, imageURL: imageURL)
+        setUpImageView(image: image, imageURL: imageURL, asset: asset)
         setUpGestureRecognizerForDismissing()
     }
     
@@ -79,7 +80,7 @@ class SinglePhotoVC: UIViewController {
         ])
     }
     
-    private func setUpImageView(image: UIImage?, imageURL: String?) {
+    private func setUpImageView(image: UIImage?, imageURL: String?, asset: PHAsset?) {
         imageView.hero.id = .photosToSinglePhotoID
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -98,6 +99,17 @@ class SinglePhotoVC: UIViewController {
             imageView.heightAnchor.constraint(equalToConstant: self.view.frame.width * ratio).isActive = true
         } else if let imageURL = imageURL {
             imageView.addImageFromUrl(imageURL)
+        } else if let asset = asset {
+            getImageFromAsset(asset: asset)
+        }
+    }
+    
+    private func getImageFromAsset(asset: PHAsset) {
+        asset.getOriginalImage { [weak self] (image) in
+            guard let self = self else { return }
+            if let image = image {
+                self.imageView.image = image
+            }
         }
     }
     
@@ -120,12 +132,13 @@ class SinglePhotoVC: UIViewController {
         switch sender.state {
         case .began:
             initialTouchPoint = touchPoint
+            initialViewOriginY = self.view.frame.origin.y
         case .changed:
             if let initialTouchPoint = initialTouchPoint {
                 let difference = touchPoint.y - initialTouchPoint.y
                 if (difference > 0) {
                     let viewHeight = self.view.frame.size.height
-                    self.view.frame = CGRect(x: 0, y: touchPoint.y - initialTouchPoint.y, width: self.view.frame.size.width, height: viewHeight)
+                    self.view.frame = CGRect(x: 0, y: (touchPoint.y - initialTouchPoint.y) + initialViewOriginY, width: self.view.frame.size.width, height: viewHeight)
                     let ratio = (viewHeight - difference) / viewHeight
                     // use ratio to set alpha on view when being dragged
                     if ratio < 0.95 {
@@ -136,7 +149,6 @@ class SinglePhotoVC: UIViewController {
                     }
                 }
             }
-            
         case .ended, .cancelled:
             if let initialTouchPoint = initialTouchPoint {
                 if touchPoint.y - initialTouchPoint.y > 100 {
@@ -145,18 +157,14 @@ class SinglePhotoVC: UIViewController {
                 } else {
                     UIView.animate(withDuration: 0.3, animations: {
                         self.view.alpha = 1.0
-                        self.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height)
+                        self.view.frame = CGRect(x: 0, y: self.initialViewOriginY, width: self.view.frame.size.width, height: self.view.frame.size.height)
                     })
                 }
             }
-            
         default:
             break
         }
-        
     }
-    
-    
 }
 
 

@@ -158,6 +158,7 @@ class RestaurantCell: UITableViewCell {
         self.tag = place - 1
         titleLabel.text = "\(place). \(restaurant.name)"
         starRatingView.updateNumberOfStarsAndReviews(stars: restaurant.rating, numReviews: restaurant.reviewCount)
+        
         let miles = (Measurement(value: restaurant.distance, unit: UnitLength.meters).converted(to: UnitLength.miles).value * 10).rounded() / 10.0
         distanceLabel.text = "\(miles) miles away"
         deliveryLabel.attributedText = "Delivery".getAffirmativeOrNegativeAttributedString(restaurant.transactions.contains(.delivery), font: UIFont.mediumBold)

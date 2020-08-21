@@ -121,7 +121,8 @@ class CreateAccountVC: UIViewController {
             
             if emailIsValid.0 && usernameIsValid.0 && passwordIsValid.0, let email = emailLogInField.text, let password = passwordLogInField.text, let username = usernameLogInField.text {
                 
-                Network.shared.registerUser(email: email, username: username, password: password) { (result) in
+                Network.shared.registerUser(email: email, username: username, password: password) { [weak self] (result) in
+                    guard let self = self else { return }
                     switch result {
                     case .success(let success):
                         if success {
@@ -148,7 +149,8 @@ class CreateAccountVC: UIViewController {
                 self.alert(title: "Unable to log in", message: "Please enter a valid email and password to log in.")
                 return
             }
-            Network.shared.retrieveToken(email: email, password: password) { (result) in
+            Network.shared.retrieveToken(email: email, password: password) { [weak self] (result) in
+                guard let self = self else { return }
                 switch result {
                 case .success(let success):
                     if success {

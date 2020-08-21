@@ -83,7 +83,8 @@ extension PhotosVC: UICollectionViewDelegate, UICollectionViewDataSource {
             cell.imageView.image = cachedImage
         } else {
             cell.imageView.appStartSkeleton()
-            Network.shared.getImage(url: imageUrl) { (img) in
+            Network.shared.getImage(url: imageUrl) { [weak self] (img) in
+                guard let self = self else { return }
                 cell.imageView.appEndSkeleton()
                 cell.imageView.image = img
                 self.imageCache.setObject(img, forKey: key)
@@ -98,8 +99,7 @@ extension PhotosVC: UICollectionViewDelegate, UICollectionViewDataSource {
         cellSelected.imageView.hero.id = .photosToSinglePhotoID
         let imageFromCell = cellSelected.imageView.image
         if let image = imageFromCell {
-            let newVC = SinglePhotoVC(image: image, imageURL: nil, cell: cellSelected)
-            newVC.modalPresentationStyle = .overFullScreen
+            let newVC = SinglePhotoVC(image: image, imageURL: nil, cell: cellSelected, asset: nil)
             self.present(newVC, animated: true)
             
         }

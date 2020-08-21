@@ -88,7 +88,6 @@ class FindRestaurantVC: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 
     private func setUp () {
@@ -350,7 +349,8 @@ class FindRestaurantVC: UIViewController {
             moreRestaurantsButton?.showLoadingOnButton()
         }
         
-        Network.shared.getRestaurants(restaurantSearch: restaurantSearch, filters: searchFilters) { (response) in
+        Network.shared.getRestaurants(restaurantSearch: restaurantSearch, filters: searchFilters) { [weak self] (response) in
+            guard let self = self else { return }
             switch response {
             case .success(let newRestaurants):
                 self.mapView.removeAnnotations(self.mapView.annotations )

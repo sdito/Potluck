@@ -75,6 +75,7 @@ class RestaurantDetailVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
         if navBarColor != nil {
             self.setNavigationBarColor(color: navBarColor!)
         }
@@ -234,8 +235,9 @@ class RestaurantDetailVC: UIViewController {
         
         setUpHero()
         
-        Network.shared.setRestaurantReviewInfo(restaurant: restaurant) { (complete) in
+        Network.shared.setRestaurantReviewInfo(restaurant: restaurant) { [weak self] (complete) in
             if complete {
+                guard let self = self else { return }
                 for review in self.restaurant.reviews {
                     let reviewView = ReviewView(review: review)
                     self.stackView.addArrangedSubview(reviewView)
@@ -244,8 +246,9 @@ class RestaurantDetailVC: UIViewController {
             }
         }
         
-        Network.shared.setFullRestaurantInfo(restaurant: restaurant) { (complete) in
+        Network.shared.setFullRestaurantInfo(restaurant: restaurant) { [weak self] (complete) in
             #warning("need to complete")
+            guard let self = self else { return }
             if complete {
                 if let newDescription = self.restaurant.openNowDescription {
                     self.headerDetailView.timeOpenLabel.attributedText = newDescription

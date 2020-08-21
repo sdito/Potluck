@@ -119,7 +119,8 @@ class RestaurantSelectedView: UIView {
     
     func updateWithNewRestaurant(restaurant: Restaurant, isFirst: Bool, isLast: Bool, updateStyle: UpdateStyle) {
         
-        performUpdateAnimation(restaurant: restaurant, isFirst: isFirst, isLast: isLast, updateStyle: updateStyle) { (complete) in
+        performUpdateAnimation(restaurant: restaurant, isFirst: isFirst, isLast: isLast, updateStyle: updateStyle) { [weak self] (complete) in
+            guard let self = self else { return }
             if self.restaurant.id != restaurant.id {
                 self.restaurant = restaurant
                 self.titleLabel.text = restaurant.name
