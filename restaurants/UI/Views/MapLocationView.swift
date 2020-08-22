@@ -49,11 +49,12 @@ class MapLocationView: UIView {
             
             annotation.coordinate = coordinate
             mapView.addAnnotation(annotation)
-            mapView.setCenter(coordinate, animated: false)
+            setRegion(annotation: annotation)
         } else if let address = address {
             let geoCoder = CLGeocoder()
             geoCoder.geocodeAddressString(address) { [weak self] (placeMarks, error) in
                 guard let self = self else { return }
+                
                 guard let placeMarks = placeMarks, let first = placeMarks.first else {
                     print("Not able to locate restaurant")
                     return
@@ -62,15 +63,21 @@ class MapLocationView: UIView {
                     print("Not able to get coordinate from location")
                     return
                 }
+                
                 annotation.coordinate = location
                 self.mapView.addAnnotation(annotation)
-                self.mapView.setCenter(location, animated: false)
+                self.setRegion(annotation: annotation)
             }
         } else {
             fatalError("Need to have either a coordinate or an address")
         }
         
-        
+    }
+    
+    private func setRegion(annotation: MKPointAnnotation) {
+        let meterSize = CLLocationDistance(exactly: 7500)!
+        let region = MKCoordinateRegion(center: annotation.coordinate, latitudinalMeters: meterSize, longitudinalMeters: meterSize)
+        mapView.setRegion(region, animated: false)
         
     }
     

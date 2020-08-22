@@ -127,9 +127,16 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
         cell.detailTextLabel?.text = cellInfo.address
         return cell
     }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cellInfo = searchResults[indexPath.row]
         self.navigationController?.pushViewController(SubmitRestaurantVC(name: cellInfo.name, address: cellInfo.address), animated: true)
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if searchBar.isFirstResponder {
+            searchBar.endEditing(true)
+        }
     }
 }
 

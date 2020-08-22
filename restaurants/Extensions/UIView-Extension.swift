@@ -11,6 +11,40 @@ import SkeletonView
 
 extension UIView {
     
+    func appIsHiddenAnimated(isHidden: Bool, animated: Bool = true) {
+        
+        if animated {
+            let smallTransform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+            if isHidden {
+                print("Need to animate shrinking")
+                UIView.animate(withDuration: 0.3, animations: {
+                    self.transform = smallTransform
+                }) { (complete) in
+                    if complete {
+                        self.isHidden = isHidden
+                        self.transform = .identity
+                    }
+                }
+            } else {
+                self.isHidden = isHidden
+                // Showing from hidden, start small, bounce it to be bigger, then go to standard size
+                self.isHidden = false
+                self.transform = smallTransform
+                UIView.animate(withDuration: 0.3, animations: {
+                    self.transform = CGAffineTransform(scaleX: 1.75, y: 1.75)
+                }) { (complete) in
+                    if complete {
+                        UIView.animate(withDuration: 0.2) {
+                            self.transform = CGAffineTransform.identity
+                        }
+                    }
+                }
+            }
+        } else {
+            self.isHidden = isHidden
+        }
+    }
+    
     func removeFromStackViewAnimated(duration: TimeInterval) {
         UIView.animate(withDuration: duration, animations: {
             self.alpha = 0.0

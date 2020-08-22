@@ -49,12 +49,12 @@ class SinglePhotoVC: UIViewController {
         doneButton.translatesAutoresizingMaskIntoConstraints = false
         doneButton.setTitle("Done", for: .normal)
         doneButton.setTitleColor(Colors.main, for: .normal)
+        doneButton.titleLabel?.font = .largerBold
         
         self.view.addSubview(doneButton)
         NSLayoutConstraint.activate([
             doneButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 25),
-            doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -5.0),
-            doneButton.heightAnchor.constraint(equalToConstant: 40.0)
+            doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 5.0)
         ])
         
         doneButton.addTarget(self, action: #selector(dismissSinglePhoto), for: .touchUpInside)
@@ -99,9 +99,12 @@ class SinglePhotoVC: UIViewController {
             imageView.heightAnchor.constraint(equalToConstant: self.view.frame.width * ratio).isActive = true
         } else if let imageURL = imageURL {
             imageView.addImageFromUrl(imageURL)
-        } else if let asset = asset {
+        }
+        
+        if let asset = asset, imageURL == nil {
             getImageFromAsset(asset: asset)
         }
+        
     }
     
     private func getImageFromAsset(asset: PHAsset) {

@@ -26,6 +26,7 @@ class ImageSelectorVC: UIViewController {
             delegate.photosUpdated(to: self.selectedPhotos)
         }
     }
+    private let infoLabel = UILabel()
     private var allPhotos = PHFetchResult<PHAsset>()
     private var allowChangesOnNewView = false
     private let placeholderView = UIView()
@@ -142,27 +143,31 @@ class ImageSelectorVC: UIViewController {
         }
     }
     
+    private func imageDeselected(index: Int) {
+        scrollingView.stackView.arrangedSubviews.forEach { (vEach) in
+            if let v = vEach as? ImageXView {
+                print(v.representativeIndex)
+                if v.representativeIndex == index {
+                    v.removeFromStackViewAnimated(duration: stackViewAnimationDuration)
+                }
+            }
+        }
+    }
+    
     private func imageSelected(image: UIImage, index: Int, originFrame: CGRect, cell: UICollectionViewCell) {
-        
         cell.isUserInteractionEnabled = false
         let animatedView = UIImageView(frame: originFrame)
         animatedView.image = image
         animatedView.contentMode = .scaleAspectFill
         animatedView.clipsToBounds = true
-        
         self.view.addSubview(animatedView)
-        
         var newFrame = scrollingView.convert(placeholderView.frame, to: self.view)
         newFrame.origin.x -= scrollingView.scrollOrigin.x
-        
         if scrollingView.stackView.arrangedSubviews.count > 1 {
-            
             // need to do since the view is always hidden for animation purposes
             // can't shift it over when adding at the 0th index
             newFrame.origin.x += scrollingView.stackView.spacing
         }
-        
-
         UIView.animate(withDuration: 0.3, animations: {
             self.placeholderView.isHidden = false
             animatedView.frame = newFrame
@@ -235,6 +240,8 @@ class ImageSelectorVC: UIViewController {
                 if complete {
                     self.allowChangesOnNewView = true
                     self.timer = Timer.scheduledTimer(timeInterval: self.timerInterval, target: self, selector: #selector(self.runTimer), userInfo: nil, repeats: true)
+                    // set the placeholderView isHidden to false to allow the yellow middle view to go on the placeholder view
+                    self.placeholderView.isHidden = false
                     
                 }
             }
@@ -252,6 +259,7 @@ class ImageSelectorVC: UIViewController {
             
         } else if sender.state == .ended {
             timer?.invalidate()
+            self.placeholderView.isHidden = true // reset back
             let finalIndex = scrollingView.indexForViewAtAbsoluteX(touchPoint.x, fromIndex: scrollingView.stackView.arrangedSubviews.firstIndex(of: senderView) ?? 0)
             scrollingView.removePlaceholderView()
             
@@ -296,7 +304,9 @@ class ImageSelectorVC: UIViewController {
         }
     }
 
+    
     @objc private func runTimer() {
+        
         let scrollDistance: CGFloat = 15.0
         let viewWidth = self.view.bounds.width
         let scrollContentOffsetX = self.scrollingView.scrollView.contentOffset.x
@@ -313,17 +323,6 @@ class ImageSelectorVC: UIViewController {
                     UIView.animate(withDuration: timerInterval) {
                         self.scrollingView.scrollView.contentOffset.x += scrollDistance
                     }
-                }
-            }
-        }
-    }
-    
-    private func imageDeselected(index: Int) {
-        scrollingView.stackView.arrangedSubviews.forEach { (vEach) in
-            if let v = vEach as? ImageXView {
-                print(v.representativeIndex)
-                if v.representativeIndex == index {
-                    v.removeFromStackViewAnimated(duration: stackViewAnimationDuration)
                 }
             }
         }
@@ -350,7 +349,7 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PhotoCell
         cell.imageView.image = nil
         cell.allowsSelection = true
-        cell.updateForShowingSelection(selected: selectedPhotos.contains(where: {$0.indexPath == indexPath}))
+        cell.updateForShowingSelection(selected: selectedPhotos.contains(where: {$0.indexPath == indexPath}), animated: false)
         let asset = allPhotos.object(at: indexPath.row) as PHAsset
         let creationDate = asset.creationDate
         cell.creationDate = creationDate
@@ -378,7 +377,7 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
         let cell = collectionView.cellForItem(at: indexPath) as! PhotoCell
         if let image = cell.imageView.image, let asset = cell.asset, let date = asset.creationDate {
             selectedPhotos.append(ImageInfo(image: image, asset: asset, date: date, indexPath: indexPath))
-            cell.updateForShowingSelection(selected: true)
+            cell.updateForShowingSelection(selected: true, animated: true)
             let origin = collectionView.convert(cell.frame, to: self.view)
             imageSelected(image: image, index: indexPath.row, originFrame: origin, cell: cell)
             
@@ -388,7 +387,7 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! PhotoCell
         selectedPhotos = selectedPhotos.filter({$0.indexPath != indexPath})
-        cell.updateForShowingSelection(selected: false)
+        cell.updateForShowingSelection(selected: false, animated: true)
         imageDeselected(index: indexPath.row)
     }
     

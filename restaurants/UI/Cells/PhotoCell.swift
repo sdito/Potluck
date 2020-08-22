@@ -36,21 +36,28 @@ class PhotoCell: UICollectionViewCell {
         imageView.isSkeletonable = true
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
+        
         selectedImage.translatesAutoresizingMaskIntoConstraints = false
         selectedImage.tintColor = Colors.main
         selectedImage.backgroundColor = .secondarySystemBackground
+        imageView.addSubview(selectedImage)
+        selectedImage.layer.cornerRadius = selectedImage.frame.height / 2.0
+        selectedImage.clipsToBounds = true
+        
+        selectedImage.constrain(.trailing, to: self, .trailing, constant: 10.0)
+        selectedImage.constrain(.bottom, to: self, .bottom, constant: 10.0)
+        
+        selectedImage.isHidden = true
     }
     
-    func updateForShowingSelection(selected: Bool) {
-        if selected {
-            imageView.addSubview(selectedImage)
-            selectedImage.constrain(.trailing, to: imageView, .trailing, constant: 10.0)
-            selectedImage.constrain(.bottom, to: imageView, .bottom, constant: 10.0)
-            selectedImage.layer.cornerRadius = selectedImage.bounds.height / 2.0
-            selectedImage.clipsToBounds = true
-        } else {
-            selectedImage.removeFromSuperview()
-        }
+    func updateForShowingSelection(selected: Bool, animated: Bool) {
+        
+        #warning("left off here")
+        
+        selectedImage.appIsHiddenAnimated(isHidden: !selected, animated: animated)
+        
     }
+    
+    
     
 }

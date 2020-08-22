@@ -10,13 +10,15 @@ import UIKit
 
 
 class SubmitRestaurantVC: UIViewController {
-
+    
     private var allowChanges = true
     private var previousScrollOffset: CGFloat = .zero
     private var containerViewHeightAnchor: NSLayoutConstraint!
     private var containerViewBaseHeight: CGFloat!
     private var maxHeight: CGFloat!
     
+    private let nameLabel = UILabel()
+    private let addressLabel = UILabel()
     private let containerView = UIView()
     private var name: String!
     private var address: String!
@@ -35,9 +37,11 @@ class SubmitRestaurantVC: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
         setUpLabels()
+        setUpMap()
         setUpChildView()
         setUpImageSelector()
         findAssociatedRestaurant()
+        setUpNavigationBar()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -45,22 +49,41 @@ class SubmitRestaurantVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
-    private func setUpLabels() {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
-        label.text = "\(name!) \(address!)"
-        self.view.addSubview(label)
-        label.constrain(.leading, to: view, .leading)
-        label.constrain(.trailing, to: view, .trailing)
-        label.constrain(.top, to: view, .top)
+    private func setUpNavigationBar() {
+        let submit = UIBarButtonItem(title: "Submit", style: .plain, target: self, action: nil)
+        navigationItem.rightBarButtonItem = submit
         
-        let map = MapLocationView(locationTitle: name, coordinate: .simulatorDefault, address: nil)
+    }
+    
+    private func setUpLabels() {
+        
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.numberOfLines = 0
+        nameLabel.text = name
+        nameLabel.font = .createdTitle
+        self.view.addSubview(nameLabel)
+        nameLabel.constrain(.leading, to: view, .leading, constant: 10.0)
+        nameLabel.constrain(.trailing, to: view, .trailing, constant: 10.0)
+        nameLabel.constrain(.top, to: view, .top, constant: 10.0)
+        
+        addressLabel.translatesAutoresizingMaskIntoConstraints = false
+        addressLabel.numberOfLines = 0
+        addressLabel.text = address
+        addressLabel.font = .largerBold
+        addressLabel.textColor = .secondaryLabel
+        self.view.addSubview(addressLabel)
+        addressLabel.constrain(.top, to: nameLabel, .bottom, constant: 5.0)
+        addressLabel.constrain(.leading, to: view, .leading, constant: 10.0)
+        addressLabel.constrain(.trailing, to: view, .trailing, constant: 10.0)
+    }
+    
+    private func setUpMap() {
+        let map = MapLocationView(locationTitle: name, coordinate: nil, address: address)
         self.view.addSubview(map)
-        map.constrain(.top, to: label, .bottom)
+        map.constrain(.top, to: addressLabel, .bottom, constant: 10.0)
         map.constrain(.leading, to: self.view, .leading)
         map.constrain(.trailing, to: self.view, .trailing)
-        map.heightAnchor.constraint(equalToConstant: 100.0).isActive = true
+        map.heightAnchor.constraint(equalToConstant: 150.0).isActive = true
     }
     
     private func setUpChildView() {
