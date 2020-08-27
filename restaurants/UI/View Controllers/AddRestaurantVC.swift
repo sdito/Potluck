@@ -59,7 +59,7 @@ class AddRestaurantVC: UIViewController {
         self.view.addSubview(cancelButton)
         cancelButton.setTitle("Cancel", for: .normal)
         cancelButton.titleLabel?.font = .largerBold
-        cancelButton.constrain(.top, to: self.view, .top, constant: 30.0)
+        cancelButton.constrain(.top, to: self.view, .top, constant: 50.0)
         cancelButton.constrain(.leading, to: self.view, .leading, constant: 10.0)
         cancelButton.addTarget(self, action: #selector(remove), for: .touchUpInside)
         

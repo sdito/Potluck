@@ -15,6 +15,11 @@ class ScrollingStackView: UIView {
     }
     
     private var dropLocationView: UIView?
+    private let spotView = UIView()
+    private let paginationStackView = UIStackView()
+    private let selectedSideSize: CGFloat = 9.0
+    private let selectedColor = UIColor.systemYellow
+    private let notSelectedColor = UIColor.white
     
     func removePlaceholderView() {
         dropLocationView?.removeFromSuperview()
@@ -47,19 +52,24 @@ class ScrollingStackView: UIView {
     var scrollView: UIScrollView!
     var stackView: UIStackView!
     
-    init(subViews: [UIView]) {
+    init(subViews: [UIView], showPlaceholder: Bool = false) {
         super.init(frame: .zero)
-        setUp(subviews: subViews)
+        setUp(subviews: subViews, showPlaceholder: showPlaceholder)
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
     
-    func setUp(subviews: [UIView]) {
+    func setUp(subviews: [UIView], showPlaceholder: Bool) {
         self.backgroundColor = .clear
         setUpScrollView()
         setUpStackView(subviews: subviews)
+        
+        if showPlaceholder {
+            setUpPaginationPlacer()
+            scrollView.delegate = self
+        }
     }
     
     private func setUpScrollView() {
@@ -121,4 +131,74 @@ class ScrollingStackView: UIView {
         return dropLocationView
     }
     
+    private func setUpPaginationPlacer() {
+        spotView.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(spotView)
+        spotView.constrain(.bottom, to: self, .bottom, constant: selectedSideSize / 2.0)
+        spotView.backgroundColor = .red
+        spotView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+        spotView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        spotView.layer.cornerRadius = 3.0
+        
+        paginationStackView.translatesAutoresizingMaskIntoConstraints = false
+        spotView.addSubview(paginationStackView)
+        paginationStackView.constrain(.top, to: spotView, .top, constant: selectedSideSize / 4.0)
+        paginationStackView.constrain(.bottom, to: spotView, .bottom, constant: selectedSideSize / 4.0)
+        paginationStackView.centerXAnchor.constraint(equalTo: spotView.centerXAnchor).isActive = true
+        paginationStackView.spacing = selectedSideSize / 2.0
+        paginationStackView.widthAnchor.constraint(equalTo: spotView.widthAnchor, constant: -(selectedSideSize / 1.5)).isActive = true
+        
+    }
+    
+    func resetElements() {
+        let newAmount = self.stackView.arrangedSubviews.count
+        if newAmount < 2 {
+            spotView.isHidden = true
+        } else {
+            spotView.isHidden = false
+            paginationStackView.arrangedSubviews.forEach { (v) in
+                v.removeFromSuperview()
+            }
+            
+            for _ in 1...newAmount {
+                let view = UIView()
+                view.translatesAutoresizingMaskIntoConstraints = false
+                view.backgroundColor = notSelectedColor
+                paginationStackView.addArrangedSubview(view)
+                view.equalSides(size: selectedSideSize)
+                view.layer.cornerRadius = selectedSideSize / 2.0
+                view.clipsToBounds = true
+            }
+            
+            highlightViewAt(0)
+            
+        }
+    }
+    
+    private func highlightViewAt(_ index: Int) {
+        for (i, view) in paginationStackView.arrangedSubviews.enumerated() {
+            if i == index {
+                view.backgroundColor = selectedColor
+            } else {
+                view.backgroundColor = notSelectedColor
+            }
+        }
+    }
+}
+
+
+// MARK: Scroll view
+extension ScrollingStackView: UIScrollViewDelegate {
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        var idx = 0
+        let container = CGRect(x: scrollView.contentOffset.x, y: scrollView.contentOffset.y, width: scrollView.frame.size.width, height: scrollView.frame.size.height)
+        for (i, view) in stackView.arrangedSubviews.enumerated() {
+            let viewFrame = view.frame
+            if viewFrame.intersects(container) {
+                idx = i
+            }
+        }
+
+        highlightViewAt(idx)
+    }
 }

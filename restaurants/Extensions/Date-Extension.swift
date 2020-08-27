@@ -11,6 +11,12 @@ import Foundation
 
 extension Date {
     
+    func convertFromUTC() -> Date {
+        let timezone = TimeZone.current
+        let seconds = TimeInterval(timezone.secondsFromGMT(for: self))
+        return Date(timeInterval: seconds, since: self)
+    }
+    
     /*
      
     Apple

@@ -226,10 +226,6 @@ extension Restaurant {
             case isOpenNow = "is_open_now"
         }
         
-        func test() {
-            
-        }
-        
     }
     
     struct Day: Decodable {

@@ -15,7 +15,21 @@ extension String {
         let emailFormat = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailFormat)
         return emailPredicate.evaluate(with: self)
-
+    }
+    
+    func isValidUsername() -> Bool {
+        let usernameFormat = "^[a-zA-Z0-9_.-]{3,15}$"
+        let usernamePredicate = NSPredicate(format: "SELF MATCHES %@", usernameFormat)
+        return usernamePredicate.evaluate(with: self)
+    }
+    
+    func isValidPassword() -> Bool {
+        let passwordFormat =
+        """
+        ^[a-zA-Z0-9$&+,:;=?@#|'<>.^*()%!-]{8,}$
+        """
+        let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordFormat)
+        return passwordPredicate.evaluate(with: self)
     }
     
     func convertFromStringToDisplayTime() -> String {

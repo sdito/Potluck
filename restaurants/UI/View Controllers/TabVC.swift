@@ -35,10 +35,7 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if viewController.isKind(of: AddRestaurantVC.self) {
-            let baseVC = AddRestaurantVC()
-            let vc = UINavigationController(rootViewController: baseVC)
-            vc.modalPresentationStyle = .fullScreen
-            self.present(vc, animated: true, completion: nil)
+            self.presentAddRestaurantVC()
             return false
         }
         return true

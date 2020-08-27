@@ -16,6 +16,24 @@ class PaddingTextField: UITextField {
         self.tintColor = Colors.main
     }
     
+    override var isSecureTextEntry: Bool {
+        didSet {
+            if isFirstResponder {
+                _ = becomeFirstResponder()
+            }
+        }
+    }
+
+    override func becomeFirstResponder() -> Bool {
+
+        let success = super.becomeFirstResponder()
+        if isSecureTextEntry, let text = self.text {
+            self.text?.removeAll()
+            insertText(text)
+        }
+        return success
+    }
+    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }

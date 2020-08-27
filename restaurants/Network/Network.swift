@@ -17,9 +17,29 @@ class Network {
     var loggedIn: Bool {
         return account != nil
     }
+    
     lazy var keychain: KeychainSwift = {
         let keychain = KeychainSwift()
         return keychain
+    }()
+    
+    lazy var dateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXXXX"
+        return df
+    }()
+    
+    lazy var decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .custom({ (d) -> Date in
+            let container = try d.singleValueContainer()
+            let dateStr = try container.decode(String.self)
+            guard let date = self.dateFormatter.date(from: dateStr) else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot decode date string \(dateStr)")
+            }
+            return date
+        })
+        return decoder
     }()
     
     typealias YelpCategory = (alias: String?, title: String)
@@ -236,6 +256,8 @@ class Network {
         }
     }
     
+    
+    #warning("not using yet")
     func getRestaurantFromPartialData(name: String, fullAddress: String, restaurantFound: @escaping (Result<[Restaurant], Errors.YelpAddress>) -> Void) {
         print("getRestaurantFromPartialData is being called")
         var (potentialParams, missing) = extractAddress(address: fullAddress)

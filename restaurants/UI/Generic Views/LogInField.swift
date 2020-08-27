@@ -30,16 +30,16 @@ class LogInField: UIView {
                 message = "Your email does not look right. Please fix it and try again."
             }
         case .password:
-            if textFieldText.count > 7 {
+            if textFieldText.isValidPassword() {
                 valid = true
             } else {
-                message = "You need a password at least 8 characters long."
+                message = "Your password must be 8 characters long and consist of letters, numbers, and/or special characters."
             }
         case .username:
-            #warning("need to watch out for emojies and stuff")
             valid = isValidText ?? false
+            print("Is valid: \(valid)")
             if !valid {
-                message = "Your username needs to be at least \(minUsernameLength) characters long. Please fit it and try again."
+                message = "Your username has to be between 3 and 15 characters long, and only contain letters, numbers, and _ or - or ."
             }
         case .none:
             valid = true
@@ -92,7 +92,7 @@ class LogInField: UIView {
     }
     
     func activate() {
-        textField.becomeFirstResponder()
+        _ = textField.becomeFirstResponder()
     }
     
     private func setUp() {
@@ -108,6 +108,7 @@ class LogInField: UIView {
         textField.constrain(.bottom, to: self, .bottom)
         textField.autocorrectionType = .no
         textField.autocapitalizationType = .none
+
         
         self.addSubview(viewButton)
         viewButton.equalSides()
@@ -164,7 +165,7 @@ class LogInField: UIView {
     
     @objc private func textFieldTextChangedUsername(sender: UITextField) {
         if let text = sender.text {
-            let qualifies = text.count >= minUsernameLength
+            let qualifies = text.isValidUsername()
             if qualifies != isValidText {
                 isValidText = qualifies
                 changeButton(boolean: qualifies)
@@ -181,8 +182,5 @@ class LogInField: UIView {
             viewButton.setImage(.xImage, for: .normal)
         }
     }
-    
-    
-
 }
 

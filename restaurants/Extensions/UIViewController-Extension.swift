@@ -12,6 +12,13 @@ import MapKit
 
 extension UIViewController {
     
+    func presentAddRestaurantVC() {
+        let baseVC = AddRestaurantVC()
+        let vc = UINavigationController(rootViewController: baseVC)
+        vc.modalPresentationStyle = .fullScreen
+        self.present(vc, animated: true, completion: nil)
+    }
+    
     func showMessage(_ string: String, lastsFor: Double = 3.0) {
         #warning("need to complete")
         let upAndDownDuration = 0.125
@@ -20,7 +27,7 @@ extension UIViewController {
 
         let vc = UIApplication.shared.windows.first!.rootViewController!
         let label = PaddingLabel(top: 10.0, bottom: 10.0, left: 15.0, right: 15.0)
-        label.backgroundColor = UIColor.tertiarySystemBackground.withAlphaComponent(0.8)
+        label.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.8)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = string
         label.font = .largerBold

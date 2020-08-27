@@ -9,6 +9,7 @@
 import UIKit
 
 extension UIImageView {
+    
     func addImageFromUrl(_ url: String?, skeleton: Bool = true, backupImage: String? = nil) {
         if let url = url {
             if skeleton { self.appStartSkeleton() }
@@ -27,5 +28,7 @@ extension UIImageView {
             }
         }
     }
+    
+    
     
 }
