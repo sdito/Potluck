@@ -41,7 +41,7 @@ struct Errors {
         case unableToFindYelpRestaurant
     }
     
-    enum Visit: Error {
+    enum VisitEstablishment: Error {
         case noAccount
     }
     

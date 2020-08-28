@@ -9,6 +9,14 @@
 import UIKit
 
 extension UITableView {
+    
+    func showLoadingOnTableView() {
+        #warning("need to complete")
+        let loadingView = UIActivityIndicatorView(style: .large)
+        loadingView.startAnimating()
+        self.backgroundView = loadingView
+        self.separatorStyle = .none
+    }
 
     func setEmptyWithAction(message: String, buttonTitle: String) -> UIButton {
         

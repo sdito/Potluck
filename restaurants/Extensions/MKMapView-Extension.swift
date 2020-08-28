@@ -6,11 +6,15 @@
 //  Copyright © 2020 Steven Dito. All rights reserved.
 //
 
-
-
 import MapKit
 
 extension MKMapView {
+    
+    func setRegionAroundAnnotation(annotation: MKPointAnnotation, distance: Int = 7500, animated: Bool = false) {
+        let meterSize = CLLocationDistance(exactly: distance)!
+        let region = MKCoordinateRegion(center: annotation.coordinate, latitudinalMeters: meterSize, longitudinalMeters: meterSize)
+        self.setRegion(region, animated: animated)
+    }
     
     func handleMapZooming(distanceFromTop: CGFloat, distanceFromBottom: CGFloat, pointToCheck: CLLocationCoordinate2D, aboveExactCenter: Bool) {
         let mapRect = self.region
@@ -81,11 +85,11 @@ extension MKMapView {
         }
     }
     
-    func centerOnLocation(locationManager: CLLocationManager) {
-        if let location = locationManager.location?.coordinate {
-            let region = MKCoordinateRegion.init(center: location, latitudinalMeters: 7_000, longitudinalMeters: 7_000)
-            self.setRegion(region, animated: true)
-        }
+    func centerOnLocation(locationManager: CLLocationManager, distanceAway: CLLocationDistance = 7000) {
+        let location = locationManager.location?.coordinate ?? .simulatorDefault
+        let region = MKCoordinateRegion.init(center: location, latitudinalMeters: distanceAway, longitudinalMeters: distanceAway)
+        self.setRegion(region, animated: true)
+        
     }
     
     func deselectAllAnnotations() {

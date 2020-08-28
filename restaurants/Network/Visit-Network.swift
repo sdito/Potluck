@@ -43,7 +43,7 @@ extension Network {
     }
     
     #warning("need to complete")
-    func getUserFeed(completion: @escaping (Result<[Visit], Errors.Visit>) -> Void) {
+    func getUserFeed(completion: @escaping (Result<[Visit], Errors.VisitEstablishment>) -> Void) {
         let req = reqVisit(params: nil, requestType: .userFeed)
         
         guard let request = req else {

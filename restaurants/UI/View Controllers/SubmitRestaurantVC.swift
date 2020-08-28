@@ -52,7 +52,6 @@ class SubmitRestaurantVC: UIViewController {
     private func setUpNavigationBar() {
         let submit = UIBarButtonItem(title: "Submit", style: .plain, target: self, action: nil)
         navigationItem.rightBarButtonItem = submit
-        
     }
     
     private func setUpLabels() {

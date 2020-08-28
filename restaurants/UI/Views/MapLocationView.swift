@@ -49,7 +49,7 @@ class MapLocationView: UIView {
             
             annotation.coordinate = coordinate
             mapView.addAnnotation(annotation)
-            setRegion(annotation: annotation)
+            mapView.setRegionAroundAnnotation(annotation: annotation)
         } else if let address = address {
             let geoCoder = CLGeocoder()
             geoCoder.geocodeAddressString(address) { [weak self] (placeMarks, error) in
@@ -66,7 +66,7 @@ class MapLocationView: UIView {
                 
                 annotation.coordinate = location
                 self.mapView.addAnnotation(annotation)
-                self.setRegion(annotation: annotation)
+                self.mapView.setRegionAroundAnnotation(annotation: annotation)
             }
         } else {
             fatalError("Need to have either a coordinate or an address")
@@ -74,15 +74,8 @@ class MapLocationView: UIView {
         
     }
     
-    private func setRegion(annotation: MKPointAnnotation) {
-        let meterSize = CLLocationDistance(exactly: 7500)!
-        let region = MKCoordinateRegion(center: annotation.coordinate, latitudinalMeters: meterSize, longitudinalMeters: meterSize)
-        mapView.setRegion(region, animated: false)
-        
-    }
     
 }
-
 
 extension MapLocationView: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {

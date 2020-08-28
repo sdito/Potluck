@@ -7,10 +7,11 @@
 //
 
 import Foundation
-
+import CoreLocation
 
 class Establishment: Codable {
     var name: String
+    var isRestaurant: Bool
     var longitude: Double?
     var latitude: Double?
     var yelpID: String?
@@ -24,8 +25,41 @@ class Establishment: Codable {
     var country: String?
     var visits: [Visit]?
     
+    var displayAddress: String? {
+        var nonNil: [String] = []
+        for str in [address1, address2, address3, city, zipCode, state, country] {
+            if let str = str {
+                nonNil.append(str)
+            }
+        }
+        if nonNil.count > 0 {
+            return nonNil.joined(separator: ", ")
+        } else {
+            return nil
+        }
+    }
+    
+    var locationInMilesFromCurrentLocation: Double? {
+        guard let establishmentCoordinate = coordinate else { return nil }
+        let userLocationCoordinate = CLLocationManager().getUserLocation() ?? .simulatorDefault
+        let establishmentLocation = CLLocation(latitude: establishmentCoordinate.latitude, longitude: establishmentCoordinate.longitude)
+        let userLocation = CLLocation(latitude: userLocationCoordinate.latitude, longitude: userLocationCoordinate.longitude)
+        let distance = establishmentLocation.distance(from: userLocation)
+        return distance.convertMetersToMiles()
+    }
+    
+    var coordinate: CLLocationCoordinate2D? {
+        if let lat = latitude, let long = longitude {
+            let userLocation = CLLocationCoordinate2D(latitude: lat, longitude: long)
+            return userLocation
+        } else {
+            return nil
+        }
+    }
+    
     enum CodingKeys: String, CodingKey {
         case name
+        case isRestaurant = "is_restaurant"
         case longitude
         case latitude
         case yelpID = "yelp_id"
@@ -43,4 +77,13 @@ class Establishment: Codable {
         var restaurants: [Establishment]?
     }
     
+}
+
+
+extension Array where Element == Establishment {
+    mutating func sortByName() {
+        self.sort { (one, two) -> Bool in
+            one.name < two.name
+        }
+    }
 }
