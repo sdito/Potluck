@@ -12,11 +12,13 @@ import MapKit
 class AddRestaurantVC: UIViewController {
     
     private let searchBar = UISearchBar()
-    private let cancelButton = SizeChangeButton(sizeDifference: .medium, restingColor: Colors.secondary, selectedColor: Colors.main)
+    private let headerView = HeaderView(leftButtonTitle: "Cancel", rightButtonTitle: "Test", title: "Add Visit")
     private let tableView = UITableView()
     private let segmentedControl = UISegmentedControl()
     private let requestCompleter = MKLocalSearchCompleter()
     private let reuseIdentifier = "cell-reuse-identifier"
+    private var searchOptionsStack: UIStackView!
+    private let addNewPlaceButton = SizeChangeButton(sizeDifference: .inverse, restingColor: Colors.secondary, selectedColor: Colors.main)
     
     private var initialLoadingDone = false {
         didSet {
@@ -49,14 +51,11 @@ class AddRestaurantVC: UIViewController {
         self.view.backgroundColor = .systemBackground
         self.navigationController?.navigationBar.tintColor = Colors.main
         self.setNavigationBarColor(color: Colors.navigationBarColor)
-        setUpCancelButton()
-        setUpSearchBar()
+        setUpHeaderPortionWithCancel()
         setUpSearchOptions()
         setUpSearchTableView()
         setUpRequest()
         getInitialData()
-        
-
     }
     
     @objc private func startMapToSelectLocation() {
@@ -70,51 +69,49 @@ class AddRestaurantVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: animated)
     }
     
-    
-    private func setUpCancelButton() {
-        cancelButton.translatesAutoresizingMaskIntoConstraints = false
-        self.view.addSubview(cancelButton)
-        cancelButton.setTitle("Cancel", for: .normal)
-        cancelButton.titleLabel?.font = .largerBold
-        cancelButton.constrain(.top, to: self.view, .top, constant: 50.0)
-        cancelButton.constrain(.leading, to: self.view, .leading, constant: 10.0)
-        cancelButton.addTarget(self, action: #selector(remove), for: .touchUpInside)
-        
-        #warning("delete later, just testing")
-        let testButton = UIButton()
-        testButton.translatesAutoresizingMaskIntoConstraints = false
-        testButton.setTitleColor(Colors.main, for: .normal)
-        testButton.setTitle("Test", for: .normal)
-        testButton.addTarget(self, action: #selector(startMapToSelectLocation), for: .touchUpInside)
-        self.view.addSubview(testButton)
-        testButton.constrain(.top, to: self.view, .top, constant: 50.0)
-        testButton.constrain(.trailing, to: self.view, .trailing, constant: 10.0)
-        
-    }
-    
-    private func setUpSearchBar() {
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        self.view.addSubview(searchBar)
-        searchBar.constrain(.leading, to: self.view, .leading)
-        searchBar.constrain(.top, to: cancelButton, .bottom)
-        searchBar.constrain(.trailing, to: self.view, .trailing)
-        searchBar.placeholder = "Restaurant name"
-        searchBar.delegate = self
+    private func setUpHeaderPortionWithCancel() {
+        self.view.addSubview(headerView)
+        headerView.constrain(.top, to: self.view, .top, constant: 50.0)
+        headerView.constrain(.leading, to: self.view, .leading)
+        headerView.constrain(.trailing, to: self.view, .trailing)
+        headerView.leftButton.addTarget(self, action: #selector(remove), for: .touchUpInside)
+        headerView.rightButton.addTarget(self, action: #selector(startMapToSelectLocation), for: .touchUpInside)
     }
     
     private func setUpSearchOptions() {
+        
+        searchOptionsStack = UIStackView(arrangedSubviews: [segmentedControl, searchBar, addNewPlaceButton])
+        searchOptionsStack.translatesAutoresizingMaskIntoConstraints = false
+        searchOptionsStack.axis = .vertical
+        searchOptionsStack.spacing = 5.0
+        searchOptionsStack.distribution = .fill
+        searchOptionsStack.alignment = .fill
+        self.view.addSubview(searchOptionsStack)
+        searchOptionsStack.constrain(.top, to: headerView, .bottom, constant: 10.0)
+        searchOptionsStack.constrain(.leading, to: self.view, .leading, constant: 10.0)
+        searchOptionsStack.constrain(.trailing, to: self.view, .trailing, constant: 10.0)
+        
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        searchBar.placeholder = "Restaurant name"
+        searchBar.delegate = self
+        
+        
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
         for (i, segment) in Segment.allCases.enumerated() {
             segmentedControl.insertSegment(withTitle: segment.rawValue, at: i, animated: false)
         }
         
-        self.view.addSubview(segmentedControl)
-        segmentedControl.constrain(.top, to: searchBar, .bottom)
-        segmentedControl.constrain(.leading, to: self.view, .leading, constant: 10.0)
-        segmentedControl.constrain(.trailing, to: self.view, .trailing, constant: 10.0)
         segmentedControl.selectedSegmentIndex = 0
         segmentedControl.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.mediumBold], for: .normal)
         segmentedControl.addTarget(self, action: #selector(segmentedControlChanged), for: .valueChanged)
+        
+        addNewPlaceButton.translatesAutoresizingMaskIntoConstraints = false
+        addNewPlaceButton.setTitle("+ New place", for: .normal)
+        addNewPlaceButton.backgroundColor = .secondarySystemBackground
+        addNewPlaceButton.layer.cornerRadius = 7.5
+        addNewPlaceButton.clipsToBounds = true
+        
+        addNewPlaceButton.isHidden = true
     }
     
     private func setUpSearchTableView() {
@@ -122,7 +119,7 @@ class AddRestaurantVC: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         self.view.addSubview(tableView)
-        tableView.constrain(.top, to: segmentedControl, .bottom)
+        tableView.constrain(.top, to: searchOptionsStack, .bottom)
         tableView.constrain(.leading, to: self.view, .leading)
         tableView.constrain(.trailing, to: self.view, .trailing)
         tableView.constrain(.bottom, to: self.view, .bottom)
@@ -165,7 +162,16 @@ class AddRestaurantVC: UIViewController {
     
     @objc private func segmentedControlChanged() {
         tableView.reloadData()
-        print(currentSelectedSegment)
+        
+        switch currentSelectedSegment {
+        case .search, .previous:
+            addNewPlaceButton.isHidden = true
+            searchBar.isHidden = false
+        case .myPlaces:
+            addNewPlaceButton.isHidden = false
+            searchBar.isHidden = true
+        }
+        
     }
 }
 
@@ -206,11 +212,7 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
             } else {
                 return count
             }
-            
-            
         }
-        
-        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -233,8 +235,21 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let cellInfo = searchResults[indexPath.row]
-        self.navigationController?.pushViewController(SubmitRestaurantVC(name: cellInfo.name, address: cellInfo.address), animated: true)
+        var cellInfo: (String, String)?
+        var establishment: Establishment?
+        var restaurant: Restaurant?
+        
+        switch currentSelectedSegment {
+        case .search:
+            cellInfo = searchResults[indexPath.row]
+        case .myPlaces:
+            establishment = myPlaces[indexPath.row]
+        case .previous:
+            establishment = previousRestaurants[indexPath.row]
+        }
+        
+        let submitRestaurantVC = SubmitRestaurantVC(rawValues: cellInfo, establishment: establishment, restaurant: restaurant)
+        self.navigationController?.pushViewController(submitRestaurantVC, animated: true)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {

@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import MapKit
 
 class SubmitRestaurantVC: UIViewController {
     
@@ -20,17 +20,37 @@ class SubmitRestaurantVC: UIViewController {
     private let nameLabel = UILabel()
     private let addressLabel = UILabel()
     private let containerView = UIView()
-    private var name: String!
-    private var address: String!
     
-    init(name: String, address: String) {
-        self.name = name
-        self.address = address
+    private var nameRawValue: String?
+    private var addressRawValue: String?
+    private var establishment: Establishment?
+    private var restaurant: Restaurant?
+    private var mode: Mode?
+    
+    init(rawValues: (name: String, address: String)?, establishment: Establishment?, restaurant: Restaurant?) {
+        self.nameRawValue = rawValues?.name
+        self.addressRawValue = rawValues?.address
+        self.establishment = establishment
+        self.restaurant = restaurant
+        if rawValues != nil {
+            mode = .rawValue
+        } else if establishment != nil {
+            mode = .establishment
+        } else if restaurant != nil {
+            mode = .restaurant
+        }
+        
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+    }
+    
+    enum Mode {
+        case rawValue
+        case establishment
+        case restaurant
     }
     
     override func viewDidLoad() {
@@ -55,10 +75,9 @@ class SubmitRestaurantVC: UIViewController {
     }
     
     private func setUpLabels() {
-        
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.numberOfLines = 0
-        nameLabel.text = name
+        nameLabel.text = nameRawValue ?? restaurant?.name ?? establishment?.name ?? "Restaurant name"
         nameLabel.font = .createdTitle
         self.view.addSubview(nameLabel)
         nameLabel.constrain(.leading, to: view, .leading, constant: 10.0)
@@ -67,7 +86,7 @@ class SubmitRestaurantVC: UIViewController {
         
         addressLabel.translatesAutoresizingMaskIntoConstraints = false
         addressLabel.numberOfLines = 0
-        addressLabel.text = address
+        addressLabel.text = addressRawValue ?? establishment?.displayAddress ?? restaurant?.address.displayAddress?.joined(separator: ", ") ?? "No address"
         addressLabel.font = .largerBold
         addressLabel.textColor = .secondaryLabel
         self.view.addSubview(addressLabel)
@@ -77,7 +96,31 @@ class SubmitRestaurantVC: UIViewController {
     }
     
     private func setUpMap() {
-        let map = MapLocationView(locationTitle: name, coordinate: nil, address: address)
+        
+        guard let mode = mode else { return }
+        
+        var name: String = "Restaurant"
+        var coordinate: CLLocationCoordinate2D?
+        var address: String?
+        
+        switch mode {
+        case .rawValue:
+            name = nameRawValue ?? "Restaurant"
+            address = addressRawValue
+        case .establishment:
+            guard let establishment = establishment else { return }
+            name = establishment.name
+            address = establishment.displayAddress
+            coordinate = establishment.coordinate
+            
+        case .restaurant:
+            guard let restaurant = restaurant else { return }
+            name = restaurant.name
+            address = restaurant.address.displayAddress?.joined(separator: ", ")
+            coordinate = restaurant.coordinate
+        }
+        
+        let map = MapLocationView(locationTitle: name, coordinate: coordinate, address: address)
         self.view.addSubview(map)
         map.constrain(.top, to: addressLabel, .bottom, constant: 10.0)
         map.constrain(.leading, to: self.view, .leading)
@@ -110,9 +153,13 @@ class SubmitRestaurantVC: UIViewController {
     }
     
     private func findAssociatedRestaurant() {
-        Network.shared.getRestaurantFromPartialData(name: name, fullAddress: address) { (result) in
-            print(result)
+        
+        if let mode = mode, mode == .rawValue {
+            Network.shared.getRestaurantFromPartialData(name: nameRawValue!, fullAddress: addressRawValue!) { (result) in
+                print(result)
+            }
         }
+        
     }
 }
 

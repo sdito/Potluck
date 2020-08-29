@@ -141,48 +141,22 @@ class FilterRestaurantsVC: UIViewController {
     
     
     private func setUpHeadPortion() {
-        let stackView = UIStackView()
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
+        let headerStack = HeaderView(leftButtonTitle: "Cancel", rightButtonTitle: "Reset", title: "Filter")
         
-        let cancelButton = SizeChangeButton(sizeDifference: .medium, restingColor: Colors.secondary, selectedColor: Colors.main)
-        cancelButton.setTitle("Cancel", for: .normal)
-        cancelButton.tag = cancelTag
-        cancelButton.titleLabel?.font = .largerBold
-        stackView.addArrangedSubview(cancelButton)
-        cancelButton.addTarget(self, action: #selector(cancelOrResetPressed(sender:)), for: .touchUpInside)
-        cancelButton.titleEdgeInsets.left = 20.0
-        cancelButton.contentHorizontalAlignment = .left
+        headerStack.leftButton.tag = cancelTag
+        headerStack.leftButton.addTarget(self, action: #selector(cancelOrResetPressed(sender:)), for: .touchUpInside)
+        headerStack.rightButton.tag = resetTag
+        headerStack.rightButton.addTarget(self, action: #selector(cancelOrResetPressed(sender:)), for: .touchUpInside)
         
-        let resetButton = SizeChangeButton(sizeDifference: .medium, restingColor: Colors.secondary, selectedColor: Colors.main)
-        resetButton.setTitle("Reset", for: .normal)
-        resetButton.tag = resetTag
-        resetButton.titleLabel?.font = .largerBold
-        stackView.addArrangedSubview(resetButton)
-        resetButton.addTarget(self, action: #selector(cancelOrResetPressed(sender:)), for: .touchUpInside)
-        resetButton.titleEdgeInsets.right = 20.0
-        resetButton.contentHorizontalAlignment = .right
-        
-        cancelButton.widthAnchor.constraint(equalTo: resetButton.widthAnchor).isActive = true
-        
-        headerLabel.translatesAutoresizingMaskIntoConstraints = false
-        headerLabel.text = "Filter"
-        headerLabel.font = .createdTitle
-        headerLabel.textAlignment = .center
-        headerLabel.setContentHuggingPriority(UILayoutPriority(1000), for: .horizontal)
-        stackView.insertArrangedSubview(headerLabel, at: 1)
-    
-        self.view.addSubview(stackView)
-        
-        stackView.constrain(.top, to: self.view, .top, constant: 10.0)
-        stackView.constrain(.leading, to: self.view, .leading)
-        stackView.constrain(.trailing, to: self.view, .trailing)
-        
-        
+        self.view.addSubview(headerStack)
+
+        headerStack.constrain(.top, to: self.view, .top, constant: 10.0)
+        headerStack.constrain(.leading, to: self.view, .leading)
+        headerStack.constrain(.trailing, to: self.view, .trailing)
+
         self.view.addSubview(spacer)
-        
-        spacer.constrain(.top, to: stackView, .bottom, constant: 5.0)
+
+        spacer.constrain(.top, to: headerStack, .bottom, constant: 5.0)
         spacer.constrain(.leading, to: self.view, .leading)
         spacer.constrain(.trailing, to: self.view,  .trailing)
     }

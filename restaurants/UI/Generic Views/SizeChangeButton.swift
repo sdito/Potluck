@@ -18,6 +18,7 @@ class SizeChangeButton: UIButton {
         case large = 1.5
         case medium = 1.1
         case small = 1.05
+        case inverse = 0.9
     }
     
     init(sizeDifference: SizeDifference, restingColor: UIColor, selectedColor: UIColor) {

@@ -37,15 +37,33 @@ class SelectLocationVC: UIViewController {
     }
     
     private func setUpTopPortionParts() {
+        
+        // need to set up the buttons
+        let headerStack = HeaderView(leftButtonTitle: "Cancel", rightButtonTitle: "Done", title: "Find location")
+        topContainer.addSubview(headerStack)
+        
+        headerStack.constrain(.leading, to: topContainer, .leading)
+        headerStack.constrain(.trailing, to: topContainer, .trailing)
+        headerStack.constrain(.top, to: topContainer, .top, constant: 10.0)
+        
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         topContainer.addSubview(searchBar)
-        searchBar.constrainSides(to: topContainer)
+        
+        searchBar.constrain(.top, to: headerStack, .bottom, constant: 10.0)
+        searchBar.constrain(.leading, to: topContainer, .leading)
+        searchBar.constrain(.trailing, to: topContainer, .trailing)
+        searchBar.constrain(.bottom, to: topContainer, .bottom)
+        
         searchBar.delegate = self
         searchBar.tintColor = Colors.main
         searchBar.placeholder = "Enter address"
         searchBar.autocapitalizationType = .words
-        searchBar.searchTextField.adjustsFontSizeToFitWidth = true
-        searchBar.searchTextField.minimumFontSize = 10.0
+        
+//        searchBar.searchTextField.adjustsFontSizeToFitWidth = true
+//        searchBar.searchTextField.minimumFontSize = 10.0
+        
+        headerStack.leftButton.addTarget(self, action: #selector(dismissController), for: .touchUpInside)
+        
     }
     
     private func setUpMap() {
@@ -65,13 +83,17 @@ class SelectLocationVC: UIViewController {
         self.view.addSubview(vc.tableView)
         vc.didMove(toParent: self)
         searchTextDelegate = vc
-        
+        vc.tableView.translatesAutoresizingMaskIntoConstraints = false
         vc.tableView.constrain(.top, to: topContainer, .bottom)
         vc.tableView.constrain(.leading, to: self.view, .leading)
         vc.tableView.constrain(.trailing, to: self.view, .trailing)
         vc.tableView.constrain(.bottom, to: self.view, .bottom)
         
         searchTextDelegate?.textChanged(newString: "")
+    }
+    
+    @objc private func dismissController() {
+        self.dismiss(animated: true, completion: nil)
     }
 }
 
@@ -108,7 +130,9 @@ extension SelectLocationVC: UISearchBarDelegate {
 extension SelectLocationVC: SearchHelperComplete {
     func searchFound(search: MKLocalSearchCompletion) {
         
+        #warning("should be smaller, but freezes when it is resized")
         let addressFound = "\(search.title) \(search.subtitle)"
+        searchBar.endEditing(true)
         searchBar.text = addressFound
         mapView.removeAnnotations(mapView.annotations)
         
