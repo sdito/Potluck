@@ -124,7 +124,7 @@ class RestaurantSelectedView: UIView {
             if self.restaurant.id != restaurant.id {
                 self.restaurant = restaurant
                 self.titleLabel.text = restaurant.name
-                self.starRatingView.updateNumberOfStarsAndReviews(stars: restaurant.rating, numReviews: restaurant.reviewCount)
+                self.starRatingView.updateNumberOfStarsAndReviews(stars: restaurant.rating ?? 0.0, numReviews: restaurant.reviewCount ?? 0)
                 self.imageView.addImageFromUrl(restaurant.imageURL, skeleton: true)
                 self.setMoneyAndTypeLabelText(restaurant)
                 
@@ -261,7 +261,7 @@ class RestaurantSelectedView: UIView {
         titleLabel.numberOfLines = 2
         topRightStackView.addArrangedSubview(titleLabel)
         
-        starRatingView = StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount, forceWhite: false, noBackgroundColor: true)
+        starRatingView = StarRatingView(stars: restaurant.rating ?? 0.0, numReviews: restaurant.reviewCount ?? 0, forceWhite: false, noBackgroundColor: true)
         topRightStackView.addArrangedSubview(starRatingView)
         
         moneyAndTypeLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -274,7 +274,14 @@ class RestaurantSelectedView: UIView {
     }
     
     private func setMoneyAndTypeLabelText(_ rest: Restaurant) {
-        moneyAndTypeLabel.text = "\(rest.price ?? "$$") · \(rest.categories.joined(separator: ", "))"
+        
+        if let categories = rest.categories {
+            moneyAndTypeLabel.text = "\(rest.price ?? "$$") · \(categories.joined(separator: ", "))"
+        } else {
+            moneyAndTypeLabel.text = "\(rest.price ?? "$$")"
+        }
+        
+        
     }
     
     

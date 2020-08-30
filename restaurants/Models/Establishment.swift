@@ -40,7 +40,7 @@ class Establishment: Codable {
         }
     }
     
-    var locationInMilesFromCurrentLocation: Double? {
+    var locationInMilesFromCurrentLocation: String? {
         guard let establishmentCoordinate = coordinate else { return nil }
         let userLocationCoordinate = CLLocationManager().getUserLocation() ?? .simulatorDefault
         let establishmentLocation = CLLocation(latitude: establishmentCoordinate.latitude, longitude: establishmentCoordinate.longitude)
@@ -80,8 +80,19 @@ class Establishment: Codable {
         case firstVisited = "first_visited"
     }
     
-    class EstablishmentDecoder: Decodable {
+    struct EstablishmentDecoder: Decodable {
         var restaurants: [Establishment]?
+    }
+    
+    func updatePropertiesWithFullAddress(address: String, coordinate: CLLocationCoordinate2D) {
+        let (partDictionary, _) = Network.shared.extractAddress(address: address, forYelp: false)
+        self.address1 = partDictionary["address1"]
+        self.city = partDictionary["city"]
+        self.state = partDictionary["state"]
+        self.country = partDictionary["country"]
+        self.zipCode = partDictionary["zip_code"]
+        self.latitude = coordinate.latitude
+        self.longitude = coordinate.longitude
     }
     
 }

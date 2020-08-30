@@ -157,13 +157,14 @@ class RestaurantCell: UITableViewCell {
         self.delegate = vc as? RestaurantCellDelegate
         self.tag = place - 1
         titleLabel.text = "\(place). \(restaurant.name)"
-        starRatingView.updateNumberOfStarsAndReviews(stars: restaurant.rating, numReviews: restaurant.reviewCount)
+        starRatingView.updateNumberOfStarsAndReviews(stars: restaurant.rating ?? 0.0, numReviews: restaurant.reviewCount ?? 0)
         
-        let miles = restaurant.distance.convertMetersToMiles()
-        distanceLabel.text = "\(miles) miles away"
-        deliveryLabel.attributedText = "Delivery".getAffirmativeOrNegativeAttributedString(restaurant.transactions.contains(.delivery), font: UIFont.mediumBold)
-        takeoutLabel.attributedText = "Pickup".getAffirmativeOrNegativeAttributedString(restaurant.transactions.contains(.pickup), font: UIFont.mediumBold)
-        reservationsLabel.attributedText = "Reservations".getAffirmativeOrNegativeAttributedString(restaurant.transactions.contains(.restaurantReservation), font: UIFont.mediumBold)
+        let miles = restaurant.distance?.convertMetersToMiles()
+        distanceLabel.text = miles ?? restaurant.address.displayAddress?.joined(separator: ", ") ?? "Can't find location"
+        let transactions = restaurant.transactions ?? []
+        deliveryLabel.attributedText = "Delivery".getAffirmativeOrNegativeAttributedString(transactions.contains(.delivery), font: UIFont.mediumBold)
+        takeoutLabel.attributedText = "Pickup".getAffirmativeOrNegativeAttributedString(transactions.contains(.pickup), font: UIFont.mediumBold)
+        reservationsLabel.attributedText = "Reservations".getAffirmativeOrNegativeAttributedString(transactions.contains(.restaurantReservation), font: UIFont.mediumBold)
     }
     
     func setUpForHero() {

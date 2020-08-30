@@ -83,7 +83,8 @@ class HeaderDetailView: UIView {
         let disclosureButton = UIButton(type: .detailDisclosure)
         disclosureButton.tintColor = Colors.main
         disclosureButton.addTarget(self, action: #selector(moreInfoOnHeaderPressedSelector), for: .touchUpInside)
-        let viewsToAdd = restaurant.categories.createViewsForDisplay()
+        let categories = restaurant.categories ?? ["Restaurant"]
+        let viewsToAdd = categories.createViewsForDisplay()
         let scrollingView = ScrollingStackView(subViews: viewsToAdd)
         
         let topStackView = UIStackView(arrangedSubviews: [scrollingView, UIView(), disclosureButton])

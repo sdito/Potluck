@@ -54,7 +54,7 @@ class TwoLevelCell: UITableViewCell {
         mainLabel.text = establishment.name
         
         if let locationDistance = establishment.locationInMilesFromCurrentLocation {
-            secondLabel.text = "\(locationDistance) miles away"
+            secondLabel.text = locationDistance
         } else if let address = establishment.displayAddress {
             secondLabel.text = address
         } else if establishment.isRestaurant {
@@ -62,6 +62,11 @@ class TwoLevelCell: UITableViewCell {
         } else {
             secondLabel.text = "My place"
         }
+    }
+    
+    func setUpWith(restaurant: Restaurant) {
+        mainLabel.text = restaurant.name
+        secondLabel.text = restaurant.distance?.convertMetersToMiles() ?? restaurant.address.displayAddress?.joined(separator: ", ") ?? "Can't find location"
     }
     
 }

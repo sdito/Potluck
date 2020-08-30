@@ -42,10 +42,13 @@ class RestaurantCategoriesView: UIView {
         }
         
         priceLabel.attributedText = (restaurant.price ?? "$$").addImageAtBeginning(image: UIImage(systemName: "dollarsign.circle")!.withTintColor(.systemYellow))
-        pickupLabel.attributedText = restaurant.transactions.contains(.pickup) ? "Pickup".getAffirmativeOrNegativeAttributedString(true) : "Pickup".getAffirmativeOrNegativeAttributedString(false)
-        deliveryLabel.attributedText = restaurant.transactions.contains(.delivery) ? "Delivery".getAffirmativeOrNegativeAttributedString(true) : "Delivery".getAffirmativeOrNegativeAttributedString(false)
+        
+        let restTransactions = restaurant.transactions ?? []
+        
+        pickupLabel.attributedText = restTransactions.contains(.pickup) ? "Pickup".getAffirmativeOrNegativeAttributedString(true) : "Pickup".getAffirmativeOrNegativeAttributedString(false)
+        deliveryLabel.attributedText = restTransactions.contains(.delivery) ? "Delivery".getAffirmativeOrNegativeAttributedString(true) : "Delivery".getAffirmativeOrNegativeAttributedString(false)
         reservationsLabel.attributedText
-            = restaurant.transactions.contains(.restaurantReservation) ? "Reservations".getAffirmativeOrNegativeAttributedString(true) : "Reservations".getAffirmativeOrNegativeAttributedString(false)
+            = restTransactions.contains(.restaurantReservation) ? "Reservations".getAffirmativeOrNegativeAttributedString(true) : "Reservations".getAffirmativeOrNegativeAttributedString(false)
         
     }
     

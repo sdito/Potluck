@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import Alamofire
 
 struct Errors {
     enum LogIn: Error {
@@ -44,6 +44,11 @@ struct Errors {
     enum VisitEstablishment: Error {
         case noAccount
         case encoding
+        case other(alamoFireError: AFError?)
+    }
+    
+    enum Yelp: Error {
+        case other
     }
     
 }

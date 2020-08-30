@@ -138,7 +138,7 @@ extension RestaurantSpecificInfoVC: UITableViewDelegate, UITableViewDataSource {
         case .transactions(let transactions):
             let defaultCell = UITableViewCell(style: .default, reuseIdentifier: nil)
             let transaction = transactions[indexPath.row]
-            let affirmative = restaurant.transactions.contains(transaction)
+            let affirmative = restaurant.transactions?.contains(transaction) ?? false
             let cellText = transaction.description.getAffirmativeOrNegativeAttributedString(affirmative)
             defaultCell.textLabel?.attributedText = cellText
             return defaultCell

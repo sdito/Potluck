@@ -129,7 +129,7 @@ class RestaurantDetailVC: UIViewController {
         viewAllPhotosButton.setTitle(morePhotosNormalTitle, for: .normal)
         viewAllPhotosButton.addTarget(self, action: #selector(openPhotosController), for: .touchUpInside)
         
-        starRatingView = StarRatingView(stars: restaurant.rating, numReviews: restaurant.reviewCount, forceWhite: true)
+        starRatingView = StarRatingView(stars: restaurant.rating ?? 0.0, numReviews: restaurant.reviewCount ?? 0, forceWhite: true)
         
         let starsStackView = UIStackView(arrangedSubviews: [starRatingView, UIView(), viewAllPhotosButton])
         starsStackView.alignment = .fill
@@ -365,7 +365,12 @@ extension RestaurantDetailVC: HeaderDetailViewDelegate {
     }
     
     func urlPressedToOpen() {
-        self.navigationController?.pushViewController(WebVC(url: restaurant.url), animated: true)
+        if let url = restaurant.url {
+            self.navigationController?.pushViewController(WebVC(url: url), animated: true)
+        } else {
+            self.showMessage("Unable to find URL")
+        }
+        
     }
     
     func moreInfoOnHeaderPressed() {

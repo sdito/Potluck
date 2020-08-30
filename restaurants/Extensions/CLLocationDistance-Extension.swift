@@ -10,7 +10,12 @@ import CoreLocation
 
 
 extension CLLocationDistance {
-    func convertMetersToMiles() -> Double {
-        return (Measurement(value: self, unit: UnitLength.meters).converted(to: UnitLength.miles).value * 10).rounded() / 10.0
+    func convertMetersToMiles() -> String {
+        let distance = (Measurement(value: self, unit: UnitLength.meters).converted(to: UnitLength.miles).value * 10).rounded() / 10.0
+        if distance <= 0.09 {
+            return "Right there"
+        } else {
+            return "\(distance) miles away"
+        }
     }
 }

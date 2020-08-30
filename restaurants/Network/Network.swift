@@ -23,6 +23,8 @@ class Network {
         return keychain
     }()
     
+    var previousSearchedRestaurants: [Restaurant] = []
+    
     lazy var dateFormatter: DateFormatter = {
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXXXX"
@@ -128,7 +130,7 @@ class Network {
         }
     }
     
-    func getRestaurants(restaurantSearch: RestaurantSearch, filters: [String:Any], restaurantsReturned: @escaping (Result<[Restaurant], Error>) -> Void) {
+    func getRestaurants(restaurantSearch: RestaurantSearch, filters: [String:Any], restaurantsReturned: @escaping (Result<[Restaurant], Errors.Yelp>) -> Void) {
         
         #warning("need to actually implement filters")
         
@@ -178,49 +180,44 @@ class Network {
         }
         
         let request = reqYelp(params: params, requestType: .search)
-        request.responseJSON { (response) in
-            switch response.result {
-            case .success(let jsonAny):
-                var restaurants: [Restaurant] = []
-                if let json = jsonAny as? [String:Any], let restaurantsJson = json["businesses"] as? [[String:Any]] {
-                    for r in restaurantsJson {
-                        do {
-                            let data = try JSONSerialization.data (withJSONObject: r, options: [])
-                            do {
-                                let restaurant = try JSONDecoder().decode(Restaurant.self, from: data)
-                                restaurants.append(restaurant)
-                            } catch {
-                                print(r)
-                                print(error)
-                            }
-                        } catch {
-                            print(error)
-                        }
-                        
-                    }
+        request.responseJSON { [weak self] (response) in
+            guard let self = self else { return }
+            guard let data = response.data, response.error == nil else {
+                restaurantsReturned(Result.failure(.other))
+                return
+            }
+            
+            
+            do {
+                let restaurantsDecoded = try self.decoder.decode(Restaurant.RestaurantDecoder.self, from: data)
+                guard let restaurants = restaurantsDecoded.businesses else {
+                    restaurantsReturned(Result.failure(.other))
+                    return
                 }
-                
                 let sortedRestaurants = restaurants.sorted { (one, two) -> Bool in
-                    one.distance < two.distance 
+                    one.distance ?? 0.0 < two.distance ?? 0.0
                 }
                 
                 restaurantsReturned(Result.success(sortedRestaurants))
-            case .failure(let error):
-                print("Error: getRestaurants")
-                print(error)
+                self.previousSearchedRestaurants = sortedRestaurants
+            } catch {
+                restaurantsReturned(Result.failure(.other))
             }
+            
+            
         }
     }
     
     func setFullRestaurantInfo(restaurant: Restaurant, complete: @escaping (Bool) -> Void) {
         let request = reqYelp(restaurant: restaurant, requestType: .id)
-        request.responseJSON { (response) in
+        request.responseJSON { [weak self] (response) in
+            guard let self = self else { return }
             switch response.result {
             case .success(let jsonAny):
                 if let json = jsonAny as? [String:Any] {
                     let data = try? JSONSerialization.data(withJSONObject: json, options: [])
                     if let d = data {
-                        let additionalInfo = try? JSONDecoder().decode(Restaurant.AdditionalInfo.self, from: d)
+                        let additionalInfo = try? self.decoder.decode(Restaurant.AdditionalInfo.self, from: d)
                         restaurant.additionalInfo = additionalInfo
                         complete(true)
                     }
@@ -260,18 +257,35 @@ class Network {
         }
     }
     
-    func getRestaurantFromPartialData(name: String, fullAddress: String, restaurantFound: @escaping (Result<[Restaurant], Errors.YelpAddress>) -> Void) {
-        print("getRestaurantFromPartialData is being called")
+    func getRestaurantFromPartialData(name: String, fullAddress: String, restaurantFound: @escaping (Result<Restaurant, Errors.YelpAddress>) -> Void) {
+
         var (potentialParams, missing) = extractAddress(address: fullAddress)
         if missing.count == 0 {
             potentialParams["name"] = name
             let request = reqYelp(params: potentialParams, requestType: .match)
             request.responseJSON { (response) in
                 switch response.result {
-                case .success(let jsonAny):
-                    if let json = jsonAny as? [String:Any], let restaurantsJson = json["businesses"] as? [[String:Any]] {
-                        print(restaurantsJson)
+                case .success(_):
+                    
+                    guard let data = response.data else {
+                        restaurantFound(Result.failure(.unableToFindYelpRestaurant))
+                        return
                     }
+                    
+                    do {
+                        let restaurants = try self.decoder.decode(Restaurant.RestaurantDecoder.self, from: data)
+                        if let restaurants = restaurants.businesses, let first = restaurants.first {
+                            print("Restaurant found")
+                            for _ in 1...10 {
+                                print(first.name, first.address)
+                            }
+                        }
+                    } catch {
+                        for _ in 1...10 {
+                            print(error)
+                        }
+                    }
+                    
                 case .failure(let error):
                     print(error.errorDescription ?? "Error slfdk")
                 }
@@ -288,7 +302,7 @@ class Network {
         })
     }
     
-    private func extractAddress(address: String) -> (found: [String:String], missing: [String]) {
+    func extractAddress(address: String, forYelp: Bool = true) -> (found: [String:String], missing: [String]) {
         
         let appToYelp: [String:String] = [
             "Street": "address1",
@@ -330,7 +344,7 @@ class Network {
         }
         
         // Can work to place "**" or other nonsense in place of state in some instances, only do if only state is missing (or only one item is missing)
-        if missing.count == 1 {
+        if missing.count == 1 && forYelp {
             let onlyMissing = missing[0]
             if onlyMissing == appToYelp["State"]! {
                 values[onlyMissing] = "**"

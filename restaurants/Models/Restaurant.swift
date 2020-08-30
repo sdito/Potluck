@@ -13,14 +13,14 @@ class Restaurant: Decodable {
     var name: String
     var latitude: Double
     var longitude: Double
-    var url: String
-    var imageURL: String
+    var url: String?
+    var imageURL: String?
     var price: String?
-    var distance: Double
-    var rating: Double
-    var reviewCount: Int
-    var categories: [String]
-    var transactions: [YelpTransaction]
+    var distance: Double?
+    var rating: Double?
+    var reviewCount: Int?
+    var categories: [String]?
+    var transactions: [YelpTransaction]?
     var reviews: [Review] = []
     var additionalInfo: AdditionalInfo?
     var address: YelpLocation
@@ -91,26 +91,30 @@ class Restaurant: Decodable {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let coordinates = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .coordinates)
-        let dictionary = try container.decode([[String : String]].self, forKey: .categoriesContainer)
+        let dictionary = try? container.decode([[String : String]].self, forKey: .categoriesContainer)
         
         id = try container.decode(String.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         latitude = try coordinates.decode(Double.self, forKey: .latitude)
         longitude = try coordinates.decode(Double.self, forKey: .longitude)
-        url = try container.decode(String.self, forKey: .url)
-        imageURL = try container.decode(String.self, forKey: .imageURL)
+        url = try? container.decode(String.self, forKey: .url)
+        imageURL = try? container.decode(String.self, forKey: .imageURL)
         price = try? container.decode(String?.self, forKey: .price)
-        distance = try container.decode(Double.self, forKey: .distance)
-        rating = try container.decode(Double.self, forKey: .rating)
-        reviewCount = try container.decode(Int.self, forKey: .reviewCount)
-        transactions = try container.decode([YelpTransaction].self, forKey: .transactions)
+        distance = try? container.decode(Double.self, forKey: .distance)
+        rating = try? container.decode(Double.self, forKey: .rating)
+        reviewCount = try? container.decode(Int.self, forKey: .reviewCount)
+        transactions = try? container.decode([YelpTransaction].self, forKey: .transactions)
         address = try container.decode(YelpLocation.self, forKey: .address)
         
         var tempCategories: [String] = []
-        for i in dictionary {
-            let category = i["title"]
-            tempCategories.append(category!)
+        
+        if let dict = dictionary {
+            for i in dict {
+                let category = i["title"]
+                tempCategories.append(category!)
+            }
         }
+        
         categories = tempCategories
         
     }
@@ -240,6 +244,10 @@ extension Restaurant {
             case end
             case day
         }
+    }
+    
+    struct RestaurantDecoder: Decodable {
+        var businesses: [Restaurant]?
     }
     
 }

@@ -12,7 +12,7 @@ import MapKit
 class AddRestaurantVC: UIViewController {
     
     private let searchBar = UISearchBar()
-    private let headerView = HeaderView(leftButtonTitle: "Cancel", rightButtonTitle: "Test", title: "Add Visit")
+    private let headerView = HeaderView(leftButtonTitle: "Cancel", rightButtonTitle: "", title: "Add Visit")
     private let tableView = UITableView()
     private let segmentedControl = UISegmentedControl()
     private let requestCompleter = MKLocalSearchCompleter()
@@ -22,6 +22,9 @@ class AddRestaurantVC: UIViewController {
     private let myPlacesTitle = "New place name"
     private let myPlacesButton = SizeChangeButton(sizeDifference: .medium, restingColor: Colors.secondary, selectedColor: Colors.main)
     private var searchBarStack: UIStackView!
+    
+    private var previousRestaurantsOnSearch = true
+    private var previousSearchedRestaurants: [Restaurant] = []
     
     private var initialLoadingDone = false {
         didSet {
@@ -59,13 +62,9 @@ class AddRestaurantVC: UIViewController {
         setUpSearchTableView()
         setUpRequest()
         getInitialData()
+        previousSearchedRestaurants = Network.shared.previousSearchedRestaurants
     }
     
-    @objc private func startMapToSelectLocation() {
-        #warning("delete later")
-        let vc = SelectLocationVC()
-        self.present(vc, animated: true, completion: nil)
-    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -78,7 +77,7 @@ class AddRestaurantVC: UIViewController {
         headerView.constrain(.leading, to: self.view, .leading)
         headerView.constrain(.trailing, to: self.view, .trailing)
         headerView.leftButton.addTarget(self, action: #selector(remove), for: .touchUpInside)
-        headerView.rightButton.addTarget(self, action: #selector(startMapToSelectLocation), for: .touchUpInside)
+        
     }
     
     private func setUpSearchOptions() {
@@ -167,11 +166,8 @@ class AddRestaurantVC: UIViewController {
     
     @objc private func myPlacesButtonAction() {
         
-        self.showMessage("Message")
-        
-        print("My places button pressed")
         if let text = searchBar.text, text.count > 0 {
-            print("Need to do something to create the place: \(text)")
+            self.present(SelectLocationVC(owner: self), animated: true, completion: nil)
         } else {
             searchBar.shakeView()
         }
@@ -219,8 +215,14 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
         
         switch currentSelectedSegment {
         case .search:
-            tableView.restore()
-            return searchResults.count
+            
+            if previousRestaurantsOnSearch {
+                return previousSearchedRestaurants.count
+            } else {
+                return searchResults.count
+            }
+            
+            
         case .myPlaces:
             let count = myPlaces.count
             if count == 0 {
@@ -255,8 +257,15 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
         
         switch currentSelectedSegment {
         case .search:
-            let cellInfo = searchResults[indexPath.row]
-            cell.setUpWith(main: cellInfo.name, secondary: cellInfo.address)
+            
+            if previousRestaurantsOnSearch {
+                let restaurant = previousSearchedRestaurants[indexPath.row]
+                cell.setUpWith(restaurant: restaurant)
+            } else {
+                let cellInfo = searchResults[indexPath.row]
+                cell.setUpWith(main: cellInfo.name, secondary: cellInfo.address)
+            }
+            
         case .myPlaces:
             let establishment = myPlaces[indexPath.row]
             cell.setUpWith(establishment: establishment)
@@ -279,7 +288,14 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
         
         switch currentSelectedSegment {
         case .search:
-            cellInfo = searchResults[indexPath.row]
+            
+            if previousRestaurantsOnSearch {
+                restaurant = previousSearchedRestaurants[indexPath.row]
+            } else {
+                cellInfo = searchResults[indexPath.row]
+            }
+            
+            
         case .myPlaces:
             establishment = myPlaces[indexPath.row]
                     
@@ -302,7 +318,16 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
 // MARK: Search bar
 extension AddRestaurantVC: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        requestCompleter.queryFragment = searchText
+        
+        if currentSelectedSegment == .search {
+            if searchText == "" {
+                previousRestaurantsOnSearch = true
+                tableView.reloadData()
+            } else {
+                previousRestaurantsOnSearch = false
+                requestCompleter.queryFragment = searchText
+            }
+        }
     }
 }
 
@@ -312,5 +337,20 @@ extension AddRestaurantVC: MKLocalSearchCompleterDelegate {
         let results = completer.results.map({($0.title, $0.subtitle)})
         
         searchResults = results
+    }
+}
+
+// MARK: SelectLocationDelegate
+extension AddRestaurantVC: SelectLocationDelegate {
+    func locationSelected(coordinate: CLLocationCoordinate2D, fullAddress: String) {
+        
+        #warning("the establishment is not saved yet, if user exits from this screen then save it to db, otherwise wait for user to create a post with the establishment and save then")
+        
+        guard let searchBarText = searchBar.text else { return }
+        let newEstablishment = Establishment(name: searchBarText, isRestaurant: false)
+        newEstablishment.updatePropertiesWithFullAddress(address: fullAddress, coordinate: coordinate)
+        myPlaces.append(newEstablishment)
+        tableView.reloadData()
+        self.navigationController?.pushViewController(SubmitRestaurantVC(rawValues: nil, establishment: newEstablishment, restaurant: nil), animated: true)
     }
 }

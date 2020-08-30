@@ -16,6 +16,7 @@ class SubmitRestaurantVC: UIViewController {
     private var containerViewHeightAnchor: NSLayoutConstraint!
     private var containerViewBaseHeight: CGFloat!
     private var maxHeight: CGFloat!
+    private var selectedPhotos: [ImageSelectorVC.ImageInfo] = []
     
     private let nameLabel = UILabel()
     private let addressLabel = UILabel()
@@ -70,7 +71,7 @@ class SubmitRestaurantVC: UIViewController {
     }
     
     private func setUpNavigationBar() {
-        let submit = UIBarButtonItem(title: "Submit", style: .plain, target: self, action: nil)
+        let submit = UIBarButtonItem(title: "Submit", style: .plain, target: self, action: #selector(submitPressed))
         navigationItem.rightBarButtonItem = submit
     }
     
@@ -152,6 +153,10 @@ class SubmitRestaurantVC: UIViewController {
         vc.delegate = self
     }
     
+    @objc private func submitPressed() {
+        print("Need to submit")
+    }
+    
     private func findAssociatedRestaurant() {
         
         if let mode = mode, mode == .rawValue {
@@ -200,7 +205,8 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
     }
     
     func photosUpdated(to selectedPhotos: [ImageSelectorVC.ImageInfo]) {
-        print(selectedPhotos.map({$0.indexPath.row}))
-        #warning("need to use")
+        self.selectedPhotos = selectedPhotos
+        print(self.selectedPhotos.map({$0.indexPath.row}))
+        
     }
 }

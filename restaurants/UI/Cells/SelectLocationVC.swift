@@ -9,8 +9,15 @@
 import UIKit
 import MapKit
 
+
+protocol SelectLocationDelegate: class {
+    func locationSelected(coordinate: CLLocationCoordinate2D, fullAddress: String)
+}
+
 class SelectLocationVC: UIViewController {
     
+    private weak var delegate: SelectLocationDelegate?
+    private var locationHasBeenSelected = false
     private let topContainer = UIView()
     private let mapView = MKMapView()
     private let locationManager = CLLocationManager()
@@ -29,6 +36,15 @@ class SelectLocationVC: UIViewController {
         setUpTopPortionParts()
         setUpMap()
         setUpChildSearchHelper()
+    }
+    
+    init(owner: SelectLocationDelegate) {
+        self.delegate = owner
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
     }
     
     private func setUpTopPortion() {
@@ -64,6 +80,7 @@ class SelectLocationVC: UIViewController {
         searchBar.autocapitalizationType = .words
         
         headerStack.leftButton.addTarget(self, action: #selector(dismissController), for: .touchUpInside)
+        headerStack.rightButton.addTarget(self, action: #selector(doneWithSelectingLocation), for: .touchUpInside)
     }
     
     private func setUpMap() {
@@ -106,6 +123,18 @@ class SelectLocationVC: UIViewController {
     @objc private func dismissController() {
         self.dismiss(animated: true, completion: nil)
     }
+    
+    @objc private func doneWithSelectingLocation() {
+        
+        if let coordinate = previousLocation?.coordinate, let text = searchBar.text, text.count > 0, locationHasBeenSelected {
+            self.dismiss(animated: true) {
+                self.delegate?.locationSelected(coordinate: coordinate, fullAddress: text)
+            }
+        } else {
+            searchBar.shakeView()
+        }
+        
+    }
 }
 
 
@@ -113,7 +142,7 @@ class SelectLocationVC: UIViewController {
 extension SelectLocationVC: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        
+        locationHasBeenSelected = true
         let center = mapView.getCenterLocation()
         
         if let previous = previousLocation {
@@ -174,28 +203,21 @@ extension SelectLocationVC: MKMapViewDelegate {
 // MARK: Search Bar
 extension SelectLocationVC: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
         if searchText == "" {
             showPin = true
         } else {
             showPin = false
             mapPinImageView.isHidden = true
         }
-        
         searchTextDelegate?.textChanged(newString: searchText)
-        
     }
-    
-    
 }
 
 
 // MARK: Search complete delegate
 extension SelectLocationVC: SearchHelperComplete {
     func searchFound(search: MKLocalSearchCompletion) {
-        
-        
-        #warning("should be smaller, but freezes when it is resized")
+        locationHasBeenSelected = true
         let addressFound = "\(search.title) \(search.subtitle)"
         searchBar.endEditing(true)
         searchBar.text = addressFound

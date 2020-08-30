@@ -49,7 +49,8 @@ extension Network {
         let request = reqVisit(requestType: .userRestaurants, params: nil)
         request?.responseJSON(completionHandler: { (response) in
             guard let data = response.data, response.error == nil else {
-                fatalError()
+                completion(Result.failure(.other(alamoFireError: response.error)))
+                return
             }
             
             do {
@@ -69,6 +70,7 @@ extension Network {
         do {
             let data = try encoder.encode(establishment)
             let json = try? JSONSerialization.jsonObject(with: data, options: [])
+            
             if let establishmentJson = json as? [String:Any] {
                 let request = reqVisit(requestType: .createEstablishment, params: establishmentJson)
                 request?.responseJSON(completionHandler: { [weak self] (response) in
@@ -88,8 +90,6 @@ extension Network {
             } else {
                 completion(Result.failure(.encoding))
             }
-            
-            
         } catch {
             print(error)
         }
