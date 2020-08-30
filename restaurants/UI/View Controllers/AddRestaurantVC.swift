@@ -18,7 +18,10 @@ class AddRestaurantVC: UIViewController {
     private let requestCompleter = MKLocalSearchCompleter()
     private let reuseIdentifier = "cell-reuse-identifier"
     private var searchOptionsStack: UIStackView!
-    private let addNewPlaceButton = SizeChangeButton(sizeDifference: .inverse, restingColor: Colors.secondary, selectedColor: Colors.main)
+    private let searchNormalTitle = "Restaurant name"
+    private let myPlacesTitle = "New place name"
+    private let myPlacesButton = SizeChangeButton(sizeDifference: .medium, restingColor: Colors.secondary, selectedColor: Colors.main)
+    private var searchBarStack: UIStackView!
     
     private var initialLoadingDone = false {
         didSet {
@@ -80,7 +83,17 @@ class AddRestaurantVC: UIViewController {
     
     private func setUpSearchOptions() {
         
-        searchOptionsStack = UIStackView(arrangedSubviews: [segmentedControl, searchBar, addNewPlaceButton])
+        myPlacesButton.translatesAutoresizingMaskIntoConstraints = false
+        searchBarStack = UIStackView(arrangedSubviews: [searchBar, myPlacesButton])
+        myPlacesButton.setTitle("Add", for: .normal)
+        myPlacesButton.addTarget(self, action: #selector(myPlacesButtonAction), for: .touchUpInside)
+        myPlacesButton.titleLabel?.font = .mediumBold
+        myPlacesButton.isHidden = true
+        searchBarStack.axis = .horizontal
+        searchBarStack.distribution = .fill
+        searchBarStack.alignment = .fill
+        
+        searchOptionsStack = UIStackView(arrangedSubviews: [segmentedControl, searchBarStack])
         searchOptionsStack.translatesAutoresizingMaskIntoConstraints = false
         searchOptionsStack.axis = .vertical
         searchOptionsStack.spacing = 5.0
@@ -92,9 +105,8 @@ class AddRestaurantVC: UIViewController {
         searchOptionsStack.constrain(.trailing, to: self.view, .trailing, constant: 10.0)
         
         searchBar.translatesAutoresizingMaskIntoConstraints = false
-        searchBar.placeholder = "Restaurant name"
+        searchBar.placeholder = searchNormalTitle
         searchBar.delegate = self
-        
         
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
         for (i, segment) in Segment.allCases.enumerated() {
@@ -105,13 +117,6 @@ class AddRestaurantVC: UIViewController {
         segmentedControl.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.mediumBold], for: .normal)
         segmentedControl.addTarget(self, action: #selector(segmentedControlChanged), for: .valueChanged)
         
-        addNewPlaceButton.translatesAutoresizingMaskIntoConstraints = false
-        addNewPlaceButton.setTitle("+ New place", for: .normal)
-        addNewPlaceButton.backgroundColor = .secondarySystemBackground
-        addNewPlaceButton.layer.cornerRadius = 7.5
-        addNewPlaceButton.clipsToBounds = true
-        
-        addNewPlaceButton.isHidden = true
     }
     
     private func setUpSearchTableView() {
@@ -160,18 +165,48 @@ class AddRestaurantVC: UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
     
+    @objc private func myPlacesButtonAction() {
+        
+        self.showMessage("Message")
+        
+        print("My places button pressed")
+        if let text = searchBar.text, text.count > 0 {
+            print("Need to do something to create the place: \(text)")
+        } else {
+            searchBar.shakeView()
+        }
+    }
+    
     @objc private func segmentedControlChanged() {
-        tableView.reloadData()
+        
+        UIView.transition(with: tableView, duration: 0.4, options: .transitionCrossDissolve, animations: { self.tableView.reloadData()} , completion: nil)
         
         switch currentSelectedSegment {
-        case .search, .previous:
-            addNewPlaceButton.isHidden = true
-            searchBar.isHidden = false
+        case .search:
+            searchBar.placeholder = searchNormalTitle
+            searchBarStack.isHidden = false
+            searchBar.text = ""
+            searchBar.searchTextField.leftViewMode = .always
+            searchBar.searchTextField.leftView = UIImageView(image: .magnifyingGlassImage)
+            
+            
+            
+            myPlacesButton.isHidden = true
+            
+        case .previous:
+            searchBarStack.isHidden = true
         case .myPlaces:
-            addNewPlaceButton.isHidden = false
-            searchBar.isHidden = true
+            // Add a plus button to the search bar
+            searchBar.placeholder = myPlacesTitle
+            searchBarStack.isHidden = false
+            searchBar.text = ""
+            searchBar.searchTextField.leftView = UIImageView(image: .homeImage)
+            
+            
+            myPlacesButton.isHidden = false
         }
         
+        searchBar.searchTextField.leftView?.tintColor = .systemGray
     }
 }
 
@@ -235,6 +270,9 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+        
         var cellInfo: (String, String)?
         var establishment: Establishment?
         var restaurant: Restaurant?
@@ -244,8 +282,10 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
             cellInfo = searchResults[indexPath.row]
         case .myPlaces:
             establishment = myPlaces[indexPath.row]
+                    
         case .previous:
             establishment = previousRestaurants[indexPath.row]
+    
         }
         
         let submitRestaurantVC = SubmitRestaurantVC(rawValues: cellInfo, establishment: establishment, restaurant: restaurant)

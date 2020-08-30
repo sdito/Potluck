@@ -12,17 +12,21 @@ import Alamofire
 extension Network {
     
     private enum EstablishmentRequestType {
+        
         case userRestaurants
+        case createEstablishment
         
         var requestMethod: HTTPMethod {
             switch self {
             case .userRestaurants:
                 return .get
+            case .createEstablishment:
+                return .post
             }
         }
     }
     
-    private func reqVisit(requestType: EstablishmentRequestType) -> DataRequest? {
+    private func reqVisit(requestType: EstablishmentRequestType, params: Parameters?) -> DataRequest? {
         
         guard let token = Network.shared.account?.token else { return nil }
         
@@ -32,17 +36,17 @@ extension Network {
         
         var url: String {
             switch requestType {
-            case .userRestaurants:
+            case .userRestaurants, .createEstablishment:
                 return "restaurant"
             }
         }
         
-        let request = AF.request(Network.djangoURL + url, method: requestType.requestMethod, parameters: nil, headers: headers)
+        let request = AF.request(Network.djangoURL + url, method: requestType.requestMethod, parameters: params, headers: headers)
         return request
     }
     
     func getUserEstablishments(completion: @escaping (Result<[Establishment], Errors.VisitEstablishment>) -> Void) {
-        let request = reqVisit(requestType: .userRestaurants)
+        let request = reqVisit(requestType: .userRestaurants, params: nil)
         request?.responseJSON(completionHandler: { (response) in
             guard let data = response.data, response.error == nil else {
                 fatalError()
@@ -59,5 +63,38 @@ extension Network {
             
         })
     }
+    
+    func createEstablishmentOnly(from establishment: Establishment, completion: @escaping (Result<Establishment, Errors.VisitEstablishment>) -> Void) {
+        
+        do {
+            let data = try encoder.encode(establishment)
+            let json = try? JSONSerialization.jsonObject(with: data, options: [])
+            if let establishmentJson = json as? [String:Any] {
+                let request = reqVisit(requestType: .createEstablishment, params: establishmentJson)
+                request?.responseJSON(completionHandler: { [weak self] (response) in
+                    guard let self = self else { return }
+                    guard let dataFound = response.data, response.error == nil else {
+                        fatalError()
+                    }
+                    
+                    do {
+                        let establishment = try self.decoder.decode(Establishment.self, from: dataFound)
+                        completion(Result.success(establishment))
+                    } catch {
+                        print(error)
+                    }
+                    
+                })
+            } else {
+                completion(Result.failure(.encoding))
+            }
+            
+            
+        } catch {
+            print(error)
+        }
+        
+    }
+    
     
 }

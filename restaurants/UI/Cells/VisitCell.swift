@@ -51,8 +51,6 @@ class VisitCell: UITableViewCell {
         visitImageViewHeightConstraint?.isActive = true
         visitImageView.contentMode = .scaleAspectFill
         
-        #warning("get the spot thing for the scrolling stack view")
-        
         let secondView = UIView()
         secondView.translatesAutoresizingMaskIntoConstraints = false
         scrollingStackView.stackView.addArrangedSubview(secondView)
@@ -94,7 +92,6 @@ class VisitCell: UITableViewCell {
         imageView?.image = nil
         commentLabel.text = visit.comment
         restaurantNameLabel.text = visit.restaurantName
-        
         scrollingStackView.resetElements()
     }
     

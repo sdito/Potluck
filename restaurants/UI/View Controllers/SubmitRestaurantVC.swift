@@ -157,6 +157,7 @@ class SubmitRestaurantVC: UIViewController {
         if let mode = mode, mode == .rawValue {
             Network.shared.getRestaurantFromPartialData(name: nameRawValue!, fullAddress: addressRawValue!) { (result) in
                 print(result)
+                #warning("need to actually use")
             }
         }
         

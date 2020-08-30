@@ -19,13 +19,12 @@ extension UIViewController {
         self.present(vc, animated: true, completion: nil)
     }
     
-    func showMessage(_ string: String, lastsFor: Double = 3.0) {
-        #warning("need to complete")
+    func showMessage(_ string: String, lastsFor: Double = 3.0, on presentingVC: UIViewController? = nil) {
         let upAndDownDuration = 0.125
         let duration = (upAndDownDuration * 2) + lastsFor
         let beginningScale: CGFloat = 0.3
 
-        let vc = UIApplication.shared.windows.first!.rootViewController!
+        let vc = presentingVC ?? UIApplication.shared.windows.first!.rootViewController!
         let label = PaddingLabel(top: 10.0, bottom: 10.0, left: 15.0, right: 15.0)
         label.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.8)
         label.translatesAutoresizingMaskIntoConstraints = false

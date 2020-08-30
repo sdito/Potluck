@@ -247,7 +247,7 @@ class RestaurantDetailVC: UIViewController {
         }
         
         Network.shared.setFullRestaurantInfo(restaurant: restaurant) { [weak self] (complete) in
-            #warning("need to complete")
+            #warning("need to complete using")
             guard let self = self else { return }
             if complete {
                 if let newDescription = self.restaurant.openNowDescription {

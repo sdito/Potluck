@@ -43,6 +43,7 @@ struct Errors {
     
     enum VisitEstablishment: Error {
         case noAccount
+        case encoding
     }
     
 }

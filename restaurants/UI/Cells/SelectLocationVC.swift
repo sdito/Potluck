@@ -17,6 +17,10 @@ class SelectLocationVC: UIViewController {
     private let searchBar = UISearchBar()
     private let geoCoder = CLGeocoder()
     private weak var searchTextDelegate: SearchHelperDelegate?
+    private let mapPinImageView = UIImageView(image: .mapPinImage)
+    private var previousLocation: CLLocation?
+    private var showPin = false
+    private var allowPin = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,14 +60,10 @@ class SelectLocationVC: UIViewController {
         
         searchBar.delegate = self
         searchBar.tintColor = Colors.main
-        searchBar.placeholder = "Enter address"
+        searchBar.placeholder = "Search address or drag to location"
         searchBar.autocapitalizationType = .words
         
-//        searchBar.searchTextField.adjustsFontSizeToFitWidth = true
-//        searchBar.searchTextField.minimumFontSize = 10.0
-        
         headerStack.leftButton.addTarget(self, action: #selector(dismissController), for: .touchUpInside)
-        
     }
     
     private func setUpMap() {
@@ -74,7 +74,18 @@ class SelectLocationVC: UIViewController {
         mapView.constrain(.leading, to: self.view, .leading)
         mapView.constrain(.trailing, to: self.view, .trailing)
         mapView.constrain(.bottom, to: self.view, .bottom)
-        mapView.centerOnLocation(locationManager: locationManager, distanceAway: 15000)
+        mapView.centerOnLocation(locationManager: locationManager, distanceAway: 15000, animated: false)
+        
+        mapPinImageView.translatesAutoresizingMaskIntoConstraints = false
+        mapView.addSubview(mapPinImageView)
+        mapPinImageView.tintColor = Colors.main
+        mapPinImageView.centerXAnchor.constraint(equalTo: mapView.centerXAnchor).isActive = true
+        mapPinImageView.centerYAnchor.constraint(equalTo: mapView.centerYAnchor).isActive = true
+        mapPinImageView.isHidden = true
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.showPin = true
+        }
     }
     
     private func setUpChildSearchHelper() {
@@ -100,7 +111,45 @@ class SelectLocationVC: UIViewController {
 
 // MARK: Map view
 extension SelectLocationVC: MKMapViewDelegate {
+    
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        
+        let center = mapView.getCenterLocation()
+        
+        if let previous = previousLocation {
+            guard center.distance(from: previous) > 35 else { return }
+        }
+        
+        previousLocation = center
+        
+        if showPin {
+            
+            searchBar.endEditing(true)
+            
+            if mapPinImageView.isHidden {
+                mapPinImageView.isHidden = false
+            }
+            
+            if mapView.annotations.count > 0 {
+                mapView.removeAnnotations(mapView.annotations)
+            }
+            
+            geoCoder.reverseGeocodeLocation(center) { [weak self] (placeMarks, error) in
+                guard let self = self else { return }
+                guard let placeMark = placeMarks?.first else {
+                    print(error.debugDescription)
+                    return
+                }
+                
+                if let name = placeMark.name, let city = placeMark.locality, let zipCode = placeMark.postalCode, let state = placeMark.administrativeArea, let country = placeMark.country {
+                    self.searchBar.text = "\(name), \(city) \(zipCode), \(state), \(country)"
+                }
+            }
+        }
+    }
+    
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        
         guard annotation is MKPointAnnotation else { return nil }
 
         let identifier = "Annotation"
@@ -112,6 +161,10 @@ extension SelectLocationVC: MKMapViewDelegate {
         } else {
             annotationView!.annotation = annotation
         }
+        
+        DispatchQueue.main.asyncAfter(wallDeadline: .now() + 0.4) {
+            self.showPin = true
+        }
 
         return annotationView
     }
@@ -121,14 +174,26 @@ extension SelectLocationVC: MKMapViewDelegate {
 // MARK: Search Bar
 extension SelectLocationVC: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        if searchText == "" {
+            showPin = true
+        } else {
+            showPin = false
+            mapPinImageView.isHidden = true
+        }
+        
         searchTextDelegate?.textChanged(newString: searchText)
+        
     }
+    
+    
 }
 
 
 // MARK: Search complete delegate
 extension SelectLocationVC: SearchHelperComplete {
     func searchFound(search: MKLocalSearchCompletion) {
+        
         
         #warning("should be smaller, but freezes when it is resized")
         let addressFound = "\(search.title) \(search.subtitle)"

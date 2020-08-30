@@ -99,7 +99,7 @@ class RestaurantListVC: UIViewController {
         filterButton.backgroundColor = restaurantSearchBar.backgroundColor
         filterButton.layer.cornerRadius = 3.0
         filterButton.tintColor = .secondaryLabel
-        #warning("need to test overlaying a number over the button, to show that there are current filters")
+        
         updateNotificationCount()
         filterButton.addTarget(self, action: #selector(showFilterController), for: .touchUpInside)
         

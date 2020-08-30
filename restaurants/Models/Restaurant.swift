@@ -364,7 +364,6 @@ extension Restaurant {
                     if let timeFound = timeFound {
                         return "Opens at \(timeFound)"
                     } else {
-                        #warning("technically could be closed the next day")
                         return "Open tomorrow"
                     }
                     

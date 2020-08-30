@@ -29,6 +29,11 @@ class Network {
         return df
     }()
     
+    lazy var encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        return encoder
+    }()
+    
     lazy var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .custom({ (d) -> Date in
@@ -196,7 +201,7 @@ class Network {
                 }
                 
                 let sortedRestaurants = restaurants.sorted { (one, two) -> Bool in
-                    one.distance ?? 0.0 < two.distance ?? 0.0
+                    one.distance < two.distance 
                 }
                 
                 restaurantsReturned(Result.success(sortedRestaurants))
@@ -208,7 +213,6 @@ class Network {
     }
     
     func setFullRestaurantInfo(restaurant: Restaurant, complete: @escaping (Bool) -> Void) {
-        #warning("need to complete")
         let request = reqYelp(restaurant: restaurant, requestType: .id)
         request.responseJSON { (response) in
             switch response.result {
@@ -256,8 +260,6 @@ class Network {
         }
     }
     
-    
-    #warning("not using yet")
     func getRestaurantFromPartialData(name: String, fullAddress: String, restaurantFound: @escaping (Result<[Restaurant], Errors.YelpAddress>) -> Void) {
         print("getRestaurantFromPartialData is being called")
         var (potentialParams, missing) = extractAddress(address: fullAddress)
@@ -271,7 +273,7 @@ class Network {
                         print(restaurantsJson)
                     }
                 case .failure(let error):
-                    print(error.errorDescription)
+                    print(error.errorDescription ?? "Error slfdk")
                 }
             }
         } else {

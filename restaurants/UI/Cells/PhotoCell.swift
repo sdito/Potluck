@@ -51,9 +51,6 @@ class PhotoCell: UICollectionViewCell {
     }
     
     func updateForShowingSelection(selected: Bool, animated: Bool) {
-        
-        #warning("left off here")
-        
         selectedImage.appIsHiddenAnimated(isHidden: !selected, animated: animated)
         
     }

@@ -10,6 +10,12 @@ import MapKit
 
 extension MKMapView {
     
+    func getCenterLocation() -> CLLocation {
+        let latitude = self.centerCoordinate.latitude
+        let longitude = self.centerCoordinate.longitude
+        return CLLocation(latitude: latitude, longitude: longitude)
+    }
+    
     func setRegionAroundAnnotation(annotation: MKPointAnnotation, distance: Int = 7500, animated: Bool = false) {
         let meterSize = CLLocationDistance(exactly: distance)!
         let region = MKCoordinateRegion(center: annotation.coordinate, latitudinalMeters: meterSize, longitudinalMeters: meterSize)
@@ -85,11 +91,10 @@ extension MKMapView {
         }
     }
     
-    func centerOnLocation(locationManager: CLLocationManager, distanceAway: CLLocationDistance = 7000) {
+    func centerOnLocation(locationManager: CLLocationManager, distanceAway: CLLocationDistance = 7000, animated: Bool = true) {
         let location = locationManager.location?.coordinate ?? .simulatorDefault
         let region = MKCoordinateRegion.init(center: location, latitudinalMeters: distanceAway, longitudinalMeters: distanceAway)
-        self.setRegion(region, animated: true)
-        
+        self.setRegion(region, animated: animated)        
     }
     
     func deselectAllAnnotations() {

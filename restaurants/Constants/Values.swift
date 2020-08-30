@@ -47,7 +47,8 @@ extension UIImage {
     static let checkImage = UIImage(systemName: "checkmark")!
     static let xImage = UIImage(systemName: "xmark")!
     static let checkmarkCircleImage = UIImage(systemName: "checkmark.circle.fill")!
-    
+    static let mapPinImage = UIImage(systemName: "mappin", withConfiguration: UIImage.SymbolConfiguration(scale: .large))!
+    static let homeImage = UIImage(systemName: "house")!
 }
 
 

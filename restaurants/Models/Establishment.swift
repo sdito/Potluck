@@ -23,6 +23,7 @@ class Establishment: Codable {
     var zipCode: String?
     var state: String?
     var country: String?
+    var firstVisited: Date?
     var visits: [Visit]?
     
     var displayAddress: String? {
@@ -57,6 +58,11 @@ class Establishment: Codable {
         }
     }
     
+    init(name: String, isRestaurant: Bool) {
+        self.name = name
+        self.isRestaurant = isRestaurant
+    }
+    
     enum CodingKeys: String, CodingKey {
         case name
         case isRestaurant = "is_restaurant"
@@ -71,6 +77,7 @@ class Establishment: Codable {
         case zipCode = "zip_code"
         case state
         case country
+        case firstVisited = "first_visited"
     }
     
     class EstablishmentDecoder: Decodable {
