@@ -81,7 +81,7 @@ class RestaurantCell: UITableViewCell {
         let mapButton = UIButton()
         mapButton.translatesAutoresizingMaskIntoConstraints = false
         let config = UIImage.SymbolConfiguration(scale: .large)
-        let mapImage = UIImage(systemName: "map", withConfiguration: config)!
+        let mapImage = UIImage.mapImage.withConfiguration(config)
         mapButton.setImage(mapImage, for: .normal)
         mapButton.tintColor = Colors.main
         mapButton.addTarget(self, action: #selector(mapButtonSelected), for: .touchUpInside)

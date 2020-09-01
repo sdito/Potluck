@@ -30,6 +30,10 @@ struct Review {
         case timeCreated = "time_created"
         case url
     }
+    
+    struct ReviewDecoder: Decodable {
+        var reviews: [Review]?
+    }
 }
 
 

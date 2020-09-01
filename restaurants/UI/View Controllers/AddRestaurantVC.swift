@@ -308,7 +308,8 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
         self.navigationController?.pushViewController(submitRestaurantVC, animated: true)
     }
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         if searchBar.isFirstResponder {
             searchBar.endEditing(true)
         }

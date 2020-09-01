@@ -33,7 +33,7 @@ extension String {
 
 extension UIImage {
     static let locationImage = UIImage(systemName: "location.fill")!.withTintColor(Colors.locationColor)
-    static let mapImage = UIImage(systemName: "map.fill")!.withTintColor(Colors.locationColor)
+    static let mapImage = UIImage(systemName: "map")!.withTintColor(Colors.locationColor)
     static let clearImage = UIImage(systemName: "xmark.circle")!.withTintColor(Colors.main)
     static let bookImage = UIImage(systemName: "book")!
     static let magnifyingGlassImage = UIImage(systemName: "magnifyingglass")
@@ -49,6 +49,7 @@ extension UIImage {
     static let checkmarkCircleImage = UIImage(systemName: "checkmark.circle.fill")!
     static let mapPinImage = UIImage(systemName: "mappin", withConfiguration: UIImage.SymbolConfiguration(scale: .large))!
     static let homeImage = UIImage(systemName: "house")!
+    static let starCircleImage = UIImage(systemName: "star.circle")!
 }
 
 

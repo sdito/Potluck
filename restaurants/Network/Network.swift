@@ -132,8 +132,6 @@ class Network {
     
     func getRestaurants(restaurantSearch: RestaurantSearch, filters: [String:Any], restaurantsReturned: @escaping (Result<[Restaurant], Errors.Yelp>) -> Void) {
         
-        #warning("need to actually implement filters")
-        
         var params: [String:Any] = [:]
         
         if let coordinate = restaurantSearch.coordinate {
@@ -186,8 +184,6 @@ class Network {
                 restaurantsReturned(Result.failure(.other))
                 return
             }
-            
-            
             do {
                 let restaurantsDecoded = try self.decoder.decode(Restaurant.RestaurantDecoder.self, from: data)
                 guard let restaurants = restaurantsDecoded.businesses else {
@@ -203,8 +199,6 @@ class Network {
             } catch {
                 restaurantsReturned(Result.failure(.other))
             }
-            
-            
         }
     }
     
@@ -233,26 +227,24 @@ class Network {
         
         let request = reqYelp(restaurant: restaurant, requestType: .review)
         request.responseJSON { (response) in
-            switch response.result {
-            case .success(let jsonAny):
-                var reviews: [Review] = []
-                if let json = jsonAny as? [String:Any], let reviewsJson = json["reviews"] as? [[String:Any]] {
-                    for r in reviewsJson {
-                        let data = try? JSONSerialization.data(withJSONObject: r, options: [])
-                        if let d = data, let review = try? JSONDecoder().decode(Review.self, from: d) {
-                            reviews.append(review)
-                        } else {
-                            print("Not going through if let for review decoding")
-                            print(r)
-                        }
-                    }
+            
+            guard let data = response.data, response.error == nil else {
+                complete(false)
+                return
+            }
+            
+            do {
+                let reviewsDecoded = try JSONDecoder().decode(Review.ReviewDecoder.self, from: data)
+                if let reviews = reviewsDecoded.reviews {
+                    restaurant.reviews = reviews
+                    complete(true)
+                } else {
+                    complete(false)
                 }
-                // Have the reviews here
-                restaurant.reviews = reviews
-                complete(true)
-            case .failure(let error):
-                print("Error: setRestaurantReviewInfo")
+                
+            } catch {
                 print(error)
+                complete(false)
             }
         }
     }
@@ -262,32 +254,26 @@ class Network {
         var (potentialParams, missing) = extractAddress(address: fullAddress)
         if missing.count == 0 {
             potentialParams["name"] = name
+            
             let request = reqYelp(params: potentialParams, requestType: .match)
             request.responseJSON { (response) in
-                switch response.result {
-                case .success(_):
-                    
-                    guard let data = response.data else {
+                
+                
+                guard let data = response.data, response.error == nil else {
+                    restaurantFound(Result.failure(.unableToFindYelpRestaurant))
+                    return
+                }
+                
+                do {
+                    let restaurants = try self.decoder.decode(Restaurant.RestaurantDecoder.self, from: data)
+                    if let restaurants = restaurants.businesses, let first = restaurants.first {
+                        restaurantFound(Result.success(first))
+                    } else {
                         restaurantFound(Result.failure(.unableToFindYelpRestaurant))
-                        return
                     }
-                    
-                    do {
-                        let restaurants = try self.decoder.decode(Restaurant.RestaurantDecoder.self, from: data)
-                        if let restaurants = restaurants.businesses, let first = restaurants.first {
-                            print("Restaurant found")
-                            for _ in 1...10 {
-                                print(first.name, first.address)
-                            }
-                        }
-                    } catch {
-                        for _ in 1...10 {
-                            print(error)
-                        }
-                    }
-                    
-                case .failure(let error):
-                    print(error.errorDescription ?? "Error slfdk")
+                } catch {
+                    print(error)
+                    restaurantFound(Result.failure(.unableToFindYelpRestaurant))
                 }
             }
         } else {

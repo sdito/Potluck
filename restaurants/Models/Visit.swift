@@ -11,7 +11,7 @@ import Foundation
 
 class Visit: Codable {
     
-    var restaurantID: Int
+    var djangoRestaurantID: Int
     var restaurantName: String
     var mainImage: String
     var comment: String
@@ -30,7 +30,7 @@ class Visit: Codable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case restaurantID = "restaurant"
+        case djangoRestaurantID = "restaurant"
         case restaurantName = "restaurant_name"
         case mainImage = "main_image"
         case comment

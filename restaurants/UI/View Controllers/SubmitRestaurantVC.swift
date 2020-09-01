@@ -14,19 +14,28 @@ class SubmitRestaurantVC: UIViewController {
     private var allowChanges = true
     private var previousScrollOffset: CGFloat = .zero
     private var containerViewHeightAnchor: NSLayoutConstraint!
+    
     private var containerViewBaseHeight: CGFloat!
-    private var maxHeight: CGFloat!
+    private var containerViewMaxHeight: CGFloat!
+    private var mapHeightInitial: CGFloat?
+    private var mapHeightMinimum: CGFloat?
+    
     private var selectedPhotos: [ImageSelectorVC.ImageInfo] = []
     
+    private var imageSelector: ImageSelectorVC!
     private let nameLabel = UILabel()
     private let addressLabel = UILabel()
     private let containerView = UIView()
+    private let headerStackView = UIStackView()
+    private let showMapPopUpButton = UIButton()
+    private let textView = PlaceholderTextView(placeholder: "Add comment. Type of meal, how the experience was, who you went with, etc. (Optional)", font: UIFont.systemFont(ofSize: UIFont.systemFontSize))
     
     private var nameRawValue: String?
     private var addressRawValue: String?
     private var establishment: Establishment?
     private var restaurant: Restaurant?
     private var mode: Mode?
+    private var map: MapLocationView?
     
     init(rawValues: (name: String, address: String)?, establishment: Establishment?, restaurant: Restaurant?) {
         self.nameRawValue = rawValues?.name
@@ -57,8 +66,10 @@ class SubmitRestaurantVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
+        setUpHeaderStackView()
         setUpLabels()
         setUpMap()
+        setUpCommentTextView()
         setUpChildView()
         setUpImageSelector()
         findAssociatedRestaurant()
@@ -70,30 +81,47 @@ class SubmitRestaurantVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        let ratio: CGFloat = 0.85
+        mapHeightInitial = self.map?.bounds.height ?? 0
+        mapHeightMinimum = mapHeightInitial! * (1-ratio)
+        self.containerViewMaxHeight = self.containerViewBaseHeight + (mapHeightInitial! * ratio)
+    }
+    
     private func setUpNavigationBar() {
         let submit = UIBarButtonItem(title: "Submit", style: .plain, target: self, action: #selector(submitPressed))
         navigationItem.rightBarButtonItem = submit
     }
     
+    private func setUpHeaderStackView() {
+        headerStackView.translatesAutoresizingMaskIntoConstraints = false
+        headerStackView.axis = .vertical
+        headerStackView.distribution = .fill
+        headerStackView.alignment = .leading
+        headerStackView.spacing = 3.0
+        self.view.addSubview(headerStackView)
+        headerStackView.constrain(.top, to: self.view, .top)
+        headerStackView.constrain(.leading, to: self.view, .leading, constant: 10.0)
+        headerStackView.constrain(.trailing, to: self.view, .trailing, constant: 10.0)
+    }
+    
     private func setUpLabels() {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.numberOfLines = 0
-        nameLabel.text = nameRawValue ?? restaurant?.name ?? establishment?.name ?? "Restaurant name"
-        nameLabel.font = .createdTitle
-        self.view.addSubview(nameLabel)
-        nameLabel.constrain(.leading, to: view, .leading, constant: 10.0)
-        nameLabel.constrain(.trailing, to: view, .trailing, constant: 10.0)
-        nameLabel.constrain(.top, to: view, .top, constant: 10.0)
+        headerStackView.addArrangedSubview(nameLabel)
         
-        addressLabel.translatesAutoresizingMaskIntoConstraints = false
-        addressLabel.numberOfLines = 0
-        addressLabel.text = addressRawValue ?? establishment?.displayAddress ?? restaurant?.address.displayAddress?.joined(separator: ", ") ?? "No address"
-        addressLabel.font = .largerBold
-        addressLabel.textColor = .secondaryLabel
-        self.view.addSubview(addressLabel)
-        addressLabel.constrain(.top, to: nameLabel, .bottom, constant: 5.0)
-        addressLabel.constrain(.leading, to: view, .leading, constant: 10.0)
-        addressLabel.constrain(.trailing, to: view, .trailing, constant: 10.0)
+        let restaurantTitle = nameRawValue ?? restaurant?.name ?? establishment?.name ?? "Restaurant name"
+        let secondaryTitle = addressRawValue ?? establishment?.displayAddress ?? restaurant?.address.displayAddress?.joined(separator: ", ") ?? "No address"
+        let mutableTitle = NSMutableAttributedString()
+        let restaurantAttributed = NSAttributedString(string: restaurantTitle, attributes: [NSAttributedString.Key.font: UIFont.createdTitle, NSAttributedString.Key.foregroundColor: UIColor.label])
+        let middleAttributed = NSAttributedString(string: " · ", attributes: [NSAttributedString.Key.font: UIFont.createdTitle, NSAttributedString.Key.foregroundColor: UIColor.tertiaryLabel])
+        let secondaryAttributed = NSAttributedString(string: secondaryTitle, attributes: [NSAttributedString.Key.font: UIFont.largerBold, NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
+        
+        mutableTitle.append(restaurantAttributed)
+        mutableTitle.append(middleAttributed)
+        mutableTitle.append(secondaryAttributed)
+        nameLabel.attributedText = mutableTitle
     }
     
     private func setUpMap() {
@@ -121,48 +149,114 @@ class SubmitRestaurantVC: UIViewController {
             coordinate = restaurant.coordinate
         }
         
-        let map = MapLocationView(locationTitle: name, coordinate: coordinate, address: address)
-        self.view.addSubview(map)
-        map.constrain(.top, to: addressLabel, .bottom, constant: 10.0)
-        map.constrain(.leading, to: self.view, .leading)
-        map.constrain(.trailing, to: self.view, .trailing)
-        map.heightAnchor.constraint(equalToConstant: 150.0).isActive = true
+        map = MapLocationView(locationTitle: name, coordinate: coordinate, address: address)
+        headerStackView.addArrangedSubview(map!)
+        map?.widthAnchor.constraint(equalTo: headerStackView.widthAnchor).isActive = true
+        //map!.heightAnchor.constraint(equalToConstant: 150.0).isActive = true
+        map?.layer.cornerRadius = 10.0
+        map?.clipsToBounds = true
+        
+        
+        showMapPopUpButton.translatesAutoresizingMaskIntoConstraints = false
+        showMapPopUpButton.setImage(.mapImage, for: .normal)
+        map!.addSubview(showMapPopUpButton)
+        showMapPopUpButton.centerXAnchor.constraint(equalTo: map!.centerXAnchor).isActive = true
+        showMapPopUpButton.constrain(.top, to: map!, .top)
+        showMapPopUpButton.tintColor = Colors.locationColor
+        showMapPopUpButton.alpha = 0.0
+        showMapPopUpButton.addTarget(self, action: #selector(showMapOnPopUp), for: .touchUpInside)
+    }
+    
+    private func setUpCommentTextView() {
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        headerStackView.addArrangedSubview(textView)
+        textView.heightAnchor.constraint(equalToConstant: 100.0).isActive = true
+        textView.widthAnchor.constraint(equalTo: headerStackView.widthAnchor).isActive = true
+        textView.backgroundColor = .secondarySystemBackground
+        textView.layer.cornerRadius = 10.0
+        textView.clipsToBounds = true
+        
+        
     }
     
     private func setUpChildView() {
         containerView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(containerView)
-        containerViewBaseHeight = self.view.bounds.height * 0.45
-        maxHeight = self.view.bounds.height * 0.75
+        
+        containerViewBaseHeight = self.view.bounds.height * 0.40
+        
         containerViewHeightAnchor = containerView.heightAnchor.constraint(equalToConstant: containerViewBaseHeight!)
         containerViewHeightAnchor?.isActive = true
         containerView.constrain(.bottom, to: self.view, .bottom)
         containerView.constrain(.leading, to: self.view, .leading)
         containerView.constrain(.trailing, to: self.view, .trailing)
+        containerView.constrain(.top, to: headerStackView, .bottom, constant: 5.0)
         containerView.backgroundColor = .tertiarySystemBackground
-        
+        containerViewMaxHeight = containerViewBaseHeight + 50.0
     }
     
     private func setUpImageSelector() {
-        let vc = ImageSelectorVC()
-        vc.view.translatesAutoresizingMaskIntoConstraints = false
-        addChild(vc)
-        containerView.addSubview(vc.view)
-        vc.view.constrainSides(to: containerView)
-        vc.didMove(toParent: self)
-        vc.delegate = self
+        imageSelector = ImageSelectorVC()
+        imageSelector.view.translatesAutoresizingMaskIntoConstraints = false
+        addChild(imageSelector)
+        containerView.addSubview(imageSelector.view)
+        imageSelector.view.constrainSides(to: containerView)
+        imageSelector.didMove(toParent: self)
+        imageSelector.delegate = self
     }
     
     @objc private func submitPressed() {
-        print("Need to submit")
+        
+        guard let mode = mode else {
+            fatalError()
+        }
+        
+        if selectedPhotos.count > 0 {
+            switch mode {
+            case .rawValue:
+                print("Raw value")
+                // might have a restaurant from the yelp search (self.restaurant)
+            case .establishment:
+                print("Establishment")
+                // either previously visited, or user just added (check for django ID)
+                Network.shared.userPost(establishment: establishment!, mainImage: selectedPhotos[0].maxImage ?? selectedPhotos[0].image) { (result) in
+                    
+                }
+            case .restaurant:
+                print("Restaurant")
+                // brand new place
+            }
+        } else {
+            imageSelector.noPhotosSelectedAlert()
+            print("No photos selected")
+        }
+    }
+    
+    @objc private func showMapOnPopUp() {
+        let mapLocationView = MapLocationView(locationTitle: nameRawValue ?? restaurant?.name ?? establishment?.name ?? "Restaurant",
+                                              coordinate: restaurant?.coordinate ?? establishment?.coordinate ?? nil,
+                                              address: addressRawValue ?? restaurant?.address.displayAddress?.joined(separator: ", ") ?? establishment?.displayAddress,
+                                              userInteractionEnabled: true,
+                                              wantedDistance: 1000)
+        mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
+        mapLocationView.layer.cornerRadius = 25.0
+        mapLocationView.clipsToBounds = true
+        let newVc = ShowViewVC(newView: mapLocationView)
+        newVc.modalPresentationStyle = .overFullScreen
+        self.navigationController?.present(newVc, animated: false, completion: nil)
     }
     
     private func findAssociatedRestaurant() {
         
         if let mode = mode, mode == .rawValue {
-            Network.shared.getRestaurantFromPartialData(name: nameRawValue!, fullAddress: addressRawValue!) { (result) in
-                print(result)
-                #warning("need to actually use")
+            Network.shared.getRestaurantFromPartialData(name: nameRawValue!, fullAddress: addressRawValue!) { [weak self] (result) in
+                guard let self = self else { return }
+                switch result {
+                case .success(let restaurant):
+                    self.restaurant = restaurant
+                case .failure(let error):
+                    print(error)
+                }
             }
         }
         
@@ -182,7 +276,7 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
             let isScrollingUp = scrollDiff < 0 && scrollView.contentOffset.y < absoluteBottom
             var newHeight = self.containerViewHeightAnchor.constant
             if isScrollingDown {
-                newHeight = min(self.maxHeight, self.containerViewHeightAnchor.constant + abs(scrollDiff))
+                newHeight = min(self.containerViewMaxHeight, self.containerViewHeightAnchor.constant + abs(scrollDiff))
             } else if isScrollingUp {
                 newHeight = max(self.containerViewBaseHeight, self.containerViewHeightAnchor.constant - abs(scrollDiff))
             }
@@ -201,12 +295,33 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
                 allowChanges = true
             }
             previousScrollOffset = scrollView.contentOffset.y
+            
+            if let mapHeight = map?.bounds.height, let minimum = mapHeightMinimum, let initial = mapHeightInitial {
+                let percentAbove = (mapHeight - minimum) / (initial - minimum)
+                if percentAbove < 0.1 {
+                    map?.setAlpha(0.0)
+                } else if percentAbove > 0.95 {
+                    map?.setAlpha(1.0)
+                } else {
+                    map?.setAlpha(percentAbove)
+                }
+                
+                let startingDistance = initial / 2.0
+                let mapPercentAbove = (mapHeight - minimum) / (startingDistance - minimum)
+                let mapPercentAlpha = 1 - mapPercentAbove
+                
+                if mapPercentAlpha < 0.05 {
+                    showMapPopUpButton.alpha = 0.0
+                } else if mapPercentAlpha > 0.95 {
+                    showMapPopUpButton.alpha = 1.0
+                } else {
+                    showMapPopUpButton.alpha = mapPercentAlpha
+                }
+            }
         }
     }
     
     func photosUpdated(to selectedPhotos: [ImageSelectorVC.ImageInfo]) {
         self.selectedPhotos = selectedPhotos
-        print(self.selectedPhotos.map({$0.indexPath.row}))
-        
     }
 }

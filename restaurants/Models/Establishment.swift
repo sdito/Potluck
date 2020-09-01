@@ -10,8 +10,10 @@ import Foundation
 import CoreLocation
 
 class Establishment: Codable {
+    
     var name: String
     var isRestaurant: Bool
+    var djangoID: Int?
     var longitude: Double?
     var latitude: Double?
     var yelpID: String?
@@ -66,6 +68,7 @@ class Establishment: Codable {
     enum CodingKeys: String, CodingKey {
         case name
         case isRestaurant = "is_restaurant"
+        case djangoID = "id"
         case longitude
         case latitude
         case yelpID = "yelp_id"

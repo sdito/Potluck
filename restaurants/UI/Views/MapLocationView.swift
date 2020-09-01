@@ -16,13 +16,19 @@ class MapLocationView: UIView {
     private var locationTitle: String?
     private var coordinate: CLLocationCoordinate2D?
     private var address: String?
+    private var wantedDistance = 7500
     
-    init(locationTitle: String, coordinate: CLLocationCoordinate2D?, address: String?) {
+    var mapAlpha: CGFloat {
+        return mapView.alpha
+    }
+    
+    init(locationTitle: String, coordinate: CLLocationCoordinate2D?, address: String?, userInteractionEnabled: Bool = false, wantedDistance: Int = 7500) {
         super.init(frame: .zero)
         self.coordinate = coordinate
         self.address = address
         self.locationTitle = locationTitle
-        setUpMap()
+        self.wantedDistance = wantedDistance
+        setUpMap(userInteractionEnabled: userInteractionEnabled)
         setUpLocation()
     }
     
@@ -30,14 +36,20 @@ class MapLocationView: UIView {
         super.init(coder: coder)
     }
     
-    private func setUpMap() {
+    private func setUpMap(userInteractionEnabled: Bool) {
         self.translatesAutoresizingMaskIntoConstraints = false
         mapView.translatesAutoresizingMaskIntoConstraints = false
         mapView.showsUserLocation = false
-        mapView.isUserInteractionEnabled = false
+        mapView.isUserInteractionEnabled = userInteractionEnabled
         mapView.delegate = self
         self.addSubview(mapView)
         mapView.constrainSides(to: self)
+        mapView.pointOfInterestFilter = .init(excluding: [.restaurant, .cafe])
+        
+    }
+    
+    func setAlpha(_ value: CGFloat) {
+        self.mapView.alpha = value
     }
     
     private func setUpLocation() {
@@ -49,7 +61,7 @@ class MapLocationView: UIView {
             
             annotation.coordinate = coordinate
             mapView.addAnnotation(annotation)
-            mapView.setRegionAroundAnnotation(annotation: annotation)
+            self.mapView.setRegionAroundAnnotation(annotation: annotation, distance: self.wantedDistance)
         } else if let address = address {
             let geoCoder = CLGeocoder()
             geoCoder.geocodeAddressString(address) { [weak self] (placeMarks, error) in
@@ -66,7 +78,7 @@ class MapLocationView: UIView {
                 
                 annotation.coordinate = location
                 self.mapView.addAnnotation(annotation)
-                self.mapView.setRegionAroundAnnotation(annotation: annotation)
+                self.mapView.setRegionAroundAnnotation(annotation: annotation, distance: self.wantedDistance)
             }
         } else {
             fatalError("Need to have either a coordinate or an address")

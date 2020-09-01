@@ -24,9 +24,19 @@ class ImageSelectorVC: UIViewController {
     private var selectedPhotos: [ImageInfo] = [] {
         didSet {
             delegate.photosUpdated(to: self.selectedPhotos)
+            updateSelectUpToLabel()
+            DispatchQueue.main.asyncAfter(deadline: .now() + self.stackViewAnimationDuration + 0.1) {
+                for (i, arrangedView) in self.scrollingView.stackView.arrangedSubviews.enumerated() {
+                    if let xView = arrangedView as? ImageXView {
+                        xView.updateForStarPosition(firstLocation: i == 0)
+                    }
+                }
+            }
+            
         }
     }
-    private let infoLabel = UILabel()
+    
+    private let selectUpToLabel = UILabel()
     private var allPhotos = PHFetchResult<PHAsset>()
     private var allowChangesOnNewView = false
     private let placeholderView = UIView()
@@ -49,13 +59,34 @@ class ImageSelectorVC: UIViewController {
     private var timer: Timer?
     private let timerInterval = 0.05
     private let stackViewAnimationDuration: TimeInterval = 0.4
+    private let maxPhotos = 5
     
-    
-    struct ImageInfo {
+    class ImageInfo {
         var image: UIImage
         var asset: PHAsset
         var date: Date
         var indexPath: IndexPath
+        var maxImage: UIImage?
+        
+        init(image: UIImage, asset: PHAsset, date: Date, indexPath: IndexPath, isDummy: Bool) {
+            self.image = image
+            self.asset = asset
+            self.date = date
+            self.indexPath = indexPath
+            
+            if !isDummy {
+                getMaxImage()
+            }
+            
+        }
+        
+        private func getMaxImage() {
+            asset.getOriginalImage { [weak self] (imageFound) in
+                guard let self = self else { return }
+                self.maxImage = imageFound
+            }
+        }
+        
     }
 
     override func viewDidLoad() {
@@ -63,15 +94,35 @@ class ImageSelectorVC: UIViewController {
         setUpSelectedImageScrollView()
         setUpCollectionView()
         setUp()
+        
     }
     
     
     private func setUpSelectedImageScrollView() {
         
+        selectUpToLabel.translatesAutoresizingMaskIntoConstraints = false
+        updateSelectUpToLabel()
+        selectUpToLabel.font = .mediumBold
+        selectUpToLabel.textColor = .tertiaryLabel
+        
+        self.view.addSubview(selectUpToLabel)
+        selectUpToLabel.constrain(.top, to: self.view, .top, constant: scrollingViewConstant)
+        selectUpToLabel.constrain(.leading, to: self.view, .leading, constant: scrollingViewConstant)
+        
+        
+        let infoButton = UIButton(type: .infoDark)
+        infoButton.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(infoButton)
+        infoButton.constrain(.top, to: self.view, .top, constant: scrollingViewConstant)
+        infoButton.constrain(.leading, to: selectUpToLabel, .trailing, constant: scrollingViewConstant)
+        infoButton.constrain(.trailing, to: self.view, .trailing, constant: scrollingViewConstant)
+        infoButton.tintColor = Colors.main
+        infoButton.addTarget(self, action: #selector(infoButtonPressed), for: .touchUpInside)
+        
         self.view.addSubview(scrollingView)
         scrollingView.constrain(.leading, to: self.view, .leading, constant: scrollingViewConstant)
         scrollingView.constrain(.trailing, to: self.view, .trailing, constant: scrollingViewConstant)
-        scrollingView.constrain(.top, to: self.view, .top, constant: scrollingViewConstant)
+        scrollingView.constrain(.top, to: selectUpToLabel, .bottom, constant: scrollingViewConstant)
         scrollingView.clipsToBounds = false
         
         placeholderView.translatesAutoresizingMaskIntoConstraints = false
@@ -80,6 +131,7 @@ class ImageSelectorVC: UIViewController {
         placeholderView.equalSides(size: basicSize)
         placeholderView.tag = -1
         placeholderView.isHidden = true
+        
     }
     
     
@@ -125,6 +177,7 @@ class ImageSelectorVC: UIViewController {
                 fetchOptions.sortDescriptors = [.init(key: "creationDate", ascending: false)]
                 
                 self.allPhotos = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+                
                 DispatchQueue.main.async {
                     if !(self.collectionView.numberOfItems(inSection: 0) == self.allPhotos.count) { // means it is already reloaded
                         self.collectionView.reloadData()
@@ -155,6 +208,7 @@ class ImageSelectorVC: UIViewController {
     }
     
     private func imageSelected(image: UIImage, index: Int, originFrame: CGRect, cell: UICollectionViewCell) {
+        
         cell.isUserInteractionEnabled = false
         let animatedView = UIImageView(frame: originFrame)
         animatedView.image = image
@@ -177,8 +231,9 @@ class ImageSelectorVC: UIViewController {
             if complete {
                 animatedView.removeFromSuperview()
                 let holderView = ImageXView()
+                let selectedIndex = self.scrollingView.stackView.arrangedSubviews.count - 1
                 holderView.setUp(image: animatedView.image, size: self.basicSize, tag: index)
-                self.scrollingView.stackView.insertArrangedSubview(holderView, at: self.scrollingView.stackView.arrangedSubviews.count - 1)
+                self.scrollingView.stackView.insertArrangedSubview(holderView, at: selectedIndex)
                 cell.isUserInteractionEnabled = true
                 self.setUpMoveGestureRecognizer(holderView)
                 holderView.cancelButton.addTarget(self, action: #selector(self.removeImageView(sender:)), for: .touchUpInside)
@@ -277,7 +332,7 @@ class ImageSelectorVC: UIViewController {
                 // need to update the selectedPhotos array
                 var tempArray = selectedPhotos
                 let changingElement = tempArray.remove(at: previousIndex)
-                let placeholder = ImageInfo(image: UIImage(), asset: PHAsset(), date: Date(), indexPath: IndexPath(row: -1, section: -1))
+                let placeholder = ImageInfo(image: UIImage(), asset: PHAsset(), date: Date(), indexPath: IndexPath(row: -1, section: -1), isDummy: true)
                 tempArray.insert(placeholder, at: previousIndex)
                 tempArray.insert(changingElement, at: addAtIndex)
                 tempArray.removeAll { (imgInfo) -> Bool in
@@ -288,6 +343,7 @@ class ImageSelectorVC: UIViewController {
                 UIView.animate(withDuration: 0.3) {
                     placeHolderView.isHidden = false
                 }
+                
             } else {
                 // Just go back to the original spot, nothing happened or cancelled
                 UIView.animate(withDuration: 0.2, animations: {
@@ -306,7 +362,6 @@ class ImageSelectorVC: UIViewController {
 
     
     @objc private func runTimer() {
-        
         let scrollDistance: CGFloat = 15.0
         let viewWidth = self.view.bounds.width
         let scrollContentOffsetX = self.scrollingView.scrollView.contentOffset.x
@@ -328,6 +383,10 @@ class ImageSelectorVC: UIViewController {
         }
     }
     
+    func noPhotosSelectedAlert() {
+        collectionView.shakeView()
+    }
+    
     @objc private func removeImageView(sender: UIButton) {
         guard let superView = sender.superview as? ImageXView else { return }
         let indexPath = IndexPath(item: superView.representativeIndex, section: 0)
@@ -337,10 +396,34 @@ class ImageSelectorVC: UIViewController {
         collectionView.reloadItems(at: [indexPath])
         superView.removeFromStackViewAnimated(duration: stackViewAnimationDuration)
     }
+    
+    @objc private func infoButtonPressed() {
+        self.alert(title: "Photos", message: "Press and hold then drag a photo to change the order. The first photo is the main photo and will be displayed first.")
+    }
+    
+    private func updateSelectUpToLabel() {
+        let count = selectedPhotos.count
+        let value = maxPhotos - count
+        
+        if count == 0 {
+            selectUpToLabel.text = "Select up to \(maxPhotos) photos"
+        } else if value == 0 {
+            selectUpToLabel.text = "Maximum photos selected"
+        } else {
+            let s = (value == 1) ? "" : "s"
+            selectUpToLabel.text = "Select up to \(value) more photo\(s)"
+        }
+    }
 }
 
 // MARK: Collection view
 extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource {
+//    
+//    func numberOfSections(in collectionView: UICollectionView) -> Int {
+//        #warning("delete later")
+//        return 4
+//    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return allPhotos.count
     }
@@ -359,7 +442,6 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
         if let cachedImage = imageCache.object(forKey: key) {
             cell.imageView.image = cachedImage
         } else {
-            
             imageManager.requestImage(for: asset, targetSize: CGSize(width: layout.itemSize.width * 3.0, height: layout.itemSize.height * 3.0), contentMode: .aspectFit, options: requestOptions) { (image, info) in
                 if let image = image {
                     cell.imageView.image = image
@@ -373,10 +455,20 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
         return cell
     }
     
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        if selectedPhotos.count >= maxPhotos {
+            selectUpToLabel.shakeView()
+            collectionView.cellForItem(at: indexPath)?.shakeView()
+            return false
+        }
+        return true
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
         let cell = collectionView.cellForItem(at: indexPath) as! PhotoCell
         if let image = cell.imageView.image, let asset = cell.asset, let date = asset.creationDate {
-            selectedPhotos.append(ImageInfo(image: image, asset: asset, date: date, indexPath: indexPath))
+            selectedPhotos.append(ImageInfo(image: image, asset: asset, date: date, indexPath: indexPath, isDummy: false))
             cell.updateForShowingSelection(selected: true, animated: true)
             let origin = collectionView.convert(cell.frame, to: self.view)
             imageSelected(image: image, index: indexPath.row, originFrame: origin, cell: cell)
@@ -391,11 +483,7 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
         imageDeselected(index: indexPath.row)
     }
     
-    
-    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         delegate.scrollViewContentOffset(scrollView: collectionView)
     }
-    
-    
 }

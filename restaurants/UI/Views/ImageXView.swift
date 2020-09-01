@@ -13,6 +13,7 @@ class ImageXView: UIView {
     
     var imageView = UIImageView()
     var cancelButton = UIButton()
+    private let starView = UIImageView(image: .starCircleImage)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -34,6 +35,16 @@ class ImageXView: UIView {
         cancelButton.layer.cornerRadius = cancelButton.frame.height / 4.0
         cancelButton.equalSides()
         
+        starView.translatesAutoresizingMaskIntoConstraints = false
+        starView.equalSides()
+        self.addSubview(starView)
+        starView.constrain(.leading, to: self, .leading, constant: 3.0)
+        starView.constrain(.bottom, to: self, .bottom, constant: 3.0)
+        starView.isHidden = true
+        starView.tintColor = .systemYellow
+        starView.layer.cornerRadius = starView.bounds.width / 2.0
+        starView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         self.clipsToBounds = false
@@ -49,10 +60,19 @@ class ImageXView: UIView {
     }
     
     
-    func setUp(image: UIImage?, size: CGFloat?, tag: Int) {
+    func setUp(image: UIImage?, size: CGFloat?, tag: Int/*, firstLocation: Bool*/) {
         imageView.image = image
         self.equalSides(size: size)
         self.representativeIndex = tag
+        
+    }
+    
+    func updateForStarPosition(firstLocation: Bool) {
+        if firstLocation {
+            starView.isHidden = false
+        } else {
+            starView.isHidden = true
+        }
     }
     
     func showBorderForMoving() {

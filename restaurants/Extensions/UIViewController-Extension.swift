@@ -12,6 +12,7 @@ import MapKit
 
 extension UIViewController {
     
+    
     func presentAddRestaurantVC() {
         let baseVC = AddRestaurantVC()
         let vc = UINavigationController(rootViewController: baseVC)
@@ -37,6 +38,7 @@ extension UIViewController {
         label.alpha = 0.0
         
         vc.view.addSubview(label)
+        label.superview?.bringSubviewToFront(label)
         
         label.centerXAnchor.constraint(equalTo: vc.view.centerXAnchor).isActive = true
         label.bottomAnchor.constraint(equalTo: vc.view.topAnchor, constant: 0.0).isActive = true
