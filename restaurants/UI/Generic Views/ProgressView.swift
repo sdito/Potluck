@@ -8,6 +8,12 @@
 
 import UIKit
 
+
+protocol ProgressViewDelegate: class {
+    func endAnimationComplete()
+}
+
+
 class ProgressView: UIView {
     
     private let progressTrackerView = UIProgressView(progressViewStyle: .default)
@@ -15,10 +21,12 @@ class ProgressView: UIView {
     private var timer: Timer?
     private var stackView: UIStackView!
     private let initialCornerRadius: CGFloat = 5.0
+    private weak var delegate: ProgressViewDelegate?
     var progress: Float = 0.0
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(delegate: ProgressViewDelegate) {
+        super.init(frame: .zero)
+        self.delegate = delegate
         setUpElements()
     }
     
@@ -55,22 +63,38 @@ class ProgressView: UIView {
         
         stackView.constrainSides(to: self, distance: 20.0)
         
-        setUpTimer()
     }
     
     func updateProgress(to progress: Float) {
-        self.progressTrackerView.setProgress(progress, animated: true)
+        
         if progress > 0.99 {
+            self.progressTrackerView.setProgress(progress, animated: false)
             progressTrackerView.tintColor = .systemGreen
+        } else {
+            self.progressTrackerView.setProgress(progress, animated: true)
         }
     }
     
-    func setUpTimer() {
-        timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(timerRunner), userInfo: nil, repeats: true)
+    func failureAnimation() {
+        
+        progressTrackerView.progressTintColor = .systemRed
+        label.textColor = .systemRed
+        label.text = "Upload failed"
+        
+        if let vc = self.findViewController() as? ShowViewVC {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                vc.removeAnimatedSelector()
+            }
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.findViewController()?.dismiss(animated: true, completion: nil)
+            }
+        }
     }
     
-    func animationComplete() {
-        let duration = 0.4
+    func successAnimation() {
+        
+        let duration = 0.3
         let borderWidth: CGFloat = 1.0
         progressTrackerView.alpha = 0.0
         let originFrame = stackView.convert(progressTrackerView.frame, to: self)
@@ -112,7 +136,8 @@ class ProgressView: UIView {
                 self.addSubview(checkMarkView)
                 
                 let initial = duration * 0.5
-                UIView.animateKeyframes(withDuration: duration, delay: 0.0, options: [], animations: {
+                
+                UIView.animateKeyframes(withDuration: duration * 2, delay: 0.0, options: [], animations: {
                     UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: initial / duration) {
                         checkMarkView.transform = CGAffineTransform(scaleX: 1.6, y: 1.6)
                         layerView.transform = CGAffineTransform(scaleX: 2.0, y: 2.0)
@@ -123,9 +148,14 @@ class ProgressView: UIView {
                     }
                     
                 }) { (done) in
-                    if done {
-                        print("Everything is done")
-                    }
+                    UIView.animate(withDuration: 0.3, delay: 0.5, animations: {
+                        layerView.transform = CGAffineTransform(scaleX: 3.0, y: 3.0)
+                        checkMarkView.transform = CGAffineTransform(scaleX: 3.0, y: 3.0)
+                        layerView.alpha = 0.0
+                        checkMarkView.alpha = 0.0
+                    }, completion: { (done) in
+                        self.delegate?.endAnimationComplete()
+                    })
                 }
                 
             }
@@ -133,13 +163,5 @@ class ProgressView: UIView {
         
     }
     
-    @objc private func timerRunner() {
-        progress += 0.1
-        updateProgress(to: progress)
-        if progress > 1.0 {
-            timer?.invalidate()
-            animationComplete()
-        }
-    }
     
 }

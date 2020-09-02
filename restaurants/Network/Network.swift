@@ -181,6 +181,7 @@ class Network {
         request.responseJSON { [weak self] (response) in
             guard let self = self else { return }
             guard let data = response.data, response.error == nil else {
+                print(response.error as Any)
                 restaurantsReturned(Result.failure(.other))
                 return
             }

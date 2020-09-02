@@ -46,9 +46,12 @@ extension UITableView {
         self.separatorStyle = .none
         
         
+        
         NSLayoutConstraint.activate([
             stack.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-            stack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            //stack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -(stack.bounds.height + UIScreen.main.bounds.height * 0.3)),
+            
             stack.widthAnchor.constraint(equalToConstant: self.bounds.width * 0.75)
         ])
         

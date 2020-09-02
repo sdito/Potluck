@@ -66,7 +66,7 @@ extension Network {
     }
     
     func createEstablishmentOnly(from establishment: Establishment, completion: @escaping (Result<Establishment, Errors.VisitEstablishment>) -> Void) {
-        
+        #warning("need to actually use")
         do {
             let data = try encoder.encode(establishment)
             let json = try? JSONSerialization.jsonObject(with: data, options: [])

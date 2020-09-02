@@ -358,6 +358,7 @@ class FindRestaurantVC: UIViewController {
                 self.restaurantListVC.scrollTableViewToTop()
                 self.restaurants = newRestaurants
             case .failure(_):
+                #warning("need to implement")
                 print("Error finding restaurants")
             }
             self.userMovedMapView = false

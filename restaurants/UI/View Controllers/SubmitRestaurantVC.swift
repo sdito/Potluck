@@ -211,47 +211,53 @@ class SubmitRestaurantVC: UIViewController {
             fatalError()
         }
         
-        guard 2 == 3 else {
-            let progressView = ProgressView()
-            let vc = ShowViewVC(newView: progressView, fromBottom: false)
-            vc.modalPresentationStyle = .overFullScreen
-            self.navigationController?.present(vc, animated: false, completion: nil)
-            return
-            
-        }
-        
         // To dismiss
         // self.presentingViewController?.dismiss(animated: true, completion: nil)
         
         if selectedPhotos.count > 0 {
             
-            let progressView = ProgressView()
+            let progressView = ProgressView(delegate: self)
             let vc = ShowViewVC(newView: progressView, fromBottom: false)
             vc.modalPresentationStyle = .overFullScreen
             self.navigationController?.present(vc, animated: false, completion: nil)
             
             switch mode {
             case .rawValue:
-                self.showMessage("Need to implement", on: self)
+                self.showMessage("Need to implement: Raw Value", on: self)
             case .establishment:
-                
-                
-                Network.shared.userPost(establishment: establishment!,
-                                        mainImage: selectedPhotos[0].maxImage ?? selectedPhotos[0].image,
-                                        comment: textView.text,
-                                        progressView: progressView) { (result) in
-                    switch result {
-                    case .success(let visit):
-                        print()
-                        print("Visit: \(visit.restaurantName)")
-                        print("Image: \(visit.mainImage)")
-                        print()
-                    case .failure(let error):
-                        self.alert(title: "Error", message: "Something went wrong. Please check your device and try again.")
+                if let id = establishment!.djangoID {
+                    Network.shared.userPostAlreadyVisited(djangoID: id,
+                                                          mainImage: selectedPhotos[0].maxImage ?? selectedPhotos[0].image,
+                                                          comment: textView.text,
+                                                          progressView: progressView)
+                    { (result) in
+                        switch result {
+                        case .success(_):
+                            progressView.successAnimation()
+                        case .failure(let error):
+                            print(error)
+                            progressView.failureAnimation()
+                        }
                     }
+                } else {
+                    #warning("Need to update the establishment with the django id so it will not be written twice in the future")
+                    Network.shared.userPostNotVisited(establishment: establishment!,
+                                                      mainImage: selectedPhotos[0].maxImage ?? selectedPhotos[0].image,
+                                                      comment: textView.text,
+                                                      progressView: progressView)
+                    { (result) in
+                        switch result {
+                        case .success(_):
+                            progressView.successAnimation()
+                        case .failure(_):
+                            progressView.failureAnimation()
+                        }
+                    }
+                    
                 }
+                
             case .restaurant:
-                self.showMessage("Need to implement", on: self)
+                self.showMessage("Need to implement: Restaurant", on: self)
             }
         } else {
             imageSelector.noPhotosSelectedAlert()
@@ -351,5 +357,13 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
     
     func photosUpdated(to selectedPhotos: [ImageSelectorVC.ImageInfo]) {
         self.selectedPhotos = selectedPhotos
+    }
+}
+
+
+extension SubmitRestaurantVC: ProgressViewDelegate {
+    func endAnimationComplete() {
+        self.view.isUserInteractionEnabled = false
+        self.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 }

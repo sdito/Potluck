@@ -71,6 +71,19 @@ class AddRestaurantVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: animated)
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        
+        if self.isBeingDismissed || self.navigationController?.isBeingDismissed ?? false {
+            // View disappearing..check for any establishments without a django ID"
+            // also need to check the stuff about creating a visit then adding a django id to the establishment
+            let nonAddedEstablishments = myPlaces.filter({$0.djangoID == nil})
+            
+        }
+    }
+    
+    
     private func setUpHeaderPortionWithCancel() {
         self.view.addSubview(headerView)
         headerView.constrain(.top, to: self.view, .top, constant: 50.0)
@@ -204,6 +217,16 @@ class AddRestaurantVC: UIViewController {
         
         searchBar.searchTextField.leftView?.tintColor = .systemGray
     }
+    
+    @objc private func addVisitButtonAction() {
+        for (i, segment) in Segment.allCases.enumerated() {
+            if segment == .search {
+                segmentedControl.selectedSegmentIndex = i
+                tableView.reloadData()
+                break
+            }
+        }
+    }
 }
 
 
@@ -227,7 +250,8 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
             let count = myPlaces.count
             if count == 0 {
                 if initialLoadingDone {
-                    tableView.setEmptyWithAction(message: "No places added yet.", buttonTitle: "Add place")
+                    let addPlaceButton = tableView.setEmptyWithAction(message: "No places added yet.", buttonTitle: "Add place")
+                    addPlaceButton.addTarget(self, action: #selector(myPlacesButtonAction), for: .touchUpInside)
                 } else {
                     tableView.showLoadingOnTableView()
                 }
@@ -241,7 +265,8 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
             let count = previousRestaurants.count
             if count == 0 {
                 if initialLoadingDone {
-                    tableView.setEmptyWithAction(message: "No places previously visited yet.", buttonTitle: "Add visit")
+                    let addVisitButton = tableView.setEmptyWithAction(message: "No restaurants previously visited yet.", buttonTitle: "Add visit")
+                    addVisitButton.addTarget(self, action: #selector(addVisitButtonAction), for: .touchUpInside)
                 } else {
                     tableView.showLoadingOnTableView()
                 }
@@ -314,6 +339,7 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
             searchBar.endEditing(true)
         }
     }
+    
 }
 
 // MARK: Search bar
@@ -344,14 +370,13 @@ extension AddRestaurantVC: MKLocalSearchCompleterDelegate {
 // MARK: SelectLocationDelegate
 extension AddRestaurantVC: SelectLocationDelegate {
     func locationSelected(coordinate: CLLocationCoordinate2D, fullAddress: String) {
-        
         #warning("the establishment is not saved yet, if user exits from this screen then save it to db, otherwise wait for user to create a post with the establishment and save then")
-        
         guard let searchBarText = searchBar.text else { return }
         let newEstablishment = Establishment(name: searchBarText, isRestaurant: false)
         newEstablishment.updatePropertiesWithFullAddress(address: fullAddress, coordinate: coordinate)
         myPlaces.append(newEstablishment)
         tableView.reloadData()
         self.navigationController?.pushViewController(SubmitRestaurantVC(rawValues: nil, establishment: newEstablishment, restaurant: nil), animated: true)
+        searchBar.text = ""
     }
 }

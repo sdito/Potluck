@@ -14,7 +14,7 @@ class Visit: Codable {
     var djangoRestaurantID: Int
     var restaurantName: String
     var mainImage: String
-    var comment: String
+    var comment: String?
     var mainImageHeight: Int
     var mainImageWidth: Int
     var accountID: Int

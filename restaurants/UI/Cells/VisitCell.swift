@@ -90,7 +90,7 @@ class VisitCell: UITableViewCell {
     func setUpWith(visit: Visit) {
         self.visit = visit
         imageView?.image = nil
-        commentLabel.text = visit.comment
+        commentLabel.text = visit.comment ?? "By \(visit.accountUsername)"
         restaurantNameLabel.text = visit.restaurantName
         scrollingStackView.resetElements()
     }

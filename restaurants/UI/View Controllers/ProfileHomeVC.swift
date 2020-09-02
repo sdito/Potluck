@@ -34,10 +34,6 @@ class ProfileHomeVC: UIViewController {
                 guard let self = self else { return }
                 switch result {
                 case .success(let visits):
-                    print(visits.map({ (v) -> String in
-                        v.comment
-                    }))
-                    
                     
                     self.allowHintToCreateRestaurant = true
                     self.visits = visits
