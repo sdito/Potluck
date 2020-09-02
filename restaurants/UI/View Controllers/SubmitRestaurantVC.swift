@@ -211,20 +211,47 @@ class SubmitRestaurantVC: UIViewController {
             fatalError()
         }
         
+        guard 2 == 3 else {
+            let progressView = ProgressView()
+            let vc = ShowViewVC(newView: progressView, fromBottom: false)
+            vc.modalPresentationStyle = .overFullScreen
+            self.navigationController?.present(vc, animated: false, completion: nil)
+            return
+            
+        }
+        
+        // To dismiss
+        // self.presentingViewController?.dismiss(animated: true, completion: nil)
+        
         if selectedPhotos.count > 0 {
+            
+            let progressView = ProgressView()
+            let vc = ShowViewVC(newView: progressView, fromBottom: false)
+            vc.modalPresentationStyle = .overFullScreen
+            self.navigationController?.present(vc, animated: false, completion: nil)
+            
             switch mode {
             case .rawValue:
-                print("Raw value")
-                // might have a restaurant from the yelp search (self.restaurant)
+                self.showMessage("Need to implement", on: self)
             case .establishment:
-                print("Establishment")
-                // either previously visited, or user just added (check for django ID)
-                Network.shared.userPost(establishment: establishment!, mainImage: selectedPhotos[0].maxImage ?? selectedPhotos[0].image) { (result) in
-                    
+                
+                
+                Network.shared.userPost(establishment: establishment!,
+                                        mainImage: selectedPhotos[0].maxImage ?? selectedPhotos[0].image,
+                                        comment: textView.text,
+                                        progressView: progressView) { (result) in
+                    switch result {
+                    case .success(let visit):
+                        print()
+                        print("Visit: \(visit.restaurantName)")
+                        print("Image: \(visit.mainImage)")
+                        print()
+                    case .failure(let error):
+                        self.alert(title: "Error", message: "Something went wrong. Please check your device and try again.")
+                    }
                 }
             case .restaurant:
-                print("Restaurant")
-                // brand new place
+                self.showMessage("Need to implement", on: self)
             }
         } else {
             imageSelector.noPhotosSelectedAlert()
@@ -241,7 +268,8 @@ class SubmitRestaurantVC: UIViewController {
         mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
         mapLocationView.layer.cornerRadius = 25.0
         mapLocationView.clipsToBounds = true
-        let newVc = ShowViewVC(newView: mapLocationView)
+        
+        let newVc = ShowViewVC(newView: mapLocationView, fromBottom: true)
         newVc.modalPresentationStyle = .overFullScreen
         self.navigationController?.present(newVc, animated: false, completion: nil)
     }

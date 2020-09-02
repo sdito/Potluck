@@ -48,6 +48,7 @@
 		E23AFA0924F9C7E7004542A2 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23AFA0824F9C7E7004542A2 /* HeaderView.swift */; };
 		E23AFA0B24FC961D004542A2 /* ShowViewVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23AFA0A24FC961D004542A2 /* ShowViewVC.swift */; };
 		E23AFA0D24FCCC30004542A2 /* PlaceholderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23AFA0C24FCCC30004542A2 /* PlaceholderTextView.swift */; };
+		E23AFA1124FF0E5C004542A2 /* ProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23AFA1024FF0E5C004542A2 /* ProgressView.swift */; };
 		E2574A2324B53348006618D7 /* UIImageView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2224B53348006618D7 /* UIImageView-Extension.swift */; };
 		E2574A2524B58D14006618D7 /* TwoLevelButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2424B58D14006618D7 /* TwoLevelButton.swift */; };
 		E2574A2724B65069006618D7 /* PriceLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2624B65069006618D7 /* PriceLabel.swift */; };
@@ -134,6 +135,7 @@
 		E23AFA0824F9C7E7004542A2 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		E23AFA0A24FC961D004542A2 /* ShowViewVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowViewVC.swift; sourceTree = "<group>"; };
 		E23AFA0C24FCCC30004542A2 /* PlaceholderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTextView.swift; sourceTree = "<group>"; };
+		E23AFA1024FF0E5C004542A2 /* ProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressView.swift; sourceTree = "<group>"; };
 		E2574A2224B53348006618D7 /* UIImageView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView-Extension.swift"; sourceTree = "<group>"; };
 		E2574A2424B58D14006618D7 /* TwoLevelButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoLevelButton.swift; sourceTree = "<group>"; };
 		E2574A2624B65069006618D7 /* PriceLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceLabel.swift; sourceTree = "<group>"; };
@@ -238,6 +240,7 @@
 		E2574A2F24B7D37E006618D7 /* Generic Views */ = {
 			isa = PBXGroup;
 			children = (
+				E23AFA1024FF0E5C004542A2 /* ProgressView.swift */,
 				E23AFA0824F9C7E7004542A2 /* HeaderView.swift */,
 				E2E180F024E8B3F6004AA4BE /* LogInButton.swift */,
 				E20EA82D24E36FA00064DB86 /* CheckBox.swift */,
@@ -579,6 +582,7 @@
 				E239841C24ECA23F00F3828C /* ImageSelectorVC.swift in Sources */,
 				E284DC0B24BE8EC400790A29 /* RestaurantSpecificInfoVC.swift in Sources */,
 				E27A757424AEDD3A00E446EE /* MKMapView-Extension.swift in Sources */,
+				E23AFA1124FF0E5C004542A2 /* ProgressView.swift in Sources */,
 				E2DC2F3C24EF3CD7002C6A07 /* MapLocationView.swift in Sources */,
 				E233541824B1627200A85DA3 /* UIImage-Extension.swift in Sources */,
 			);

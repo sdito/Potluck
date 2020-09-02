@@ -68,28 +68,47 @@ extension Network {
     }
     
     
-    func userPost(establishment: Establishment, mainImage: UIImage, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
+    func userPost(establishment: Establishment, mainImage: UIImage, comment: String?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
         
-        var params: Parameters = ["comment": "test comment"]
+        var params: Parameters = [:]
         
-        #warning("need to complete")
+        if let comment = comment {
+            params["comment"] = comment
+        }
+        
         if let djangoID = establishment.djangoID {
             // Establishment already exists, just add visit with the djangoID
             params["restaurant_id"] = djangoID
         } else {
             // Need to also create an establishment
         }
-        
-        
+                
         let request = reqVisit(params: params, requestType: .userPost, image: mainImage)
         
-        
-        request?.responseJSON(completionHandler: { (response) in
-            for _ in 1...10 {
-                print(response.value)
+        request?.responseJSON(completionHandler: { [weak self] (response) in
+            
+            guard let self = self else { return }
+            
+            guard let data = response.data, response.error == nil else {
+                completion(Result.failure(.other(alamoFireError: response.error)))
+                return
             }
+            
+            do {
+                let visit = try self.decoder.decode(Visit.SingleVisitDecoder.self, from: data)
+                completion(Result.success(visit.visit))
+            } catch {
+                print(error)
+                completion(Result.failure(.encoding))
+            }
+            
         })
-        
+        .uploadProgress { progress in
+            if progressView != nil {
+                progressView?.updateProgress(to: Float(progress.fractionCompleted))
+            }
+            print("Upload Progress: \(progress.fractionCompleted)")
+        }
         
     
     }

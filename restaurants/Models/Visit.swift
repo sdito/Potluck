@@ -45,6 +45,11 @@ class Visit: Codable {
     class VisitDecoder: Decodable {
         var visits: [Visit]?
     }
+    
+    
+    class SingleVisitDecoder: Decodable {
+        var visit: Visit
+    }
         
     
 }

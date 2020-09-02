@@ -12,9 +12,12 @@ class ShowViewVC: UIViewController {
     
     private var newView: UIView
     private var travelDistance: CGFloat = 0.0
+    private var fromBottom = true
+    private let fromTopConstant: CGFloat = 50.0
     
-    init(newView: UIView) {
+    init(newView: UIView, fromBottom: Bool) {
         self.newView = newView
+        self.fromBottom = fromBottom
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -33,6 +36,26 @@ class ShowViewVC: UIViewController {
         
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        if fromBottom {
+            fromBottomAnimation()
+        } else {
+            fromTopAnimation()
+        }
+        
+        
+    }
+    
+    private func fromTopAnimation() {
+        let duration = TimeInterval(exactly: 0.2)!
+        
+        UIView.animate(withDuration: duration) {
+            self.view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+            self.newView.transform = CGAffineTransform.identity
+        }
+    }
+    
+    private func fromBottomAnimation() {
         
         let duration = TimeInterval(exactly: 0.5)!
         let firstDuration = 0.3
@@ -64,8 +87,7 @@ class ShowViewVC: UIViewController {
     
     private func add(newView: UIView) {
         self.view.insertSubview(newView, at: 2)
-        newView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-        newView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+        
         
         newView.layoutIfNeeded()
         
@@ -73,17 +95,41 @@ class ShowViewVC: UIViewController {
         let screenHeight = UIScreen.main.bounds.height
         
         travelDistance = screenHeight / 2.0 + newViewHeight / 2.0
-        newView.transform = CGAffineTransform(translationX: 0, y: travelDistance)
+        
+        if fromBottom {
+            newView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+            newView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+            newView.transform = CGAffineTransform(translationX: 0, y: travelDistance)
+        } else {
+            
+            newView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+            newView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: fromTopConstant).isActive = true
+            newView.transform = CGAffineTransform(translationX: 0, y: -(fromTopConstant + newViewHeight))
+        }
+        
+        
     }
     
     
-    @objc private func removeAnimatedSelector() {
-        UIView.animate(withDuration: 0.3, animations: {
-            self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
-            self.newView.transform = CGAffineTransform(translationX: 0, y: self.travelDistance)
-       }) { (true) in
-           self.dismiss(animated: false, completion: nil)
-       }
+    @objc func removeAnimatedSelector() {
+        
+        if fromBottom {
+            UIView.animate(withDuration: 0.3, animations: {
+                self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
+                self.newView.transform = CGAffineTransform(translationX: 0, y: self.travelDistance)
+            }) { (true) in
+                self.dismiss(animated: false, completion: nil)
+            }
+        } else {
+            UIView.animate(withDuration: 0.3, animations: {
+                self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
+                self.newView.transform = CGAffineTransform(translationX: 0, y: -(self.fromTopConstant + self.newView.frame.height))
+            }) { (true) in
+                self.dismiss(animated: false, completion: nil)
+            }
+        }
+        
+        
     }
 
 }

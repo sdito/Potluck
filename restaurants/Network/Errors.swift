@@ -44,6 +44,7 @@ struct Errors {
     enum VisitEstablishment: Error {
         case noAccount
         case encoding
+        case statusCode
         case other(alamoFireError: AFError?)
     }
     

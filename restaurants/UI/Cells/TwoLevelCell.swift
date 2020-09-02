@@ -109,7 +109,7 @@ class TwoLevelCell: UITableViewCell {
                 mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
                 mapLocationView.layer.cornerRadius = 25.0
                 mapLocationView.clipsToBounds = true
-                let newVc = ShowViewVC(newView: mapLocationView)
+                let newVc = ShowViewVC(newView: mapLocationView, fromBottom: true)
                 newVc.modalPresentationStyle = .overFullScreen
                 vc.navigationController?.present(newVc, animated: false, completion: nil)
                 

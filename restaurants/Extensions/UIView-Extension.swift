@@ -190,8 +190,8 @@ extension UIView {
         self.layer.shadowOffset = CGSize(width: 0.0, height: 0.0)
         self.layer.shadowOpacity = 0.6
         self.layer.shadowRadius = shadowRadius
-        
     }
+    
     
     func hideFromScreen(removeAtEnd: Bool = true) {
         

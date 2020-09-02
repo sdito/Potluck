@@ -25,7 +25,7 @@ class PlaceholderTextView: UITextView {
     private func setUpPlaceholderLabel(font: UIFont) {
         
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .secondaryLabel
+        label.textColor = .placeholderText
         label.numberOfLines = 0
         self.addSubview(label)
         label.font = font
