@@ -32,6 +32,8 @@ class SubmitRestaurantVC: UIViewController {
     
     private var nameRawValue: String?
     private var addressRawValue: String?
+    private var coordinateRawValue: CLLocationCoordinate2D?
+    
     private var establishment: Establishment?
     private var restaurant: Restaurant?
     private var mode: Mode?
@@ -221,9 +223,20 @@ class SubmitRestaurantVC: UIViewController {
             vc.modalPresentationStyle = .overFullScreen
             self.navigationController?.present(vc, animated: false, completion: nil)
             
+            var newComment: String? {
+                if textView.text == "" {
+                    return nil
+                } else {
+                    return textView.text
+                }
+            }
+            
             switch mode {
             case .rawValue:
-                self.showMessage("Need to implement: Raw Value", on: self)
+                #warning("need to test")
+                // Will only get called if no yelp restaurant is found from the parts
+                let rawValueEstablishment = Establishment(name: nameRawValue!, fullAddressString: addressRawValue, coordinate: coordinateRawValue)
+                executeForNonVisitedEstablishment(rawValueEstablishment, mainImage: selectedPhotos[0].maxImage ?? selectedPhotos[0].image, progressView: progressView, comment: newComment)
             case .establishment:
                 if let id = establishment!.djangoID {
                     Network.shared.userPostAlreadyVisited(djangoID: id,
@@ -240,28 +253,31 @@ class SubmitRestaurantVC: UIViewController {
                         }
                     }
                 } else {
-                    #warning("Need to update the establishment with the django id so it will not be written twice in the future")
-                    Network.shared.userPostNotVisited(establishment: establishment!,
-                                                      mainImage: selectedPhotos[0].maxImage ?? selectedPhotos[0].image,
-                                                      comment: textView.text,
-                                                      progressView: progressView)
-                    { (result) in
-                        switch result {
-                        case .success(_):
-                            progressView.successAnimation()
-                        case .failure(_):
-                            progressView.failureAnimation()
-                        }
-                    }
-                    
+                    executeForNonVisitedEstablishment(establishment!, mainImage: selectedPhotos[0].maxImage ?? selectedPhotos[0].image, progressView: progressView, comment: newComment)
                 }
                 
             case .restaurant:
-                self.showMessage("Need to implement: Restaurant", on: self)
+                // turn restaurant into establishment
+                let convertedEstablishment = restaurant!.turnIntoEstablishment()
+                executeForNonVisitedEstablishment(convertedEstablishment, mainImage: selectedPhotos[0].maxImage ?? selectedPhotos[0].image, progressView: progressView, comment: newComment)
             }
         } else {
             imageSelector.noPhotosSelectedAlert()
-            print("No photos selected")
+        }
+    }
+    
+    private func executeForNonVisitedEstablishment(_ establishment: Establishment, mainImage: UIImage, progressView: ProgressView, comment: String?) {
+        Network.shared.userPostNotVisited(establishment: establishment,
+                                          mainImage: mainImage,
+                                          comment: comment,
+                                          progressView: progressView)
+        { (result) in
+            switch result {
+            case .success(_):
+                progressView.successAnimation()
+            case .failure(_):
+                progressView.failureAnimation()
+            }
         }
     }
     
@@ -288,13 +304,24 @@ class SubmitRestaurantVC: UIViewController {
                 switch result {
                 case .success(let restaurant):
                     self.restaurant = restaurant
-                case .failure(let error):
-                    print(error)
+                    self.mode = .restaurant
+                case .failure(_):
+                    self.mode = .rawValue
+                    self.getCoordinate(from: self.addressRawValue!)
                 }
             }
         }
-        
     }
+    
+    private func getCoordinate(from address: String) {
+        let geoCoder = CLGeocoder()
+        geoCoder.geocodeAddressString(address) { [weak self] (placeMarks, error) in
+            guard let self = self else { return }
+            guard let firstPlaceMark = placeMarks?.first, let location = firstPlaceMark.location?.coordinate else { return }
+            self.coordinateRawValue = location
+        }
+    }
+    
 }
 
 

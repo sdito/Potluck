@@ -135,6 +135,26 @@ class Restaurant: Decodable {
         self.address = address
     }
     
+    func turnIntoEstablishment() -> Establishment {
+        let establishment = Establishment(name: self.name,
+                                          isRestaurant: true,
+                                          djangoID: nil,
+                                          longitude: self.longitude,
+                                          latitude: self.latitude,
+                                          yelpID: self.id,
+                                          category: self.categories?.first,
+                                          address1: self.address.address1,
+                                          address2: self.address.address2,
+                                          address3: self.address.address3,
+                                          city: self.address.city,
+                                          zipCode: self.address.zipCode,
+                                          state: self.address.state,
+                                          country: self.address.country,
+                                          firstVisited: nil,
+                                          visits: nil)
+        return establishment
+    }
+    
     enum CodingKeys: String, CodingKey {
         case id
         case name

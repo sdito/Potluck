@@ -65,6 +65,34 @@ class Establishment: Codable {
         self.isRestaurant = isRestaurant
     }
     
+    init(name: String, isRestaurant: Bool, djangoID: Int?, longitude: Double?, latitude: Double?, yelpID: String?, category: String?, address1: String?,
+         address2: String?, address3: String?, city: String?, zipCode: String?, state: String?, country: String?, firstVisited: Date?, visits: [Visit]?) {
+        self.name = name
+        self.isRestaurant = isRestaurant
+        self.djangoID = djangoID
+        self.longitude = longitude
+        self.latitude = latitude
+        self.yelpID = yelpID
+        self.category = category
+        self.address1 = address1
+        self.address2 = address2
+        self.address3 = address3
+        self.city = city
+        self.zipCode = zipCode
+        self.state = state
+        self.country = country
+        self.firstVisited = firstVisited
+        self.visits = visits
+    }
+    
+    // from raw values (name, address? and coordinate?)
+    init(name: String, fullAddressString: String?, coordinate: CLLocationCoordinate2D?) {
+        
+        self.name = name
+        self.isRestaurant = true
+        self.updatePropertiesWithFullAddress(address: fullAddressString, coordinate: coordinate)
+    }
+    
     enum CodingKeys: String, CodingKey {
         case name
         case isRestaurant = "is_restaurant"
@@ -87,15 +115,19 @@ class Establishment: Codable {
         var restaurants: [Establishment]?
     }
     
-    func updatePropertiesWithFullAddress(address: String, coordinate: CLLocationCoordinate2D) {
-        let (partDictionary, _) = Network.shared.extractAddress(address: address, forYelp: false)
-        self.address1 = partDictionary["address1"]
-        self.city = partDictionary["city"]
-        self.state = partDictionary["state"]
-        self.country = partDictionary["country"]
-        self.zipCode = partDictionary["zip_code"]
-        self.latitude = coordinate.latitude
-        self.longitude = coordinate.longitude
+    func updatePropertiesWithFullAddress(address: String?, coordinate: CLLocationCoordinate2D?) {
+        
+        if let address = address {
+            let (partDictionary, _) = Network.shared.extractAddress(address: address, forYelp: false)
+            self.address1 = partDictionary["address1"]
+            self.city = partDictionary["city"]
+            self.state = partDictionary["state"]
+            self.country = partDictionary["country"]
+            self.zipCode = partDictionary["zip_code"]
+        }
+        
+        self.latitude = coordinate?.latitude
+        self.longitude = coordinate?.longitude
     }
     
 }

@@ -338,10 +338,7 @@ class Network {
                 missing = []
             }
         }
-        
-        
         return (values, missing)
-        
     }
     
     func setUpInitialRun() {

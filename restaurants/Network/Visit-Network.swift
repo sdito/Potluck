@@ -137,7 +137,6 @@ extension Network {
         }
     }
     
-    
     // Get the user's own posts
     func getUserFeed(completion: @escaping (Result<[Visit], Errors.VisitEstablishment>) -> Void) {
         let req = reqVisit(params: nil, requestType: .userFeed, image: nil)

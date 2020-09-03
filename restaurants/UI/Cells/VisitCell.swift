@@ -20,7 +20,7 @@ class VisitCell: UITableViewCell {
     private let restaurantNameLabel = UILabel()
     private let commentLabel = UILabel()
     private var visitImageViewHeightConstraint: NSLayoutConstraint?
-    
+    private let dateLabel = UILabel()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -33,8 +33,31 @@ class VisitCell: UITableViewCell {
     }
     
     private func setUpUiElements() {
+        setUpScrollingStack()
         
-        // only top, leading, trailing, have comment or whatever below it along with restaurant info
+        let secondView = UIView()
+        secondView.translatesAutoresizingMaskIntoConstraints = false
+        scrollingStackView.stackView.addArrangedSubview(secondView)
+        secondView.backgroundColor = .blue
+        secondView.layoutIfNeeded()
+        secondView.heightAnchor.constraint(equalTo: visitImageView.heightAnchor).isActive = true
+        
+        let lowerStackView = setUpLowerStack()
+
+        let dateAndButtonsStackView = setUpUiElementsForDateAndButtons()
+        lowerStackView.addArrangedSubview(dateAndButtonsStackView)
+        dateAndButtonsStackView.widthAnchor.constraint(equalTo: lowerStackView.widthAnchor).isActive = true
+        
+        setUpRestaurantNameLabel()
+        lowerStackView.addArrangedSubview(restaurantNameLabel)
+        
+        setUpCommentLabel()
+        lowerStackView.addArrangedSubview(commentLabel)
+        
+        
+    }
+    
+    private func setUpScrollingStack() {
         self.addSubview(scrollingStackView)
         scrollingStackView.constrain(.top, to: self, .top)
         scrollingStackView.constrain(.leading, to: self, .leading)
@@ -50,14 +73,9 @@ class VisitCell: UITableViewCell {
         visitImageViewHeightConstraint = visitImageView.heightAnchor.constraint(equalToConstant: baseHeight)
         visitImageViewHeightConstraint?.isActive = true
         visitImageView.contentMode = .scaleAspectFill
-        
-        let secondView = UIView()
-        secondView.translatesAutoresizingMaskIntoConstraints = false
-        scrollingStackView.stackView.addArrangedSubview(secondView)
-        secondView.backgroundColor = .blue
-        secondView.layoutIfNeeded()
-        secondView.heightAnchor.constraint(equalTo: visitImageView.heightAnchor).isActive = true
-        
+    }
+    
+    private func setUpLowerStack() -> UIStackView {
         let lowerStackView = UIStackView()
         lowerStackView.translatesAutoresizingMaskIntoConstraints = false
         lowerStackView.distribution = .fill
@@ -72,20 +90,65 @@ class VisitCell: UITableViewCell {
         lowerStackView.constrain(.trailing, to: self, .trailing, constant: 10.0)
         lowerStackView.constrain(.bottom, to: self, .bottom, constant: 10.0)
         
+        return lowerStackView
+    }
+    
+    private func setUpUiElementsForDateAndButtons() -> UIStackView {
+        let dateAndButtonsStackView = UIStackView()
+        dateAndButtonsStackView.translatesAutoresizingMaskIntoConstraints = false
+        dateAndButtonsStackView.axis = .horizontal
+        dateAndButtonsStackView.spacing = 5.0
+        dateAndButtonsStackView.distribution = .fill
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.font = .smallBold
+        dateLabel.textColor = .tertiaryLabel
+        dateAndButtonsStackView.addArrangedSubview(dateLabel)
+        
+        // to take up the space in the middle, as a spacer
+        let spacer = UIView()
+        spacer.translatesAutoresizingMaskIntoConstraints = false
+        dateAndButtonsStackView.addArrangedSubview(spacer)
+        
+        let mapButton = UIButton()
+        mapButton.translatesAutoresizingMaskIntoConstraints = false
+        mapButton.setImage(.mapImage, for: .normal)
+        mapButton.tintColor = Colors.locationColor
+        mapButton.addTarget(self, action: #selector(mapAction), for: .touchUpInside)
+        dateAndButtonsStackView.addArrangedSubview(mapButton)
+        return dateAndButtonsStackView
+    }
+    
+    private func setUpRestaurantNameLabel() {
         restaurantNameLabel.translatesAutoresizingMaskIntoConstraints = false
         restaurantNameLabel.text = "Restaurant name"
-        lowerStackView.addArrangedSubview(restaurantNameLabel)
-        
+    }
+    
+    private func setUpCommentLabel() {
         commentLabel.translatesAutoresizingMaskIntoConstraints = false
         commentLabel.text = "This is the text for the comment"
         commentLabel.textColor = .secondaryLabel
         commentLabel.font = .smallerThanNormal
         commentLabel.numberOfLines = 0
-        lowerStackView.addArrangedSubview(commentLabel)
-        
-        
     }
     
+    @objc private func mapAction() {
+        
+        guard let parent = self.findViewController() else { return }
+        
+        if let coordinate = visit?.coordinate {
+            let mapLocationView = MapLocationView(locationTitle: visit?.restaurantName ?? "Location", coordinate: coordinate, address: nil, userInteractionEnabled: true, wantedDistance: 1000)
+            mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
+            mapLocationView.layer.cornerRadius = 25.0
+            mapLocationView.clipsToBounds = true
+            let newVc = ShowViewVC(newView: mapLocationView, fromBottom: true)
+            newVc.modalPresentationStyle = .overFullScreen
+            parent.present(newVc, animated: false, completion: nil)
+        } else {
+            #warning("need to test")
+            parent.showMessage("No location found.", on: parent)
+        }
+        
+    }
     
     func setUpWith(visit: Visit) {
         self.visit = visit
@@ -93,7 +156,10 @@ class VisitCell: UITableViewCell {
         commentLabel.text = visit.comment ?? "By \(visit.accountUsername)"
         restaurantNameLabel.text = visit.restaurantName
         scrollingStackView.resetElements()
+        dateLabel.text = visit.userDate
     }
+    
+    
     
     func setImage(url: String?, image: UIImage?, height: Int?, width: Int?, imageFound: @escaping (UIImage?) -> Void) {
         
