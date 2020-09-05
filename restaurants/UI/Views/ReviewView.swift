@@ -22,7 +22,6 @@ class ReviewView: UIView {
     }
     
     func setUp(review: Review) {
-        
         self.backgroundColor = .systemBackground
         self.translatesAutoresizingMaskIntoConstraints = false
 

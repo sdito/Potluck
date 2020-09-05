@@ -10,10 +10,17 @@
 
 import UIKit
 
+
+protocol VisitCellDelegate: class {
+    func delete(visit: Visit?)
+}
+
+
 class VisitCell: UITableViewCell {
     
     var visit: Visit?
-    
+    weak var delegate: VisitCellDelegate?
+    private let base = UIView()
     private let baseHeight: CGFloat = 250.0
     private let scrollingStackView = ScrollingStackView(subViews: [], showPlaceholder: true)
     let visitImageView = UIImageView()
@@ -21,6 +28,8 @@ class VisitCell: UITableViewCell {
     private let commentLabel = UILabel()
     private var visitImageViewHeightConstraint: NSLayoutConstraint?
     private let dateLabel = UILabel()
+    private var dateAndButtonStackView: UIStackView!
+    private var dateAndButtonContainerView: UIView!
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -33,6 +42,9 @@ class VisitCell: UITableViewCell {
     }
     
     private func setUpUiElements() {
+        self.backgroundColor = .clear
+        setUpBase()
+        setUpUiElementsForDateAndButtons()
         setUpScrollingStack()
         
         let secondView = UIView()
@@ -43,25 +55,76 @@ class VisitCell: UITableViewCell {
         secondView.heightAnchor.constraint(equalTo: visitImageView.heightAnchor).isActive = true
         
         let lowerStackView = setUpLowerStack()
-
-        let dateAndButtonsStackView = setUpUiElementsForDateAndButtons()
-        lowerStackView.addArrangedSubview(dateAndButtonsStackView)
-        dateAndButtonsStackView.widthAnchor.constraint(equalTo: lowerStackView.widthAnchor).isActive = true
         
         setUpRestaurantNameLabel()
         lowerStackView.addArrangedSubview(restaurantNameLabel)
         
         setUpCommentLabel()
         lowerStackView.addArrangedSubview(commentLabel)
+    }
+    
+    private func setUpBase() {
+        base.translatesAutoresizingMaskIntoConstraints = false
+        base.backgroundColor = .systemBackground
+        self.addSubview(base)
+        base.constrainSides(to: self, distance: 7.5)
+        base.layer.cornerRadius = 10.0
+        base.clipsToBounds = true
+    }
+    
+    private func setUpUiElementsForDateAndButtons() {
+        dateAndButtonStackView = UIStackView()
         
+        dateAndButtonStackView.translatesAutoresizingMaskIntoConstraints = false
+        dateAndButtonStackView.axis = .horizontal
+        dateAndButtonStackView.spacing = 5.0
+        dateAndButtonStackView.distribution = .fill
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.font = .mediumBold
+        dateLabel.textColor = .tertiaryLabel
+        dateAndButtonStackView.addArrangedSubview(dateLabel)
+        
+        // to take up the space in the middle, as a spacer
+        let spacer = UIView()
+        spacer.translatesAutoresizingMaskIntoConstraints = false
+        dateAndButtonStackView.addArrangedSubview(spacer)
+        
+        let mapButton = UIButton()
+        mapButton.translatesAutoresizingMaskIntoConstraints = false
+        mapButton.setImage(.mapImage, for: .normal)
+        mapButton.tintColor = Colors.main
+        mapButton.addTarget(self, action: #selector(mapAction), for: .touchUpInside)
+        dateAndButtonStackView.addArrangedSubview(mapButton)
+        
+        let moreActionsButton = UIButton()
+        moreActionsButton.translatesAutoresizingMaskIntoConstraints = false
+        moreActionsButton.setImage(.threeDotsImage, for: .normal)
+        moreActionsButton.tintColor = Colors.main
+        moreActionsButton.addTarget(self, action: #selector(moreActionsSelector), for: .touchUpInside)
+        dateAndButtonStackView.addArrangedSubview(moreActionsButton)
+        
+        
+        base.addSubview(dateAndButtonStackView)
+        dateAndButtonContainerView = UIView()
+        dateAndButtonContainerView.translatesAutoresizingMaskIntoConstraints = false
+        dateAndButtonContainerView.addSubview(dateAndButtonStackView)
+        
+        base.addSubview(dateAndButtonContainerView)
+        
+        dateAndButtonStackView.constrainSides(to: dateAndButtonContainerView, distance: 10.0)
+        
+        dateAndButtonContainerView.widthAnchor.constraint(equalTo: base.widthAnchor).isActive = true
+        dateAndButtonContainerView.constrain(.top, to: base, .top)
+        dateAndButtonContainerView.constrain(.leading, to: base, .leading)
+        dateAndButtonContainerView.constrain(.trailing, to: base, .trailing)
         
     }
     
     private func setUpScrollingStack() {
-        self.addSubview(scrollingStackView)
-        scrollingStackView.constrain(.top, to: self, .top)
-        scrollingStackView.constrain(.leading, to: self, .leading)
-        scrollingStackView.constrain(.trailing, to: self, .trailing)
+        base.addSubview(scrollingStackView)
+        scrollingStackView.constrain(.top, to: dateAndButtonContainerView, .bottom)
+        scrollingStackView.constrain(.leading, to: base, .leading)
+        scrollingStackView.constrain(.trailing, to: base, .trailing)
         
         scrollingStackView.stackView.distribution = .fillEqually
         scrollingStackView.scrollView.isPagingEnabled = true
@@ -83,42 +146,19 @@ class VisitCell: UITableViewCell {
         lowerStackView.axis = .vertical
         lowerStackView.spacing = 3.0
         
-        self.addSubview(lowerStackView)
+        base.addSubview(lowerStackView)
         
         lowerStackView.constrain(.top, to: scrollingStackView, .bottom, constant: 10.0)
-        lowerStackView.constrain(.leading, to: self, .leading, constant: 10.0)
-        lowerStackView.constrain(.trailing, to: self, .trailing, constant: 10.0)
-        lowerStackView.constrain(.bottom, to: self, .bottom, constant: 10.0)
+        lowerStackView.constrain(.leading, to: base, .leading, constant: 10.0)
+        lowerStackView.constrain(.trailing, to: base, .trailing, constant: 10.0)
+        lowerStackView.constrain(.bottom, to: base, .bottom, constant: 10.0)
         
         return lowerStackView
     }
     
-    private func setUpUiElementsForDateAndButtons() -> UIStackView {
-        let dateAndButtonsStackView = UIStackView()
-        dateAndButtonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        dateAndButtonsStackView.axis = .horizontal
-        dateAndButtonsStackView.spacing = 5.0
-        dateAndButtonsStackView.distribution = .fill
-        dateLabel.translatesAutoresizingMaskIntoConstraints = false
-        dateLabel.font = .smallBold
-        dateLabel.textColor = .tertiaryLabel
-        dateAndButtonsStackView.addArrangedSubview(dateLabel)
-        
-        // to take up the space in the middle, as a spacer
-        let spacer = UIView()
-        spacer.translatesAutoresizingMaskIntoConstraints = false
-        dateAndButtonsStackView.addArrangedSubview(spacer)
-        
-        let mapButton = UIButton()
-        mapButton.translatesAutoresizingMaskIntoConstraints = false
-        mapButton.setImage(.mapImage, for: .normal)
-        mapButton.tintColor = Colors.locationColor
-        mapButton.addTarget(self, action: #selector(mapAction), for: .touchUpInside)
-        dateAndButtonsStackView.addArrangedSubview(mapButton)
-        return dateAndButtonsStackView
-    }
-    
     private func setUpRestaurantNameLabel() {
+        restaurantNameLabel.numberOfLines = 0
+        restaurantNameLabel.font = .secondaryTitle
         restaurantNameLabel.translatesAutoresizingMaskIntoConstraints = false
         restaurantNameLabel.text = "Restaurant name"
     }
@@ -145,8 +185,16 @@ class VisitCell: UITableViewCell {
             parent.present(newVc, animated: false, completion: nil)
         } else {
             #warning("need to test")
-            parent.showMessage("No location found.", on: parent)
+            parent.showMessage("No location found", on: parent)
         }
+    }
+    
+    @objc private func moreActionsSelector() {
+        print("More actions was pressed")
+        guard let delegate = delegate else { return }
+        self.findViewController()?.actionSheet(actions: [
+            ("Delete visit", { [weak self] in delegate.delete(visit: self?.visit) })
+        ])
         
     }
     
@@ -173,7 +221,6 @@ class VisitCell: UITableViewCell {
         } else {
             visitImageViewHeightConstraint?.constant = baseHeight
         }
-        
         
         if let image = image {
             visitImageView.image = image

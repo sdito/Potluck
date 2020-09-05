@@ -16,14 +16,20 @@ class SettingsVC: UIViewController {
         case account = "Account"
         case data = "Data"
         
-        var rows: [String] {
+        var rows: [Row] {
             switch self {
             case .account:
-                return ["Logout", "Edit account info"]
+                return [.logout, .editAccountInfo]
             case .data:
-                return ["Reset all data"]
+                return [.resetAllData]
             }
         }
+    }
+    
+    enum Row: String {
+        case logout = "Logout"
+        case editAccountInfo = "Edit account info"
+        case resetAllData = "Reset all data"
     }
 
     override func viewDidLoad() {
@@ -62,16 +68,34 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
         let text = Setting.allCases[indexPath.section].rows[indexPath.row]
-        cell.textLabel?.text = text
+        cell.textLabel?.text = text.rawValue
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if Network.shared.loggedIn {
-            Network.shared.account?.logOut()
-            self.showMessage("Logged out of account")
-            self.navigationController?.popViewController(animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        let row = Setting.allCases[indexPath.section].rows[indexPath.row]
+        
+        switch row {
+        case .logout:
+            
+            self.alert(title: "Logout", message: "Are you sure you want to log out of your account \(Network.shared.account?.username ?? "now")?") {
+                if Network.shared.loggedIn {
+                    Network.shared.account?.logOut()
+                    self.showMessage("Logged out of account")
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+            
+            
+        case .editAccountInfo:
+            fatalError()
+        case .resetAllData:
+            fatalError()
         }
+        
+        
     }
     
     

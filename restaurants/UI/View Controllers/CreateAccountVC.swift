@@ -108,7 +108,7 @@ class CreateAccountVC: UIViewController {
     }
     
     @objc func executeCreateOrLogIn() {
-        #warning("need to better handle the alerts, create a view that goes into the stack view that is then removed")
+        
         switch mode! {
         case .createAccount:
             emailLogInField.shakeIfNeeded()

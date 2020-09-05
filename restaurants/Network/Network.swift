@@ -13,7 +13,10 @@ import KeychainSwift
 
 class Network {
     
-    var account: Account? 
+    static let deletedCode: Int = 204
+    
+    var account: Account?
+    
     var loggedIn: Bool {
         return account != nil
     }

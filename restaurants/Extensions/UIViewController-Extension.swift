@@ -104,6 +104,16 @@ extension UIViewController {
         self.present(alert, animated: true)
     }
     
+    func alert(title: String, message: String, negativeButton: String = "Cancel", positiveButton: String = "Ok", positiveAction: @escaping () -> ()) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(.init(title: negativeButton, style: .cancel, handler: nil))
+        let action = UIAlertAction(title: positiveButton, style: .default) { (alertAction) in
+            positiveAction()
+        }
+        alert.addAction(action)
+        self.present(alert, animated: true)
+    }
+    
     func actionSheet(title: String? = nil, message: String? = nil, actions: [(title: String, pressed: () -> ())]) {
         let actionSheet = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
         

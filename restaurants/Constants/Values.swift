@@ -26,7 +26,6 @@ extension String {
     static let searchLocationAnnotationIdentifier = "searchLocationAnnotationIdentifier"
     static let currentLocation = "Current location"
     static let mapLocation = "Map location"
-    
     static let searchBarTransitionType = "searchBarTransitionType"
     static let searchBarTransitionLocation = "searchBarTransitionLocation"
 }
@@ -50,6 +49,7 @@ extension UIImage {
     static let mapPinImage = UIImage(systemName: "mappin", withConfiguration: UIImage.SymbolConfiguration(scale: .large))!
     static let homeImage = UIImage(systemName: "house")!
     static let starCircleImage = UIImage(systemName: "star.circle")!
+    static let threeDotsImage = UIImage(systemName: "ellipsis")!
 }
 
 

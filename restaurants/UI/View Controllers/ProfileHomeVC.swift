@@ -21,10 +21,19 @@ class ProfileHomeVC: UIViewController {
         self.view.backgroundColor = .systemBackground
         self.setNavigationBarColor(color: Colors.navigationBarColor)
         self.navigationController?.navigationBar.tintColor = Colors.main
+        self.tableView.separatorInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: .settingsImage, style: .plain, target: self, action: #selector(rightBarButtonItemSelector))
         
         setUpTableView()
         getInitialUserVisits()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     private func getInitialUserVisits() {
@@ -44,18 +53,8 @@ class ProfileHomeVC: UIViewController {
                 }
             }
         } else {
-            
-            #warning("this one is not workking")
-            
-            tableView.layoutIfNeeded()
-            
-            self.allowHintToCreateRestaurant = false
-            let createAccountButton = self.tableView.setEmptyWithAction(message: "You need to create an account in order to make posts.", buttonTitle: "Create account")
-            createAccountButton.addTarget(self, action: #selector(rightBarButtonItemSelector), for: .touchUpInside)
-            
-            
+            noUserTableView()
         }
-        
     }
     
     private func setUpTableView() {
@@ -65,9 +64,30 @@ class ProfileHomeVC: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(VisitCell.self, forCellReuseIdentifier: reuseIdentifier)
+        tableView.separatorStyle = .none
+        self.tableView.backgroundColor = .secondarySystemBackground
         
+        let showOnMapButton = SizeChangeButton(sizeDifference: .medium, restingColor: Colors.main, selectedColor: Colors.main)
+        showOnMapButton.translatesAutoresizingMaskIntoConstraints = false
+        showOnMapButton.setTitle("Show on map", for: .normal)
+        showOnMapButton.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.9)
+        showOnMapButton.titleEdgeInsets = UIEdgeInsets(top: 2.0, left: 5.0, bottom: 2.0, right: 5.0)
+        showOnMapButton.layer.cornerRadius = 5.0
+        showOnMapButton.setTitleColor(Colors.main, for: .normal)
+        showOnMapButton.titleLabel?.font = .mediumBold
+        
+        self.view.addSubview(showOnMapButton)
+        showOnMapButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+//        showOnMapButton.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+        showOnMapButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -((self.tabBarController?.tabBar.bounds.height ?? 0.0) + 10.0)).isActive = true
     }
-        
+    
+    private func noUserTableView() {
+        tableView.layoutIfNeeded()
+        self.allowHintToCreateRestaurant = false
+        let createAccountButton = self.tableView.setEmptyWithAction(message: "You need to create an account in order to make posts.", buttonTitle: "Create account")
+        createAccountButton.addTarget(self, action: #selector(rightBarButtonItemSelector), for: .touchUpInside)
+    }
     
     @objc private func rightBarButtonItemSelector() {
         if Network.shared.loggedIn {
@@ -81,6 +101,15 @@ class ProfileHomeVC: UIViewController {
         self.tabBarController?.presentAddRestaurantVC()
     }
     
+    @objc private func userLoggedIn() {
+        getInitialUserVisits()
+    }
+    
+    @objc private func userLoggedOut() {
+        visits = []
+        tableView.reloadData()
+        noUserTableView()
+    }
 }
 
 
@@ -98,19 +127,42 @@ extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! VisitCell
         let visit = visits[indexPath.row]
         cell.setUpWith(visit: visit)
-        let key = NSString(string: "\(indexPath.row)")
+        cell.delegate = self
+        let key = NSString(string: "\(visit.djangoOwnID)")
         
         cell.setImage(url: visit.mainImage, image: imageCache.object(forKey: key), height: visit.mainImageHeight, width: visit.mainImageWidth) { (imageFound) in
             if let imageFound = imageFound {
                 self.imageCache.setObject(imageFound, forKey: key)
             }
         }
-        
         return cell
     }
-    
-    
 }
 
 
+// MARK: VisitCellDelegate
+extension ProfileHomeVC: VisitCellDelegate {
+    func delete(visit: Visit?) {
+        guard let visit = visit else { return }
+        self.alert(title: "Are you sure you want to delete this visit?", message: "This action can't be undone.") {
+            Network.shared.deleteVisit(visit: visit) { (success) in return }
+            
+            let indexToDelete = self.visits.firstIndex { (v) -> Bool in
+                v.djangoOwnID == visit.djangoOwnID
+            }
+            
+            if let idx = indexToDelete {
+                guard let cellToDelete = self.tableView.cellForRow(at: IndexPath(row: idx, section: 0)) as? VisitCell else { return }
+            
+                if cellToDelete.visit?.djangoOwnID == visit.djangoOwnID {
+                    self.visits.remove(at: idx)
+                    self.tableView.beginUpdates()
+                    self.tableView.deleteRows(at: [IndexPath(row: idx, section: 0)], with: .automatic)
+                    self.tableView.endUpdates()
+                }
+            }
+        }
+    }
+    
+}
 

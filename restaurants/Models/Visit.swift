@@ -10,7 +10,7 @@ import Foundation
 import CoreLocation
 
 class Visit: Codable {
-    
+    var djangoOwnID: Int
     var djangoRestaurantID: Int
     var restaurantName: String
     var mainImage: String
@@ -42,6 +42,7 @@ class Visit: Codable {
     }
     
     enum CodingKeys: String, CodingKey {
+        case djangoOwnID = "id"
         case djangoRestaurantID = "restaurant"
         case restaurantName = "restaurant_name"
         case mainImage = "main_image"

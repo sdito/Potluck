@@ -44,6 +44,8 @@ class Account: Decodable {
         keyChain.set(self.username, forKey: Account.usernameKey)
         keyChain.set(self.email, forKey: Account.emailKey)
         keyChain.set(self.token, forKey: Account.tokenKey)
+        
+        NotificationCenter.default.post(name: .userLoggedIn, object: self)
     }
     
     func logOut() {
@@ -52,6 +54,8 @@ class Account: Decodable {
         keyChain.delete(Account.emailKey)
         keyChain.delete(Account.tokenKey)
         Network.shared.account = nil
+        
+        NotificationCenter.default.post(name: .userLoggedOut, object: nil)
     }
     
     
