@@ -24,9 +24,10 @@ class ProfileHomeVC: UIViewController {
         self.tableView.separatorInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: .settingsImage, style: .plain, target: self, action: #selector(rightBarButtonItemSelector))
-        
+        navigationItem.title = "Profile feed"
         setUpTableView()
         getInitialUserVisits()
+        
         
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
@@ -75,10 +76,10 @@ class ProfileHomeVC: UIViewController {
         showOnMapButton.layer.cornerRadius = 5.0
         showOnMapButton.setTitleColor(Colors.main, for: .normal)
         showOnMapButton.titleLabel?.font = .mediumBold
+        showOnMapButton.addTarget(self, action: #selector(showOnMapButtonPressed), for: .touchUpInside)
         
         self.view.addSubview(showOnMapButton)
         showOnMapButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-//        showOnMapButton.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
         showOnMapButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -((self.tabBarController?.tabBar.bounds.height ?? 0.0) + 10.0)).isActive = true
     }
     
@@ -109,6 +110,11 @@ class ProfileHomeVC: UIViewController {
         visits = []
         tableView.reloadData()
         noUserTableView()
+    }
+    
+    @objc private func showOnMapButtonPressed() {
+        let mapProfile = ProfileMapVC()
+        self.navigationController?.pushViewController(mapProfile, animated: true)
     }
 }
 

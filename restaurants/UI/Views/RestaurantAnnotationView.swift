@@ -11,21 +11,37 @@ import MapKit
 
 class RestaurantAnnotationView: MKMarkerAnnotationView {
     
-    var restaurant: Restaurant!
+    var restaurant: Restaurant?
+    var establishment: Establishment?
     var place: Int!
     
     override var annotation: MKAnnotation? {
         willSet {
             guard let restaurantAnnotation = newValue as? RestaurantAnnotation else { return }
             restaurant = restaurantAnnotation.restaurant
+            establishment = restaurantAnnotation.establishment
             place = restaurantAnnotation.place
             
             displayPriority = .required
-            markerTintColor = Colors.main
             
-            if let place = place {
-                glyphText = "\(place)"
+            
+            if restaurant != nil {
+                markerTintColor = Colors.main
+                if let place = place {
+                    glyphText = "\(place)"
+                }
+            } else if let establishment = establishment {
+                if establishment.isRestaurant {
+                    markerTintColor = Colors.main
+                    glyphImage = nil
+                } else {
+                    markerTintColor = Colors.secondary
+                    glyphImage = .homeImage
+                }
+                
             }
+            
+            
         }
     }
 

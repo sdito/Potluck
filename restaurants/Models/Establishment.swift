@@ -109,6 +109,7 @@ class Establishment: Codable {
         case state
         case country
         case firstVisited = "first_visited"
+        case visits
     }
     
     struct EstablishmentDecoder: Decodable {

@@ -25,12 +25,17 @@ class Visit: Codable {
     private var longitude: Double?
     private var latitude: Double?
     
+    var listPhotos: [String] {
+        var arr: [String] = [mainImage]
+        for photo in otherImages {
+            arr.append(photo.image)
+        }
+        return arr
+    }
+    
     var userDate: String {
         let currentDate = serverDate.convertFromUTC()
-        let dateFormatter = DateFormatter()
-        dateFormatter.calendar = Calendar.current
-        dateFormatter.dateStyle = .medium
-        return dateFormatter.string(from: currentDate)
+        return currentDate.dateString()
     }
     
     var coordinate: CLLocationCoordinate2D? {

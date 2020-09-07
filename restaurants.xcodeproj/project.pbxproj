@@ -92,6 +92,10 @@
 		E2DC2F3C24EF3CD7002C6A07 /* MapLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DC2F3B24EF3CD7002C6A07 /* MapLocationView.swift */; };
 		E2DC2F3E24EFAE7F002C6A07 /* PHAsset-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */; };
 		E2E180F124E8B3F6004AA4BE /* LogInButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E180F024E8B3F6004AA4BE /* LogInButton.swift */; };
+		E2E6E09F250445100005A55B /* ProfileMapVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E6E09E250445100005A55B /* ProfileMapVC.swift */; };
+		E2E6E0A1250461040005A55B /* EstablishmentDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E6E0A0250461040005A55B /* EstablishmentDetailVC.swift */; };
+		E2E6E0A3250581F10005A55B /* HeaderEstablishmentReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E6E0A2250581F00005A55B /* HeaderEstablishmentReusableView.swift */; };
+		E2E6E0A52505B40F0005A55B /* UICollectionView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E6E0A42505B40F0005A55B /* UICollectionView-Extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -183,6 +187,10 @@
 		E2DC2F3B24EF3CD7002C6A07 /* MapLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapLocationView.swift; sourceTree = "<group>"; };
 		E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PHAsset-Extension.swift"; sourceTree = "<group>"; };
 		E2E180F024E8B3F6004AA4BE /* LogInButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInButton.swift; sourceTree = "<group>"; };
+		E2E6E09E250445100005A55B /* ProfileMapVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileMapVC.swift; sourceTree = "<group>"; };
+		E2E6E0A0250461040005A55B /* EstablishmentDetailVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstablishmentDetailVC.swift; sourceTree = "<group>"; };
+		E2E6E0A2250581F00005A55B /* HeaderEstablishmentReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderEstablishmentReusableView.swift; sourceTree = "<group>"; };
+		E2E6E0A42505B40F0005A55B /* UICollectionView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UICollectionView-Extension.swift"; sourceTree = "<group>"; };
 		F1B89F6FBA7BC1CC1A76E4E2 /* Pods_restaurants.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_restaurants.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -219,12 +227,14 @@
 			isa = PBXGroup;
 			children = (
 				E239841524EB632100F3828C /* TabVC.swift */,
+				E20EA83124E792AD0064DB86 /* ProfileHomeVC.swift */,
+				E2E6E0A0250461040005A55B /* EstablishmentDetailVC.swift */,
+				E2E6E09E250445100005A55B /* ProfileMapVC.swift */,
 				E239841724EB642000F3828C /* AddRestaurantVC.swift */,
 				E239841924EC6C7500F3828C /* SubmitRestaurantVC.swift */,
 				E239841B24ECA23F00F3828C /* ImageSelectorVC.swift */,
 				E239841124EA03B200F3828C /* SettingsVC.swift */,
 				E20EA83324E7A98D0064DB86 /* CreateAccountVC.swift */,
-				E20EA83124E792AD0064DB86 /* ProfileHomeVC.swift */,
 				E27A756D24A855EC00E446EE /* FindRestaurantVC.swift */,
 				E2C8E88E24C378AE003DC824 /* RestaurantListVC.swift */,
 				E29AF2F624D690F5004C60FC /* SearchRestaurantsVC.swift */,
@@ -299,6 +309,7 @@
 				E2778DE424BBA5B200151F29 /* PhotoCell.swift */,
 				E2705B5524C3C1340049C1A8 /* RestaurantCell.swift */,
 				E23AFA0024F89D31004542A2 /* TwoLevelCell.swift */,
+				E2E6E0A2250581F00005A55B /* HeaderEstablishmentReusableView.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -357,6 +368,7 @@
 				E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */,
 				E2A0147224F617ED00379518 /* UITableView-Extension.swift */,
 				E23AFA0224F8D1EF004542A2 /* CLLocationDistance-Extension.swift */,
+				E2E6E0A42505B40F0005A55B /* UICollectionView-Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -514,6 +526,7 @@
 				E23AFA0524F8DBB4004542A2 /* SelectLocationVC.swift in Sources */,
 				E2574A2324B53348006618D7 /* UIImageView-Extension.swift in Sources */,
 				E2DC2F2724EDCED0002C6A07 /* ImageXView.swift in Sources */,
+				E2E6E09F250445100005A55B /* ProfileMapVC.swift in Sources */,
 				E27A757024A85AA100E446EE /* UIViewController-Extension.swift in Sources */,
 				E2768DF024B15340004CB475 /* Colors.swift in Sources */,
 				E2A0147324F617ED00379518 /* UITableView-Extension.swift in Sources */,
@@ -540,6 +553,7 @@
 				E215535F24B5220500494E1A /* ReviewView.swift in Sources */,
 				E215534D24B2A20E00494E1A /* UIView-Extension.swift in Sources */,
 				E20EA83424E7A98D0064DB86 /* CreateAccountVC.swift in Sources */,
+				E2E6E0A52505B40F0005A55B /* UICollectionView-Extension.swift in Sources */,
 				E2894ECB2502F2E50012E8D8 /* NotificationName.swift in Sources */,
 				E27A755A24A8557E00E446EE /* AppDelegate.swift in Sources */,
 				E215535124B2EA1B00494E1A /* RestaurantDetailVC.swift in Sources */,
@@ -571,6 +585,7 @@
 				E2705B5624C3C1340049C1A8 /* RestaurantCell.swift in Sources */,
 				E2574A2B24B67DCF006618D7 /* MapCutoutView.swift in Sources */,
 				E215535B24B4343500494E1A /* PaddingLabel.swift in Sources */,
+				E2E6E0A1250461040005A55B /* EstablishmentDetailVC.swift in Sources */,
 				E2778DE124BB8C0F00151F29 /* HeaderDetailView.swift in Sources */,
 				E215535D24B5007500494E1A /* UIScrollView-Extension.swift in Sources */,
 				E2A0146F24F5C00F00379518 /* Visit-Network.swift in Sources */,
@@ -582,6 +597,7 @@
 				E2768DEE24B15284004CB475 /* RestaurantAnnotationView.swift in Sources */,
 				E2778DE524BBA5B200151F29 /* PhotoCell.swift in Sources */,
 				E215535324B3C9A700494E1A /* Review.swift in Sources */,
+				E2E6E0A3250581F10005A55B /* HeaderEstablishmentReusableView.swift in Sources */,
 				E2B6A2B924B007030070DECA /* CLLocationCoordinate2D-Extension.swift in Sources */,
 				E215534924B297CC00494E1A /* OverlayButton.swift in Sources */,
 				E20EA83A24E870E00064DB86 /* PaddingTextField.swift in Sources */,

@@ -12,6 +12,39 @@ import MapKit
 
 extension UIViewController {
     
+    func showAddingChildFromBottom(child: UIViewController, childHeight: CGFloat) {
+        child.view.translatesAutoresizingMaskIntoConstraints = false
+        addChild(child)
+        self.view.addSubview(child.view)
+        child.view.constrain(.leading, to: self.view, .leading)
+        child.view.constrain(.trailing, to: self.view, .trailing)
+        child.view.constrain(.bottom, to: self.view, .bottom)
+        //child.view.heightAnchor.constraint(equalToConstant: childHeight).isActive = true
+        child.view.frame.size.height = childHeight
+        child.didMove(toParent: self)
+        
+        child.view.transform = CGAffineTransform(translationX: 0, y: childHeight)
+        
+        UIView.animate(withDuration: 0.3) {
+            child.view.transform = .identity
+        }
+    }
+    
+    func removeChildViewControllersFromBottom(onCompletion: @escaping (Bool) -> Void) {
+        for vc in self.children {
+            let height = vc.view.bounds.height
+            UIView.animate(withDuration: 0.3, animations: {
+                vc.view.transform = CGAffineTransform(translationX: 0, y: height)
+            }) { (complete) in
+                if complete {
+                    vc.willMove(toParent: nil)
+                    vc.view.removeFromSuperview()
+                    vc.removeFromParent()
+                    onCompletion(true)
+                }
+            }
+        }
+    }
     
     func presentAddRestaurantVC() {
         let baseVC = AddRestaurantVC()

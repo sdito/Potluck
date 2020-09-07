@@ -121,15 +121,18 @@ class Network {
         return request
     }
     
-    func getImage(url: String?, imageReturned: @escaping (UIImage) -> Void) {
+    func getImage(url: String?, imageReturned: @escaping (UIImage?) -> Void) {
         if let url = url {
             AF.request(url).responseImage { (response) in
                 if let data = response.data {
-                    if let image = UIImage(data: data) {
-                        imageReturned(image)
-                    }
+                    let image = UIImage(data: data)
+                    imageReturned(image)
+                } else {
+                    imageReturned(nil)
                 }
             }
+        } else {
+            imageReturned(nil)
         }
     }
     

@@ -11,6 +11,13 @@ import Foundation
 
 extension Date {
     
+    func dateString() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.calendar = Calendar.current
+        dateFormatter.dateStyle = .medium
+        return dateFormatter.string(from: self)
+    }
+    
     func convertFromUTC() -> Date {
         let timezone = TimeZone.current
         let seconds = TimeInterval(timezone.secondsFromGMT(for: self))

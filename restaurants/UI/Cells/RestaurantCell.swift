@@ -165,6 +165,7 @@ class RestaurantCell: UITableViewCell {
         deliveryLabel.attributedText = "Delivery".getAffirmativeOrNegativeAttributedString(transactions.contains(.delivery), font: UIFont.mediumBold)
         takeoutLabel.attributedText = "Pickup".getAffirmativeOrNegativeAttributedString(transactions.contains(.pickup), font: UIFont.mediumBold)
         reservationsLabel.attributedText = "Reservations".getAffirmativeOrNegativeAttributedString(transactions.contains(.restaurantReservation), font: UIFont.mediumBold)
+        
     }
     
     func setUpForHero() {
@@ -180,9 +181,7 @@ class RestaurantCell: UITableViewCell {
     }
     
     func setUpForSkeleton() {
-        #warning("not working as expected")
         
-        //self.isSkeletonable = true
         self.titleLabel.text = "This is the example title"
         self.titleLabel.isSkeletonable = true
         self.restaurantImageView.isSkeletonable = true

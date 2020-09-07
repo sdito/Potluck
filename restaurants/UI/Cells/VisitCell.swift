@@ -133,7 +133,9 @@ class VisitCell: UITableViewCell {
         scrollingStackView.stackView.addArrangedSubview(visitImageView)
         visitImageView.translatesAutoresizingMaskIntoConstraints = false
         visitImageView.widthAnchor.constraint(equalTo: scrollingStackView.scrollView.widthAnchor).isActive = true
+        
         visitImageViewHeightConstraint = visitImageView.heightAnchor.constraint(equalToConstant: baseHeight)
+        visitImageViewHeightConstraint?.priority = .defaultLow
         visitImageViewHeightConstraint?.isActive = true
         visitImageView.contentMode = .scaleAspectFill
     }
@@ -214,10 +216,8 @@ class VisitCell: UITableViewCell {
         visitImageView.layoutIfNeeded()
         
         if let height = height, let width = width {
-            
             let ratio = CGFloat(width) / CGFloat(height)
             visitImageViewHeightConstraint?.constant = visitImageView.bounds.width / ratio
-            
         } else {
             visitImageViewHeightConstraint?.constant = baseHeight
         }

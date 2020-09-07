@@ -318,7 +318,7 @@ class FindRestaurantVC: UIViewController {
         }
         
         if let selectedAnnotation = mapView.selectedAnnotations[0] as? RestaurantAnnotation {
-            let selectedRest = selectedAnnotation.restaurant
+            guard let selectedRest = selectedAnnotation.restaurant else { return }
             
             switch childPosition {
             case .top, .middle:

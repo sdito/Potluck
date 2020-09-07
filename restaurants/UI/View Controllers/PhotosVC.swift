@@ -87,7 +87,9 @@ extension PhotosVC: UICollectionViewDelegate, UICollectionViewDataSource {
                 guard let self = self else { return }
                 cell.imageView.appEndSkeleton()
                 cell.imageView.image = img
-                self.imageCache.setObject(img, forKey: key)
+                if let img = img {
+                    self.imageCache.setObject(img, forKey: key)
+                }
             }
         }
         
