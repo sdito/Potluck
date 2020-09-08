@@ -28,16 +28,30 @@ class SubmitRestaurantVC: UIViewController {
     private let containerView = UIView()
     private let headerStackView = UIStackView()
     private let showMapPopUpButton = UIButton()
+    private var sliderStackView = UIStackView()
+    private let sliderView = UISlider()
+    private let sliderValueButton = UIButton()
     private let textView = PlaceholderTextView(placeholder: "Add comment. Type of meal, how the experience was, who you went with, etc. (Optional)", font: UIFont.systemFont(ofSize: UIFont.systemFontSize))
     
     private var nameRawValue: String?
     private var addressRawValue: String?
     private var coordinateRawValue: CLLocationCoordinate2D?
+    private var sliderValue: Float? {
+        didSet {
+            if let value = self.sliderValue {
+                self.sliderValueButton.setTitle("\(sliderValue!)", for: .normal)
+            } else {
+                self.sliderValueButton.setTitle(emptySliderValue, for: .normal)
+            }
+            
+        }
+    }
     
     private var establishment: Establishment?
     private var restaurant: Restaurant?
     private var mode: Mode?
     private var map: MapLocationView?
+    private let emptySliderValue = " --- "
     
     init(rawValues: (name: String, address: String)?, establishment: Establishment?, restaurant: Restaurant?) {
         self.nameRawValue = rawValues?.name
@@ -71,6 +85,7 @@ class SubmitRestaurantVC: UIViewController {
         setUpHeaderStackView()
         setUpLabels()
         setUpMap()
+        setUpSliderView()
         setUpCommentTextView()
         setUpChildView()
         setUpImageSelector()
@@ -101,7 +116,7 @@ class SubmitRestaurantVC: UIViewController {
         headerStackView.axis = .vertical
         headerStackView.distribution = .fill
         headerStackView.alignment = .leading
-        headerStackView.spacing = 3.0
+        headerStackView.spacing = 5.0
         self.view.addSubview(headerStackView)
         headerStackView.constrain(.top, to: self.view, .top)
         headerStackView.constrain(.leading, to: self.view, .leading, constant: 10.0)
@@ -169,6 +184,42 @@ class SubmitRestaurantVC: UIViewController {
         showMapPopUpButton.addTarget(self, action: #selector(showMapOnPopUp), for: .touchUpInside)
     }
     
+    private func setUpSliderView() {
+        sliderStackView.translatesAutoresizingMaskIntoConstraints = false
+        headerStackView.addArrangedSubview(sliderStackView)
+        sliderStackView.distribution = .fill
+        sliderStackView.alignment = .fill
+        sliderStackView.spacing = 7.5
+        
+        sliderView.translatesAutoresizingMaskIntoConstraints = false
+        sliderView.minimumValue = 0.0
+        sliderView.maximumValue = 10.0
+        sliderView.value = 5.0
+        
+        sliderView.addTarget(self, action: #selector(sliderViewSelector(sender:)), for: .valueChanged)
+        
+        let ratingLabel = UILabel()
+        ratingLabel.translatesAutoresizingMaskIntoConstraints = false
+        ratingLabel.font = .mediumBold
+        ratingLabel.text = "Rating"
+        
+        sliderValueButton.translatesAutoresizingMaskIntoConstraints = false
+        sliderValueButton.setTitle(emptySliderValue, for: .normal)
+        sliderValueButton.widthAnchor.constraint(equalToConstant: 40.0).isActive = true
+        sliderValueButton.titleLabel?.adjustsFontSizeToFitWidth = true
+        sliderValueButton.titleLabel?.minimumScaleFactor = 0.5
+        sliderValueButton.titleLabel?.font = .mediumBold
+        sliderValueButton.titleLabel?.textAlignment = .center
+        sliderValueButton.addTarget(self, action: #selector(sliderValueButtonSelector), for: .touchUpInside)
+
+        sliderStackView.addArrangedSubview(ratingLabel)
+        sliderStackView.addArrangedSubview(sliderView)
+        sliderStackView.addArrangedSubview(sliderValueButton)
+        sliderStackView.widthAnchor.constraint(equalTo: headerStackView.widthAnchor).isActive = true
+        
+    }
+    
+    
     private func setUpCommentTextView() {
         textView.translatesAutoresizingMaskIntoConstraints = false
         headerStackView.addArrangedSubview(textView)
@@ -177,7 +228,6 @@ class SubmitRestaurantVC: UIViewController {
         textView.backgroundColor = .secondarySystemBackground
         textView.layer.cornerRadius = 10.0
         textView.clipsToBounds = true
-        
         
     }
     
@@ -253,6 +303,7 @@ class SubmitRestaurantVC: UIViewController {
                                                           mainImage: firstPhoto,
                                                           otherImages: otherPhotos,
                                                           comment: textView.text,
+                                                          rating: sliderValue,
                                                           progressView: progressView)
                     { (result) in
                         switch result {
@@ -282,6 +333,7 @@ class SubmitRestaurantVC: UIViewController {
                                           mainImage: mainImage,
                                           otherImages: otherImages,
                                           comment: comment,
+                                          rating: sliderValue,
                                           progressView: progressView)
         { (result) in
             switch result {
@@ -332,6 +384,15 @@ class SubmitRestaurantVC: UIViewController {
             guard let firstPlaceMark = placeMarks?.first, let location = firstPlaceMark.location?.coordinate else { return }
             self.coordinateRawValue = location
         }
+    }
+    
+    @objc private func sliderViewSelector(sender: UISlider) {
+        sliderValue = Float(round(10 * sender.value)/10)
+    }
+    @objc private func sliderValueButtonSelector() {
+        #warning("need to complete")
+        // pop up to clear the value, or to just enter in the value
+        print("sliderValueButtonSelector pressed")
     }
     
 }

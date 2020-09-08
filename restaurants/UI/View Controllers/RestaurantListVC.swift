@@ -135,16 +135,9 @@ class RestaurantListVC: UIViewController {
         ])
         
         for (i, search) in Network.commonSearches.enumerated() {
-            let button = SizeChangeButton(sizeDifference: .medium, restingColor: .secondaryLabel, selectedColor: .label)
-            button.layer.cornerRadius = 4.0
-            button.clipsToBounds = true
-            button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
-            button.translatesAutoresizingMaskIntoConstraints = false
+            let button = SizeChangeButton.genericScrollingButton()
             button.setTitle(search.title, for: .normal)
-            button.titleLabel?.font = .mediumBold
-            button.backgroundColor = .quaternarySystemFill
             button.tag = i
-            button.setTitleColor(Colors.main, for: .selected)
             button.addTarget(self, action: #selector(commonSearchesPressed(sender:)), for: .touchUpInside)
             commonSearchButtons.append(button)
         }

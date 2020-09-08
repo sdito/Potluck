@@ -79,6 +79,9 @@ class SelectLocationVC: UIViewController {
         searchBar.placeholder = "Search address or drag to location"
         searchBar.autocapitalizationType = .words
         
+//        searchBar.searchTextField.minimumFontSize = 10.0
+//        searchBar.searchTextField.adjustsFontSizeToFitWidth = true
+        
         headerStack.leftButton.addTarget(self, action: #selector(dismissController), for: .touchUpInside)
         headerStack.rightButton.addTarget(self, action: #selector(doneWithSelectingLocation), for: .touchUpInside)
     }

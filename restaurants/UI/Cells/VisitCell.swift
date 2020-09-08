@@ -13,6 +13,7 @@ import UIKit
 
 protocol VisitCellDelegate: class {
     func delete(visit: Visit?)
+    func establishmentSelected(establishment: Establishment)
 }
 
 
@@ -24,10 +25,11 @@ class VisitCell: UITableViewCell {
     private let baseHeight: CGFloat = 250.0
     private let scrollingStackView = ScrollingStackView(subViews: [], showPlaceholder: true)
     let visitImageView = UIImageView()
-    private let restaurantNameLabel = UILabel()
+    private let restaurantNameButton = SizeChangeButton(sizeDifference: .inverse, restingColor: .label, selectedColor: Colors.main)
     private let commentLabel = UILabel()
     private var visitImageViewHeightConstraint: NSLayoutConstraint?
     private let dateLabel = UILabel()
+    private let ratingLabel = UILabel()
     private var dateAndButtonStackView: UIStackView!
     private var dateAndButtonContainerView: UIView!
     
@@ -57,7 +59,7 @@ class VisitCell: UITableViewCell {
         let lowerStackView = setUpLowerStack()
         
         setUpRestaurantNameLabel()
-        lowerStackView.addArrangedSubview(restaurantNameLabel)
+        lowerStackView.addArrangedSubview(restaurantNameButton)
         
         setUpCommentLabel()
         lowerStackView.addArrangedSubview(commentLabel)
@@ -79,9 +81,13 @@ class VisitCell: UITableViewCell {
         dateAndButtonStackView.axis = .horizontal
         dateAndButtonStackView.spacing = 5.0
         dateAndButtonStackView.distribution = .fill
+        
+        ratingLabel.translatesAutoresizingMaskIntoConstraints = false
+        dateAndButtonStackView.addArrangedSubview(ratingLabel)
+        
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         dateLabel.font = .mediumBold
-        dateLabel.textColor = .tertiaryLabel
+        dateLabel.textColor = .secondaryLabel
         dateAndButtonStackView.addArrangedSubview(dateLabel)
         
         // to take up the space in the middle, as a spacer
@@ -135,7 +141,6 @@ class VisitCell: UITableViewCell {
         visitImageView.widthAnchor.constraint(equalTo: scrollingStackView.scrollView.widthAnchor).isActive = true
         
         visitImageViewHeightConstraint = visitImageView.heightAnchor.constraint(equalToConstant: baseHeight)
-        visitImageViewHeightConstraint?.priority = .defaultLow
         visitImageViewHeightConstraint?.isActive = true
         visitImageView.contentMode = .scaleAspectFill
     }
@@ -159,10 +164,11 @@ class VisitCell: UITableViewCell {
     }
     
     private func setUpRestaurantNameLabel() {
-        restaurantNameLabel.numberOfLines = 0
-        restaurantNameLabel.font = .secondaryTitle
-        restaurantNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        restaurantNameLabel.text = "Restaurant name"
+        restaurantNameButton.titleLabel?.numberOfLines = 2
+        restaurantNameButton.titleLabel?.font = .secondaryTitle
+        restaurantNameButton.translatesAutoresizingMaskIntoConstraints = false
+        restaurantNameButton.setTitle("Restaurant name", for: .normal)
+        restaurantNameButton.addTarget(self, action: #selector(restaurantNameSelected), for: .touchUpInside)
     }
     
     private func setUpCommentLabel() {
@@ -200,13 +206,20 @@ class VisitCell: UITableViewCell {
         
     }
     
+    @objc private func restaurantNameSelected() {
+        if let establishment = visit?.getEstablishment() {
+            delegate?.establishmentSelected(establishment: establishment)
+        }
+    }
+    
     func setUpWith(visit: Visit) {
         self.visit = visit
         imageView?.image = nil
         commentLabel.text = visit.comment ?? "By \(visit.accountUsername)"
-        restaurantNameLabel.text = visit.restaurantName
+        restaurantNameButton.setTitle(visit.restaurantName, for: .normal)
         scrollingStackView.resetElements()
         dateLabel.text = visit.userDate
+        ratingLabel.attributedText = visit.ratingString
     }
     
     
@@ -236,6 +249,9 @@ class VisitCell: UITableViewCell {
         } else {
             imageFound(nil)
         }
+        
+        
+        
     }
     
 }

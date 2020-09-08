@@ -11,10 +11,10 @@ import Foundation
 
 extension Date {
     
-    func dateString() -> String {
+    func dateString(style: DateFormatter.Style = .medium) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.calendar = Calendar.current
-        dateFormatter.dateStyle = .medium
+        dateFormatter.dateStyle = style
         return dateFormatter.string(from: self)
     }
     

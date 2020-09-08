@@ -73,7 +73,7 @@ extension ProfileMapVC: MKMapViewDelegate {
         guard let viewAnnotation = view.annotation as? RestaurantAnnotation else { return }
         guard let establishment = viewAnnotation.establishment else { return }
         let childHeight = self.view.bounds.height * 0.6
-        let detailVC = EstablishmentDetailVC(establishment: establishment, delegate: self)
+        let detailVC = EstablishmentDetailVC(establishment: establishment, delegate: self, mode: .halfScreen)
         detailVC.view.translatesAutoresizingMaskIntoConstraints = false
         detailVC.view.heightAnchor.constraint(equalToConstant: childHeight).isActive = true
         mapView.handleMapZooming(distanceFromTop: 0.0, distanceFromBottom: childHeight, pointToCheck: viewAnnotation.coordinate, aboveExactCenter: true)

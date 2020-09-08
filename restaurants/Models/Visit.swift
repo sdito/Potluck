@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreLocation
+import UIKit
 
 class Visit: Codable {
     var djangoOwnID: Int
@@ -19,11 +20,16 @@ class Visit: Codable {
     var mainImageWidth: Int
     var accountID: Int
     var accountUsername: String
+    var rating: Double
     var otherImages: [VisitImage]
     
     private var serverDate: Date
     private var longitude: Double?
     private var latitude: Double?
+    
+    var currentDate: Date {
+        return serverDate.convertFromUTC()
+    }
     
     var listPhotos: [String] {
         var arr: [String] = [mainImage]
@@ -34,8 +40,11 @@ class Visit: Codable {
     }
     
     var userDate: String {
-        let currentDate = serverDate.convertFromUTC()
         return currentDate.dateString()
+    }
+    
+    var shortUserDate: String {
+        return currentDate.dateString(style: .short)
     }
     
     var coordinate: CLLocationCoordinate2D? {
@@ -44,6 +53,26 @@ class Visit: Codable {
         } else {
             return nil
         }
+    }
+    
+    var ratingString: NSAttributedString {
+        let mutableString = NSMutableAttributedString()
+        
+        let ratingPortion = NSAttributedString(string: "\(rating) ", attributes: [NSAttributedString.Key.font: UIFont.mediumBold, NSAttributedString.Key.baselineOffset: 1.8])
+        
+        let imageAttachment = NSTextAttachment(image: UIImage.starCircleImage.withConfiguration(UIImage.SymbolConfiguration(scale: .small)))
+        let imageString = NSAttributedString(attachment: imageAttachment)
+        
+        mutableString.append(ratingPortion)
+        mutableString.append(imageString)
+        
+        
+        return mutableString
+    }
+    
+    func getEstablishment() -> Establishment {
+        let establishment = Establishment(name: self.restaurantName, isRestaurant: false, djangoID: self.djangoRestaurantID, longitude: self.longitude, latitude: self.latitude, yelpID: nil, category: nil, address1: nil, address2: nil, address3: nil, city: nil, zipCode: nil, state: nil, country: nil, firstVisited: nil, visits: nil)
+        return establishment
     }
     
     enum CodingKeys: String, CodingKey {
@@ -60,6 +89,7 @@ class Visit: Codable {
         case longitude = "restaurant_longitude"
         case latitude = "restaurant_latitude"
         case otherImages = "other_images"
+        case rating
     }
     
     

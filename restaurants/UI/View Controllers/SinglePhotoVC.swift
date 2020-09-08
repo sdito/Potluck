@@ -18,9 +18,11 @@ class SinglePhotoVC: UIViewController {
     private var initialTouchPoint: CGPoint?
     private var minimumAlpha: CGFloat = 0.5
     private var initialViewOriginY: CGFloat = .zero
+    private let backgroundColor = UIColor.systemBackground
     
     init(image: UIImage?, imageURL: String?, cell: PhotoCell?, asset: PHAsset?) {
         super.init(nibName: nil, bundle: nil)
+        self.modalPresentationStyle = .overFullScreen
         setUp(image: image, imageURL: imageURL, cell: cell, asset: asset)
     }
     
@@ -30,14 +32,12 @@ class SinglePhotoVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .systemBackground
-        //self.modalPresentationStyle = .overCurrentContext
     }
 
     private func setUp(image: UIImage?, imageURL: String?, cell: PhotoCell?, asset: PHAsset?) {
         self.cellToResetIdAfter = cell
         self.hero.isEnabled = true
-        self.view.backgroundColor = .systemBackground
+        self.view.backgroundColor = backgroundColor.withAlphaComponent(0.8)
         
         setUpDoneButton()
         setUpScrollView()
@@ -49,12 +49,12 @@ class SinglePhotoVC: UIViewController {
         doneButton.translatesAutoresizingMaskIntoConstraints = false
         doneButton.setTitle("Done", for: .normal)
         doneButton.setTitleColor(Colors.main, for: .normal)
-        doneButton.titleLabel?.font = .largerBold
+        doneButton.titleLabel?.font = .secondaryTitle
         
         self.view.addSubview(doneButton)
         NSLayoutConstraint.activate([
-            doneButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 25),
-            doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 5.0)
+            doneButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 40),
+            doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10.0)
         ])
         
         doneButton.addTarget(self, action: #selector(dismissSinglePhoto), for: .touchUpInside)
@@ -117,6 +117,14 @@ class SinglePhotoVC: UIViewController {
     }
     
     @objc private func dismissSinglePhoto() {
+        // shows up weird on dismiss if it doesn't get set to hidden
+        doneButton.isHidden = true
+        
+        // have the background alpha be 0.0
+        UIView.animate(withDuration: 0.3) {
+            self.view.backgroundColor = self.backgroundColor.withAlphaComponent(0.0)
+        }
+        
         self.hero.dismissViewController {
             if let cell = self.cellToResetIdAfter {
                 // used to reset and fix the hero animation
@@ -155,7 +163,6 @@ class SinglePhotoVC: UIViewController {
         case .ended, .cancelled:
             if let initialTouchPoint = initialTouchPoint {
                 if touchPoint.y - initialTouchPoint.y > 100 {
-                    doneButton.isHidden = true // shows up weird on dismiss if it doesn't get set to hidden
                     dismissSinglePhoto()
                 } else {
                     UIView.animate(withDuration: 0.3, animations: {

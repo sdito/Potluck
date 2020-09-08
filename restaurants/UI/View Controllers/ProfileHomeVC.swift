@@ -28,7 +28,6 @@ class ProfileHomeVC: UIViewController {
         setUpTableView()
         getInitialUserVisits()
         
-        
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
     }
@@ -148,6 +147,11 @@ extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
 
 // MARK: VisitCellDelegate
 extension ProfileHomeVC: VisitCellDelegate {
+    func establishmentSelected(establishment: Establishment) {
+        print("Establishment selected: \(establishment.name)")
+        self.navigationController?.pushViewController(EstablishmentDetailVC(establishment: establishment, delegate: nil, mode: .fullScreen), animated: true)
+    }
+    
     func delete(visit: Visit?) {
         guard let visit = visit else { return }
         self.alert(title: "Are you sure you want to delete this visit?", message: "This action can't be undone.") {

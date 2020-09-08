@@ -58,4 +58,16 @@ class SizeChangeButton: UIButton {
             self.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
         })
     }
+    
+    static func genericScrollingButton() -> SizeChangeButton {
+        let button = SizeChangeButton(sizeDifference: .medium, restingColor: .secondaryLabel, selectedColor: .label)
+        button.layer.cornerRadius = 4.0
+        button.clipsToBounds = true
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.titleLabel?.font = .mediumBold
+        button.backgroundColor = .quaternarySystemFill
+        button.setTitleColor(Colors.main, for: .selected)
+        return button
+    }
 }

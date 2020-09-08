@@ -248,7 +248,6 @@ class ImageSelectorVC: UIViewController {
     }
     
     @objc func longPress(longPressGestureRecognizer: UILongPressGestureRecognizer) {
-
         if longPressGestureRecognizer.state == UIGestureRecognizer.State.began {
             let touchPoint = longPressGestureRecognizer.location(in: collectionView)
             if let indexPath = collectionView.indexPathForItem(at: touchPoint) {

@@ -26,6 +26,7 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
         self.tabBar.tintColor = Colors.main
         self.tabBar.barTintColor = Colors.navigationBarColor
         
+        
         for tb in tabBar.items! {
             #warning("not working")
             tb.imageInsets = UIEdgeInsets(top: 5.5, left: 0, bottom: -5.5, right: 0)

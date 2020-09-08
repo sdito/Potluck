@@ -101,7 +101,7 @@ extension Network {
         })
     }
     
-    func userPostNotVisited(establishment: Establishment, mainImage: UIImage, otherImages: [UIImage]?, comment: String?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
+    func userPostNotVisited(establishment: Establishment, mainImage: UIImage, otherImages: [UIImage]?, comment: String?, rating: Float?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
         // add everything into the params for the request
         #warning("need to do testing on this")
         do {
@@ -109,8 +109,12 @@ extension Network {
             let json = try? JSONSerialization.jsonObject(with: data, options: [])
             if var establishmentJson = json as? [String:Any] {
                 
-                if let comment = comment {
+                if let comment = comment, comment != "" {
                     establishmentJson["comment"] = comment
+                }
+                
+                if let rating = rating {
+                    establishmentJson["rating"] = rating
                 }
                 
                 let req = reqVisit(params: establishmentJson, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages)
@@ -149,17 +153,19 @@ extension Network {
     }
     
     
-    func userPostAlreadyVisited(djangoID: Int, mainImage: UIImage, otherImages: [UIImage]?, comment: String?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
+    func userPostAlreadyVisited(djangoID: Int, mainImage: UIImage, otherImages: [UIImage]?, comment: String?, rating: Float?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
+        
         var params: Parameters = ["restaurant_id":djangoID]
         if let comment = comment, comment != "" {
             params["comment"] = comment
         }
+        
+        if let rating = rating {
+            params["rating"] = rating
+        }
+        
         let request = reqVisit(params: params, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages)
         request?.responseJSON(completionHandler: { [weak self] (response) in
-            
-            for _ in 1...10 {
-                print(response.value)
-            }
             
             guard let self = self else { return }
             guard let data = response.data, response.error == nil else {

@@ -12,6 +12,7 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
     
     private var dateLabel = UILabel()
     private var commentLabel = UILabel()
+    private var ratingLabel = UILabel()
     private var container = UIView()
     private var containerStack = UIStackView()
     private var stackConstraint: NSLayoutConstraint?
@@ -31,13 +32,14 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         containerStack.translatesAutoresizingMaskIntoConstraints = false
         commentLabel.translatesAutoresizingMaskIntoConstraints = false
+        ratingLabel.translatesAutoresizingMaskIntoConstraints = false
         
         self.addSubview(container)
-//        container.constrainSides(to: self, distance: 20.0)
+
         container.constrain(.leading, to: self, .leading, constant: 20.0)
         container.constrain(.top, to: self, .top, constant: 20.0)
         container.constrain(.trailing, to: self, .trailing, constant: 20.0)
-        
+        container.bottomAnchor.constraint(lessThanOrEqualTo: self.bottomAnchor, constant: -20.0).isActive = true
         
         container.addSubview(containerStack)
         container.layer.cornerRadius = 10.0
@@ -45,20 +47,22 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
         container.backgroundColor = .secondarySystemBackground
         
         containerStack.axis = .vertical
-        containerStack.spacing = 5.0
+        containerStack.spacing = 10.0
         containerStack.distribution = .fill
         containerStack.alignment = .center
         containerStack.constrainSides(to: container, distance: 10.0)
+        
         containerStack.addArrangedSubview(dateLabel)
+        containerStack.addArrangedSubview(ratingLabel)
         containerStack.addArrangedSubview(commentLabel)
-        containerStack.addArrangedSubview(UIView())
+        
         
         dateLabel.font = .mediumBold
-        commentLabel.numberOfLines = 0
+        dateLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         
+        commentLabel.numberOfLines = 0
         commentLabel.font = .smallBold
         commentLabel.textColor = .secondaryLabel
-        dateLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         
         stackConstraint = containerStack.widthAnchor.constraint(equalToConstant: 100)
         stackConstraint?.isActive = true
@@ -74,7 +78,7 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
         }
         self.layoutIfNeeded()
         stackConstraint?.constant = dateLabel.bounds.width
-
+        ratingLabel.attributedText = visit.ratingString
     }
     
 }
