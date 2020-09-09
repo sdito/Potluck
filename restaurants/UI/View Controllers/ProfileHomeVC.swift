@@ -65,16 +65,10 @@ class ProfileHomeVC: UIViewController {
         tableView.dataSource = self
         tableView.register(VisitCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.separatorStyle = .none
-        self.tableView.backgroundColor = .secondarySystemBackground
+        self.tableView.backgroundColor = .systemBackground
         
-        let showOnMapButton = SizeChangeButton(sizeDifference: .medium, restingColor: Colors.main, selectedColor: Colors.main)
-        showOnMapButton.translatesAutoresizingMaskIntoConstraints = false
+        let showOnMapButton = OverlayButton()
         showOnMapButton.setTitle("Show on map", for: .normal)
-        showOnMapButton.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.9)
-        showOnMapButton.titleEdgeInsets = UIEdgeInsets(top: 2.0, left: 5.0, bottom: 2.0, right: 5.0)
-        showOnMapButton.layer.cornerRadius = 5.0
-        showOnMapButton.setTitleColor(Colors.main, for: .normal)
-        showOnMapButton.titleLabel?.font = .mediumBold
         showOnMapButton.addTarget(self, action: #selector(showOnMapButtonPressed), for: .touchUpInside)
         
         self.view.addSubview(showOnMapButton)
@@ -117,9 +111,8 @@ class ProfileHomeVC: UIViewController {
     }
 }
 
-
+// MARK: Table view
 extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if allowHintToCreateRestaurant && visits.count == 0 {
             let addPostButton = self.tableView.setEmptyWithAction(message: "You do not have any posts yet. Add a post every time you eat at a restaurant.", buttonTitle: "Add post")
@@ -142,14 +135,22 @@ extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
         }
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        let visitSelected = visits[indexPath.row]
+        #warning("need to complete, create custom VC, also does not allow clicks on the scroll view")
+        let photosVC = PhotosVC(photos: visitSelected.listPhotos)
+        self.navigationController?.pushViewController(photosVC, animated: true)
+    }
 }
 
 
 // MARK: VisitCellDelegate
 extension ProfileHomeVC: VisitCellDelegate {
     func establishmentSelected(establishment: Establishment) {
-        print("Establishment selected: \(establishment.name)")
-        self.navigationController?.pushViewController(EstablishmentDetailVC(establishment: establishment, delegate: nil, mode: .fullScreen), animated: true)
+        self.navigationController?.pushViewController(EstablishmentDetailVC(establishment: establishment, delegate: nil, mode: .fullScreenBase), animated: true)
     }
     
     func delete(visit: Visit?) {

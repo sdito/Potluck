@@ -25,6 +25,12 @@ class ProfileMapVC: UIViewController {
         edgesForExtendedLayout = [.top, .left, .right]
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        self.setNavigationBarColor(color: Colors.navigationBarColor)
+    }
+    
     private func getRestaurantData() {
         Network.shared.getUserEstablishments { (result) in
             switch result {
@@ -73,7 +79,7 @@ extension ProfileMapVC: MKMapViewDelegate {
         guard let viewAnnotation = view.annotation as? RestaurantAnnotation else { return }
         guard let establishment = viewAnnotation.establishment else { return }
         let childHeight = self.view.bounds.height * 0.6
-        let detailVC = EstablishmentDetailVC(establishment: establishment, delegate: self, mode: .halfScreen)
+        let detailVC = EstablishmentDetailVC(establishment: establishment, delegate: self, mode: .halfScreenBase)
         detailVC.view.translatesAutoresizingMaskIntoConstraints = false
         detailVC.view.heightAnchor.constraint(equalToConstant: childHeight).isActive = true
         mapView.handleMapZooming(distanceFromTop: 0.0, distanceFromBottom: childHeight, pointToCheck: viewAnnotation.coordinate, aboveExactCenter: true)

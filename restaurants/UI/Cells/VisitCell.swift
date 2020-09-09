@@ -32,6 +32,7 @@ class VisitCell: UITableViewCell {
     private let ratingLabel = UILabel()
     private var dateAndButtonStackView: UIStackView!
     private var dateAndButtonContainerView: UIView!
+    private var otherImageViews: [UIImageView] = []
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -49,12 +50,7 @@ class VisitCell: UITableViewCell {
         setUpUiElementsForDateAndButtons()
         setUpScrollingStack()
         
-        let secondView = UIView()
-        secondView.translatesAutoresizingMaskIntoConstraints = false
-        scrollingStackView.stackView.addArrangedSubview(secondView)
-        secondView.backgroundColor = .blue
-        secondView.layoutIfNeeded()
-        secondView.heightAnchor.constraint(equalTo: visitImageView.heightAnchor).isActive = true
+        
         
         let lowerStackView = setUpLowerStack()
         
@@ -67,9 +63,9 @@ class VisitCell: UITableViewCell {
     
     private func setUpBase() {
         base.translatesAutoresizingMaskIntoConstraints = false
-        base.backgroundColor = .systemBackground
-        self.addSubview(base)
-        base.constrainSides(to: self, distance: 7.5)
+        base.backgroundColor = .secondarySystemBackground
+        contentView.addSubview(base)
+        base.constrainSides(to: contentView, distance: 7.5)
         base.layer.cornerRadius = 10.0
         base.clipsToBounds = true
     }
@@ -135,6 +131,10 @@ class VisitCell: UITableViewCell {
         scrollingStackView.stackView.distribution = .fillEqually
         scrollingStackView.scrollView.isPagingEnabled = true
         scrollingStackView.stackView.spacing = 3.0
+        
+        // To allow pressed on the scroll view to select the cell
+        scrollingStackView.scrollView.isUserInteractionEnabled = false
+        contentView.addGestureRecognizer(scrollingStackView.scrollView.panGestureRecognizer)
         
         scrollingStackView.stackView.addArrangedSubview(visitImageView)
         visitImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -217,9 +217,27 @@ class VisitCell: UITableViewCell {
         imageView?.image = nil
         commentLabel.text = visit.comment ?? "By \(visit.accountUsername)"
         restaurantNameButton.setTitle(visit.restaurantName, for: .normal)
-        scrollingStackView.resetElements()
+        
         dateLabel.text = visit.userDate
         ratingLabel.attributedText = visit.ratingString
+        
+        
+        otherImageViews.forEach { (iv) in
+            iv.removeFromSuperview()
+        }
+        
+        for img in visit.otherImages {
+            let view = UIImageView()
+            view.translatesAutoresizingMaskIntoConstraints = false
+            scrollingStackView.stackView.addArrangedSubview(view)
+            view.backgroundColor = .blue
+            view.layoutIfNeeded()
+            view.heightAnchor.constraint(equalTo: visitImageView.heightAnchor).isActive = true
+            otherImageViews.append(view)
+            #warning("need to set")
+        }
+        
+        scrollingStackView.resetElements()
     }
     
     

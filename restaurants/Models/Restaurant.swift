@@ -155,6 +155,14 @@ class Restaurant: Decodable {
         return establishment
     }
     
+    init(establishment: Establishment, yelpID: String, latitude: Double, longitude: Double) {
+        self.id = yelpID
+        self.name = establishment.name
+        self.latitude = latitude
+        self.longitude = longitude
+        self.address = YelpLocation(address1: establishment.address1, address2: establishment.address2, address3: establishment.address3, city: establishment.city, zipCode: establishment.zipCode, country: establishment.country, state: establishment.state, displayAddress: nil)
+    }
+    
     enum CodingKeys: String, CodingKey {
         case id
         case name
@@ -302,7 +310,7 @@ extension Restaurant {
 
 
 extension Restaurant {
-    #warning("need to use")
+    
     struct SystemTime {
         
         var rawStartValue: Int // used for ordering

@@ -78,8 +78,13 @@ class AddRestaurantVC: UIViewController {
         if self.isBeingDismissed || self.navigationController?.isBeingDismissed ?? false {
             // View disappearing..check for any establishments without a django ID"
             // also need to check the stuff about creating a visit then adding a django id to the establishment
+            #warning("need to actually use, maybe")
             let nonAddedEstablishments = myPlaces.filter({$0.djangoID == nil})
-            
+            print()
+            for nonAdded in nonAddedEstablishments {
+                print("Need to save: \(nonAdded.name)")
+            }
+            print()
         }
     }
     

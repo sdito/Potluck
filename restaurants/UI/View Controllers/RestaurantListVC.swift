@@ -10,8 +10,6 @@ import UIKit
 import Hero
 import SkeletonView
 
-#warning("should not let table view pan down")
-
 class RestaurantListVC: UIViewController {
     
     private var searchUpdatedFromHere = false
@@ -217,11 +215,11 @@ class RestaurantListVC: UIViewController {
     }
     
     func scrollToRestaurant(_ restaurant: Restaurant) {
-        #warning("will not scroll to the last few rows, need to fix")
+        #warning("will not scroll to the last few rows, need to fix, also issue with the image cache")
         
         let indexToScrollTo = restaurants.firstIndex { (rest) -> Bool in rest.id == restaurant.id }
         guard let index = indexToScrollTo else { return }
-        #warning("also issue with image cache")
+        
         tableView.scrollToRow(at: IndexPath(row: index, section: 0), at: .top, animated: true)
         
     }
@@ -287,6 +285,8 @@ extension RestaurantListVC: SkeletonTableViewDataSource {
     func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 10
     }
+    
+    
 }
 
 

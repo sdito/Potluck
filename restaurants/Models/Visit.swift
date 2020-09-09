@@ -22,6 +22,7 @@ class Visit: Codable {
     var accountUsername: String
     var rating: Double
     var otherImages: [VisitImage]
+    var yelpID: String?
     
     private var serverDate: Date
     private var longitude: Double?
@@ -59,19 +60,18 @@ class Visit: Codable {
         let mutableString = NSMutableAttributedString()
         
         let ratingPortion = NSAttributedString(string: "\(rating) ", attributes: [NSAttributedString.Key.font: UIFont.mediumBold, NSAttributedString.Key.baselineOffset: 1.8])
-        
-        let imageAttachment = NSTextAttachment(image: UIImage.starCircleImage.withConfiguration(UIImage.SymbolConfiguration(scale: .small)))
+        let image = UIImage.starCircleImage.withConfiguration(UIImage.SymbolConfiguration(scale: .small)).withTintColor(rating.getColorFromZeroToTen())
+        let imageAttachment = NSTextAttachment(image: image)
         let imageString = NSAttributedString(attachment: imageAttachment)
         
         mutableString.append(ratingPortion)
         mutableString.append(imageString)
         
-        
         return mutableString
     }
     
     func getEstablishment() -> Establishment {
-        let establishment = Establishment(name: self.restaurantName, isRestaurant: false, djangoID: self.djangoRestaurantID, longitude: self.longitude, latitude: self.latitude, yelpID: nil, category: nil, address1: nil, address2: nil, address3: nil, city: nil, zipCode: nil, state: nil, country: nil, firstVisited: nil, visits: nil)
+        let establishment = Establishment(name: self.restaurantName, isRestaurant: false, djangoID: self.djangoRestaurantID, longitude: self.longitude, latitude: self.latitude, yelpID: self.yelpID, category: nil, address1: nil, address2: nil, address3: nil, city: nil, zipCode: nil, state: nil, country: nil, firstVisited: nil, visits: nil)
         return establishment
     }
     
@@ -90,6 +90,7 @@ class Visit: Codable {
         case latitude = "restaurant_latitude"
         case otherImages = "other_images"
         case rating
+        case yelpID = "restaurant_yelp_id"
     }
     
     

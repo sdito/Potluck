@@ -29,8 +29,8 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
     func setUpElements() {
         container.translatesAutoresizingMaskIntoConstraints = false
         self.translatesAutoresizingMaskIntoConstraints = false
-        dateLabel.translatesAutoresizingMaskIntoConstraints = false
         containerStack.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
         commentLabel.translatesAutoresizingMaskIntoConstraints = false
         ratingLabel.translatesAutoresizingMaskIntoConstraints = false
         
@@ -48,24 +48,25 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
         
         containerStack.axis = .vertical
         containerStack.spacing = 10.0
-        containerStack.distribution = .fill
         containerStack.alignment = .center
         containerStack.constrainSides(to: container, distance: 10.0)
+        stackConstraint?.isActive = true
         
         containerStack.addArrangedSubview(dateLabel)
         containerStack.addArrangedSubview(ratingLabel)
         containerStack.addArrangedSubview(commentLabel)
         
-        
-        dateLabel.font = .mediumBold
+        dateLabel.font = .largerBold
         dateLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        dateLabel.adjustsFontSizeToFitWidth = true
+        dateLabel.minimumScaleFactor = 0.5
+//        #error("adjust the dateLabel font to automatically fit")
         
         commentLabel.numberOfLines = 0
-        commentLabel.font = .smallBold
+        commentLabel.font = .mediumBold
         commentLabel.textColor = .secondaryLabel
         
-        stackConstraint = containerStack.widthAnchor.constraint(equalToConstant: 100)
-        stackConstraint?.isActive = true
+        
     }
     
     func setUp(visit: Visit) {

@@ -50,6 +50,7 @@ class RestaurantDetailVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setUp()
+        edgesForExtendedLayout = [.left, .top, .right]
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -120,7 +121,6 @@ class RestaurantDetailVC: UIViewController {
         titleLabel.textColor = .white
         titleLabel.fadedBackground()
         
-        #warning("messed up on jack's urban eats")
         viewAllPhotosButton = UIButton()
         viewAllPhotosButton.titleLabel?.font = .smallBold
         viewAllPhotosButton.titleEdgeInsets = UIEdgeInsets(top: 0.0, left: 4.0, bottom: 0.0, right: 4.0)
@@ -129,7 +129,11 @@ class RestaurantDetailVC: UIViewController {
         viewAllPhotosButton.setTitle(morePhotosNormalTitle, for: .normal)
         viewAllPhotosButton.addTarget(self, action: #selector(openPhotosController), for: .touchUpInside)
         
+        
         starRatingView = StarRatingView(stars: restaurant.rating ?? 0.0, numReviews: restaurant.reviewCount ?? 0, forceWhite: true)
+        if restaurant.rating == nil || restaurant.reviewCount == nil {
+            starRatingView.alpha = 0.0
+        }
         
         let starsStackView = UIStackView(arrangedSubviews: [starRatingView, UIView(), viewAllPhotosButton])
         starsStackView.alignment = .fill
@@ -190,11 +194,17 @@ class RestaurantDetailVC: UIViewController {
         starRatingView.hero.id = .restaurantHomeToDetailStarRatingView
     }
     
+    private func setUpBackButton() {
+        let backButton = UIBarButtonItem()
+        backButton.title = "Back"
+        self.navigationController?.navigationBar.topItem?.backBarButtonItem = backButton
+    }
+    
     private func setUp() {
         
         self.view.backgroundColor = .secondarySystemBackground
         self.navigationItem.title = ""
-        print(restaurant.transactions)
+        
         navBarColor = Colors.navigationBarColor.withAlphaComponent(0.0)
         self.setNavigationBarColor(color: navBarColor!)
         self.navigationController?.navigationBar.tintColor = Colors.main
@@ -247,13 +257,16 @@ class RestaurantDetailVC: UIViewController {
         }
         
         Network.shared.setFullRestaurantInfo(restaurant: restaurant) { [weak self] (complete) in
-            #warning("need to complete using")
             guard let self = self else { return }
             if complete {
                 if let newDescription = self.restaurant.openNowDescription {
                     self.headerDetailView.timeOpenLabel.attributedText = newDescription
                 }
-                
+                if self.restaurant.imageURL == nil {
+                    if let firstPhoto = self.restaurant.additionalInfo?.photos.first {
+                        self.imageView.addImageFromUrl(firstPhoto)
+                    }
+                }
             }
             if let dateData = self.restaurant.systemTime {
                 for day in dateData {
@@ -261,6 +274,8 @@ class RestaurantDetailVC: UIViewController {
                 }
             }
         }
+        
+        setUpBackButton()
         
     }
 }

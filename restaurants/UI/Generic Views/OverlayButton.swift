@@ -21,7 +21,7 @@ class OverlayButton: UIButton {
     }
     
     func setUpButton() {
-        self.backgroundColor = .secondarySystemBackground
+        self.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.8)
         self.setTitleColor(Colors.secondary, for: .normal)
         self.layer.cornerRadius = 8.0
         self.clipsToBounds = true

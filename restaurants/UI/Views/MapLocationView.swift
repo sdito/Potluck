@@ -87,6 +87,7 @@ class MapLocationView: UIView {
     }
     
     
+    
 }
 
 extension MapLocationView: MKMapViewDelegate {

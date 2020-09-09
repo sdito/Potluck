@@ -37,7 +37,7 @@ class SinglePhotoVC: UIViewController {
     private func setUp(image: UIImage?, imageURL: String?, cell: PhotoCell?, asset: PHAsset?) {
         self.cellToResetIdAfter = cell
         self.hero.isEnabled = true
-        self.view.backgroundColor = backgroundColor.withAlphaComponent(0.8)
+        self.view.backgroundColor = backgroundColor
         
         setUpDoneButton()
         setUpScrollView()
@@ -121,7 +121,7 @@ class SinglePhotoVC: UIViewController {
         doneButton.isHidden = true
         
         // have the background alpha be 0.0
-        UIView.animate(withDuration: 0.3) {
+        UIView.animate(withDuration: 0.2) {
             self.view.backgroundColor = self.backgroundColor.withAlphaComponent(0.0)
         }
         
@@ -154,9 +154,9 @@ class SinglePhotoVC: UIViewController {
                     // use ratio to set alpha on view when being dragged
                     if ratio < 0.95 {
                         let newAlphaValue = 1.0 - (minimumAlpha - (minimumAlpha*ratio))
-                        self.view.alpha = newAlphaValue
+                        self.view.backgroundColor = backgroundColor.withAlphaComponent(newAlphaValue)
                     } else {
-                        self.view.alpha = 1.0 // close enough to the top, just set to 1.0
+                        self.view.backgroundColor = backgroundColor
                     }
                 }
             }

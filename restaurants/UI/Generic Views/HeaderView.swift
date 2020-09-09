@@ -23,14 +23,15 @@ class HeaderView: UIStackView {
         leftButton.setTitle(leftButtonTitle, for: .normal)
         leftButton.titleLabel?.font = .largerBold
         self.addArrangedSubview(leftButton)
-        leftButton.titleEdgeInsets.left = 20.0
+        leftButton.titleEdgeInsets.left = 15.0
+        leftButton.imageEdgeInsets.left = 15.0
         leftButton.contentHorizontalAlignment = .left
         
         rightButton.setTitle(rightButtonTitle, for: .normal)
         rightButton.titleLabel?.font = .largerBold
         self.addArrangedSubview(rightButton)
-
-        rightButton.titleEdgeInsets.right = 20.0
+        rightButton.titleEdgeInsets.right = 15.0
+        rightButton.imageEdgeInsets.right = 15.0
         rightButton.contentHorizontalAlignment = .right
         
         leftButton.widthAnchor.constraint(equalTo: rightButton.widthAnchor).isActive = true

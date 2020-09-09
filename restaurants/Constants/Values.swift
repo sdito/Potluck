@@ -50,6 +50,9 @@ extension UIImage {
     static let homeImage = UIImage(systemName: "house")!
     static let starCircleImage = UIImage(systemName: "star.circle")!
     static let threeDotsImage = UIImage(systemName: "ellipsis")!
+    static let detailImage = UIImage(systemName: "doc.text.magnifyingglass")!
+    static let plusImage = UIImage(systemName: "plus")!
+    static let minusImage = UIImage(systemName: "minus")!
 }
 
 

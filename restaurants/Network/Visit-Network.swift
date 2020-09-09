@@ -103,7 +103,6 @@ extension Network {
     
     func userPostNotVisited(establishment: Establishment, mainImage: UIImage, otherImages: [UIImage]?, comment: String?, rating: Float?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
         // add everything into the params for the request
-        #warning("need to do testing on this")
         do {
             let data = try encoder.encode(establishment)
             let json = try? JSONSerialization.jsonObject(with: data, options: [])

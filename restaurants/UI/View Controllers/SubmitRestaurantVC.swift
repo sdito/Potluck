@@ -39,8 +39,10 @@ class SubmitRestaurantVC: UIViewController {
     private var sliderValue: Float? {
         didSet {
             if let value = self.sliderValue {
+                self.sliderView.tintColor = value.getColorFromZeroToTen()
                 self.sliderValueButton.setTitle("\(sliderValue!)", for: .normal)
             } else {
+                self.sliderView.tintColor = baseSliderColor
                 self.sliderValueButton.setTitle(emptySliderValue, for: .normal)
             }
             
@@ -52,6 +54,7 @@ class SubmitRestaurantVC: UIViewController {
     private var mode: Mode?
     private var map: MapLocationView?
     private let emptySliderValue = " --- "
+    private let baseSliderColor = UIColor.systemGray
     
     init(rawValues: (name: String, address: String)?, establishment: Establishment?, restaurant: Restaurant?) {
         self.nameRawValue = rawValues?.name
@@ -195,6 +198,7 @@ class SubmitRestaurantVC: UIViewController {
         sliderView.minimumValue = 0.0
         sliderView.maximumValue = 10.0
         sliderView.value = 5.0
+        sliderView.tintColor = baseSliderColor
         
         sliderView.addTarget(self, action: #selector(sliderViewSelector(sender:)), for: .valueChanged)
         
@@ -210,6 +214,7 @@ class SubmitRestaurantVC: UIViewController {
         sliderValueButton.titleLabel?.minimumScaleFactor = 0.5
         sliderValueButton.titleLabel?.font = .mediumBold
         sliderValueButton.titleLabel?.textAlignment = .center
+        sliderValueButton.setTitleColor(.label, for: .normal)
         sliderValueButton.addTarget(self, action: #selector(sliderValueButtonSelector), for: .touchUpInside)
 
         sliderStackView.addArrangedSubview(ratingLabel)
@@ -293,7 +298,6 @@ class SubmitRestaurantVC: UIViewController {
             
             switch mode {
             case .rawValue:
-                #warning("need to test")
                 // Will only get called if no yelp restaurant is found from the parts
                 let rawValueEstablishment = Establishment(name: nameRawValue!, fullAddressString: addressRawValue, coordinate: coordinateRawValue)
                 executeForNonVisitedEstablishment(rawValueEstablishment, mainImage: firstPhoto, otherImages: otherPhotos, progressView: progressView, comment: newComment)
@@ -467,3 +471,4 @@ extension SubmitRestaurantVC: ProgressViewDelegate {
         self.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 }
+

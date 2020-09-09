@@ -10,6 +10,14 @@ import MapKit
 
 extension MKMapView {
     
+    func changeMapZoomLevel(factor: Double) {
+        let previousRegion = self.region
+        let previousSpan = previousRegion.span
+        let newSpan = MKCoordinateSpan(latitudeDelta: previousSpan.latitudeDelta * factor, longitudeDelta: previousSpan.longitudeDelta * factor)
+        let newRegion = MKCoordinateRegion(center: previousRegion.center, span: newSpan)
+        self.setRegion(newRegion, animated: true)
+    }
+    
     func getCenterLocation() -> CLLocation {
         let latitude = self.centerCoordinate.latitude
         let longitude = self.centerCoordinate.longitude

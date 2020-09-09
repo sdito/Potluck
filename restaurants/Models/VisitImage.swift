@@ -10,6 +10,5 @@ import Foundation
 
 class VisitImage: Codable {
     var image: String
-    var order: Int
     
 }

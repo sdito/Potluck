@@ -124,8 +124,6 @@ extension UIViewController {
             }
         }
         
-        #warning("could have option to get a ride with uber")
-        
         mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey : value])
     }
     

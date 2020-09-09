@@ -181,7 +181,7 @@ class RestaurantCell: UITableViewCell {
     }
     
     func setUpForSkeleton() {
-        
+        self.isSkeletonable = true
         self.titleLabel.text = "This is the example title"
         self.titleLabel.isSkeletonable = true
         self.restaurantImageView.isSkeletonable = true

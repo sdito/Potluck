@@ -11,7 +11,6 @@
 		E20EA82824E27BDD0064DB86 /* FilterRestaurantsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82724E27BDD0064DB86 /* FilterRestaurantsVC.swift */; };
 		E20EA82A24E282980064DB86 /* SpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82924E282980064DB86 /* SpacerView.swift */; };
 		E20EA82C24E30CBF0064DB86 /* Constraints-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */; };
-		E20EA82E24E36FA00064DB86 /* CheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82D24E36FA00064DB86 /* CheckBox.swift */; };
 		E20EA83024E4AE790064DB86 /* CheckBoxCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82F24E4AE790064DB86 /* CheckBoxCell.swift */; };
 		E20EA83224E792AD0064DB86 /* ProfileHomeVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA83124E792AD0064DB86 /* ProfileHomeVC.swift */; };
 		E20EA83424E7A98D0064DB86 /* CreateAccountVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA83324E7A98D0064DB86 /* CreateAccountVC.swift */; };
@@ -96,6 +95,7 @@
 		E2E6E0A1250461040005A55B /* EstablishmentDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E6E0A0250461040005A55B /* EstablishmentDetailVC.swift */; };
 		E2E6E0A3250581F10005A55B /* HeaderEstablishmentReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E6E0A2250581F00005A55B /* HeaderEstablishmentReusableView.swift */; };
 		E2E6E0A52505B40F0005A55B /* UICollectionView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E6E0A42505B40F0005A55B /* UICollectionView-Extension.swift */; };
+		E2E6E0A7250761540005A55B /* BinaryFloatingPoint-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E6E0A6250761540005A55B /* BinaryFloatingPoint-Extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -104,7 +104,6 @@
 		E20EA82724E27BDD0064DB86 /* FilterRestaurantsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterRestaurantsVC.swift; sourceTree = "<group>"; };
 		E20EA82924E282980064DB86 /* SpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacerView.swift; sourceTree = "<group>"; };
 		E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Constraints-Extension.swift"; sourceTree = "<group>"; };
-		E20EA82D24E36FA00064DB86 /* CheckBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckBox.swift; sourceTree = "<group>"; };
 		E20EA82F24E4AE790064DB86 /* CheckBoxCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckBoxCell.swift; sourceTree = "<group>"; };
 		E20EA83124E792AD0064DB86 /* ProfileHomeVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHomeVC.swift; sourceTree = "<group>"; };
 		E20EA83324E7A98D0064DB86 /* CreateAccountVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAccountVC.swift; sourceTree = "<group>"; };
@@ -191,6 +190,7 @@
 		E2E6E0A0250461040005A55B /* EstablishmentDetailVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstablishmentDetailVC.swift; sourceTree = "<group>"; };
 		E2E6E0A2250581F00005A55B /* HeaderEstablishmentReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderEstablishmentReusableView.swift; sourceTree = "<group>"; };
 		E2E6E0A42505B40F0005A55B /* UICollectionView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UICollectionView-Extension.swift"; sourceTree = "<group>"; };
+		E2E6E0A6250761540005A55B /* BinaryFloatingPoint-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BinaryFloatingPoint-Extension.swift"; sourceTree = "<group>"; };
 		F1B89F6FBA7BC1CC1A76E4E2 /* Pods_restaurants.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_restaurants.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -257,7 +257,6 @@
 				E23AFA1024FF0E5C004542A2 /* ProgressView.swift */,
 				E23AFA0824F9C7E7004542A2 /* HeaderView.swift */,
 				E2E180F024E8B3F6004AA4BE /* LogInButton.swift */,
-				E20EA82D24E36FA00064DB86 /* CheckBox.swift */,
 				E20EA82924E282980064DB86 /* SpacerView.swift */,
 				E215535A24B4343500494E1A /* PaddingLabel.swift */,
 				E215534824B297CC00494E1A /* OverlayButton.swift */,
@@ -369,6 +368,7 @@
 				E2A0147224F617ED00379518 /* UITableView-Extension.swift */,
 				E23AFA0224F8D1EF004542A2 /* CLLocationDistance-Extension.swift */,
 				E2E6E0A42505B40F0005A55B /* UICollectionView-Extension.swift */,
+				E2E6E0A6250761540005A55B /* BinaryFloatingPoint-Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -561,6 +561,7 @@
 				E2B6A2B724AFECD10070DECA /* Restaurant.swift in Sources */,
 				E2768DE824B1020F004CB475 /* RestaurantAnnotation.swift in Sources */,
 				E215534F24B2C16F00494E1A /* UIButton-Extension.swift in Sources */,
+				E2E6E0A7250761540005A55B /* BinaryFloatingPoint-Extension.swift in Sources */,
 				E20EA83224E792AD0064DB86 /* ProfileHomeVC.swift in Sources */,
 				E20EA83024E4AE790064DB86 /* CheckBoxCell.swift in Sources */,
 				E27A755C24A8557E00E446EE /* SceneDelegate.swift in Sources */,
@@ -592,7 +593,6 @@
 				E20EA82824E27BDD0064DB86 /* FilterRestaurantsVC.swift in Sources */,
 				E239841824EB642000F3828C /* AddRestaurantVC.swift in Sources */,
 				E23AFA0924F9C7E7004542A2 /* HeaderView.swift in Sources */,
-				E20EA82E24E36FA00064DB86 /* CheckBox.swift in Sources */,
 				E2778DDB24B832A100151F29 /* RestaurantCategoriesView.swift in Sources */,
 				E2768DEE24B15284004CB475 /* RestaurantAnnotationView.swift in Sources */,
 				E2778DE524BBA5B200151F29 /* PhotoCell.swift in Sources */,

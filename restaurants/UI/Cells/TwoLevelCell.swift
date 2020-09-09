@@ -14,14 +14,17 @@ class TwoLevelCell: UITableViewCell {
     private var name: String?
     private var address: String?
     private var coordinate: CLLocationCoordinate2D?
+    private var establishment: Establishment?
     
     private let mainLabel = UILabel()
     private let secondLabel = UILabel()
+    private let stackView = UIStackView()
     private let actionButton = SizeChangeButton(sizeDifference: .medium, restingColor: Colors.main, selectedColor: Colors.main)
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setUpLabels()
+        setUpButtons()
     }
     
     required init?(coder: NSCoder) {
@@ -32,11 +35,13 @@ class TwoLevelCell: UITableViewCell {
         mainLabel.font = .largerBold
         mainLabel.textColor = .label
         mainLabel.translatesAutoresizingMaskIntoConstraints = false
+        mainLabel.numberOfLines = 2
         secondLabel.font = .smallerThanNormal
         secondLabel.textColor = .secondaryLabel
         secondLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        let stackView = UIStackView(arrangedSubviews: [mainLabel, secondLabel])
+        stackView.addArrangedSubview(mainLabel)
+        stackView.addArrangedSubview(secondLabel)
         self.addSubview(stackView)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.spacing = 3.0
@@ -48,9 +53,12 @@ class TwoLevelCell: UITableViewCell {
         stackView.axis = .vertical
         stackView.alignment = .leading
         
+        
+    }
+    
+    private func setUpButtons() {
         // add the action button
         actionButton.translatesAutoresizingMaskIntoConstraints = false
-        actionButton.setImage(.mapImage, for: .normal)
         actionButton.tintColor = Colors.locationColor
         self.addSubview(actionButton)
         
@@ -58,13 +66,15 @@ class TwoLevelCell: UITableViewCell {
         actionButton.constrain(.trailing, to: self, .trailing, constant: 20.0)
         actionButton.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         actionButton.equalSides()
-        actionButton.addTarget(self, action: #selector(mapButtonSelected), for: .touchUpInside)
+        actionButton.addTarget(self, action: #selector(actionButtonSelected), for: .touchUpInside)
+        
     }
     
     private func resetValues() {
         name = nil
         address = nil
         coordinate = nil
+        establishment = nil
     }
     
     func setUpWith(main: String, secondary: String) {
@@ -73,10 +83,12 @@ class TwoLevelCell: UITableViewCell {
         secondLabel.text = secondary
         self.address = secondary
         self.name = main
+        mapButton()
     }
     
     func setUpWith(establishment: Establishment) {
         resetValues()
+        self.establishment = establishment
         mainLabel.text = establishment.name
         
         if let locationDistance = establishment.locationInMilesFromCurrentLocation {
@@ -92,6 +104,7 @@ class TwoLevelCell: UITableViewCell {
         self.coordinate = establishment.coordinate
         self.address = establishment.displayAddress
         self.name = establishment.name
+        detailButton()
     }
     
     func setUpWith(restaurant: Restaurant) {
@@ -100,21 +113,38 @@ class TwoLevelCell: UITableViewCell {
         secondLabel.text = restaurant.distance?.convertMetersToMiles() ?? restaurant.address.displayAddress?.joined(separator: ", ") ?? "Can't find location"
         self.coordinate = restaurant.coordinate
         self.name = restaurant.name
+        mapButton()
     }
     
-    @objc private func mapButtonSelected() {
+    private func mapButton() {
+        self.actionButton.setImage(.mapImage, for: .normal)
+        self.actionButton.tintColor = Colors.locationColor
+    }
+    
+    private func detailButton() {
+        self.actionButton.setImage(.detailImage, for: .normal)
+        self.actionButton.tintColor = Colors.main
+    }
+    
+    @objc private func actionButtonSelected() {
         if let vc = self.findViewController() {
-            if coordinate != nil || address != nil {
-                let mapLocationView = MapLocationView(locationTitle: name ?? "Location", coordinate: coordinate, address: address, userInteractionEnabled: true, wantedDistance: 1000)
-                mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
-                mapLocationView.layer.cornerRadius = 25.0
-                mapLocationView.clipsToBounds = true
-                let newVc = ShowViewVC(newView: mapLocationView, fromBottom: true)
-                newVc.modalPresentationStyle = .overFullScreen
-                vc.navigationController?.present(newVc, animated: false, completion: nil)
-                
+            
+            if let establishment = establishment {
+                let establishmentDetailVC = EstablishmentDetailVC(establishment: establishment, delegate: nil, mode: .fullScreenHeaderAndMap)
+                vc.present(establishmentDetailVC, animated: true, completion: nil)
             } else {
-                vc.showMessage("No location", on: vc)
+                if coordinate != nil || address != nil {
+                    let mapLocationView = MapLocationView(locationTitle: name ?? "Location", coordinate: coordinate, address: address, userInteractionEnabled: true, wantedDistance: 1000)
+                    mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
+                    mapLocationView.layer.cornerRadius = 25.0
+                    mapLocationView.clipsToBounds = true
+                    let newVc = ShowViewVC(newView: mapLocationView, fromBottom: true)
+                    newVc.modalPresentationStyle = .overFullScreen
+                    vc.navigationController?.present(newVc, animated: false, completion: nil)
+                    
+                } else {
+                    vc.showMessage("No location", on: vc)
+                }
             }
         }
     }
