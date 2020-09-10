@@ -14,7 +14,15 @@ class ProfileHomeVC: UIViewController {
     private var allowHintToCreateRestaurant = false
     private var visits: [Visit] = []
     private let reuseIdentifier = "visitCellReuseIdentifier"
+    
     private let imageCache = NSCache<NSString, UIImage>()
+    private let otherImageCache = NSCache<NSString, ImageRequest>()
+    private var photoIndexCache: [Int:Int] = [:]
+    
+    private class ImageRequest {
+        var requested: Bool = true
+        var image: UIImage?
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -124,31 +132,107 @@ extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! VisitCell
         let visit = visits[indexPath.row]
-        cell.setUpWith(visit: visit)
+        cell.setUpWith(visit: visit, selectedPhotoIndex: photoIndexCache[visit.djangoOwnID])
         cell.delegate = self
-        let key = NSString(string: "\(visit.djangoOwnID)")
+        let key = NSString(string: "\(visit.djangoOwnID)-main")
         
+        // handle the main image
         cell.setImage(url: visit.mainImage, image: imageCache.object(forKey: key), height: visit.mainImageHeight, width: visit.mainImageWidth) { (imageFound) in
             if let imageFound = imageFound {
                 self.imageCache.setObject(imageFound, forKey: key)
             }
         }
+        
+        
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
         let visitSelected = visits[indexPath.row]
-        #warning("need to complete, create custom VC, also does not allow clicks on the scroll view")
-        let photosVC = PhotosVC(photos: visitSelected.listPhotos)
+        
+        var images: [(String, UIImage?)] = visitSelected.listPhotos.map({($0, nil)})
+        // get the images from the selected visit and add them to what is being sent
+        let id = visitSelected.djangoOwnID
+        var counter = 0
+        while counter < images.count {
+            defer { counter += 1 }
+            if counter == 0 {
+                let key = NSString(string: "\(id)-main")
+                images[counter].1 = imageCache.object(forKey: key)
+            } else {
+                let key = NSString(string: "\(id)-\(counter-1)")
+                images[counter].1 = otherImageCache.object(forKey: key)?.image
+            }
+        }
+        
+        
+        let photosVC = PhotosVC(images: images)
         self.navigationController?.pushViewController(photosVC, animated: true)
+    }
+    
+    func cellFrom(visit: Visit) -> VisitCell? {
+        let cells = tableView.visibleCells
+        for cell in cells {
+            if let visitCell = cell as? VisitCell {
+                if let cellsVisit = visitCell.visit {
+                    if cellsVisit.djangoOwnID == visit.djangoOwnID {
+                        return visitCell
+                    }
+                }
+            }
+        }
+        return nil
     }
 }
 
 
 // MARK: VisitCellDelegate
 extension ProfileHomeVC: VisitCellDelegate {
+    
+    func newPhotoIndexSelected(idx: Int, for visit: Visit?) {
+        #warning("need to implement and use a cache for it")
+        guard let visit = visit else { return }
+        photoIndexCache[visit.djangoOwnID] = idx
+    }
+    
+    func moreImageRequest(visit: Visit?, cell: VisitCell) {
+        print("More images requested...")
+        guard let visit = visit else { return }
+        
+        for (i, imageUrl) in visit.otherImages.map({$0.image}).enumerated() {
+            let imageRequestKey = NSString(string: "\(visit.djangoOwnID)-\(i)")
+            if let object = otherImageCache.object(forKey: imageRequestKey) {
+                print("Already requested: \(imageRequestKey)")
+                // already requested
+                // if the image exists, add it to the imageView
+                if let image = object.image {
+                    print("Image already found: \(imageRequestKey)")
+                    cell.otherImageViews[i].image = image
+                    print(cell.otherImageViews.count)
+                }
+            } else {
+                let newObject = ImageRequest()
+                otherImageCache.setObject(newObject, forKey: imageRequestKey)
+                Network.shared.getImage(url: imageUrl) { [weak self] (imageFound) in
+                    if let image = imageFound {
+                        print("Image gotten from request: \(imageRequestKey)")
+                        newObject.image = image
+
+                        if let cell = self?.cellFrom(visit: visit) {
+                            print("Image set from request: \(imageRequestKey)")
+                            cell.otherImageViews[i].image = image
+                        }
+
+                    } else {
+                        // remove the value from the cache
+                        self?.otherImageCache.removeObject(forKey: imageRequestKey)
+                    }
+                }
+            }
+        }
+    }
+    
     func establishmentSelected(establishment: Establishment) {
         self.navigationController?.pushViewController(EstablishmentDetailVC(establishment: establishment, delegate: nil, mode: .fullScreenBase), animated: true)
     }

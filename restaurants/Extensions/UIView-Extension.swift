@@ -225,13 +225,13 @@ extension UIView {
     }
     
     func animateRemovingWithCompletion(complete: @escaping (Bool) -> Void) {
-        // Moves down and alpha becomes zero
+        // Moves up
         // At end, it is removed from superview
         // Use when mapView moves when restaurantSelectedView is present
         
-        let animationDuration = 0.4
+        let animationDuration = 0.3
         
-        let transformation = CGAffineTransform(translationX: 0, y: 200.0)
+        let transformation = CGAffineTransform(translationX: 0, y: -(50 + self.bounds.height))
         
         // Doesn't work when in completion block, so just time it for after animation completion
         DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration + 0.1) {
@@ -239,9 +239,7 @@ extension UIView {
         }
         
         UIView.animate(withDuration: animationDuration) {
-            self.alpha = 0.0
             self.transform = transformation
-            
         }
     }
 

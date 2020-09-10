@@ -14,17 +14,23 @@ import UIKit
 protocol VisitCellDelegate: class {
     func delete(visit: Visit?)
     func establishmentSelected(establishment: Establishment)
+    func moreImageRequest(visit: Visit?, cell: VisitCell)
+    func newPhotoIndexSelected(idx: Int, for visit: Visit?)
 }
 
 
 class VisitCell: UITableViewCell {
     
     var visit: Visit?
+    let visitImageView = UIImageView()
+    var otherImagesFound = false
+    var otherImageViews: [UIImageView] = []
+    var requested = false
+    
     weak var delegate: VisitCellDelegate?
     private let base = UIView()
     private let baseHeight: CGFloat = 250.0
     private let scrollingStackView = ScrollingStackView(subViews: [], showPlaceholder: true)
-    let visitImageView = UIImageView()
     private let restaurantNameButton = SizeChangeButton(sizeDifference: .inverse, restingColor: .label, selectedColor: Colors.main)
     private let commentLabel = UILabel()
     private var visitImageViewHeightConstraint: NSLayoutConstraint?
@@ -32,7 +38,7 @@ class VisitCell: UITableViewCell {
     private let ratingLabel = UILabel()
     private var dateAndButtonStackView: UIStackView!
     private var dateAndButtonContainerView: UIView!
-    private var otherImageViews: [UIImageView] = []
+    
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -131,13 +137,13 @@ class VisitCell: UITableViewCell {
         scrollingStackView.stackView.distribution = .fillEqually
         scrollingStackView.scrollView.isPagingEnabled = true
         scrollingStackView.stackView.spacing = 3.0
+        scrollingStackView.delegate = self
         
-        // To allow pressed on the scroll view to select the cell
         scrollingStackView.scrollView.isUserInteractionEnabled = false
         contentView.addGestureRecognizer(scrollingStackView.scrollView.panGestureRecognizer)
-        
         scrollingStackView.stackView.addArrangedSubview(visitImageView)
         visitImageView.translatesAutoresizingMaskIntoConstraints = false
+        scrollingStackView.stackView.spacing = 0.0
         visitImageView.widthAnchor.constraint(equalTo: scrollingStackView.scrollView.widthAnchor).isActive = true
         
         visitImageViewHeightConstraint = visitImageView.heightAnchor.constraint(equalToConstant: baseHeight)
@@ -212,8 +218,9 @@ class VisitCell: UITableViewCell {
         }
     }
     
-    func setUpWith(visit: Visit) {
+    func setUpWith(visit: Visit, selectedPhotoIndex: Int?) {
         self.visit = visit
+        self.requested = false
         imageView?.image = nil
         commentLabel.text = visit.comment ?? "By \(visit.accountUsername)"
         restaurantNameButton.setTitle(visit.restaurantName, for: .normal)
@@ -225,19 +232,31 @@ class VisitCell: UITableViewCell {
         otherImageViews.forEach { (iv) in
             iv.removeFromSuperview()
         }
+        otherImageViews = []
         
-        for img in visit.otherImages {
-            let view = UIImageView()
-            view.translatesAutoresizingMaskIntoConstraints = false
-            scrollingStackView.stackView.addArrangedSubview(view)
-            view.backgroundColor = .blue
-            view.layoutIfNeeded()
-            view.heightAnchor.constraint(equalTo: visitImageView.heightAnchor).isActive = true
-            otherImageViews.append(view)
-            #warning("need to set")
+        for _ in visit.otherImages {
+            let imageView = UIImageView()
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            scrollingStackView.stackView.addArrangedSubview(imageView)
+            imageView.layoutIfNeeded()
+            imageView.heightAnchor.constraint(equalTo: visitImageView.heightAnchor).isActive = true
+            imageView.contentMode = .scaleAspectFill
+            imageView.clipsToBounds = true
+            otherImageViews.append(imageView)
         }
         
-        scrollingStackView.resetElements()
+        scrollingStackView.layoutIfNeeded()
+        
+        if let selectedPhotoIndex = selectedPhotoIndex, scrollingStackView.stackView.arrangedSubviews.indices.contains(selectedPhotoIndex)  {
+            let scrollingToRect = otherImageViews[selectedPhotoIndex - 1].frame
+            
+            scrollingStackView.scrollView.scrollRectToVisible(scrollingToRect, animated: false)
+            scrollingStackView.resetElements(selectedIndex: selectedPhotoIndex)
+        } else {
+            scrollingStackView.scrollView.contentOffset = .zero
+            scrollingStackView.resetElements()
+        }
+        
     }
     
     
@@ -267,9 +286,21 @@ class VisitCell: UITableViewCell {
         } else {
             imageFound(nil)
         }
-        
-        
-        
+    }
+}
+
+// MARK: ScrollingStackViewDelegate
+extension VisitCell: ScrollingStackViewDelegate {
+    
+    func newIndexSelected(idx: Int) {
+        delegate?.newPhotoIndexSelected(idx: idx, for: visit)
     }
     
+    func scrollViewScrolled() {
+        if !requested {
+            requested = true
+            delegate?.moreImageRequest(visit: visit, cell: self)
+        }
+        
+    }
 }

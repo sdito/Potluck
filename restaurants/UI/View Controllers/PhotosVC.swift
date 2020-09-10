@@ -28,6 +28,17 @@ class PhotosVC: UIViewController {
         setUpCollectionView()
     }
     
+    init(images: [(String, UIImage?)]) {
+        super.init(nibName: nil, bundle: nil)
+        for (i, image) in images.enumerated() {
+            if let image = image.1 {
+                imageCache.setObject(image, forKey: NSString(string: "\(i)"))
+            }
+        }
+        self.photos = images.map({$0.0})
+        setUpCollectionView()
+    }
+    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         
@@ -74,14 +85,16 @@ extension PhotosVC: UICollectionViewDelegate, UICollectionViewDataSource {
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let imageUrl = photos[indexPath.row]
+        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PhotoCell
         
         // add the image to the imageView
-        let key = "\(indexPath.section).\(indexPath.row)" as NSString
+        let key = "\(indexPath.row)" as NSString
         if let cachedImage = imageCache.object(forKey: key) {
             cell.imageView.image = cachedImage
         } else {
+            
+            let imageUrl = photos[indexPath.row]
             cell.imageView.appStartSkeleton()
             Network.shared.getImage(url: imageUrl) { [weak self] (img) in
                 guard let self = self else { return }

@@ -105,10 +105,11 @@ class AddRestaurantVC: UIViewController {
         myPlacesButton.setTitle("Add", for: .normal)
         myPlacesButton.addTarget(self, action: #selector(myPlacesButtonAction), for: .touchUpInside)
         myPlacesButton.titleLabel?.font = .mediumBold
+        
         myPlacesButton.isHidden = true
+        
         searchBarStack.axis = .horizontal
         searchBarStack.distribution = .fill
-        searchBarStack.alignment = .fill
         
         searchOptionsStack = UIStackView(arrangedSubviews: [segmentedControl, searchBarStack])
         searchOptionsStack.translatesAutoresizingMaskIntoConstraints = false
@@ -116,6 +117,7 @@ class AddRestaurantVC: UIViewController {
         searchOptionsStack.spacing = 5.0
         searchOptionsStack.distribution = .fill
         searchOptionsStack.alignment = .fill
+        
         self.view.addSubview(searchOptionsStack)
         searchOptionsStack.constrain(.top, to: headerView, .bottom, constant: 10.0)
         searchOptionsStack.constrain(.leading, to: self.view, .leading, constant: 10.0)
@@ -192,34 +194,46 @@ class AddRestaurantVC: UIViewController {
     }
     
     @objc private func segmentedControlChanged() {
-        
+        #warning("search -> previous -> search -> my places and the 'Add' button does not show correctly, this this was fixed")
         UIView.transition(with: tableView, duration: 0.4, options: .transitionCrossDissolve, animations: { self.tableView.reloadData()} , completion: nil)
+        
         
         switch currentSelectedSegment {
         case .search:
             searchBar.placeholder = searchNormalTitle
-            searchBarStack.isHidden = false
             searchBar.text = ""
-            searchBar.searchTextField.leftViewMode = .always
             searchBar.searchTextField.leftView = UIImageView(image: .magnifyingGlassImage)
+            searchBar.layoutIfNeeded()
             
+            self.myPlacesButton.isHidden = true
             
-            
-            myPlacesButton.isHidden = true
+            UIView.animate(withDuration: 0.3) {
+                self.searchBarStack.isHidden = false
+                self.searchOptionsStack.layoutIfNeeded()
+            }
             
         case .previous:
-            searchBarStack.isHidden = true
+            
+            UIView.animate(withDuration: 0.3) {
+                self.searchBarStack.isHidden = true
+                self.searchOptionsStack.layoutIfNeeded()
+            }
+            
         case .myPlaces:
-            // Add a plus button to the search bar
             searchBar.placeholder = myPlacesTitle
-            searchBarStack.isHidden = false
             searchBar.text = ""
             searchBar.searchTextField.leftView = UIImageView(image: .homeImage)
+            searchBar.layoutIfNeeded()
             
+            UIView.animate(withDuration: 0.3) {
+                self.searchBarStack.isHidden = false
+                self.myPlacesButton.isHidden = false
+                self.searchOptionsStack.layoutIfNeeded()
+            }
             
-            myPlacesButton.isHidden = false
         }
         
+        searchBar.searchTextField.leftViewMode = .always
         searchBar.searchTextField.leftView?.tintColor = .systemGray
     }
     
@@ -249,10 +263,9 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
             } else {
                 return searchResults.count
             }
-            
-            
         case .myPlaces:
             let count = myPlaces.count
+            
             if count == 0 {
                 if initialLoadingDone {
                     let addPlaceButton = tableView.setEmptyWithAction(message: "No places added yet.", buttonTitle: "Add place")

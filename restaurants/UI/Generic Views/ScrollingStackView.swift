@@ -8,6 +8,15 @@
 
 import UIKit
 
+
+
+protocol ScrollingStackViewDelegate: class {
+    func scrollViewScrolled()
+    func newIndexSelected(idx: Int)
+}
+
+
+
 class ScrollingStackView: UIView {
     
     var scrollOrigin: CGPoint {
@@ -20,6 +29,7 @@ class ScrollingStackView: UIView {
     private let selectedSideSize: CGFloat = 9.0
     private let selectedColor = UIColor.systemYellow
     private let notSelectedColor = UIColor.white
+    weak var delegate: ScrollingStackViewDelegate?
     
     func removePlaceholderView() {
         dropLocationView?.removeFromSuperview()
@@ -150,7 +160,7 @@ class ScrollingStackView: UIView {
         
     }
     
-    func resetElements() {
+    func resetElements(selectedIndex: Int = 0) {
         let newAmount = self.stackView.arrangedSubviews.count
         if newAmount < 2 {
             spotView.isHidden = true
@@ -170,12 +180,12 @@ class ScrollingStackView: UIView {
                 view.clipsToBounds = true
             }
             
-            highlightViewAt(0)
+            highlightViewAt(selectedIndex)
             
         }
     }
     
-    private func highlightViewAt(_ index: Int) {
+    func highlightViewAt(_ index: Int) {
         for (i, view) in paginationStackView.arrangedSubviews.enumerated() {
             if i == index {
                 view.backgroundColor = selectedColor
@@ -198,7 +208,12 @@ extension ScrollingStackView: UIScrollViewDelegate {
                 idx = i
             }
         }
-
+        delegate?.newIndexSelected(idx: idx)
         highlightViewAt(idx)
     }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        delegate?.scrollViewScrolled()
+    }
+    
 }

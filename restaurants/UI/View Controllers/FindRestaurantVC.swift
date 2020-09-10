@@ -249,7 +249,7 @@ class FindRestaurantVC: UIViewController {
     private func scrollChildToTop() {
         childPosition = .top
         handleShowingOrHidingSelectedView()
-        UIView.animate(withDuration: 0.3) {
+        UIView.animate(withDuration: 0.4) {
             self.childTopAnchor.constant = .heightDistanceBetweenChildOverParent
             self.view.layoutIfNeeded()
         }
@@ -260,11 +260,13 @@ class FindRestaurantVC: UIViewController {
         if let constant = middleConstraintConstantForChild {
             childPosition = .middle
             handleShowingOrHidingSelectedView()
-            UIView.animate(withDuration: 0.3) {
+            
+            if !self.userMovedMapView {
+                self.mapView.updateAllAnnotationZoom(topHalf: true)
+            }
+            
+            UIView.animate(withDuration: 0.4) {
                 self.childTopAnchor.constant = constant
-                if !self.userMovedMapView {
-                    self.mapView.updateAllAnnotationZoom(topHalf: true)
-                }
                 self.view.layoutIfNeeded()
             }
         }
@@ -276,11 +278,12 @@ class FindRestaurantVC: UIViewController {
         childPosition = .bottom
         handleShowingOrHidingSelectedView()
         
-        UIView.animate(withDuration: 0.3) {
+        if !self.userMovedMapView {
+            self.mapView.updateAllAnnotationZoom(topHalf: false)
+        }
+        
+        UIView.animate(withDuration: 0.4) {
             self.childTopAnchor.constant = self.view.frame.height - allowedDistance
-            if !self.userMovedMapView {
-                self.mapView.updateAllAnnotationZoom(topHalf: false)
-            }
             self.view.layoutIfNeeded()
         }
         
@@ -297,13 +300,22 @@ class FindRestaurantVC: UIViewController {
                 selectedViewTransitionStyle = .none
             } else {
                 restaurantSelectedView = RestaurantSelectedView(restaurant: annotationRestaurant, isFirst: isFirst, isLast: isLast, vc: self)
+                
                 self.view.addSubview(restaurantSelectedView!)
                 NSLayoutConstraint.activate([
                     restaurantSelectedView!.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
                     restaurantSelectedView!.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 35.0),
                     restaurantSelectedView!.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -20.0)
-                    
                 ])
+                
+                restaurantSelectedView?.transform = CGAffineTransform(translationX: 0, y: -(restaurantSelectedView!.bounds.height + 35))
+                restaurantSelectedView?.layoutIfNeeded()
+                
+                // prevents the bug where the view will come in from the top left
+                self.view.layoutIfNeeded()
+                UIView.animate(withDuration: 0.4) {
+                    self.restaurantSelectedView?.transform = .identity
+                }
             }
         }
     }
@@ -353,7 +365,7 @@ class FindRestaurantVC: UIViewController {
             guard let self = self else { return }
             switch response {
             case .success(let newRestaurants):
-                self.mapView.removeAnnotations(self.mapView.annotations )
+                self.mapView.removeAnnotations(self.mapView.annotations)
                 self.mapView.showRestaurants(newRestaurants, fitInTopHalf: self.childPosition == .middle)
                 self.restaurantListVC.scrollTableViewToTop()
                 self.restaurants = newRestaurants
@@ -361,6 +373,7 @@ class FindRestaurantVC: UIViewController {
                 #warning("need to implement")
                 print("Error finding restaurants")
             }
+            
             self.userMovedMapView = false
             self.restaurantSearchBar?.doneWithRestaurantSearch()
             self.moreRestaurantsButtonShown = false
@@ -413,16 +426,12 @@ extension FindRestaurantVC: MKMapViewDelegate {
         if moreRestaurantsButtonShown, let mrbs = moreRestaurantsButton {
             print("Height added again: \(mrbs.bounds.height)")
             bottomDistance += mrbs.bounds.height + 10.0 // 10.0 for the constraint distance
-            
-            
         }
         
         if let coord = view.annotation?.coordinate {
             
             mapView.handleMapZooming(distanceFromTop: restaurantSelectedView?.bounds.height ?? 0.0, distanceFromBottom: bottomDistance, pointToCheck: coord, aboveExactCenter: childPosition == .middle)
         }
-        
-        
     }
 
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
