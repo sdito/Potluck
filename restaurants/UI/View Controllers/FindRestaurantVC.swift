@@ -11,6 +11,7 @@ import UIKit
 import MapKit
 import CoreLocation
 
+
 protocol SearchUpdatedFromMasterDelegate: class {
     func newSearch(search: Network.RestaurantSearch)
 }
@@ -43,6 +44,7 @@ class FindRestaurantVC: UIViewController {
     private var selectedViewTransitionStyle: RestaurantSelectedView.UpdateStyle = .none
     private var restaurants: [Restaurant] = [] {
         didSet {
+            
             if restaurantListVC != nil {
                 self.restaurantListVC.restaurants = self.restaurants
             }
@@ -344,9 +346,7 @@ class FindRestaurantVC: UIViewController {
         }
     }
     
-    
     @objc private func findRestaurantsAgain() {
-        #warning("use the base function for this, this is just Map Location, use whatever the current search term is")
         userMovedMapView = false
         moreRestaurantsButton!.showLoadingOnButton()
         let location = mapView.region.center
@@ -354,6 +354,7 @@ class FindRestaurantVC: UIViewController {
         restaurantSearch.location = .mapLocation
         getRestaurantsFromPreSetRestaurantSearch(initial: false)
     }
+    
     
     private func getRestaurantsFromPreSetRestaurantSearch(initial: Bool) {
         
@@ -370,8 +371,8 @@ class FindRestaurantVC: UIViewController {
                 self.restaurantListVC.scrollTableViewToTop()
                 self.restaurants = newRestaurants
             case .failure(_):
-                #warning("need to implement")
-                print("Error finding restaurants")
+                self.restaurantListVC.view.appEndSkeleton()
+                self.showMessage("Please try again")
             }
             
             self.userMovedMapView = false

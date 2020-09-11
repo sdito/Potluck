@@ -30,6 +30,7 @@ class ScrollingStackView: UIView {
     private let selectedColor = UIColor.systemYellow
     private let notSelectedColor = UIColor.white
     weak var delegate: ScrollingStackViewDelegate?
+    private var previousIndex = -1
     
     func removePlaceholderView() {
         dropLocationView?.removeFromSuperview()
@@ -48,15 +49,31 @@ class ScrollingStackView: UIView {
         for (i, view) in stackView.arrangedSubviews.enumerated() {
             widthCounter += view.bounds.width
             if widthCounter > totalDistance {
-                guard i != fromIndex && i != fromIndex + 1 else { return nil }
+                guard i != fromIndex && i != fromIndex + 1 else {
+                    resetSelectedIndex()
+                    return nil
+                }
                 dropLocationView = setUpDropLocationView(addTo: view)
+                checkForHapticFeedback(newIdx: i)
                 return i
             }
         }
         
         let idx = stackView.arrangedSubviews.count - 1
+        checkForHapticFeedback(newIdx: idx)
         
         return idx
+    }
+    
+    private func checkForHapticFeedback(newIdx: Int) {
+        if newIdx != previousIndex {
+            UIDevice.vibrateSelectionChanged()
+            previousIndex = newIdx
+        }
+    }
+    
+    func resetSelectedIndex() {
+        previousIndex = -1
     }
     
     var scrollView: UIScrollView!

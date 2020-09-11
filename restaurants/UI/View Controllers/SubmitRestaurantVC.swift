@@ -43,6 +43,7 @@ class SubmitRestaurantVC: UIViewController {
                 self.sliderValueButton.setTitle("\(sliderValue!)", for: .normal)
             } else {
                 self.sliderView.tintColor = baseSliderColor
+                self.sliderView.value = (sliderView.maximumValue + sliderView.minimumValue) / 2.0
                 self.sliderValueButton.setTitle(emptySliderValue, for: .normal)
             }
             
@@ -202,10 +203,12 @@ class SubmitRestaurantVC: UIViewController {
         
         sliderView.addTarget(self, action: #selector(sliderViewSelector(sender:)), for: .valueChanged)
         
-        let ratingLabel = UILabel()
-        ratingLabel.translatesAutoresizingMaskIntoConstraints = false
-        ratingLabel.font = .mediumBold
-        ratingLabel.text = "Rating"
+        let ratingButton = UIButton()
+        ratingButton.translatesAutoresizingMaskIntoConstraints = false
+        ratingButton.titleLabel?.font = .mediumBold
+        ratingButton.setTitle("Rating", for: .normal)
+        ratingButton.setTitleColor(.label, for: .normal)
+        ratingButton.addTarget(self, action: #selector(sliderValueButtonSelector), for: .touchUpInside)
         
         sliderValueButton.translatesAutoresizingMaskIntoConstraints = false
         sliderValueButton.setTitle(emptySliderValue, for: .normal)
@@ -217,7 +220,7 @@ class SubmitRestaurantVC: UIViewController {
         sliderValueButton.setTitleColor(.label, for: .normal)
         sliderValueButton.addTarget(self, action: #selector(sliderValueButtonSelector), for: .touchUpInside)
 
-        sliderStackView.addArrangedSubview(ratingLabel)
+        sliderStackView.addArrangedSubview(ratingButton)
         sliderStackView.addArrangedSubview(sliderView)
         sliderStackView.addArrangedSubview(sliderValueButton)
         sliderStackView.widthAnchor.constraint(equalTo: headerStackView.widthAnchor).isActive = true
@@ -393,15 +396,17 @@ class SubmitRestaurantVC: UIViewController {
     @objc private func sliderViewSelector(sender: UISlider) {
         sliderValue = Float(round(10 * sender.value)/10)
     }
+    
     @objc private func sliderValueButtonSelector() {
-        #warning("need to complete")
-        // pop up to clear the value, or to just enter in the value
-        print("sliderValueButtonSelector pressed")
+        self.actionSheet(actions: [
+            ("Clear rating value", { [weak self] in self?.sliderValue = nil })
+        ])
     }
+    
     
 }
 
-
+// MARK: ImageSelectorDelegate
 extension SubmitRestaurantVC: ImageSelectorDelegate {
     
     func scrollViewContentOffset(scrollView: UIScrollView) {

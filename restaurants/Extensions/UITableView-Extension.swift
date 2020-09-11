@@ -10,15 +10,33 @@ import UIKit
 
 extension UITableView {
     
-    func showLoadingOnTableView() {
+    func showLoadingOnTableView(middle: Bool = true) {
+        let containerView = UIView()
         let loadingView = UIActivityIndicatorView(style: .large)
+        loadingView.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(loadingView)
+        
+        loadingView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+        
+        if middle {
+            loadingView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        } else {
+            loadingView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: UIScreen.main.bounds.height * 0.05).isActive = true
+        }
+        
         loadingView.startAnimating()
-        self.backgroundView = loadingView
+        self.backgroundView = containerView
         self.separatorStyle = .none
         
     }
+    
+    enum BackgroundViewArea {
+        case top
+        case center
+        case bottom
+    }
 
-    func setEmptyWithAction(message: String, buttonTitle: String) -> UIButton {
+    func setEmptyWithAction(message: String, buttonTitle: String, area: BackgroundViewArea) -> UIButton {
         
         let container = UIView()
 
@@ -47,9 +65,18 @@ extension UITableView {
         
         NSLayoutConstraint.activate([
             stack.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -(stack.bounds.height + UIScreen.main.bounds.height * 0.3)),
             stack.widthAnchor.constraint(equalToConstant: self.bounds.width * 0.75)
         ])
+        
+        switch area {
+        case .top:
+            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: UIScreen.main.bounds.height * 0.05).isActive = true
+        case .center:
+            stack.centerYAnchor.constraint(equalTo: container.centerYAnchor).isActive = true
+        case .bottom:
+            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -(stack.bounds.height + UIScreen.main.bounds.height * 0.3)).isActive = true
+        }
+        
         
         return button
 

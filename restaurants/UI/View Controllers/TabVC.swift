@@ -9,7 +9,16 @@
 import UIKit
 
 class TabVC: UITabBarController, UITabBarControllerDelegate {
-    
+    #warning("ability to edit an establishment, from the EstablishmentDetailVC")
+    #warning("haptic feedback with small click-like vibration")
+    /*
+     if previousIndex != i {
+         let generator = UISelectionFeedbackGenerator()
+         generator.prepare()
+         generator.selectionChanged()
+         previousIndex = i
+     }
+     */
 
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -124,17 +124,19 @@ extension MKMapView {
     }
     
     func fitAllAnnotations(newAnnotations: [MKAnnotation], fitInTopHalf: Bool) {
-        var zoomRect = MKMapRect.null
-        for annotation in newAnnotations {
-            let annotationPoint = MKMapPoint(annotation.coordinate)
-            let pointRect = MKMapRect(x: annotationPoint.x, y: annotationPoint.y, width: 0.1, height: 0.1);
-            zoomRect = zoomRect.union(pointRect);
-        }
-        if fitInTopHalf {
-            zoomRect.size.height = zoomRect.size.height * 2
-            self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 20, left: 50, bottom: 100, right: 50), animated: true)
-        } else {
-            self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 50, left: 50, bottom: 120, right: 50), animated: true)
+        if newAnnotations.count > 0 {
+            var zoomRect = MKMapRect.null
+            for annotation in newAnnotations {
+                let annotationPoint = MKMapPoint(annotation.coordinate)
+                let pointRect = MKMapRect(x: annotationPoint.x, y: annotationPoint.y, width: 0.1, height: 0.1);
+                zoomRect = zoomRect.union(pointRect);
+            }
+            if fitInTopHalf {
+                zoomRect.size.height = zoomRect.size.height * 2
+                self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 20, left: 50, bottom: 100, right: 50), animated: true)
+            } else {
+                self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 50, left: 50, bottom: 120, right: 50), animated: true)
+            }
         }
     }
     

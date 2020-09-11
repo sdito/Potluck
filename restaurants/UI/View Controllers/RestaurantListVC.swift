@@ -8,7 +8,7 @@
 
 import UIKit
 import Hero
-import SkeletonView
+
 
 class RestaurantListVC: UIViewController {
     
@@ -23,9 +23,8 @@ class RestaurantListVC: UIViewController {
     private let topViewPadding: CGFloat = 7.0
     let filterButton = SizeChangeButton(sizeDifference: .medium, restingColor: .secondaryLabel, selectedColor: .secondaryLabel)
     
-    var restaurants: [Restaurant] = [] {
+    var restaurants: [Restaurant]? {
         didSet {
-            self.view.appEndSkeleton()
             imageCache.removeAllObjects()
             tableView.reloadData()
         }
@@ -51,8 +50,6 @@ class RestaurantListVC: UIViewController {
         setUpPortionAboveTableView()
         setUpTableView()
         self.tableView.register(RestaurantCell.self, forCellReuseIdentifier: restaurantCellReuseIdentifier)
-        self.tableView.appStartSkeleton()
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -165,10 +162,11 @@ class RestaurantListVC: UIViewController {
     }
     
     @objc private func commonSearchesPressed(sender: UIButton) {
+        UIDevice.vibrateSelectionChanged()
         searchUpdatedFromHere = true // used so that the UI does not get updated again for no reason on SearchUpdatedFromMasterDelegate
         let search = Network.commonSearches[sender.tag]
         if sender.isSelected {
-            searchCompleteDelegate.newSearchCompleted(searchType: ("restaurants", "Restaurants"), locationText: nil)
+            baseSearch()
             sender.isSelected = false
         } else {
             commonSearchButtons.forEach({$0.isSelected = false})
@@ -183,6 +181,16 @@ class RestaurantListVC: UIViewController {
         restaurantSearchBar.beginHeroAnimation()
         let searchInfo = owner.restaurantSearch
         self.navigationController?.pushViewController(SearchRestaurantsVC(searchType: searchInfo.yelpCategory, searchLocation: searchInfo.location ?? "Current location", control: owner, startWithLocation: searchOption == .location), animated: true)
+    }
+    
+    private func baseSearch() {
+        searchCompleteDelegate.newSearchCompleted(searchType: ("restaurants", "Restaurants"), locationText: nil)
+    }
+    
+    @objc private func baseSearchSelector(sender: UIButton) {
+        baseSearch()
+        sender.setTitleColor(.clear, for: .normal)
+        sender.placeActivityIndicatorOnTop()
     }
     
     private func setUpTableView() {
@@ -217,7 +225,7 @@ class RestaurantListVC: UIViewController {
     func scrollToRestaurant(_ restaurant: Restaurant) {
         #warning("will not scroll to the last few rows, need to fix, also issue with the image cache")
         
-        let indexToScrollTo = restaurants.firstIndex { (rest) -> Bool in rest.id == restaurant.id }
+        let indexToScrollTo = restaurants?.firstIndex { (rest) -> Bool in rest.id == restaurant.id }
         guard let index = indexToScrollTo else { return }
         
         tableView.scrollToRow(at: IndexPath(row: index, section: 0), at: .top, animated: true)
@@ -226,15 +234,31 @@ class RestaurantListVC: UIViewController {
 
 }
 
+
+
 // MARK: TableView
-extension RestaurantListVC: UITableViewDelegate {
+extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return restaurants.count
+        
+        if let restaurants = restaurants {
+            if restaurants.count > 0 {
+                tableView.restore()
+                return restaurants.count
+            } else {
+                let tryAgainButton = self.tableView.setEmptyWithAction(message: "Something went wrong. Couldn't find restaurants.", buttonTitle: "Try again", area: .top)
+                tryAgainButton.addTarget(self, action: #selector(baseSearchSelector(sender:)), for: .touchUpInside)
+                return 0
+            }
+        } else {
+            tableView.showLoadingOnTableView(middle: false)
+            return 0
+        }
+        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: restaurantCellReuseIdentifier) as! RestaurantCell
-        let restaurant = restaurants[indexPath.row]
+        let restaurant = restaurants![indexPath.row]
         cell.setUp(restaurant: restaurant, place: indexPath.row + 1, vc: owner)
         let key = "\(indexPath.section).\(indexPath.row)" as NSString
         if let cachedImage = imageCache.object(forKey: key) {
@@ -255,7 +279,7 @@ extension RestaurantListVC: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let restaurant = restaurants[indexPath.row]
+        let restaurant = restaurants![indexPath.row]
         //print(restaurant.name)
         let cell = tableView.cellForRow(at: indexPath) as! RestaurantCell
         cell.setUpForHero()
@@ -271,22 +295,6 @@ extension RestaurantListVC: UITableViewDelegate {
         self.parent?.navigationController?.pushViewController(RestaurantDetailVC(restaurant: restaurant, fromCell: cell, imageAlreadyFound: imageToSend), animated: true)
         self.tableView.cellForRow(at: indexPath)?.isSelected = false
     }
-}
-
-
-#warning("doesn't work")
-// MARK: Skeleton View
-extension RestaurantListVC: SkeletonTableViewDataSource {
-    
-    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
-       return restaurantCellReuseIdentifier
-    }
-    
-    func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
-    }
-    
-    
 }
 
 

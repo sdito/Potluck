@@ -14,6 +14,7 @@ class ProfileHomeVC: UIViewController {
     private var allowHintToCreateRestaurant = false
     private var visits: [Visit] = []
     private let reuseIdentifier = "visitCellReuseIdentifier"
+    private let refreshControl = UIRefreshControl()
     
     private let imageCache = NSCache<NSString, UIImage>()
     private let otherImageCache = NSCache<NSString, ImageRequest>()
@@ -73,6 +74,10 @@ class ProfileHomeVC: UIViewController {
         tableView.dataSource = self
         tableView.register(VisitCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.separatorStyle = .none
+        
+        refreshControl.addTarget(self, action: #selector(refreshControlSelector), for: .valueChanged)
+        tableView.refreshControl = refreshControl
+        
         self.tableView.backgroundColor = .systemBackground
         
         let showOnMapButton = OverlayButton()
@@ -87,7 +92,7 @@ class ProfileHomeVC: UIViewController {
     private func noUserTableView() {
         tableView.layoutIfNeeded()
         self.allowHintToCreateRestaurant = false
-        let createAccountButton = self.tableView.setEmptyWithAction(message: "You need to create an account in order to make posts.", buttonTitle: "Create account")
+        let createAccountButton = self.tableView.setEmptyWithAction(message: "You need to create an account in order to make posts.", buttonTitle: "Create account", area: .center)
         createAccountButton.addTarget(self, action: #selector(rightBarButtonItemSelector), for: .touchUpInside)
     }
     
@@ -117,13 +122,18 @@ class ProfileHomeVC: UIViewController {
         let mapProfile = ProfileMapVC()
         self.navigationController?.pushViewController(mapProfile, animated: true)
     }
+    
+    @objc private func refreshControlSelector() {
+        print("Refresh control selected")
+        #warning("need to complete")
+    }
 }
 
 // MARK: Table view
 extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if allowHintToCreateRestaurant && visits.count == 0 {
-            let addPostButton = self.tableView.setEmptyWithAction(message: "You do not have any posts yet. Add a post every time you eat at a restaurant.", buttonTitle: "Add post")
+            let addPostButton = self.tableView.setEmptyWithAction(message: "You do not have any posts yet. Add a post every time you eat at a restaurant.", buttonTitle: "Add post", area: .center)
             addPostButton.addTarget(self, action: #selector(addNewPostSelector), for: .touchUpInside)
         }
         return visits.count

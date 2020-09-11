@@ -14,14 +14,14 @@ class SettingsVC: UIViewController {
     
     enum Setting: String, CaseIterable {
         case account = "Account"
-        case data = "Data"
+        case settings = "Settings"
         
         var rows: [Row] {
             switch self {
             case .account:
                 return [.logout, .editAccountInfo]
-            case .data:
-                return [.resetAllData]
+            case .settings:
+                return [.resetAllData, .hapticFeedback]
             }
         }
     }
@@ -30,6 +30,7 @@ class SettingsVC: UIViewController {
         case logout = "Logout"
         case editAccountInfo = "Edit account info"
         case resetAllData = "Reset all data"
+        case hapticFeedback = "Enable haptic feedback"
     }
 
     override func viewDidLoad() {
@@ -90,9 +91,11 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
             
             
         case .editAccountInfo:
-            fatalError()
+            print("Need to edit account info")
         case .resetAllData:
-            fatalError()
+            print("Need to reset all data")
+        case .hapticFeedback:
+            print("Need to do haptic feedback")
         }
         
         

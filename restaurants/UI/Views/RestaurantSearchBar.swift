@@ -52,12 +52,8 @@ class RestaurantSearchBar: UIView {
     }
     
     func showActivityIndicator() {
-        activityView = UIActivityIndicatorView()
-        activityView!.translatesAutoresizingMaskIntoConstraints = false
+        activityView = searchImage.placeActivityIndicatorOnTop()
         activityView!.backgroundColor = self.backgroundColor
-        self.searchImage.addSubview(activityView!)
-        activityView!.startAnimating()
-        activityView!.constrainSides(to: self.searchImage)
     }
     
     func doneWithRestaurantSearch() {

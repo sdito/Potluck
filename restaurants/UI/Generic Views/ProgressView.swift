@@ -128,6 +128,7 @@ class ProgressView: UIView {
             }
             
         }) { (complete) in
+            UIDevice.vibrateSuccess()
             if complete {
                 let checkMarkView = UIImageView(frame: layerView.frame)
                 checkMarkView.image = .checkImage

@@ -193,10 +193,11 @@ class AddRestaurantVC: UIViewController {
         }
     }
     
+    
+    
     @objc private func segmentedControlChanged() {
-        #warning("search -> previous -> search -> my places and the 'Add' button does not show correctly, this this was fixed")
         UIView.transition(with: tableView, duration: 0.4, options: .transitionCrossDissolve, animations: { self.tableView.reloadData()} , completion: nil)
-        
+        tableView.layoutIfNeeded()
         
         switch currentSelectedSegment {
         case .search:
@@ -230,7 +231,6 @@ class AddRestaurantVC: UIViewController {
                 self.myPlacesButton.isHidden = false
                 self.searchOptionsStack.layoutIfNeeded()
             }
-            
         }
         
         searchBar.searchTextField.leftViewMode = .always
@@ -268,7 +268,7 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
             
             if count == 0 {
                 if initialLoadingDone {
-                    let addPlaceButton = tableView.setEmptyWithAction(message: "No places added yet.", buttonTitle: "Add place")
+                    let addPlaceButton = tableView.setEmptyWithAction(message: "No places added yet.", buttonTitle: "Add place", area: .bottom)
                     addPlaceButton.addTarget(self, action: #selector(myPlacesButtonAction), for: .touchUpInside)
                 } else {
                     tableView.showLoadingOnTableView()
@@ -283,7 +283,7 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
             let count = previousRestaurants.count
             if count == 0 {
                 if initialLoadingDone {
-                    let addVisitButton = tableView.setEmptyWithAction(message: "No restaurants previously visited yet.", buttonTitle: "Add visit")
+                    let addVisitButton = tableView.setEmptyWithAction(message: "No restaurants previously visited yet.", buttonTitle: "Add visit", area: .bottom)
                     addVisitButton.addTarget(self, action: #selector(addVisitButtonAction), for: .touchUpInside)
                 } else {
                     tableView.showLoadingOnTableView()

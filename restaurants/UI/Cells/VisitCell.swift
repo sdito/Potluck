@@ -198,7 +198,6 @@ class VisitCell: UITableViewCell {
             newVc.modalPresentationStyle = .overFullScreen
             parent.present(newVc, animated: false, completion: nil)
         } else {
-            #warning("need to test")
             parent.showMessage("No location found", on: parent)
         }
     }

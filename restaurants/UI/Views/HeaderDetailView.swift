@@ -118,8 +118,9 @@ class HeaderDetailView: UIView {
         callButton.addTarget(self, action: #selector(callRestaurantPressed), for: .touchUpInside)
         buttonsSV.addArrangedSubview(callButton)
         
-        buttonsSV.addArrangedSubview(TwoLevelButton(text: "Menu", imageText: "book"))
-
+        let visitButton = TwoLevelButton(text: "Visit", imageText: "phone")
+        buttonsSV.addArrangedSubview(visitButton)
+        #warning("need to complete")
         newSV.addArrangedSubview(buttonsSV)
         buttonsSV.widthAnchor.constraint(equalTo: newSV.widthAnchor).isActive = true
     }

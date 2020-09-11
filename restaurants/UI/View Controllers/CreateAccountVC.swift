@@ -138,15 +138,15 @@ class CreateAccountVC: UIViewController {
                 if messages.count < 1 {
                     messages = ["Please try again."]
                 }
-                
                 self.alert(title: "Unable to create account", message: messages.joined(separator: "\n\n"))
-            
+                UIDevice.vibrateError()
             }
         case .logIn:
             emailLogInField.shakeIfNeeded()
             passwordLogInField.shakeIfNeeded()
             guard let email = emailLogInField.text, let password = passwordLogInField.text, email.count > 0 && password.count > 0 else {
                 self.alert(title: "Unable to log in", message: "Please enter a valid email and password to log in.")
+                UIDevice.vibrateError()
                 return
             }
             Network.shared.retrieveToken(email: email, password: password) { [weak self] (result) in
@@ -159,6 +159,7 @@ class CreateAccountVC: UIViewController {
                     }
                 case .failure(let error):
                     self.alert(title: "Error", message: error.message)
+                    UIDevice.vibrateError()
                     break
                 }
             }

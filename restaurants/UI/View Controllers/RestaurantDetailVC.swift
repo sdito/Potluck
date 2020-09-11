@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreLocation
+import SafariServices
 
 class RestaurantDetailVC: UIViewController {
     
@@ -380,12 +381,14 @@ extension RestaurantDetailVC: HeaderDetailViewDelegate {
     }
     
     func urlPressedToOpen() {
-        if let url = restaurant.url {
-            self.navigationController?.pushViewController(WebVC(url: url), animated: true)
+        if let urlString = restaurant.url, let url = URL(string: urlString) {
+            let config = SFSafariViewController.Configuration()
+            config.entersReaderIfAvailable = true
+            let vc = SFSafariViewController(url: url, configuration: config)
+            self.present(vc, animated: true, completion: nil)
         } else {
             self.showMessage("Unable to find URL")
         }
-        
     }
     
     func moreInfoOnHeaderPressed() {

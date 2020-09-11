@@ -285,11 +285,13 @@ extension FilterRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        UIDevice.vibrateSelectionChanged()
         indexPathsToSelect.insert(indexPath)
         handleShowingNotificationLabel()
     }
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        UIDevice.vibrateSelectionChanged()
         indexPathsToSelect.remove(indexPath)
         handleShowingNotificationLabel()
     }

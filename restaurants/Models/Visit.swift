@@ -20,8 +20,8 @@ class Visit: Codable {
     var mainImageWidth: Int
     var accountID: Int
     var accountUsername: String
-    var rating: Double
     var otherImages: [VisitImage]
+    var rating: Double?
     var yelpID: String?
     
     private var serverDate: Date
@@ -56,18 +56,23 @@ class Visit: Codable {
         }
     }
     
-    var ratingString: NSAttributedString {
-        let mutableString = NSMutableAttributedString()
+    var ratingString: NSAttributedString? {
         
-        let ratingPortion = NSAttributedString(string: "\(rating) ", attributes: [NSAttributedString.Key.font: UIFont.mediumBold, NSAttributedString.Key.baselineOffset: 1.8])
-        let image = UIImage.starCircleImage.withConfiguration(UIImage.SymbolConfiguration(scale: .small)).withTintColor(rating.getColorFromZeroToTen())
-        let imageAttachment = NSTextAttachment(image: image)
-        let imageString = NSAttributedString(attachment: imageAttachment)
-        
-        mutableString.append(ratingPortion)
-        mutableString.append(imageString)
-        
-        return mutableString
+        if let rating = rating {
+            let mutableString = NSMutableAttributedString()
+            
+            let ratingPortion = NSAttributedString(string: "\(rating) ", attributes: [NSAttributedString.Key.font: UIFont.mediumBold, NSAttributedString.Key.baselineOffset: 1.8])
+            let image = UIImage.starCircleImage.withConfiguration(UIImage.SymbolConfiguration(scale: .small)).withTintColor(rating.getColorFromZeroToTen())
+            let imageAttachment = NSTextAttachment(image: image)
+            let imageString = NSAttributedString(attachment: imageAttachment)
+            
+            mutableString.append(ratingPortion)
+            mutableString.append(imageString)
+            
+            return mutableString
+        } else {
+            return nil
+        }
     }
     
     func getEstablishment() -> Establishment {

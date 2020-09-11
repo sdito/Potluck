@@ -273,6 +273,8 @@ class ImageSelectorVC: UIViewController {
         
         if sender.state == .began {
             
+            #warning("start point is off")
+            
             scrollingView.stackView.bringSubviewToFront(senderView)
             initialFrame = self.scrollingView.scrollView.convert(senderView.frame, to: self.view)
         
@@ -281,6 +283,7 @@ class ImageSelectorVC: UIViewController {
             newFakeView?.setUp(image: placeholderImage, size: self.basicSize, tag: tagPlaceholder)
             newFakeView?.showBorderForMoving()
             newFakeView?.center = senderView.center
+            
             newFakeView?.frame.origin.x -= scrollingView.scrollView.contentOffset.x
             scrollingView.addSubview(newFakeView!)
             view.bringSubviewToFront(newFakeView!)
@@ -300,10 +303,10 @@ class ImageSelectorVC: UIViewController {
                 }
             }
         } else if sender.state == .changed {
-            
+            // was changed --- initial point was off
             if allowChangesOnNewView {
-                let newOriginX = (touchPoint.x - beginningPoint.x) + initialFrame.origin.x + scrollingViewConstant
-                let newOriginY = (touchPoint.y - beginningPoint.y) + initialFrame.origin.y + scrollingViewConstant
+                let newOriginX = (touchPoint.x - beginningPoint.x) + initialFrame.origin.x
+                let newOriginY = (touchPoint.y - beginningPoint.y) + scrollingViewConstant
                 let maximumY = scrollingView.frame.maxY - newFakeView!.bounds.height
                 newFakeView?.frame.origin.x = newOriginX
                 newFakeView?.frame.origin.y = min(maximumY, newOriginY)
@@ -312,6 +315,7 @@ class ImageSelectorVC: UIViewController {
             scrollingView.indexForViewAtAbsoluteX(touchPoint.x, fromIndex: scrollingView.stackView.arrangedSubviews.firstIndex(of: senderView) ?? 0)
             
         } else if sender.state == .ended {
+            scrollingView.resetSelectedIndex()
             timer?.invalidate()
             self.placeholderView.isHidden = true // reset back
             let finalIndex = scrollingView.indexForViewAtAbsoluteX(touchPoint.x, fromIndex: scrollingView.stackView.arrangedSubviews.firstIndex(of: senderView) ?? 0)

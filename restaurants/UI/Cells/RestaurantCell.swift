@@ -36,7 +36,6 @@ class RestaurantCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setUpUiElements()
-        setUpForSkeleton()
     }
     
     required init?(coder: NSCoder) {
@@ -178,16 +177,6 @@ class RestaurantCell: UITableViewCell {
         self.titleLabel.hero.id = ""
         self.restaurantImageView.hero.id = ""
         self.starRatingView.hero.id = ""
-    }
-    
-    func setUpForSkeleton() {
-        self.isSkeletonable = true
-        self.titleLabel.text = "This is the example title"
-        self.titleLabel.isSkeletonable = true
-        self.restaurantImageView.isSkeletonable = true
-        self.starRatingView.isSkeletonable = true
-        
-        
     }
     
     @objc private func mapButtonSelected() {
