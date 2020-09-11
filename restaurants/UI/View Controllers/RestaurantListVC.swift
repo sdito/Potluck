@@ -12,6 +12,7 @@ import Hero
 
 class RestaurantListVC: UIViewController {
     
+    var locationAllowed = true
     private var searchUpdatedFromHere = false
     private var imageCache = NSCache<NSString, UIImage>(); #warning("major issues with the image cache, might need to change to have a global one, idk")
     private var owner: FindRestaurantVC!
@@ -175,9 +176,16 @@ class RestaurantListVC: UIViewController {
         }
     }
     
-    @objc private func searchBarPressed(sender: UIButton, forEvent event: UIEvent) {
-        guard let touch = event.allTouches?.first else { return }
-        let searchOption = restaurantSearchBar.findIfSearchTypeOrLocationPressed(point: touch.location(in: sender))
+    @objc private func searchBarPressed(sender: UIButton?, forEvent event: UIEvent?) {
+        
+        var searchOption: RestaurantSearchBar.SearchOption {
+            if let touch = event?.allTouches?.first {
+                return restaurantSearchBar.findIfSearchTypeOrLocationPressed(point: touch.location(in: sender))
+            } else {
+                return .location
+            }
+        }
+        
         restaurantSearchBar.beginHeroAnimation()
         let searchInfo = owner.restaurantSearch
         self.navigationController?.pushViewController(SearchRestaurantsVC(searchType: searchInfo.yelpCategory, searchLocation: searchInfo.location ?? "Current location", control: owner, startWithLocation: searchOption == .location), animated: true)
@@ -244,6 +252,10 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
             if restaurants.count > 0 {
                 tableView.restore()
                 return restaurants.count
+            } else if !locationAllowed {
+                let locationButton = self.tableView.setEmptyWithAction(message: "Location not enabled. Location is used to find restaurants near you. You can add your own location instead.", buttonTitle: "Enter location", area: .top)
+                locationButton.addTarget(self, action: #selector(searchBarPressed), for: .touchUpInside)
+                return 0
             } else {
                 let tryAgainButton = self.tableView.setEmptyWithAction(message: "Something went wrong. Couldn't find restaurants.", buttonTitle: "Try again", area: .top)
                 tryAgainButton.addTarget(self, action: #selector(baseSearchSelector(sender:)), for: .touchUpInside)

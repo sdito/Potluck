@@ -27,15 +27,22 @@ class SearchRestaurantsVC: UIViewController {
     private var locationResults: [String] = []
     private var searchTypeResults: Network.YelpCategories = Network.commonSearches
     
-    private let recentLocationSearchesKey = "recentLocationSearchesKey"
     private let cellReuseIdentifier: String = "reuseIdentifierSR"
     private let searchBarHeight: CGFloat = 50.0
     
     private var searchTypeSearchBar = UISearchBar()
     private var locationSearchBar = UISearchBar()
-    private var tableView = UITableView(frame: .zero, style: .plain)
+    private var tableView: UITableView?
     private var request = MKLocalSearchCompleter()
     private var startWithLocation = false
+    private var tableViewConstraintsLaidOut = false
+    private var deviceCurrentAndMapLocations: [String] {
+        if UIDevice.completeLocationEnabled() {
+            return [.currentLocation, .mapLocation]
+        } else {
+            return [.mapLocation]
+        }
+    }
     
     private enum TableViewDisplay {
         case searchType
@@ -61,12 +68,13 @@ class SearchRestaurantsVC: UIViewController {
         self.navigationItem.title = "Search"
         self.navigationController?.navigationBar.tintColor = Colors.main
         setUpTopSearchBars()
+        
         setUpTableView()
+        
         setUpOverlaySearchButton()
         setUpSearchCompleter()
-        readRecentLocationSearchesFromUserDefaults()
-        
-        locationResults = [.currentLocation, .mapLocation] + previousLocationSearches
+        previousLocationSearches = UIDevice.readRecentLocationSearchesFromUserDefaults()
+        locationResults = deviceCurrentAndMapLocations + previousLocationSearches
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -79,6 +87,14 @@ class SearchRestaurantsVC: UIViewController {
         self.tabBarController?.tabBar.isHidden = false
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        
+        super.viewDidAppear(animated)
+        if !tableViewConstraintsLaidOut {
+            tableViewConstraintsLaidOut = true
+            setUpTableViewConstraints()
+        }
+    }
     
     private func setUpTopSearchBars() {
         
@@ -130,21 +146,27 @@ class SearchRestaurantsVC: UIViewController {
     }
     
     private func setUpTableView() {
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.dataSource = self
         
-        self.view.addSubview(tableView)
+        tableView = UITableView()
+        tableView!.translatesAutoresizingMaskIntoConstraints = false
+        tableView!.delegate = self
+        tableView!.dataSource = self
         
+        tableView!.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
+        tableView!.tableFooterView = UIView()
+        
+        self.view.addSubview(tableView!)
+        
+        
+    }
+    
+    private func setUpTableViewConstraints() {
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: locationSearchBar.bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+            tableView!.topAnchor.constraint(equalTo: locationSearchBar.bottomAnchor),
+            tableView!.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            tableView!.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            tableView!.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
         ])
-        
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
-        tableView.tableFooterView = UIView()
     }
     
     private func setUpOverlaySearchButton() {
@@ -186,19 +208,15 @@ class SearchRestaurantsVC: UIViewController {
                 if previousLocationSearches.count > 10 {
                     previousLocationSearches.removeLast()
                 }
-                UserDefaults.standard.set([searchLocation] + previousLocationSearches, forKey: recentLocationSearchesKey)
+                UserDefaults.standard.set([searchLocation] + previousLocationSearches, forKey: .recentLocationSearchesKey)
             }
             
         }
         
-        
         delegate.newSearchCompleted(searchType: searchType, locationText: searchLocation)
     }
     
-    private func readRecentLocationSearchesFromUserDefaults() {
-        let defaults = UserDefaults.standard
-        previousLocationSearches = defaults.array(forKey: recentLocationSearchesKey) as? [String] ?? []
-    }
+    
     
 }
 
@@ -275,10 +293,14 @@ extension SearchRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
 extension SearchRestaurantsVC: MKLocalSearchCompleterDelegate {
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
         locationResults = completer.results.map({"\($0.title) \($0.subtitle)"})
-        locationResults.insert(.currentLocation, at: 0)
-        locationResults.insert(.mapLocation, at: 1)
+        
+        locationResults.insert(.mapLocation, at: 0)
+        if UIDevice.completeLocationEnabled() {
+            locationResults.insert(.currentLocation, at: 0)
+        }
+        
         if tableViewDisplay == .location {
-            tableView.reloadData()
+            tableView?.reloadData()
         }
     }
 }
@@ -297,7 +319,7 @@ extension SearchRestaurantsVC: UISearchBarDelegate {
             tableViewDisplay = .none
         }
         
-        tableView.reloadData()
+        tableView?.reloadData()
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
@@ -343,14 +365,14 @@ extension SearchRestaurantsVC: UISearchBarDelegate {
                 request.queryFragment = searchText
                 searchLocation = searchText
             } else {
-                locationResults = [.currentLocation, .mapLocation] + previousLocationSearches
+                locationResults = deviceCurrentAndMapLocations + previousLocationSearches
             }
             
             
         case .none:
             break
         }
-        tableView.reloadData()
+        tableView?.reloadData()
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {

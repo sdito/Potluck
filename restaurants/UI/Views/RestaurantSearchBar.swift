@@ -108,7 +108,7 @@ class RestaurantSearchBar: UIView {
         locationLabel.textColor = .secondaryLabel
         
         searchTypeLabel.text = "Restaurants"
-        locationLabel.text = "Current location"
+        locationLabel.text = "Location"//"Current location"
         
         searchTypeLabel.textAlignment = .left
         locationLabel.textAlignment = .left

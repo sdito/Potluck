@@ -44,8 +44,8 @@ class FindRestaurantVC: UIViewController {
     private var selectedViewTransitionStyle: RestaurantSelectedView.UpdateStyle = .none
     private var restaurants: [Restaurant] = [] {
         didSet {
-            
             if restaurantListVC != nil {
+                #warning("animation is smoother when this is commented out, something in restaurantListVC could be slowing it down...")
                 self.restaurantListVC.restaurants = self.restaurants
             }
         }
@@ -61,6 +61,11 @@ class FindRestaurantVC: UIViewController {
     private var childPosition: ChildPosition = .middle
     private var restaurantSelectedView: RestaurantSelectedView?
     private var userMovedMapView = false
+    private var locationAllowed = true {
+        didSet {
+            self.restaurantListVC.locationAllowed = self.locationAllowed
+        }
+    }
     
     private let previousIndex = 0
     private let nextIndex = 2
@@ -78,9 +83,9 @@ class FindRestaurantVC: UIViewController {
         setUpView()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        setUp()
         addChildViewController()
         setUpMapViewPanGestureRecognizer()
+        setUp()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -94,14 +99,35 @@ class FindRestaurantVC: UIViewController {
 
     private func setUp () {
         self.navigationItem.title = "Explore"
-        if self.locationServicesEnabled() {
-            if locationManager.handleAuthorization(on: self) {
+        if UIDevice.locationServicesEnabled() {
+            
+            let (authorized, needToRequest) = UIDevice.handleAuthorization()
+            
+            if authorized {
+                locationAllowed = true
                 mapView.showsUserLocation = true
                 mapView.centerOnLocation(locationManager: locationManager)
                 let location = locationManager.location?.coordinate ?? .simulatorDefault
                 restaurantSearch = Network.RestaurantSearch(yelpCategory: nil, location: .currentLocation, coordinate: location)
                 getRestaurantsFromPreSetRestaurantSearch(initial: true)
+            } else if needToRequest {
+                locationManager.requestWhenInUseAuthorization()
+            } else {
+                handleNonCoordinateSearch()
             }
+        } else {
+            handleNonCoordinateSearch()
+        }
+    }
+    
+    private func handleNonCoordinateSearch() {
+        locationAllowed = false
+        print("This is being called")
+        if let previousSearch = UIDevice.readRecentLocationSearchesFromUserDefaults().first {
+            restaurantSearch = Network.RestaurantSearch(yelpCategory: nil, location: previousSearch, coordinate: nil)
+            getRestaurantsFromPreSetRestaurantSearch(initial: true)
+        } else {
+            restaurants = []
         }
     }
     
@@ -363,22 +389,25 @@ class FindRestaurantVC: UIViewController {
         }
         
         Network.shared.getRestaurants(restaurantSearch: restaurantSearch, filters: searchFilters) { [weak self] (response) in
-            guard let self = self else { return }
-            switch response {
-            case .success(let newRestaurants):
-                self.mapView.removeAnnotations(self.mapView.annotations)
-                self.mapView.showRestaurants(newRestaurants, fitInTopHalf: self.childPosition == .middle)
-                self.restaurantListVC.scrollTableViewToTop()
-                self.restaurants = newRestaurants
-            case .failure(_):
-                self.restaurantListVC.view.appEndSkeleton()
-                self.showMessage("Please try again")
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch response {
+                case .success(let newRestaurants):
+                    self.mapView.removeAnnotations(self.mapView.annotations)
+                    self.mapView.showRestaurants(newRestaurants, fitInTopHalf: self.childPosition == .middle)
+                    self.restaurantListVC.scrollTableViewToTop()
+                    self.restaurants = newRestaurants
+                case .failure(_):
+                    #warning("need to see if this works, not tested")
+                    self.mapView.removeAnnotations(self.mapView.annotations)
+                    self.restaurants = []
+                }
+                
+                self.userMovedMapView = false
+                self.restaurantSearchBar?.doneWithRestaurantSearch()
+                self.moreRestaurantsButtonShown = false
+                self.moreRestaurantsButton?.hideFromScreen()
             }
-            
-            self.userMovedMapView = false
-            self.restaurantSearchBar?.doneWithRestaurantSearch()
-            self.moreRestaurantsButtonShown = false
-            self.moreRestaurantsButton?.hideFromScreen()
         }
         
     }
@@ -394,16 +423,7 @@ extension FindRestaurantVC: CLLocationManagerDelegate {
         print("probably need to complete")
     }
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        print("Need to complete: \(status.rawValue)")
-        switch status {
-        case .notDetermined, .restricted, .denied:
-            #warning("see if i need to complete this")
-            print("Need to decide")
-        case .authorizedAlways, .authorizedWhenInUse:
-            setUp()
-        @unknown default:
-            break
-        }
+        setUp()
     }
 }
 

@@ -33,16 +33,18 @@ class ProfileMapVC: UIViewController {
     
     private func getRestaurantData() {
         Network.shared.getUserEstablishments { (result) in
-            switch result {
-            case .success(let establishments):
-                self.establishments = establishments
-                for establishment in establishments {
-                    let annotation = RestaurantAnnotation(establishment: establishment)
-                    self.mapView.addAnnotation(annotation)
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let establishments):
+                    self.establishments = establishments
+                    for establishment in establishments {
+                        let annotation = RestaurantAnnotation(establishment: establishment)
+                        self.mapView.addAnnotation(annotation)
+                    }
+                    self.mapView.fitAllAnnotations(newAnnotations: self.mapView.annotations, fitInTopHalf: false)
+                case .failure(let error):
+                    print(error)
                 }
-                self.mapView.fitAllAnnotations(newAnnotations: self.mapView.annotations, fitInTopHalf: false)
-            case .failure(let error):
-                print(error)
             }
         }
     }

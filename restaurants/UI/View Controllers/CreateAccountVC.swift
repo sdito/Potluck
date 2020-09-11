@@ -122,15 +122,17 @@ class CreateAccountVC: UIViewController {
             if emailIsValid.0 && usernameIsValid.0 && passwordIsValid.0, let email = emailLogInField.text, let password = passwordLogInField.text, let username = usernameLogInField.text {
                 
                 Network.shared.registerUser(email: email, username: username, password: password) { [weak self] (result) in
-                    guard let self = self else { return }
-                    switch result {
-                    case .success(let success):
-                        if success {
-                            self.showMessage("Created new account as \(Network.shared.account!.username)")
-                            self.navigationController?.popViewController(animated: true)
+                    DispatchQueue.main.async {
+                        guard let self = self else { return }
+                        switch result {
+                        case .success(let success):
+                            if success {
+                                self.showMessage("Created new account as \(Network.shared.account!.username)")
+                                self.navigationController?.popViewController(animated: true)
+                            }
+                        case .failure(let error):
+                           self.alert(title: "Error", message: error.message)
                         }
-                    case .failure(let error):
-                       self.alert(title: "Error", message: error.message)
                     }
                 }
             } else {
@@ -150,22 +152,22 @@ class CreateAccountVC: UIViewController {
                 return
             }
             Network.shared.retrieveToken(email: email, password: password) { [weak self] (result) in
-                guard let self = self else { return }
-                switch result {
-                case .success(let success):
-                    if success {
-                        self.showMessage("Logged into \(Network.shared.account?.username ?? "account")")
-                        self.navigationController?.popViewController(animated: true)
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    switch result {
+                    case .success(let success):
+                        if success {
+                            self.showMessage("Logged into \(Network.shared.account?.username ?? "account")")
+                            self.navigationController?.popViewController(animated: true)
+                        }
+                    case .failure(let error):
+                        self.alert(title: "Error", message: error.message)
+                        UIDevice.vibrateError()
+                        break
                     }
-                case .failure(let error):
-                    self.alert(title: "Error", message: error.message)
-                    UIDevice.vibrateError()
-                    break
                 }
             }
         }
-        
-        
     }
     
     private func handleModeSwitch() {

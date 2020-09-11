@@ -97,17 +97,19 @@ class EstablishmentDetailVC: UIViewController {
     
     private func getRestaurantInfo(establishment: Establishment) {
         Network.shared.getEstablishmentDetail(from: establishment) { [weak self] (result) in
-            guard let self = self else { return }
-            switch result {
-            case .success(let establishment):
-                self.establishment = establishment
-                self.visits = establishment.visits ?? []
-                self.initialDataFound = true
-                self.addViewsToScrollingStack()
-                self.collectionView.reloadData()
-            case .failure(let error):
-                print(error)
-                fatalError()
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let establishment):
+                    self.establishment = establishment
+                    self.visits = establishment.visits ?? []
+                    self.initialDataFound = true
+                    self.addViewsToScrollingStack()
+                    self.collectionView.reloadData()
+                case .failure(let error):
+                    print(error)
+                    fatalError()
+                }
             }
         }
     }
@@ -298,6 +300,7 @@ class EstablishmentDetailVC: UIViewController {
     
     @objc private func dateButtonAction(sender: UIButton) {
         if !sender.isSelected {
+            UIDevice.vibrateSelectionChanged()
             let selectedVisitSectionIndex = sender.tag
             sender.isSelected = true
             scrollingStack.stackView.arrangedSubviews.forEach { (view) in
@@ -415,6 +418,8 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
                         if let button = anyView as? SizeChangeButton {
                             if i == newSelectedSection {
                                 button.isSelected = true
+                                #warning("scroll to this button")
+                                print(button.frame)
                             } else {
                                 button.isSelected = false
                             }

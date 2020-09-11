@@ -46,19 +46,20 @@ class ProfileHomeVC: UIViewController {
     }
     
     private func getInitialUserVisits() {
-        
         if Network.shared.loggedIn {
             Network.shared.getUserFeed { [weak self] (result) in
-                guard let self = self else { return }
-                switch result {
-                case .success(let visits):
-                    
-                    self.allowHintToCreateRestaurant = true
-                    self.visits = visits
-                    self.tableView.reloadData()
-                    
-                case .failure(let error):
-                    print(error)
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    switch result {
+                    case .success(let visits):
+                        
+                        self.allowHintToCreateRestaurant = true
+                        self.visits = visits
+                        self.tableView.reloadData()
+                        
+                    case .failure(let error):
+                        print(error)
+                    }
                 }
             }
         } else {

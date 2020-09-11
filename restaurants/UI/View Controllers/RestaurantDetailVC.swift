@@ -36,6 +36,7 @@ class RestaurantDetailVC: UIViewController {
     private let morePhotosNormalTitle = "More photos"
     private let morePhotosScrolledTitle = "Release for photos"
     private var haveMorePhotosShowOnRelease = false
+    private var allowNavigationBarChange = true
     
     init(restaurant: Restaurant, fromCell: RestaurantCell? = nil, imageAlreadyFound: UIImage?) {
         self.restaurant = restaurant
@@ -56,8 +57,9 @@ class RestaurantDetailVC: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+        allowNavigationBarChange = false
         scrollView.contentOffset = CGPoint(x: 0, y: 0) // top image can get messed up otherwise
-        
+        allowNavigationBarChange = true
         // only when vc is being destroyed this needs to be checked
         if self.isMovingFromParent {
             if let cell = cellOriginatedFrom {
@@ -78,9 +80,8 @@ class RestaurantDetailVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
-        if navBarColor != nil {
-            self.setNavigationBarColor(color: navBarColor!)
-        }
+        self.tabBarController?.tabBar.isHidden = false
+        self.setNavigationBarColor(color: Colors.navigationBarColor.withAlphaComponent(0.0))
     }
 
     private func setUpScrollView() {
@@ -236,7 +237,6 @@ class RestaurantDetailVC: UIViewController {
         headerDetailView = HeaderDetailView(restaurant: restaurant, vc: self)
         stackView.addArrangedSubview(headerDetailView)
 
-        
         stackView.addArrangedSubview(RestaurantCategoriesView(restaurant: restaurant))
         
         if let userLocation = locationManager.getUserLocation() {
@@ -247,31 +247,35 @@ class RestaurantDetailVC: UIViewController {
         setUpHero()
         
         Network.shared.setRestaurantReviewInfo(restaurant: restaurant) { [weak self] (complete) in
-            if complete {
-                guard let self = self else { return }
-                for review in self.restaurant.reviews {
-                    let reviewView = ReviewView(review: review)
-                    self.stackView.addArrangedSubview(reviewView)
+            DispatchQueue.main.async {
+                if complete {
+                    guard let self = self else { return }
+                    for review in self.restaurant.reviews {
+                        let reviewView = ReviewView(review: review)
+                        self.stackView.addArrangedSubview(reviewView)
+                    }
+                    self.scrollView.setCorrectContentSize()
                 }
-                self.scrollView.setCorrectContentSize()
             }
         }
         
         Network.shared.setFullRestaurantInfo(restaurant: restaurant) { [weak self] (complete) in
-            guard let self = self else { return }
-            if complete {
-                if let newDescription = self.restaurant.openNowDescription {
-                    self.headerDetailView.timeOpenLabel.attributedText = newDescription
-                }
-                if self.restaurant.imageURL == nil {
-                    if let firstPhoto = self.restaurant.additionalInfo?.photos.first {
-                        self.imageView.addImageFromUrl(firstPhoto)
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                if complete {
+                    if let newDescription = self.restaurant.openNowDescription {
+                        self.headerDetailView.timeOpenLabel.attributedText = newDescription
+                    }
+                    if self.restaurant.imageURL == nil {
+                        if let firstPhoto = self.restaurant.additionalInfo?.photos.first {
+                            self.imageView.addImageFromUrl(firstPhoto)
+                        }
                     }
                 }
-            }
-            if let dateData = self.restaurant.systemTime {
-                for day in dateData {
-                    print(day)
+                if let dateData = self.restaurant.systemTime {
+                    for day in dateData {
+                        print(day)
+                    }
                 }
             }
         }
@@ -293,6 +297,8 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        print("This is being called")
         let navHeight = (navigationController?.navigationBar.frame.height ?? 0.0)
         let offset = scrollView.contentOffset.y - navHeight
         
@@ -334,8 +340,11 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
                 navigationTitleHidden = false
             }
             if latestAlpha != 1.0 {
-                navBarColor = Colors.navigationBarColor.withAlphaComponent(1.0)
-                self.setNavigationBarColor(color: navBarColor!)
+                if allowNavigationBarChange {
+                    navBarColor = Colors.navigationBarColor.withAlphaComponent(1.0)
+                    self.setNavigationBarColor(color: navBarColor!)
+                }
+                
             }
         } else {
             if !navigationTitleHidden {
@@ -350,8 +359,12 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
                 }
             }
             if ratio != latestAlpha {
-                navBarColor = Colors.navigationBarColor.withAlphaComponent(CGFloat(ratio))
-                self.setNavigationBarColor(color: navBarColor!)
+                
+                if allowNavigationBarChange {
+                    navBarColor = Colors.navigationBarColor.withAlphaComponent(CGFloat(ratio))
+                    self.setNavigationBarColor(color: navBarColor!)
+                }
+                
                 latestAlpha = ratio
             }
         }
@@ -375,6 +388,14 @@ extension RestaurantDetailVC: MapCutoutViewDelegate {
 
 // MARK: HeaderDetailViewDelegate
 extension RestaurantDetailVC: HeaderDetailViewDelegate {
+    
+    func visitRestaurant() {
+        let addVisitVC = SubmitRestaurantVC(rawValues: nil, establishment: nil, restaurant: restaurant)
+        addVisitVC.edgesForExtendedLayout = .bottom
+        self.navigationController?.pushViewController(addVisitVC, animated: true)
+        
+    }
+    
     func callRestaurant() {
         guard let additionalInfo = restaurant.additionalInfo, let callUrl = URL(string: "tel://\(additionalInfo.phone)") else { return }
         UIApplication.shared.open(callUrl) // handles action sheet

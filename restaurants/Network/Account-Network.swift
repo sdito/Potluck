@@ -42,7 +42,7 @@ extension Network {
         ]
         
         let req = reqLogIn(params: params, requestType: .logIn)
-        req.validate().responseJSON { (response) in
+        req.validate().responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
             guard let data = response.data, response.error == nil else {
                 result(Result.failure(.unableToLogIn))
                 return
@@ -68,7 +68,7 @@ extension Network {
         
         let req = reqLogIn(params: params, requestType: .createAccount)
         let decoder = JSONDecoder()
-        req.validate().responseJSON { (response) in
+        req.validate().responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
             guard let data = response.data, response.error == nil else {
                 completion(Result.failure(.unableToCreateAccount))
                 return

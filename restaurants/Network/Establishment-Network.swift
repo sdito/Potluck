@@ -53,7 +53,7 @@ extension Network {
     
     func getEstablishmentDetail(from establishment: Establishment, completion: @escaping (Result<Establishment, Errors.VisitEstablishment>) -> Void) {
         let request = reqEstablishment(requestType: .restaurantDetail, params: nil, establishment: establishment)
-        request?.responseJSON(completionHandler: { [weak self] (response) in
+        request?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
             guard let self = self else { return }
             guard let data = response.data, response.error == nil else {
                 completion(Result.failure(.other(alamoFireError: response.error)))
@@ -73,7 +73,8 @@ extension Network {
     
     func getUserEstablishments(completion: @escaping (Result<[Establishment], Errors.VisitEstablishment>) -> Void) {
         let request = reqEstablishment(requestType: .userRestaurants, params: nil, establishment: nil)
-        request?.responseJSON(completionHandler: { (response) in
+        request?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
+            guard let self = self else { return }
             guard let data = response.data, response.error == nil else {
                 completion(Result.failure(.other(alamoFireError: response.error)))
                 return
@@ -87,7 +88,6 @@ extension Network {
                 print(error)
                 fatalError()
             }
-            
         })
     }
     
@@ -99,7 +99,7 @@ extension Network {
             
             if let establishmentJson = json as? [String:Any] {
                 let request = reqEstablishment(requestType: .createEstablishment, params: establishmentJson, establishment: nil)
-                request?.responseJSON(completionHandler: { [weak self] (response) in
+                request?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
                     guard let self = self else { return }
                     guard let dataFound = response.data, response.error == nil else {
                         fatalError()

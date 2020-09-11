@@ -123,16 +123,22 @@ class Network {
     
     func getImage(url: String?, imageReturned: @escaping (UIImage?) -> Void) {
         if let url = url {
-            AF.request(url).responseImage { (response) in
+            AF.request(url).response(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
                 if let data = response.data {
                     let image = UIImage(data: data)
-                    imageReturned(image)
+                    DispatchQueue.main.async {
+                        imageReturned(image)
+                    }
                 } else {
-                    imageReturned(nil)
+                    DispatchQueue.main.async {
+                        imageReturned(nil)
+                    }
                 }
             }
         } else {
-            imageReturned(nil)
+            DispatchQueue.main.async {
+                imageReturned(nil)
+            }
         }
     }
     
@@ -184,7 +190,7 @@ class Network {
         }
         
         let request = reqYelp(params: params, requestType: .search)
-        request.responseJSON { [weak self] (response) in
+        request.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { [weak self] (response) in
             guard let self = self else { return }
             guard let data = response.data, response.error == nil else {
                 print(response.error as Any)
@@ -211,7 +217,7 @@ class Network {
     
     func setFullRestaurantInfo(restaurant: Restaurant, complete: @escaping (Bool) -> Void) {
         let request = reqYelp(restaurant: restaurant, requestType: .id)
-        request.responseJSON { [weak self] (response) in
+        request.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { [weak self] (response) in
             guard let self = self else { return }
             switch response.result {
             case .success(let jsonAny):
@@ -223,9 +229,8 @@ class Network {
                         complete(true)
                     }
                 }
-            case .failure(let error):
-                print("Error: setFullRestaurantInfo")
-                print(error)
+            case .failure(_):
+                complete(false)
             }
         }
     }
@@ -233,7 +238,7 @@ class Network {
     func setRestaurantReviewInfo(restaurant: Restaurant, complete: @escaping (Bool) -> Void) {
         
         let request = reqYelp(restaurant: restaurant, requestType: .review)
-        request.responseJSON { (response) in
+        request.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
             
             guard let data = response.data, response.error == nil else {
                 complete(false)
@@ -263,7 +268,7 @@ class Network {
             potentialParams["name"] = name
             
             let request = reqYelp(params: potentialParams, requestType: .match)
-            request.responseJSON { (response) in
+            request.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
                 
                 
                 guard let data = response.data, response.error == nil else {
@@ -359,7 +364,7 @@ class Network {
         ]
         
         let request = reqYelp(params: params, requestType: .categories)
-        request.responseJSON { (response) in
+        request.responseJSON(queue: DispatchQueue.global(qos: .background)) { (response) in
             switch response.result {
             case .success(let jsonAny):
                 var results: YelpCategories = []

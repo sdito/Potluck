@@ -13,6 +13,7 @@ protocol HeaderDetailViewDelegate: class {
     func urlPressedToOpen()
     func moreInfoOnHeaderPressed()
     func callRestaurant()
+    func visitRestaurant()
 }
 
 
@@ -118,9 +119,10 @@ class HeaderDetailView: UIView {
         callButton.addTarget(self, action: #selector(callRestaurantPressed), for: .touchUpInside)
         buttonsSV.addArrangedSubview(callButton)
         
-        let visitButton = TwoLevelButton(text: "Visit", imageText: "phone")
+        let visitButton = TwoLevelButton(text: "Visit", imageText: "plus.square.on.square")
+        visitButton.addTarget(self, action: #selector(visitButtonSelector), for: .touchUpInside)
         buttonsSV.addArrangedSubview(visitButton)
-        #warning("need to complete")
+        
         newSV.addArrangedSubview(buttonsSV)
         buttonsSV.widthAnchor.constraint(equalTo: newSV.widthAnchor).isActive = true
     }
@@ -135,6 +137,10 @@ class HeaderDetailView: UIView {
     
     @objc private func callRestaurantPressed() {
         delegate.callRestaurant()
+    }
+    
+    @objc private func visitButtonSelector() {
+        delegate.visitRestaurant()
     }
 
 }

@@ -100,15 +100,6 @@ extension UIViewController {
         
     }
     
-    func locationServicesEnabled() -> Bool {
-        if CLLocationManager.locationServicesEnabled() {
-            return true
-        } else {
-            #warning("alert or something here")
-            return false
-        }
-    }
-    
     func openMaps(coordinate: CLLocationCoordinate2D, name: String, method: String = "driving") {
         let mapItem = MKMapItem(placemark: MKPlacemark(coordinate: coordinate, addressDictionary:nil))
         mapItem.name = name

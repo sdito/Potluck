@@ -158,24 +158,26 @@ class AddRestaurantVC: UIViewController {
     
     private func getInitialData() {
         Network.shared.getUserEstablishments { [weak self] (result) in
-            guard let self = self else { return }
-            switch result {
-            case .success(let establishments):
-                for establishment in establishments {
-                    if establishment.isRestaurant {
-                        self.previousRestaurants.append(establishment)
-                    } else {
-                        self.myPlaces.append(establishment)
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let establishments):
+                    for establishment in establishments {
+                        if establishment.isRestaurant {
+                            self.previousRestaurants.append(establishment)
+                        } else {
+                            self.myPlaces.append(establishment)
+                        }
                     }
+                    
+                    self.previousRestaurants.sortByName()
+                    self.myPlaces.sortByName()
+                    
+                    self.initialLoadingDone = true
+                    
+                case .failure(let error):
+                    print(error)
                 }
-                
-                self.previousRestaurants.sortByName()
-                self.myPlaces.sortByName()
-                
-                self.initialLoadingDone = true
-                
-            case .failure(let error):
-                print(error)
             }
         }
     }

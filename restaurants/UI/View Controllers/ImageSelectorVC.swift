@@ -272,9 +272,7 @@ class ImageSelectorVC: UIViewController {
         let scaleTransform = CGAffineTransform(scaleX: 0.75, y: 0.75)
         
         if sender.state == .began {
-            
-            #warning("start point is off")
-            
+
             scrollingView.stackView.bringSubviewToFront(senderView)
             initialFrame = self.scrollingView.scrollView.convert(senderView.frame, to: self.view)
         

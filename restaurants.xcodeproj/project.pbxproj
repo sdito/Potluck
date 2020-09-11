@@ -387,11 +387,11 @@
 		E27A757924AFC77400E446EE /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				E27A757524AF9ECC00E446EE /* Network.swift */,
 				E23AF9FE24F86EDB004542A2 /* Establishment-Network.swift */,
 				E2A0146E24F5C00F00379518 /* Visit-Network.swift */,
 				E239840924E8FEA700F3828C /* Account-Network.swift */,
 				E239840B24E9BAF200F3828C /* Errors.swift */,
-				E27A757524AF9ECC00E446EE /* Network.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";

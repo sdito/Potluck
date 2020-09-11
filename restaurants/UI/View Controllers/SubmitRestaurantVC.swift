@@ -100,6 +100,8 @@ class SubmitRestaurantVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        self.setNavigationBarColor(color: Colors.navigationBarColor)
+        self.tabBarController?.tabBar.isHidden = true
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -113,6 +115,7 @@ class SubmitRestaurantVC: UIViewController {
     private func setUpNavigationBar() {
         let submit = UIBarButtonItem(title: "Submit", style: .plain, target: self, action: #selector(submitPressed))
         navigationItem.rightBarButtonItem = submit
+        navigationItem.title = "New visit"
     }
     
     private func setUpHeaderStackView() {
@@ -135,9 +138,9 @@ class SubmitRestaurantVC: UIViewController {
         let restaurantTitle = nameRawValue ?? restaurant?.name ?? establishment?.name ?? "Restaurant name"
         let secondaryTitle = addressRawValue ?? establishment?.displayAddress ?? restaurant?.address.displayAddress?.joined(separator: ", ") ?? "No address"
         let mutableTitle = NSMutableAttributedString()
-        let restaurantAttributed = NSAttributedString(string: restaurantTitle, attributes: [NSAttributedString.Key.font: UIFont.createdTitle, NSAttributedString.Key.foregroundColor: UIColor.label])
+        let restaurantAttributed = NSAttributedString(string: restaurantTitle, attributes: [NSAttributedString.Key.font: UIFont.secondaryTitle, NSAttributedString.Key.foregroundColor: UIColor.label])
         let middleAttributed = NSAttributedString(string: " · ", attributes: [NSAttributedString.Key.font: UIFont.createdTitle, NSAttributedString.Key.foregroundColor: UIColor.tertiaryLabel])
-        let secondaryAttributed = NSAttributedString(string: secondaryTitle, attributes: [NSAttributedString.Key.font: UIFont.largerBold, NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
+        let secondaryAttributed = NSAttributedString(string: secondaryTitle, attributes: [NSAttributedString.Key.font: UIFont.mediumBold, NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         
         mutableTitle.append(restaurantAttributed)
         mutableTitle.append(middleAttributed)
@@ -274,6 +277,18 @@ class SubmitRestaurantVC: UIViewController {
         // To dismiss
         // self.presentingViewController?.dismiss(animated: true, completion: nil)
         
+        guard 2 == 3 else {
+            let progressView = ProgressView(delegate: self)
+            let vc = ShowViewVC(newView: progressView, fromBottom: false)
+            vc.modalPresentationStyle = .overFullScreen
+            self.navigationController?.present(vc, animated: false, completion: nil)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                progressView.successAnimation()
+            }
+            return
+        }
+        
         if selectedPhotos.count > 0 {
             
             var selectedPhotosCopy = selectedPhotos
@@ -313,12 +328,14 @@ class SubmitRestaurantVC: UIViewController {
                                                           rating: sliderValue,
                                                           progressView: progressView)
                     { (result) in
-                        switch result {
-                        case .success(_):
-                            progressView.successAnimation()
-                        case .failure(let error):
-                            print(error)
-                            progressView.failureAnimation()
+                        DispatchQueue.main.async {
+                            switch result {
+                            case .success(_):
+                                progressView.successAnimation()
+                            case .failure(let error):
+                                print(error)
+                                progressView.failureAnimation()
+                            }
                         }
                     }
                 } else {
@@ -343,11 +360,13 @@ class SubmitRestaurantVC: UIViewController {
                                           rating: sliderValue,
                                           progressView: progressView)
         { (result) in
-            switch result {
-            case .success(_):
-                progressView.successAnimation()
-            case .failure(_):
-                progressView.failureAnimation()
+            DispatchQueue.main.async {
+                switch result {
+                case .success(_):
+                    progressView.successAnimation()
+                case .failure(_):
+                    progressView.failureAnimation()
+                }
             }
         }
     }
@@ -371,14 +390,16 @@ class SubmitRestaurantVC: UIViewController {
         
         if let mode = mode, mode == .rawValue {
             Network.shared.getRestaurantFromPartialData(name: nameRawValue!, fullAddress: addressRawValue!) { [weak self] (result) in
-                guard let self = self else { return }
-                switch result {
-                case .success(let restaurant):
-                    self.restaurant = restaurant
-                    self.mode = .restaurant
-                case .failure(_):
-                    self.mode = .rawValue
-                    self.getCoordinate(from: self.addressRawValue!)
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    switch result {
+                    case .success(let restaurant):
+                        self.restaurant = restaurant
+                        self.mode = .restaurant
+                    case .failure(_):
+                        self.mode = .rawValue
+                        self.getCoordinate(from: self.addressRawValue!)
+                    }
                 }
             }
         }
@@ -470,10 +491,22 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
 }
 
 
+// MARK: ProgressViewDelegate
 extension SubmitRestaurantVC: ProgressViewDelegate {
     func endAnimationComplete() {
+        print("Success was achieved")
+        #warning("need to complete for showing from restaurant detail")
+        // TODO: pretty bad temporary fix
+        // Could go wrong with any additional changes
         self.view.isUserInteractionEnabled = false
-        self.presentingViewController?.dismiss(animated: true, completion: nil)
+        if let vc = self.presentingViewController {
+            vc.dismiss(animated: true, completion: nil)
+        } else {
+            self.presentedViewController?.dismiss(animated: false, completion: nil)
+            self.navigationController?.popViewController(animated: true)
+        }
+        
+        
     }
 }
 

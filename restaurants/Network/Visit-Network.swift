@@ -87,12 +87,11 @@ extension Network {
     
     func deleteVisit(visit: Visit, success: @escaping (Bool) -> Void) {
         let req = reqVisit(params: nil, visit: visit, requestType: .deleteVisit, mainImage: nil, otherImages: nil)
-        req?.response(completionHandler: { (result) in
+        req?.response(queue: DispatchQueue.global(qos: .background), completionHandler: { (result) in
             guard let code = result.response?.statusCode else {
                 success(false)
                 return
             }
-            
             if code == Network.deletedCode {
                 success(true)
             } else {
@@ -117,7 +116,7 @@ extension Network {
                 }
                 
                 let req = reqVisit(params: establishmentJson, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages)
-                req?.responseJSON(completionHandler: { [weak self] (response) in
+                req?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
                     guard let self = self else { return }
                     guard let data = response.data, response.error == nil else {
                         completion(Result.failure(.other(alamoFireError: response.error)))
@@ -138,7 +137,9 @@ extension Network {
                 })
                 .uploadProgress { progress in
                     if progressView != nil {
-                        progressView?.updateProgress(to: Float(progress.fractionCompleted))
+                        DispatchQueue.main.async {
+                            progressView?.updateProgress(to: Float(progress.fractionCompleted))
+                        }
                     }
                 }
                 
@@ -164,7 +165,7 @@ extension Network {
         }
         
         let request = reqVisit(params: params, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages)
-        request?.responseJSON(completionHandler: { [weak self] (response) in
+        request?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
             
             guard let self = self else { return }
             guard let data = response.data, response.error == nil else {
@@ -182,7 +183,10 @@ extension Network {
         })
         .uploadProgress { progress in
             if progressView != nil {
-                progressView?.updateProgress(to: Float(progress.fractionCompleted))
+                DispatchQueue.main.async {
+                    progressView?.updateProgress(to: Float(progress.fractionCompleted))
+                }
+                
             }
         }
     }
@@ -192,12 +196,11 @@ extension Network {
         let req = reqVisit(params: nil, visit: nil, requestType: .userFeed, mainImage: nil, otherImages: nil)
         
         guard let request = req else {
-            // need to handle
             completion(Result.failure(.noAccount))
             return
         }
         
-        request.responseJSON { (response) in
+        request.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
             guard let data = response.data, response.error == nil else {
                 fatalError()
             }

@@ -233,6 +233,7 @@ class FilterRestaurantsVC: UIViewController {
         if tag == cancelTag {
             self.dismiss(animated: true, completion: nil)
         } else {
+            UIDevice.vibrateSelectionChanged()
             executeButton.removeNotificationStyleText()
             
             indexPathsToSelect.forEach { (ip) in

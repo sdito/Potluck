@@ -28,6 +28,7 @@ extension String {
     static let mapLocation = "Map location"
     static let searchBarTransitionType = "searchBarTransitionType"
     static let searchBarTransitionLocation = "searchBarTransitionLocation"
+    static let recentLocationSearchesKey = "recentLocationSearchesKey"
 }
 
 extension UIImage {

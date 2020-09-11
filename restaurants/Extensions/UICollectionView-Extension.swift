@@ -52,7 +52,6 @@ extension UICollectionView {
     }
     
     func showLoadingOnCollectionView() {
-        #warning("could do skeleton view")
         let loadingView = UIActivityIndicatorView(style: .large)
         loadingView.startAnimating()
         self.backgroundView = loadingView
