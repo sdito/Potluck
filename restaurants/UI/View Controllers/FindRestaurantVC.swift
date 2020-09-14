@@ -431,7 +431,7 @@ extension FindRestaurantVC: CLLocationManagerDelegate {
 extension FindRestaurantVC: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         if let restaurantAnnotationView = view as? RestaurantAnnotationView, let sendRestaurant = restaurantAnnotationView.restaurant {
-            let vc = RestaurantDetailVC(restaurant: sendRestaurant, imageAlreadyFound: nil)
+            let vc = RestaurantDetailVC(restaurant: sendRestaurant, imageAlreadyFound: nil, allowVisit: true)
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
@@ -508,7 +508,7 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
             imageFound = restSelectedView.imageView.image
         }
         self.navigationController?.isHeroEnabled = true
-        self.navigationController?.pushViewController(RestaurantDetailVC(restaurant: rest, fromCell: nil, imageAlreadyFound: imageFound), animated: true)
+        self.navigationController?.pushViewController(RestaurantDetailVC(restaurant: rest, fromCell: nil, imageAlreadyFound: imageFound, allowVisit: true), animated: true)
     }
     
     func nextButtonSelected(rest: Restaurant) {

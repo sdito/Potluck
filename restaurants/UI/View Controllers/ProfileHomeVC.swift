@@ -33,7 +33,7 @@ class ProfileHomeVC: UIViewController {
         self.tableView.separatorInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: .settingsImage, style: .plain, target: self, action: #selector(rightBarButtonItemSelector))
-        navigationItem.title = "Profile feed"
+        navigationItem.title = "Profile"
         setUpTableView()
         getInitialUserVisits()
         
@@ -126,7 +126,7 @@ class ProfileHomeVC: UIViewController {
     
     @objc private func refreshControlSelector() {
         print("Refresh control selected")
-        #warning("need to complete")
+        #warning("need to complete, might be different if i cache")
     }
 }
 

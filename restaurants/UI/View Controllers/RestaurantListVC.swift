@@ -304,7 +304,7 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
                 return cell.restaurantImageView.image
             }
         }
-        self.parent?.navigationController?.pushViewController(RestaurantDetailVC(restaurant: restaurant, fromCell: cell, imageAlreadyFound: imageToSend), animated: true)
+        self.parent?.navigationController?.pushViewController(RestaurantDetailVC(restaurant: restaurant, fromCell: cell, imageAlreadyFound: imageToSend, allowVisit: true), animated: true)
         self.tableView.cellForRow(at: indexPath)?.isSelected = false
     }
 }

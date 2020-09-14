@@ -37,11 +37,13 @@ class RestaurantDetailVC: UIViewController {
     private let morePhotosScrolledTitle = "Release for photos"
     private var haveMorePhotosShowOnRelease = false
     private var allowNavigationBarChange = true
+    private var allowVisit = true
     
-    init(restaurant: Restaurant, fromCell: RestaurantCell? = nil, imageAlreadyFound: UIImage?) {
+    init(restaurant: Restaurant, fromCell: RestaurantCell? = nil, imageAlreadyFound: UIImage?, allowVisit: Bool) {
         self.restaurant = restaurant
         self.cellOriginatedFrom = fromCell
         self.imageAlreadyFound = imageAlreadyFound
+        self.allowVisit = allowVisit
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -234,7 +236,7 @@ class RestaurantDetailVC: UIViewController {
             imageView.addImageFromUrl(restaurant.imageURL)
         }
     
-        headerDetailView = HeaderDetailView(restaurant: restaurant, vc: self)
+        headerDetailView = HeaderDetailView(restaurant: restaurant, vc: self, allowVisit: allowVisit)
         stackView.addArrangedSubview(headerDetailView)
 
         stackView.addArrangedSubview(RestaurantCategoriesView(restaurant: restaurant))

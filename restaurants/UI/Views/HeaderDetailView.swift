@@ -25,10 +25,12 @@ class HeaderDetailView: UIView {
     var container = UIView()
     var newSV = UIStackView()
     var restaurant: Restaurant!
+    private var allowVisit = true
     
-    init(restaurant: Restaurant, vc: UIViewController) {
+    init(restaurant: Restaurant, vc: UIViewController, allowVisit: Bool) {
         super.init(frame: .zero)
         self.restaurant = restaurant
+        self.allowVisit = allowVisit
         setUp(vc: vc)
         
     }
@@ -119,9 +121,11 @@ class HeaderDetailView: UIView {
         callButton.addTarget(self, action: #selector(callRestaurantPressed), for: .touchUpInside)
         buttonsSV.addArrangedSubview(callButton)
         
-        let visitButton = TwoLevelButton(text: "Visit", imageText: "plus.square.on.square")
-        visitButton.addTarget(self, action: #selector(visitButtonSelector), for: .touchUpInside)
-        buttonsSV.addArrangedSubview(visitButton)
+        if allowVisit {
+            let visitButton = TwoLevelButton(text: "Visit", imageText: "plus.square.on.square")
+            visitButton.addTarget(self, action: #selector(visitButtonSelector), for: .touchUpInside)
+            buttonsSV.addArrangedSubview(visitButton)
+        }
         
         newSV.addArrangedSubview(buttonsSV)
         buttonsSV.widthAnchor.constraint(equalTo: newSV.widthAnchor).isActive = true

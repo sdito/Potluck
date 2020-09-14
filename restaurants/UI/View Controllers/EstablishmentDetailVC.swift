@@ -8,6 +8,8 @@
 
 import UIKit
 
+#warning("ability to add visit from this screen")
+
 protocol EstablishmentDetailDelegate: class {
     func detailDismissed() -> Void
 }
@@ -59,7 +61,7 @@ class EstablishmentDetailVC: UIViewController {
         self.view.backgroundColor = .systemBackground
         guard let establishment = establishment else { return }
         getRestaurantInfo(establishment: establishment)
-        setUpView()
+        setUpView(establishment: establishment)
         setUpHeader(establishment: establishment)
         setUpScrollingSelectDateView()
         setUpSpacer()
@@ -71,6 +73,7 @@ class EstablishmentDetailVC: UIViewController {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         self.setNavigationBarColor(color: Colors.navigationBarColor)
+        self.tabBarController?.tabBar.isHidden = false
     }
     
     
@@ -114,7 +117,7 @@ class EstablishmentDetailVC: UIViewController {
         }
     }
     
-    private func setUpView() {
+    private func setUpView(establishment: Establishment) {
         if mode == .halfScreenBase {
             
             self.view.clipsToBounds = true
@@ -126,7 +129,21 @@ class EstablishmentDetailVC: UIViewController {
         }
         
         if mode == .fullScreenBase {
-            self.navigationItem.title = establishment?.name ?? "Restaurant detail"
+            
+            var barButtonItems: [UIBarButtonItem] = []
+            
+            self.navigationItem.title = establishment.name
+            // and ability to add visit,
+            //self.navigationItem.rightBarButtonItem
+            let addVisitBarButtonItem = UIBarButtonItem(image: .plusImage, style: .plain, target: self, action: #selector(addVisitPressed))
+            barButtonItems.append(addVisitBarButtonItem)
+            
+            if establishment.yelpID != nil {
+                self.navigationController?.navigationBar.tintColor = Colors.main
+                let yelpBarButtonItem = UIBarButtonItem(image: .detailImage, style: .plain, target: self, action: #selector(yelpButtonPressed))
+                barButtonItems.append(yelpBarButtonItem)
+            }
+            navigationItem.rightBarButtonItems = barButtonItems
         }
     }
     
@@ -136,6 +153,12 @@ class EstablishmentDetailVC: UIViewController {
         if mode == .halfScreenBase || mode == .fullScreenHeaderAndMap {
             headerView = HeaderView(leftButtonTitle: "Done", rightButtonTitle: "", title: establishment.name)
             headerView!.headerLabel.font = .secondaryTitle
+            
+            if mode == .halfScreenBase {
+                let addVisit = headerView?.insertButtonAtEnd(with: .plusImage)
+                addVisit?.addTarget(self, action: #selector(addVisitPressed), for: .touchUpInside)
+            }
+            
             self.view.addSubview(headerView!)
             headerView!.constrain(.leading, to: self.view, .leading, constant: 5.0)
             headerView!.constrain(.top, to: self.view, .top, constant: 10.0)
@@ -148,6 +171,7 @@ class EstablishmentDetailVC: UIViewController {
             spacer!.constrain(.top, to: headerView!, .bottom, constant: 5.0)
             
             if establishment.yelpID != nil && mode != .fullScreenHeaderAndMap {
+                print("This is being added")
                 headerView!.rightButton.tintColor = Colors.main
                 headerView!.rightButton.setImage(.detailImage, for: .normal)
                 headerView!.rightButton.addTarget(self, action: #selector(yelpButtonPressed), for: .touchUpInside)
@@ -170,13 +194,6 @@ class EstablishmentDetailVC: UIViewController {
                 
                 mapLocationView!.constrain(.trailing, to: self.view, .trailing)
             }
-            
-            if establishment.yelpID != nil {
-                
-                self.navigationController?.navigationBar.tintColor = Colors.main
-                navigationItem.rightBarButtonItem = UIBarButtonItem(image: .detailImage, style: .plain, target: self, action: #selector(yelpButtonPressed))
-            }
-            
         }
     }
     
@@ -294,8 +311,17 @@ class EstablishmentDetailVC: UIViewController {
         guard let yelpId = establishment?.yelpID, let longitude = establishment?.longitude, let latitude = establishment?.longitude else { return }
         guard let establishment = establishment else { return }
         let restaurant = Restaurant(establishment: establishment, yelpID: yelpId, latitude: latitude, longitude: longitude)
-        let restaurantDetail = RestaurantDetailVC(restaurant: restaurant, imageAlreadyFound: nil)
+        let restaurantDetail = RestaurantDetailVC(restaurant: restaurant, imageAlreadyFound: nil, allowVisit: false)
         self.navigationController?.pushViewController(restaurantDetail, animated: true)
+    }
+    
+    @objc private func addVisitPressed() {
+        #warning("need to complete")
+        // needs to be able to handle the cases for the half screen and the full screen, both should be with a navigation controller similar to how it is shown from RestaurantDetailVC
+        guard let establishment = establishment else { return }
+        let addVisitVC = SubmitRestaurantVC(rawValues: nil, establishment: establishment, restaurant: nil)
+        addVisitVC.edgesForExtendedLayout = .bottom
+        self.navigationController?.pushViewController(addVisitVC, animated: true)
     }
     
     @objc private func dateButtonAction(sender: UIButton) {
@@ -418,8 +444,7 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
                         if let button = anyView as? SizeChangeButton {
                             if i == newSelectedSection {
                                 button.isSelected = true
-                                #warning("scroll to this button")
-                                print(button.frame)
+                                scrollingStack.scrollView.scrollRectToVisible(button.frame, animated: true)
                             } else {
                                 button.isSelected = false
                             }

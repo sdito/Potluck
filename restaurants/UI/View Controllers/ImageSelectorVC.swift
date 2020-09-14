@@ -170,7 +170,8 @@ class ImageSelectorVC: UIViewController {
         
         requestOptions.isSynchronous = false
         requestOptions.deliveryMode = .highQualityFormat
-        PHPhotoLibrary.requestAuthorization { status in
+        PHPhotoLibrary.requestAuthorization { [weak self] status in
+            guard let self = self else { return }
             switch status {
             case .authorized:
                 let fetchOptions = PHFetchOptions()
