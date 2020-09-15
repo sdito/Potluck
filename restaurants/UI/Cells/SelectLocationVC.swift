@@ -28,6 +28,7 @@ class SelectLocationVC: UIViewController {
     private var previousLocation: CLLocation?
     private var showPin = false
     private var allowPin = false
+    private var askPermissionBeforeSending = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,8 +39,9 @@ class SelectLocationVC: UIViewController {
         setUpChildSearchHelper()
     }
     
-    init(owner: SelectLocationDelegate) {
+    init(owner: SelectLocationDelegate, askPermissionBeforeSending: Bool = false) {
         self.delegate = owner
+        self.askPermissionBeforeSending = askPermissionBeforeSending
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -128,7 +130,17 @@ class SelectLocationVC: UIViewController {
     }
     
     @objc private func doneWithSelectingLocation() {
+        if askPermissionBeforeSending {
+            self.alert(title: "Are you sure you want to select this location?", message: nil) { [weak self] in
+                self?.executeDoneWithSelectingLocation()
+            }
+        } else {
+            executeDoneWithSelectingLocation()
+        }
         
+    }
+    
+    private func executeDoneWithSelectingLocation() {
         if let coordinate = previousLocation?.coordinate, let text = searchBar.text, text.count > 0, locationHasBeenSelected {
             self.dismiss(animated: true) {
                 self.delegate?.locationSelected(coordinate: coordinate, fullAddress: text)
@@ -136,8 +148,8 @@ class SelectLocationVC: UIViewController {
         } else {
             searchBar.shakeView()
         }
-        
     }
+    
 }
 
 

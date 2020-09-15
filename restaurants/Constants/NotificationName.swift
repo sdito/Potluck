@@ -10,6 +10,8 @@ import Foundation
 
 
 extension Notification.Name {
-    static let userLoggedOut = Notification.Name("userLoggedOut")
-    static let userLoggedIn = Notification.Name("userLoggedIn")
+    static let userLoggedOut = Notification.Name("com.stevendito.userLoggedOut")
+    static let userLoggedIn = Notification.Name("com.stevendito.userLoggedIn")
+    static let establishmentDeleted = Notification.Name("com.stevendito.establishmentDeleted")
+    static let establishmentUpdated = Notification.Name("com.stevendito.establishmentUpdated")
 }

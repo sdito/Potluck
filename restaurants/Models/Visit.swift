@@ -25,8 +25,8 @@ class Visit: Codable {
     var yelpID: String?
     
     private var serverDate: Date
-    private var longitude: Double?
-    private var latitude: Double?
+    var longitude: Double?
+    var latitude: Double?
     
     var currentDate: Date {
         return serverDate.convertFromUTC()
@@ -78,6 +78,12 @@ class Visit: Codable {
     func getEstablishment() -> Establishment {
         let establishment = Establishment(name: self.restaurantName, isRestaurant: false, djangoID: self.djangoRestaurantID, longitude: self.longitude, latitude: self.latitude, yelpID: self.yelpID, category: nil, address1: nil, address2: nil, address3: nil, city: nil, zipCode: nil, state: nil, country: nil, firstVisited: nil, visits: nil)
         return establishment
+    }
+    
+    func updateFromEstablishment(establishment: Establishment) {
+        self.restaurantName = establishment.name
+        self.latitude = establishment.latitude
+        self.longitude = establishment.longitude
     }
     
     enum CodingKeys: String, CodingKey {

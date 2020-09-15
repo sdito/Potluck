@@ -97,13 +97,6 @@ class VisitCell: UITableViewCell {
         spacer.translatesAutoresizingMaskIntoConstraints = false
         dateAndButtonStackView.addArrangedSubview(spacer)
         
-        let mapButton = UIButton()
-        mapButton.translatesAutoresizingMaskIntoConstraints = false
-        mapButton.setImage(.mapImage, for: .normal)
-        mapButton.tintColor = Colors.main
-        mapButton.addTarget(self, action: #selector(mapAction), for: .touchUpInside)
-        dateAndButtonStackView.addArrangedSubview(mapButton)
-        
         let moreActionsButton = UIButton()
         moreActionsButton.translatesAutoresizingMaskIntoConstraints = false
         moreActionsButton.setImage(.threeDotsImage, for: .normal)
@@ -111,6 +104,12 @@ class VisitCell: UITableViewCell {
         moreActionsButton.addTarget(self, action: #selector(moreActionsSelector), for: .touchUpInside)
         dateAndButtonStackView.addArrangedSubview(moreActionsButton)
         
+        let mapButton = UIButton()
+        mapButton.translatesAutoresizingMaskIntoConstraints = false
+        mapButton.setImage(.mapImage, for: .normal)
+        mapButton.tintColor = Colors.main
+        mapButton.addTarget(self, action: #selector(mapAction), for: .touchUpInside)
+        dateAndButtonStackView.addArrangedSubview(mapButton)
         
         base.addSubview(dateAndButtonStackView)
         dateAndButtonContainerView = UIView()

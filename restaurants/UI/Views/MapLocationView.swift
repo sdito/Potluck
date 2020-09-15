@@ -86,6 +86,12 @@ class MapLocationView: UIView {
         
     }
     
+    func updateLocation(coordinate: CLLocationCoordinate2D) {
+        self.coordinate = coordinate
+        mapView.removeAnnotations(mapView.annotations)
+        setUpLocation()
+    }
+    
     
     
 }

@@ -7,11 +7,11 @@
 //
 
 import UIKit
-
+import CoreLocation
 
 protocol EstablishmentDetailDelegate: class {
     func detailDismissed() -> Void
-    func establishmentDeleted(establishment: Establishment)
+    
 }
 
 class EstablishmentDetailVC: UIViewController {
@@ -67,6 +67,7 @@ class EstablishmentDetailVC: UIViewController {
         setUpSpacer()
         setUpCollectionView()
         edgesForExtendedLayout = [.left, .top, .right]
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -118,6 +119,7 @@ class EstablishmentDetailVC: UIViewController {
     }
     
     private func setUpView(establishment: Establishment) {
+        
         if mode == .halfScreenBase {
             
             self.view.clipsToBounds = true
@@ -155,6 +157,8 @@ class EstablishmentDetailVC: UIViewController {
             #warning("need to make the spacing tighter")
         }
     }
+    
+    
     
     private func setUpHeader(establishment: Establishment) {
         
@@ -259,7 +263,6 @@ class EstablishmentDetailVC: UIViewController {
         collectionView.dataSource = self
         collectionView.showsHorizontalScrollIndicator = false
         
-        
         self.view.addSubview(collectionView)
         
         collectionView.constrain(.top, to: collectionSpacer, .bottom, constant: 5.0)
@@ -282,6 +285,19 @@ class EstablishmentDetailVC: UIViewController {
                 button.isSelected = true
             }
         }
+    }
+    
+    private func selectNewLocation() {
+        let locationController = SelectLocationVC(owner: self, askPermissionBeforeSending: true)
+        self.present(locationController, animated: true, completion: nil)
+    }
+    
+    private func changeTextForEstablishment() {
+        let editTextView = EnterTextView(text: "Rename \(establishment?.name ?? "your place")", placeholder: "Enter new name", controller: nil, delegate: self)
+        let vc = ShowViewVC(newView: editTextView, fromBottom: true)
+        editTextView.controller = vc
+        vc.modalPresentationStyle = .overFullScreen
+        self.present(vc, animated: false, completion: nil)
     }
     
     @objc private func panGestureSelector(recognizer: UIPanGestureRecognizer) {
@@ -346,12 +362,18 @@ class EstablishmentDetailVC: UIViewController {
         guard let establishment = establishment else { return }
         let establishmentName = establishment.isRestaurant ? "Restaurant" : "Place"
         self.actionSheet(actions: [
-            ("Edit \(establishmentName)", { [weak self] in print("Edit establishment") }),
+            ("Edit \(establishmentName)", { [weak self] in
+                self?.actionSheet(actions:
+                    [("Edit name", { [weak self] in self?.changeTextForEstablishment()}),
+                     ("Edit location", { [weak self] in self?.selectNewLocation()})
+                ])
+            }),
             ("Delete \(establishmentName)", {
                 [weak self] in self?.alert(title: "Are you sure you want to delete this \(establishmentName)?", message: "This will also delete all of your visits to this \(establishmentName). This action cannot be undone.", positiveAction: { [weak self] in
+                    #warning("need to test actually deleting more")
                     Network.shared.deleteEstablishment(establishment: establishment) { _ in return }
                     self?.dismissChild()
-                    self?.delegate?.establishmentDeleted(establishment: establishment)
+                    NotificationCenter.default.post(name: .establishmentDeleted, object: nil, userInfo: ["establishment": establishment])
                 })
             })
         ])
@@ -483,5 +505,44 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
                 }
             }
         }
+    }
+}
+
+
+// MARK: SearchLocationDelegate
+extension EstablishmentDetailVC: SelectLocationDelegate {
+    
+    func locationSelected(coordinate: CLLocationCoordinate2D, fullAddress: String) {
+        
+        guard let establishment = establishment else { return }
+        establishment.longitude = coordinate.longitude
+        establishment.latitude = coordinate.latitude
+        
+        Network.shared.updateEstablishment(establishment: establishment, success: { _ in return })
+        #warning("also need to update the addresses and stuff")
+        
+        if let mapLocationView = mapLocationView {
+            mapLocationView.updateLocation(coordinate: coordinate)
+        }
+    }
+}
+
+// MARK: EnterTextViewDelegate
+extension EstablishmentDetailVC: EnterTextViewDelegate {
+    func textFound(string: String?) {
+        
+        guard let string = string, let establishment = establishment else { return }
+        self.showMessage("Updated name")
+        establishment.name = string
+        
+        Network.shared.updateEstablishment(establishment: establishment, success: { _ in return })
+        
+        if let header = headerView {
+            header.headerLabel.text = string
+        } else {
+            navigationItem.title = string
+        }
+        
+        
     }
 }

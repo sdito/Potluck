@@ -39,6 +39,8 @@ class ProfileHomeVC: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(establishmentDeleted(notification:)), name: .establishmentDeleted, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(establishmentUpdated(notification:)), name: .establishmentUpdated, object: nil)
     }
     
     deinit {
@@ -119,6 +121,19 @@ class ProfileHomeVC: UIViewController {
         noUserTableView()
     }
     
+    @objc private func establishmentDeleted(notification: Notification) {
+        if let establishment = notification.userInfo?["establishment"] as? Establishment {
+            changeEstablishment(establishment: establishment, delete: true)
+        }
+    }
+    
+    @objc private func establishmentUpdated(notification: Notification) {
+        print("Update establishment is being called")
+        if let establishment = notification.userInfo?["establishment"] as? Establishment {
+            changeEstablishment(establishment: establishment, delete: false)
+        }
+    }
+    
     @objc private func showOnMapButtonPressed() {
         let mapProfile = ProfileMapVC()
         self.navigationController?.pushViewController(mapProfile, animated: true)
@@ -127,6 +142,44 @@ class ProfileHomeVC: UIViewController {
     @objc private func refreshControlSelector() {
         print("Refresh control selected")
         #warning("need to complete, might be different if i cache")
+    }
+    
+    private func changeEstablishment(establishment: Establishment, delete: Bool) {
+        
+        guard let establishmentID = establishment.djangoID else { return }
+        
+        var indexesToChange: [Int] = []
+        var visitsToChange: [Visit] = []
+        
+        for (idx, visit) in visits.enumerated() {
+            if visit.djangoRestaurantID == establishmentID {
+                indexesToChange.append(idx)
+                visitsToChange.append(visit)
+                
+                if !delete {
+                    visit.updateFromEstablishment(establishment: establishment)
+                }
+            }
+        }
+        
+        let indexPaths = indexesToChange.map({IndexPath(row: $0, section: 0)})
+        
+        if delete {
+            // remove from visits
+            for idx in indexesToChange.sorted().reversed() {
+                visits.remove(at: idx)
+            }
+            
+            for vis in visitsToChange {
+                removeImagesFromCacheFor(visit: vis)
+            }
+            
+            // remove from the table view
+            tableView.deleteRows(at: indexPaths, with: .automatic)
+        } else {
+            // just update...not in hierarchy so fine
+            tableView.reloadData()
+        }
     }
 }
 
@@ -258,7 +311,7 @@ extension ProfileHomeVC: VisitCellDelegate {
     }
     
     func establishmentSelected(establishment: Establishment) {
-        self.navigationController?.pushViewController(EstablishmentDetailVC(establishment: establishment, delegate: self, mode: .fullScreenBase), animated: true)
+        self.navigationController?.pushViewController(EstablishmentDetailVC(establishment: establishment, delegate: nil, mode: .fullScreenBase), animated: true)
     }
     
     func delete(visit: Visit?) {
@@ -282,40 +335,5 @@ extension ProfileHomeVC: VisitCellDelegate {
             }
         }
     }
-    
 }
 
-
-extension ProfileHomeVC: EstablishmentDetailDelegate {
-    func detailDismissed() { return }
-    
-    func establishmentDeleted(establishment: Establishment) {
-        
-        guard let establishmentID = establishment.djangoID else { return }
-        
-        var indexesToRemove: [Int] = []
-        var visitsToRemove: [Visit] = []
-        
-        for (idx, visit) in visits.enumerated() {
-            if (visit.djangoRestaurantID == establishmentID) && (visit.restaurantName == establishment.name) {
-                indexesToRemove.append(idx)
-                visitsToRemove.append(visit)
-            }
-        }
-        
-        // remove from visits
-        for idx in indexesToRemove.sorted().reversed() {
-            visits.remove(at: idx)
-        }
-        
-        for vis in visitsToRemove {
-            removeImagesFromCacheFor(visit: vis)
-        }
-        
-        // remove from the table view
-        let indexPaths = indexesToRemove.map({IndexPath(row: $0, section: 0)})
-        tableView.deleteRows(at: indexPaths, with: .automatic)
-        
-    }
-    
-}

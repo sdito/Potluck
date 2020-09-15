@@ -17,6 +17,7 @@ extension Network {
         case createEstablishment
         case restaurantDetail
         case deleteEstablishment
+        case updateEstablishment
         
         var requestMethod: HTTPMethod {
             switch self {
@@ -26,6 +27,8 @@ extension Network {
                 return .post
             case .deleteEstablishment:
                 return .delete
+            case .updateEstablishment:
+                return .put
             }
         }
 
@@ -33,7 +36,7 @@ extension Network {
             switch self {
             case .userRestaurants, .createEstablishment:
                 return "restaurant"
-            case .restaurantDetail, .deleteEstablishment:
+            case .restaurantDetail, .deleteEstablishment, .updateEstablishment:
                 return "restaurant/\(establishment!.djangoID!)/"
             }
         }
@@ -127,7 +130,6 @@ extension Network {
     }
     
     func deleteEstablishment(establishment: Establishment, success: @escaping (Bool) -> Void) {
-        #warning("need to actually use")
         let request = reqEstablishment(requestType: .deleteEstablishment, params: nil, establishment: establishment)
         guard let req = request else { success(false); return }
         req.response(queue: DispatchQueue.global(qos: .background)) { (result) in
@@ -142,6 +144,26 @@ extension Network {
                 success(false)
             }
         }
+    }
+    
+    
+    func updateEstablishment(establishment: Establishment, success: @escaping (Bool) -> Void) {
+        #error("not working when in short mode, and updated multiple times, only uses most recent updates")
+        NotificationCenter.default.post(name: .establishmentUpdated, object: nil, userInfo: ["establishment": establishment])
+        
+        #warning("need to complete and use/implement, use notification also")
+        do {
+            let data = try encoder.encode(establishment)
+            let json = try? JSONSerialization.jsonObject(with: data, options: [])
+            if var establishmentJson = json as? [String:Any] {
+                establishmentJson["visits"] = nil
+                
+            }
+        } catch {
+            print("Error")
+        }
+        
+        
     }
     
     

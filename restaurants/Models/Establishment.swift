@@ -131,6 +131,21 @@ class Establishment: Codable {
         self.longitude = coordinate?.longitude
     }
     
+    func updateWithNewValues(newEstablishment new: Establishment) {
+        self.name = new.name
+        self.longitude = new.longitude
+        self.latitude = new.longitude
+        self.yelpID = new.yelpID
+        self.category = new.category
+        self.address1 = new.address1
+        self.address2 = new.address2
+        self.address3 = new.address3
+        self.city = new.city
+        self.zipCode = new.zipCode
+        self.state = new.state
+        self.country = new.country
+    }
+    
 }
 
 
