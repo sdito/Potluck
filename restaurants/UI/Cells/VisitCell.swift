@@ -247,10 +247,17 @@ class VisitCell: UITableViewCell {
         scrollingStackView.layoutIfNeeded()
         
         if let selectedPhotoIndex = selectedPhotoIndex, scrollingStackView.stackView.arrangedSubviews.indices.contains(selectedPhotoIndex)  {
-            let scrollingToRect = otherImageViews[selectedPhotoIndex - 1].frame
+            let checkIdx = selectedPhotoIndex - 1
+            if checkIdx >= 0 {
+                let scrollingToRect = otherImageViews[selectedPhotoIndex - 1].frame
+                
+                scrollingStackView.scrollView.scrollRectToVisible(scrollingToRect, animated: false)
+                scrollingStackView.resetElements(selectedIndex: selectedPhotoIndex)
+            } else {
+                scrollingStackView.scrollView.contentOffset = .zero
+                scrollingStackView.resetElements()
+            }
             
-            scrollingStackView.scrollView.scrollRectToVisible(scrollingToRect, animated: false)
-            scrollingStackView.resetElements(selectedIndex: selectedPhotoIndex)
         } else {
             scrollingStackView.scrollView.contentOffset = .zero
             scrollingStackView.resetElements()

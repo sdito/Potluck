@@ -13,6 +13,11 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("haptic feedback with small click-like vibration")
     #warning("pagination on django")
     #warning("get the date from the images")
+    #warning("place for other images, maybe make all images into just images")
+    
+    #warning("ability to delete establishment")
+    #warning("ability to edit establishment")
+    #warning("need to make sure errors are correct on VisitView in django")
     /*
      if previousIndex != i {
          let generator = UISelectionFeedbackGenerator()

@@ -59,7 +59,6 @@ class HeaderView: UIStackView {
         headerLabel.minimumScaleFactor = 0.8
         headerLabel.adjustsFontSizeToFitWidth = true
         
-        leftButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         rightStack.setContentCompressionResistancePriority(.required, for: .horizontal)
         
         self.insertArrangedSubview(headerLabel, at: 1)

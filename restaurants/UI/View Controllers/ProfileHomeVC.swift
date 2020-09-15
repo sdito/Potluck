@@ -195,6 +195,19 @@ extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
         }
         return nil
     }
+    
+    private func removeImagesFromCacheFor(visit: Visit) {
+        #warning("need to complete and use")
+        print("Remove images from cache: \(visit.djangoOwnID)")
+        let mainKey = NSString(string: "\(visit.djangoOwnID)-main")
+        imageCache.removeObject(forKey: mainKey)
+        
+        for visIdx in 0..<visit.otherImages.count {
+            let otherKey = NSString(string: "\(visit.djangoOwnID)-\(visIdx)")
+            otherImageCache.removeObject(forKey: otherKey)
+        }
+    }
+    
 }
 
 
@@ -245,7 +258,7 @@ extension ProfileHomeVC: VisitCellDelegate {
     }
     
     func establishmentSelected(establishment: Establishment) {
-        self.navigationController?.pushViewController(EstablishmentDetailVC(establishment: establishment, delegate: nil, mode: .fullScreenBase), animated: true)
+        self.navigationController?.pushViewController(EstablishmentDetailVC(establishment: establishment, delegate: self, mode: .fullScreenBase), animated: true)
     }
     
     func delete(visit: Visit?) {
@@ -262,9 +275,9 @@ extension ProfileHomeVC: VisitCellDelegate {
             
                 if cellToDelete.visit?.djangoOwnID == visit.djangoOwnID {
                     self.visits.remove(at: idx)
-                    self.tableView.beginUpdates()
+//                    self.tableView.beginUpdates()
                     self.tableView.deleteRows(at: [IndexPath(row: idx, section: 0)], with: .automatic)
-                    self.tableView.endUpdates()
+//                    self.tableView.endUpdates()
                 }
             }
         }
@@ -272,3 +285,37 @@ extension ProfileHomeVC: VisitCellDelegate {
     
 }
 
+
+extension ProfileHomeVC: EstablishmentDetailDelegate {
+    func detailDismissed() { return }
+    
+    func establishmentDeleted(establishment: Establishment) {
+        
+        guard let establishmentID = establishment.djangoID else { return }
+        
+        var indexesToRemove: [Int] = []
+        var visitsToRemove: [Visit] = []
+        
+        for (idx, visit) in visits.enumerated() {
+            if (visit.djangoRestaurantID == establishmentID) && (visit.restaurantName == establishment.name) {
+                indexesToRemove.append(idx)
+                visitsToRemove.append(visit)
+            }
+        }
+        
+        // remove from visits
+        for idx in indexesToRemove.sorted().reversed() {
+            visits.remove(at: idx)
+        }
+        
+        for vis in visitsToRemove {
+            removeImagesFromCacheFor(visit: vis)
+        }
+        
+        // remove from the table view
+        let indexPaths = indexesToRemove.map({IndexPath(row: $0, section: 0)})
+        tableView.deleteRows(at: indexPaths, with: .automatic)
+        
+    }
+    
+}

@@ -16,6 +16,7 @@ extension Network {
         case userRestaurants
         case createEstablishment
         case restaurantDetail
+        case deleteEstablishment
         
         var requestMethod: HTTPMethod {
             switch self {
@@ -23,14 +24,16 @@ extension Network {
                 return .get
             case .createEstablishment:
                 return .post
+            case .deleteEstablishment:
+                return .delete
             }
         }
-        
+
         func url(establishment: Establishment?) -> String {
             switch self {
             case .userRestaurants, .createEstablishment:
                 return "restaurant"
-            case .restaurantDetail:
+            case .restaurantDetail, .deleteEstablishment:
                 return "restaurant/\(establishment!.djangoID!)/"
             }
         }
@@ -50,6 +53,7 @@ extension Network {
         let request = AF.request(Network.djangoURL + urlPortion, method: requestType.requestMethod, parameters: params, headers: headers)
         return request
     }
+    
     
     func getEstablishmentDetail(from establishment: Establishment, completion: @escaping (Result<Establishment, Errors.VisitEstablishment>) -> Void) {
         let request = reqEstablishment(requestType: .restaurantDetail, params: nil, establishment: establishment)
@@ -117,10 +121,30 @@ extension Network {
                 completion(Result.failure(.encoding))
             }
         } catch {
+            completion(Result.failure(.encoding))
             print(error)
         }
-        
     }
+    
+    func deleteEstablishment(establishment: Establishment, success: @escaping (Bool) -> Void) {
+        #warning("need to actually use")
+        let request = reqEstablishment(requestType: .deleteEstablishment, params: nil, establishment: establishment)
+        guard let req = request else { success(false); return }
+        req.response(queue: DispatchQueue.global(qos: .background)) { (result) in
+            guard let code = result.response?.statusCode else {
+                success(false)
+                return
+            }
+            
+            if code == Network.deletedCode {
+                success(true)
+            } else {
+                success(false)
+            }
+        }
+    }
+    
+    
     
     
 }

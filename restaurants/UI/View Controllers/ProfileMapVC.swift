@@ -97,6 +97,20 @@ extension ProfileMapVC: MKMapViewDelegate {
 
 
 extension ProfileMapVC: EstablishmentDetailDelegate {
+    func establishmentDeleted(establishment: Establishment) {
+        establishments = establishments.filter({($0.djangoID != establishment.djangoID) && ($0.name != establishment.name)})
+        for annotation in mapView.annotations {
+            guard let annotation = annotation as? RestaurantAnnotation else { continue }
+            if let annotationEstablishment = annotation.establishment {
+                if (annotationEstablishment.djangoID == establishment.djangoID) && (annotationEstablishment.name == establishment.name) {
+                    mapView.removeAnnotation(annotation)
+                    break
+                }
+            }
+        }
+        
+    }
+    
     func detailDismissed() {
         mapView.deselectAllAnnotations()
     }

@@ -8,10 +8,10 @@
 
 import UIKit
 
-#warning("ability to add visit from this screen")
 
 protocol EstablishmentDetailDelegate: class {
     func detailDismissed() -> Void
+    func establishmentDeleted(establishment: Establishment)
 }
 
 class EstablishmentDetailVC: UIViewController {
@@ -133,30 +133,49 @@ class EstablishmentDetailVC: UIViewController {
             var barButtonItems: [UIBarButtonItem] = []
             
             self.navigationItem.title = establishment.name
-            // and ability to add visit,
-            //self.navigationItem.rightBarButtonItem
+            // and ability to add visit
             let addVisitBarButtonItem = UIBarButtonItem(image: .plusImage, style: .plain, target: self, action: #selector(addVisitPressed))
             barButtonItems.append(addVisitBarButtonItem)
             
             if establishment.yelpID != nil {
                 self.navigationController?.navigationBar.tintColor = Colors.main
                 let yelpBarButtonItem = UIBarButtonItem(image: .detailImage, style: .plain, target: self, action: #selector(yelpButtonPressed))
+                yelpBarButtonItem.imageInsets = UIEdgeInsets(top: 0, left: 20.0, bottom: 0, right: 0)
                 barButtonItems.append(yelpBarButtonItem)
             }
+            
+            // edit visit
+            let editEstablishmentBarButtonItem = UIBarButtonItem(image: .threeDotsImage, style: .plain, target: self, action: #selector(editEstablishmentPressed))
+            editEstablishmentBarButtonItem.imageInsets = UIEdgeInsets(top: 0, left: 40.0, bottom: 0, right: 0)
+            barButtonItems.append(editEstablishmentBarButtonItem)
+            
+            
+            
             navigationItem.rightBarButtonItems = barButtonItems
+            #warning("need to make the spacing tighter")
         }
     }
     
     private func setUpHeader(establishment: Establishment) {
         
-        
         if mode == .halfScreenBase || mode == .fullScreenHeaderAndMap {
             headerView = HeaderView(leftButtonTitle: "Done", rightButtonTitle: "", title: establishment.name)
             headerView!.headerLabel.font = .secondaryTitle
             
+            if mode != .fullScreenHeaderAndMap {
+                headerView!.rightButton.setImage(.threeDotsImage, for: .normal)
+                headerView!.rightButton.addTarget(self, action: #selector(editEstablishmentPressed), for: .touchUpInside)
+                headerView!.rightButton.tintColor = Colors.main
+            }
+            
             if mode == .halfScreenBase {
                 let addVisit = headerView?.insertButtonAtEnd(with: .plusImage)
                 addVisit?.addTarget(self, action: #selector(addVisitPressed), for: .touchUpInside)
+            }
+            
+            if establishment.yelpID != nil && mode != .fullScreenHeaderAndMap {
+                let detailPressed = headerView?.insertButtonAtEnd(with: .detailImage)
+                detailPressed?.addTarget(self, action: #selector(yelpButtonPressed), for: .touchUpInside)
             }
             
             self.view.addSubview(headerView!)
@@ -170,12 +189,7 @@ class EstablishmentDetailVC: UIViewController {
             spacer!.constrain(.trailing, to: self.view, .trailing)
             spacer!.constrain(.top, to: headerView!, .bottom, constant: 5.0)
             
-            if establishment.yelpID != nil && mode != .fullScreenHeaderAndMap {
-                print("This is being added")
-                headerView!.rightButton.tintColor = Colors.main
-                headerView!.rightButton.setImage(.detailImage, for: .normal)
-                headerView!.rightButton.addTarget(self, action: #selector(yelpButtonPressed), for: .touchUpInside)
-            }
+            
             
         }
         if mode == .fullScreenBase || mode == .fullScreenHeaderAndMap {
@@ -296,15 +310,20 @@ class EstablishmentDetailVC: UIViewController {
     }
     
     @objc private func dismissChild() {
-        if mode == .halfScreenBase {
+        
+        switch mode {
+        case .fullScreenBase:
+            self.navigationController?.popViewController(animated: true)
+        case .fullScreenHeaderAndMap:
+            self.dismiss(animated: true, completion: nil)
+        case .halfScreenBase:
             self.parent?.removeChildViewControllersFromBottom(onCompletion: { [weak self] (done) in
                 guard let self = self else { return }
                 self.delegate?.detailDismissed()
             })
-        } else if mode == .fullScreenHeaderAndMap {
-            self.dismiss(animated: true, completion: nil)
         }
         
+
     }
     
     @objc private func yelpButtonPressed() {
@@ -316,12 +335,26 @@ class EstablishmentDetailVC: UIViewController {
     }
     
     @objc private func addVisitPressed() {
-        #warning("need to complete")
         // needs to be able to handle the cases for the half screen and the full screen, both should be with a navigation controller similar to how it is shown from RestaurantDetailVC
         guard let establishment = establishment else { return }
         let addVisitVC = SubmitRestaurantVC(rawValues: nil, establishment: establishment, restaurant: nil)
         addVisitVC.edgesForExtendedLayout = .bottom
         self.navigationController?.pushViewController(addVisitVC, animated: true)
+    }
+    
+    @objc private func editEstablishmentPressed() {
+        guard let establishment = establishment else { return }
+        let establishmentName = establishment.isRestaurant ? "Restaurant" : "Place"
+        self.actionSheet(actions: [
+            ("Edit \(establishmentName)", { [weak self] in print("Edit establishment") }),
+            ("Delete \(establishmentName)", {
+                [weak self] in self?.alert(title: "Are you sure you want to delete this \(establishmentName)?", message: "This will also delete all of your visits to this \(establishmentName). This action cannot be undone.", positiveAction: { [weak self] in
+                    Network.shared.deleteEstablishment(establishment: establishment) { _ in return }
+                    self?.dismissChild()
+                    self?.delegate?.establishmentDeleted(establishment: establishment)
+                })
+            })
+        ])
     }
     
     @objc private func dateButtonAction(sender: UIButton) {
@@ -347,12 +380,9 @@ class EstablishmentDetailVC: UIViewController {
                         self.allowButtonsToChangeSelected = true
                     }
                 }
-                
             }
         }
-        
     }
-    
 }
 
 
@@ -454,6 +484,4 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
             }
         }
     }
-    
-    
 }

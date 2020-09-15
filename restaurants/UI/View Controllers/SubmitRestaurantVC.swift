@@ -277,17 +277,17 @@ class SubmitRestaurantVC: UIViewController {
         // To dismiss
         // self.presentingViewController?.dismiss(animated: true, completion: nil)
         
-        guard 2 == 3 else {
-            let progressView = ProgressView(delegate: self)
-            let vc = ShowViewVC(newView: progressView, fromBottom: false)
-            vc.modalPresentationStyle = .overFullScreen
-            self.navigationController?.present(vc, animated: false, completion: nil)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                progressView.successAnimation()
-            }
-            return
-        }
+//        guard 2 == 3 else {
+//            let progressView = ProgressView(delegate: self)
+//            let vc = ShowViewVC(newView: progressView, fromBottom: false)
+//            vc.modalPresentationStyle = .overFullScreen
+//            self.navigationController?.present(vc, animated: false, completion: nil)
+//            
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+//                progressView.successAnimation()
+//            }
+//            return
+//        }
         
         if selectedPhotos.count > 0 {
             
