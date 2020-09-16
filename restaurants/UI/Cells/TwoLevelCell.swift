@@ -42,13 +42,13 @@ class TwoLevelCell: UITableViewCell {
         
         stackView.addArrangedSubview(mainLabel)
         stackView.addArrangedSubview(secondLabel)
-        self.addSubview(stackView)
+        contentView.addSubview(stackView)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.spacing = 3.0
     
-        stackView.constrain(.leading, to: self, .leading, constant: 20.0)
-        stackView.constrain(.top, to: self, .top, constant: 10.0)
-        stackView.constrain(.bottom, to: self, .bottom, constant: 10.0)
+        stackView.constrain(.leading, to: contentView, .leading, constant: 20.0)
+        stackView.constrain(.top, to: contentView, .top, constant: 10.0)
+        stackView.constrain(.bottom, to: contentView, .bottom, constant: 10.0)
         
         stackView.axis = .vertical
         stackView.alignment = .leading
@@ -63,7 +63,7 @@ class TwoLevelCell: UITableViewCell {
         self.addSubview(actionButton)
         
         actionButton.constrain(.leading, to: stackView, .trailing, constant: 5.0)
-        actionButton.constrain(.trailing, to: self, .trailing, constant: 20.0)
+        actionButton.constrain(.trailing, to: contentView, .trailing, constant: 20.0)
         actionButton.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         actionButton.equalSides()
         actionButton.addTarget(self, action: #selector(actionButtonSelected), for: .touchUpInside)

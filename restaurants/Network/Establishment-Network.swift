@@ -148,7 +148,7 @@ extension Network {
     
     
     func updateEstablishment(establishment: Establishment, success: @escaping (Bool) -> Void) {
-        #error("not working when in short mode, and updated multiple times, only uses most recent updates")
+        #warning("not working when in short mode, and updated multiple times, only uses most recent updates")
         NotificationCenter.default.post(name: .establishmentUpdated, object: nil, userInfo: ["establishment": establishment])
         
         #warning("need to complete and use/implement, use notification also")

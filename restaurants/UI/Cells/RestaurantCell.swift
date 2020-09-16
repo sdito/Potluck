@@ -58,8 +58,8 @@ class RestaurantCell: UITableViewCell {
         stackView.alignment = .leading
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.spacing = 2.5
-        self.addSubview(stackView)
-        stackView.constrainSides(to: self, distance: 15.0)
+        contentView.addSubview(stackView)
+        stackView.constrainSides(to: contentView, distance: 15.0)
     }
     
     private func setUpTitleLabel() {
@@ -84,6 +84,7 @@ class RestaurantCell: UITableViewCell {
         mapButton.setImage(mapImage, for: .normal)
         mapButton.tintColor = Colors.main
         mapButton.addTarget(self, action: #selector(mapButtonSelected), for: .touchUpInside)
+        self.bringSubviewToFront(mapButton)
         
         starRatingStackView.addArrangedSubview(mapButton)
         

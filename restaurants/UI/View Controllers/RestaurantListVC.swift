@@ -28,6 +28,7 @@ class RestaurantListVC: UIViewController {
         didSet {
             imageCache.removeAllObjects()
             tableView.reloadData()
+            tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
         }
     }
     
