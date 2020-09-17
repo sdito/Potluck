@@ -11,6 +11,20 @@ import SkeletonView
 
 extension UIView {
     
+    func addBlurEffect() {
+        let blur = UIVisualEffectView(effect: UIBlurEffect(style: .systemThinMaterial))
+        blur.translatesAutoresizingMaskIntoConstraints = false
+        blur.isUserInteractionEnabled = false
+        self.insertSubview(blur, at: 0)
+        blur.constrainSides(to: self)
+        
+        if let button = self as? UIButton {
+            if let titleLabel = button.titleLabel {
+                button.bringSubviewToFront(titleLabel)
+            }
+        }
+    }
+    
     @discardableResult
     func placeActivityIndicatorOnTop() -> UIActivityIndicatorView {
         let activityView = UIActivityIndicatorView()

@@ -28,34 +28,23 @@ class SubmitRestaurantVC: UIViewController {
     private let containerView = UIView()
     private let headerStackView = UIStackView()
     private let showMapPopUpButton = UIButton()
-    private var sliderStackView = UIStackView()
-    private let sliderView = UISlider()
-    private let sliderValueButton = UIButton()
+    private var sliderRatingView: SliderRatingView?
+//    private var sliderStackView = UIStackView()
+//    private let sliderView = UISlider()
+    
     private let textView = PlaceholderTextView(placeholder: "Add comment. Type of meal, how the experience was, who you went with, etc. (Optional)", font: UIFont.systemFont(ofSize: UIFont.systemFontSize))
     
     private var nameRawValue: String?
     private var addressRawValue: String?
     private var coordinateRawValue: CLLocationCoordinate2D?
-    private var sliderValue: Float? {
-        didSet {
-            if let value = self.sliderValue {
-                self.sliderView.tintColor = value.getColorFromZeroToTen()
-                self.sliderValueButton.setTitle("\(sliderValue!)", for: .normal)
-            } else {
-                self.sliderView.tintColor = baseSliderColor
-                self.sliderView.value = (sliderView.maximumValue + sliderView.minimumValue) / 2.0
-                self.sliderValueButton.setTitle(emptySliderValue, for: .normal)
-            }
-            
-        }
-    }
+
     
     private var establishment: Establishment?
     private var restaurant: Restaurant?
     private var mode: Mode?
     private var map: MapLocationView?
-    private let emptySliderValue = " --- "
-    private let baseSliderColor = UIColor.systemGray
+    
+    
     
     init(rawValues: (name: String, address: String)?, establishment: Establishment?, restaurant: Restaurant?) {
         self.nameRawValue = rawValues?.name
@@ -192,42 +181,9 @@ class SubmitRestaurantVC: UIViewController {
     }
     
     private func setUpSliderView() {
-        sliderStackView.translatesAutoresizingMaskIntoConstraints = false
-        headerStackView.addArrangedSubview(sliderStackView)
-        sliderStackView.distribution = .fill
-        sliderStackView.alignment = .fill
-        sliderStackView.spacing = 7.5
-        
-        sliderView.translatesAutoresizingMaskIntoConstraints = false
-        sliderView.minimumValue = 0.0
-        sliderView.maximumValue = 10.0
-        sliderView.value = 5.0
-        sliderView.tintColor = baseSliderColor
-        
-        sliderView.addTarget(self, action: #selector(sliderViewSelector(sender:)), for: .valueChanged)
-        
-        let ratingButton = UIButton()
-        ratingButton.translatesAutoresizingMaskIntoConstraints = false
-        ratingButton.titleLabel?.font = .mediumBold
-        ratingButton.setTitle("Rating", for: .normal)
-        ratingButton.setTitleColor(.label, for: .normal)
-        ratingButton.addTarget(self, action: #selector(sliderValueButtonSelector), for: .touchUpInside)
-        
-        sliderValueButton.translatesAutoresizingMaskIntoConstraints = false
-        sliderValueButton.setTitle(emptySliderValue, for: .normal)
-        sliderValueButton.widthAnchor.constraint(equalToConstant: 40.0).isActive = true
-        sliderValueButton.titleLabel?.adjustsFontSizeToFitWidth = true
-        sliderValueButton.titleLabel?.minimumScaleFactor = 0.5
-        sliderValueButton.titleLabel?.font = .mediumBold
-        sliderValueButton.titleLabel?.textAlignment = .center
-        sliderValueButton.setTitleColor(.label, for: .normal)
-        sliderValueButton.addTarget(self, action: #selector(sliderValueButtonSelector), for: .touchUpInside)
-
-        sliderStackView.addArrangedSubview(ratingButton)
-        sliderStackView.addArrangedSubview(sliderView)
-        sliderStackView.addArrangedSubview(sliderValueButton)
-        sliderStackView.widthAnchor.constraint(equalTo: headerStackView.widthAnchor).isActive = true
-        
+        sliderRatingView = SliderRatingView()
+        headerStackView.addArrangedSubview(sliderRatingView!)
+        sliderRatingView!.widthAnchor.constraint(equalTo: headerStackView.widthAnchor).isActive = true
     }
     
     
@@ -325,7 +281,7 @@ class SubmitRestaurantVC: UIViewController {
                                                           mainImage: firstPhoto,
                                                           otherImages: otherPhotos,
                                                           comment: textView.text,
-                                                          rating: sliderValue,
+                                                          rating: sliderRatingView?.sliderValue,
                                                           progressView: progressView)
                     { (result) in
                         DispatchQueue.main.async {
@@ -357,7 +313,7 @@ class SubmitRestaurantVC: UIViewController {
                                           mainImage: mainImage,
                                           otherImages: otherImages,
                                           comment: comment,
-                                          rating: sliderValue,
+                                          rating: sliderRatingView?.sliderValue,
                                           progressView: progressView)
         { (result) in
             DispatchQueue.main.async {
@@ -412,16 +368,6 @@ class SubmitRestaurantVC: UIViewController {
             guard let firstPlaceMark = placeMarks?.first, let location = firstPlaceMark.location?.coordinate else { return }
             self.coordinateRawValue = location
         }
-    }
-    
-    @objc private func sliderViewSelector(sender: UISlider) {
-        sliderValue = Float(round(10 * sender.value)/10)
-    }
-    
-    @objc private func sliderValueButtonSelector() {
-        self.actionSheet(actions: [
-            ("Clear rating value", { [weak self] in self?.sliderValue = nil })
-        ])
     }
     
     

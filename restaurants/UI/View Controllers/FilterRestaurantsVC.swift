@@ -14,7 +14,7 @@ class FilterRestaurantsVC: UIViewController {
     private var previousFilters: [String:Any]!
     private var indexPathsToSelect: Set<IndexPath> = []
     private let checkBoxCellReuse = "checkBoxCellReuse"
-    private let executeButton = SizeChangeButton(sizeDifference: .small, restingColor: .label, selectedColor: .label)
+    private let executeButton = SizeChangeButton(sizeDifference: .inverse, restingColor: .systemBackground, selectedColor: .systemBackground)
     private let headerLabel = UILabel()
     private let tableView = UITableView(frame: .zero, style: .grouped)
     private let spacer = SpacerView(size: 1, orientation: .vertical)

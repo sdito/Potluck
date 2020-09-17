@@ -10,12 +10,13 @@ import UIKit
 
 class HeaderEstablishmentReusableView: UICollectionReusableView {
     
-    private var dateLabel = UILabel()
-    private var commentLabel = UILabel()
-    private var ratingLabel = UILabel()
-    private var container = UIView()
-    private var containerStack = UIStackView()
+    private let dateLabel = UILabel()
+    private let commentLabel = UILabel()
+    private let ratingLabel = UILabel()
+    private let container = UIView()
+    private let containerStack = UIStackView()
     private var stackConstraint: NSLayoutConstraint?
+    private var visit: Visit?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -26,7 +27,7 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
         super.init(coder: coder)
     }
     
-    func setUpElements() {
+    private func setUpElements() {
         container.translatesAutoresizingMaskIntoConstraints = false
         self.translatesAutoresizingMaskIntoConstraints = false
         containerStack.translatesAutoresizingMaskIntoConstraints = false
@@ -60,16 +61,58 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
         dateLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         dateLabel.adjustsFontSizeToFitWidth = true
         dateLabel.minimumScaleFactor = 0.5
-//        #error("adjust the dateLabel font to automatically fit")
         
         commentLabel.numberOfLines = 0
         commentLabel.font = .mediumBold
         commentLabel.textColor = .secondaryLabel
         
+        setUpClicking()
+    }
+    
+    private func setUpClicking() {
+        let layerButton = UIButton()
+        layerButton.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(layerButton)
+        self.bringSubviewToFront(layerButton)
+        layerButton.constrainSides(to: self)
+        layerButton.backgroundColor = .clear
         
+        layerButton.addTarget(self, action: #selector(layerButtonAction), for: .touchUpInside)
+        layerButton.addTarget(self, action: #selector(touchDown), for: [.touchDown, .touchDragEnter])
+        layerButton.addTarget(self, action: #selector(touchUp), for: [.touchDragExit, .touchUpInside, .touchCancel])
+    }
+    
+    @objc private func layerButtonAction() {
+        guard let vc = self.findViewController(), let visit = visit else { return }
+        
+        vc.actionSheet(actions: [
+            ("Edit visit", {[weak self] in vc.actionSheet(actions: [
+                ("Edit comment", { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .textView, enterTextViewDelegate: self) }),
+                ("Edit rating", { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .textView, enterTextViewDelegate: self) })
+            ])}),
+            ("Delete visit", { [weak self] in vc.alert(title: "Are you sure you want to delete this visit?", message: "This action cannot be undone.") { [weak self] in
+                //delegate.delete(visit: self?.visit)
+                print("Delete the visit here")
+            } })
+        ])
+    }
+    
+    @objc private func touchDown() {
+        // Transform the view to show it is being selected
+        UIView.animate(withDuration: 0.2, animations: {
+            self.container.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+        })
+    }
+
+    @objc private func touchUp() {
+        // Transform the view back to normal
+        UIView.animate(withDuration: 0.2, animations: {
+            self.container.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+        })
     }
     
     func setUp(visit: Visit) {
+        self.visit = visit
         dateLabel.text = visit.userDate
         if let comment = visit.comment {
             commentLabel.text = comment
@@ -82,4 +125,15 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
         ratingLabel.attributedText = visit.ratingString
     }
     
+}
+
+
+extension HeaderEstablishmentReusableView: EnterValueViewDelegate {
+    func textFound(string: String?) {
+        print("Text found: \(string)")
+    }
+    
+    func ratingFound(float: Float?) {
+        print("Rating found: \(float)")
+    }
 }

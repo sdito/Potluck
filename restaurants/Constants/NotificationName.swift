@@ -14,4 +14,8 @@ extension Notification.Name {
     static let userLoggedIn = Notification.Name("com.stevendito.userLoggedIn")
     static let establishmentDeleted = Notification.Name("com.stevendito.establishmentDeleted")
     static let establishmentUpdated = Notification.Name("com.stevendito.establishmentUpdated")
+    
+    #warning("make sure next two are being used")
+    static let visitUpdated = Notification.Name("com.stevendito.visitUpdated")
+    static let visitDeleted = Notification.Name("com.stevendito.visitDeleted")
 }

@@ -13,6 +13,7 @@ import KeychainSwift
 
 class Network {
     
+    static let okCode: Int = 200
     static let deletedCode: Int = 204
     
     var account: Account?

@@ -266,9 +266,22 @@ extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
 
 // MARK: VisitCellDelegate
 extension ProfileHomeVC: VisitCellDelegate {
+    func updatedVisit(visit: Visit) {
+        
+        let indexToUpdate = self.visits.firstIndex { $0.djangoOwnID == visit.djangoOwnID }
+        if let idx = indexToUpdate {
+            let indexPath = IndexPath(row: idx, section: 0)
+            let visitToUpdate = visits[idx]
+            visitToUpdate.rating = visit.rating
+            visitToUpdate.comment = visit.comment
+            guard let cellToUpdate = tableView.cellForRow(at: indexPath) as? VisitCell else { return }
+            cellToUpdate.visit = visit
+            
+            cellToUpdate.update()
+        }
+    }
     
     func newPhotoIndexSelected(idx: Int, for visit: Visit?) {
-        #warning("need to implement and use a cache for it")
         guard let visit = visit else { return }
         photoIndexCache[visit.djangoOwnID] = idx
     }
@@ -328,9 +341,7 @@ extension ProfileHomeVC: VisitCellDelegate {
             
                 if cellToDelete.visit?.djangoOwnID == visit.djangoOwnID {
                     self.visits.remove(at: idx)
-//                    self.tableView.beginUpdates()
                     self.tableView.deleteRows(at: [IndexPath(row: idx, section: 0)], with: .automatic)
-//                    self.tableView.endUpdates()
                 }
             }
         }

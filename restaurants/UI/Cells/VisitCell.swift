@@ -16,6 +16,7 @@ protocol VisitCellDelegate: class {
     func establishmentSelected(establishment: Establishment)
     func moreImageRequest(visit: Visit?, cell: VisitCell)
     func newPhotoIndexSelected(idx: Int, for visit: Visit?)
+    func updatedVisit(visit: Visit)
 }
 
 
@@ -26,6 +27,9 @@ class VisitCell: UITableViewCell {
     var otherImagesFound = false
     var otherImageViews: [UIImageView] = []
     var requested = false
+    var commentText: String {
+        return visit?.comment ?? "By \(visit?.accountUsername ?? "No comment")"
+    }
     
     weak var delegate: VisitCellDelegate?
     private let base = UIView()
@@ -202,12 +206,20 @@ class VisitCell: UITableViewCell {
     }
     
     @objc private func moreActionsSelector() {
-        print("More actions was pressed")
-        guard let delegate = delegate else { return }
-        self.findViewController()?.actionSheet(actions: [
-            ("Delete visit", { [weak self] in delegate.delete(visit: self?.visit) })
-        ])
         
+        guard let delegate = delegate else { return }
+        guard let vc = self.findViewController() else { return }
+        guard let visit = visit else { return }
+        
+        self.findViewController()?.actionSheet(actions: [
+            ("Edit visit", {[weak self] in vc.actionSheet(actions: [
+                ("Edit comment", { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .textView, enterTextViewDelegate: self) }),
+                ("Edit rating", { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .rating, enterTextViewDelegate: self) })
+            ])}),
+            ("Delete visit", { [weak self] in vc.alert(title: "Are you sure you want to delete this visit?", message: "This action cannot be undone.") { [weak self] in
+                delegate.delete(visit: self?.visit)
+            } })
+        ])
     }
     
     @objc private func restaurantNameSelected() {
@@ -220,7 +232,7 @@ class VisitCell: UITableViewCell {
         self.visit = visit
         self.requested = false
         imageView?.image = nil
-        commentLabel.text = visit.comment ?? "By \(visit.accountUsername)"
+        commentLabel.text = commentText
         restaurantNameButton.setTitle(visit.restaurantName, for: .normal)
         
         dateLabel.text = visit.userDate
@@ -264,6 +276,10 @@ class VisitCell: UITableViewCell {
         
     }
     
+    func update() {
+        commentLabel.text = commentText
+        ratingLabel.attributedText = visit?.ratingString
+    }
     
     
     func setImage(url: String?, image: UIImage?, height: Int?, width: Int?, imageFound: @escaping (UIImage?) -> Void) {
@@ -308,4 +324,28 @@ extension VisitCell: ScrollingStackViewDelegate {
         }
         
     }
+}
+
+
+// MARK: EnterValueViewDelegate
+extension VisitCell: EnterValueViewDelegate {
+    
+    func ratingFound(float: Float?) {
+        guard let visit = visit, let rating = float else { return }
+        visit.rating = Double(String(format: "%.1f", Double(rating)))
+        self.findViewController()?.showMessage("Rating changed")
+        delegate?.updatedVisit(visit: visit)
+        
+        Network.shared.updateVisit(visit: visit, rating: rating, newComment: nil, success: { _ in return })
+        
+    }
+    
+    func textFound(string: String?) {
+        guard let visit = visit else { return }
+        visit.comment = string
+        self.findViewController()?.showMessage("Comment changed")
+        delegate?.updatedVisit(visit: visit)
+        Network.shared.updateVisit(visit: visit, rating: nil, newComment: string, success: { _ in return })
+    }
+    
 }

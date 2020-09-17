@@ -80,7 +80,6 @@ class ProfileMapVC: UIViewController {
             
             let newAnnotation = RestaurantAnnotation(establishment: establishment)
             self.mapView.addAnnotation(newAnnotation)
-            
             mapView.selectAnnotation(newAnnotation, animated: true)
             
         }
@@ -121,7 +120,6 @@ extension ProfileMapVC: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         guard let viewAnnotation = view.annotation as? RestaurantAnnotation else { return }
         guard let establishment = viewAnnotation.establishment else { return }
-        
         let childHeight = self.view.bounds.height * 0.6
         let detailVC = EstablishmentDetailVC(establishment: establishment, delegate: self, mode: .halfScreenBase)
         detailVC.view.translatesAutoresizingMaskIntoConstraints = false

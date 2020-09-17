@@ -16,6 +16,7 @@ extension Network {
         case userFeed
         case userPost
         case deleteVisit
+        case updateVisit
         
         var requestMethod: HTTPMethod {
             switch self {
@@ -25,6 +26,8 @@ extension Network {
                 return .post
             case .deleteVisit:
                 return .delete
+            case .updateVisit:
+                return .put
             }
         }
         
@@ -32,7 +35,7 @@ extension Network {
             switch self {
             case .userFeed, .userPost:
                 return "visit"
-            case .deleteVisit:
+            case .deleteVisit, .updateVisit:
                 return "visit/\(visit!.djangoOwnID)/"
             }
         }
@@ -40,7 +43,7 @@ extension Network {
     
     
     
-    private func reqVisit(params: Parameters?, visit: Visit?, requestType: VisitRequestType, mainImage: UIImage?, otherImages: [UIImage]?) -> DataRequest? {
+    private func reqVisit(params: Parameters?, visit: Visit?, requestType: VisitRequestType, mainImage: UIImage? = nil, otherImages: [UIImage]? = nil) -> DataRequest? {
         guard let token = Network.shared.account?.token else { return nil }
         let headers: HTTPHeaders = [
             "Authorization": "Token \(token)"
@@ -49,16 +52,11 @@ extension Network {
         let requestUrl = Network.djangoURL + requestType.url(visit: visit)
         
         switch requestType {
-        case .deleteVisit:
-            let request = AF.request(requestUrl, method: requestType.requestMethod, parameters: params, headers: headers)
-            return request
-        case .userFeed:
+        case .deleteVisit, .userFeed, .updateVisit:
             let request = AF.request(requestUrl, method: requestType.requestMethod, parameters: params, headers: headers)
             return request
         case .userPost:
             guard let mainImage = mainImage, let params = params else { return nil }
-            
-            
             let req = AF.upload(multipartFormData: { (multipartFormData) in
             
                 guard let imageData = mainImage.jpegData(compressionQuality: 0.8) else { return }
@@ -86,7 +84,7 @@ extension Network {
     }
     
     func deleteVisit(visit: Visit, success: @escaping (Bool) -> Void) {
-        let req = reqVisit(params: nil, visit: visit, requestType: .deleteVisit, mainImage: nil, otherImages: nil)
+        let req = reqVisit(params: nil, visit: visit, requestType: .deleteVisit)
         req?.response(queue: DispatchQueue.global(qos: .background), completionHandler: { (result) in
             guard let code = result.response?.statusCode else {
                 success(false)
@@ -193,7 +191,7 @@ extension Network {
     
     // Get the user's own posts
     func getUserFeed(completion: @escaping (Result<[Visit], Errors.VisitEstablishment>) -> Void) {
-        let req = reqVisit(params: nil, visit: nil, requestType: .userFeed, mainImage: nil, otherImages: nil)
+        let req = reqVisit(params: nil, visit: nil, requestType: .userFeed)
         
         guard let request = req else {
             completion(Result.failure(.noAccount))
@@ -214,5 +212,29 @@ extension Network {
             }
         }
     }
+    
+    func updateVisit(visit: Visit, rating: Float?, newComment: String?, success: @escaping (Bool) -> Void) {
+        
+        var params: [String:Any] = [:]
+        if let rating = rating { params["rating"] = rating }
+        if let comment = newComment { params["comment"] = comment }
+        
+        let req = reqVisit(params: params, visit: visit, requestType: .updateVisit)
+        
+        req?.response(completionHandler: { (result) in
+            guard let code = result.response?.statusCode else {
+                success(false)
+                return
+            }
+            
+            
+            if code == Network.okCode {
+                success(true)
+            } else {
+                success(false)
+            }
+        })
+    }
+    
     
 }

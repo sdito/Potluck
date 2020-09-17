@@ -148,25 +148,33 @@ extension Network {
     
     
     func updateEstablishment(establishment: Establishment, success: @escaping (Bool) -> Void) {
-        #warning("not working when in short mode, and updated multiple times, only uses most recent updates")
+        #warning("need to complete")
         NotificationCenter.default.post(name: .establishmentUpdated, object: nil, userInfo: ["establishment": establishment])
         
-        #warning("need to complete and use/implement, use notification also")
         do {
             let data = try encoder.encode(establishment)
             let json = try? JSONSerialization.jsonObject(with: data, options: [])
             if var establishmentJson = json as? [String:Any] {
                 establishmentJson["visits"] = nil
                 
+                let req = reqEstablishment(requestType: .updateEstablishment, params: establishmentJson, establishment: establishment)
+                req?.response(completionHandler: { (result) in
+                    guard let code = result.response?.statusCode else {
+                        success(false)
+                        return
+                    }
+                    
+                    if code == Network.okCode {
+                        success(true)
+                    } else {
+                        success(false)
+                    }
+                })
             }
+            success(false)
         } catch {
-            print("Error")
+            success(false)
         }
-        
-        
     }
-    
-    
-    
     
 }

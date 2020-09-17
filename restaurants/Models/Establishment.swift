@@ -131,19 +131,21 @@ class Establishment: Codable {
         self.longitude = coordinate?.longitude
     }
     
-    func updateWithNewValues(newEstablishment new: Establishment) {
-        self.name = new.name
-        self.longitude = new.longitude
-        self.latitude = new.longitude
-        self.yelpID = new.yelpID
-        self.category = new.category
-        self.address1 = new.address1
-        self.address2 = new.address2
-        self.address3 = new.address3
-        self.city = new.city
-        self.zipCode = new.zipCode
-        self.state = new.state
-        self.country = new.country
+    func updateSelfForValuesThatAreNil(newEstablishment new: Establishment) {
+        
+        #warning("need to complete")
+        if self.longitude == nil { self.longitude = new.longitude }
+        if self.latitude == nil { self.latitude = new.longitude }
+        if self.yelpID == nil { self.yelpID = new.yelpID }
+        if self.category == nil { self.category = new.category }
+        if self.address1 == nil { self.address1 = new.address1 }
+        if self.address2 == nil { self.address2 = new.address2 }
+        if self.address3 == nil { self.address3 = new.address3 }
+        if self.city == nil { self.city = new.city }
+        if self.zipCode == nil { self.zipCode = new.zipCode }
+        if self.state == nil { self.state = new.state }
+        if self.country == nil { self.country = new.country }
+        
     }
     
 }

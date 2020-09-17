@@ -86,6 +86,18 @@ class Visit: Codable {
         self.longitude = establishment.longitude
     }
     
+    func changeValueProcess(presentingVC: UIViewController, mode: EnterValueView.Mode, enterTextViewDelegate: EnterValueViewDelegate?) {
+        let text: String? = (mode == .rating) ? nil : "Edit comment for visit to \(self.restaurantName) on \(self.shortUserDate)"
+        let placeHolder: String? = (mode == .rating) ? nil : "Enter new comment"
+        
+        let editTextView = EnterValueView(text: text, placeholder: placeHolder, controller: nil, delegate: enterTextViewDelegate, mode: mode)
+        
+        let vc = ShowViewVC(newView: editTextView, fromBottom: true)
+        editTextView.controller = vc
+        vc.modalPresentationStyle = .overFullScreen
+        presentingVC.present(vc, animated: false, completion: nil)
+    }
+    
     enum CodingKeys: String, CodingKey {
         case djangoOwnID = "id"
         case djangoRestaurantID = "restaurant"

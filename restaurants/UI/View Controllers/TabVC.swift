@@ -10,7 +10,6 @@ import UIKit
 
 class TabVC: UITabBarController, UITabBarControllerDelegate {
     
-    #warning("ability to edit an establishment, from the EstablishmentDetailVC")
     #warning("haptic feedback with small click-like vibration")
     #warning("pagination on django")
     #warning("get the date from the images")
@@ -19,6 +18,8 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("ability to delete establishment")
     #warning("ability to edit establishment")
     #warning("need to make sure errors are correct on VisitView in django")
+    #warning("should be able to update/delete Visit from EstablishmentDetailVC, will need to use a notification to update the UI")
+    #warning("maybe have a widget")
     /*
      if previousIndex != i {
          let generator = UISelectionFeedbackGenerator()

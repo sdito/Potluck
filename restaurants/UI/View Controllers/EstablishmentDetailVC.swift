@@ -50,6 +50,7 @@ class EstablishmentDetailVC: UIViewController {
         self.establishment = establishment
         self.delegate = delegate
         self.mode = mode
+        
     }
     
     required init?(coder: NSCoder) {
@@ -67,7 +68,6 @@ class EstablishmentDetailVC: UIViewController {
         setUpSpacer()
         setUpCollectionView()
         edgesForExtendedLayout = [.left, .top, .right]
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -105,7 +105,9 @@ class EstablishmentDetailVC: UIViewController {
                 guard let self = self else { return }
                 switch result {
                 case .success(let establishment):
-                    self.establishment = establishment
+                    
+                    self.establishment?.updateSelfForValuesThatAreNil(newEstablishment: establishment)
+                    
                     self.visits = establishment.visits ?? []
                     self.initialDataFound = true
                     self.addViewsToScrollingStack()
@@ -119,9 +121,7 @@ class EstablishmentDetailVC: UIViewController {
     }
     
     private func setUpView(establishment: Establishment) {
-        
         if mode == .halfScreenBase {
-            
             self.view.clipsToBounds = true
             self.view.layer.cornerRadius = 12.5
             self.view.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
@@ -131,9 +131,7 @@ class EstablishmentDetailVC: UIViewController {
         }
         
         if mode == .fullScreenBase {
-            
             var barButtonItems: [UIBarButtonItem] = []
-            
             self.navigationItem.title = establishment.name
             // and ability to add visit
             let addVisitBarButtonItem = UIBarButtonItem(image: .plusImage, style: .plain, target: self, action: #selector(addVisitPressed))
@@ -151,17 +149,12 @@ class EstablishmentDetailVC: UIViewController {
             editEstablishmentBarButtonItem.imageInsets = UIEdgeInsets(top: 0, left: 40.0, bottom: 0, right: 0)
             barButtonItems.append(editEstablishmentBarButtonItem)
             
-            
-            
             navigationItem.rightBarButtonItems = barButtonItems
             #warning("need to make the spacing tighter")
         }
     }
     
-    
-    
     private func setUpHeader(establishment: Establishment) {
-        
         if mode == .halfScreenBase || mode == .fullScreenHeaderAndMap {
             headerView = HeaderView(leftButtonTitle: "Done", rightButtonTitle: "", title: establishment.name)
             headerView!.headerLabel.font = .secondaryTitle
@@ -293,7 +286,7 @@ class EstablishmentDetailVC: UIViewController {
     }
     
     private func changeTextForEstablishment() {
-        let editTextView = EnterTextView(text: "Rename \(establishment?.name ?? "your place")", placeholder: "Enter new name", controller: nil, delegate: self)
+        let editTextView = EnterValueView(text: "Rename \(establishment?.name ?? "your place")", placeholder: "Enter new name", controller: nil, delegate: self, mode: .textField)
         let vc = ShowViewVC(newView: editTextView, fromBottom: true)
         editTextView.controller = vc
         vc.modalPresentationStyle = .overFullScreen
@@ -326,7 +319,6 @@ class EstablishmentDetailVC: UIViewController {
     }
     
     @objc private func dismissChild() {
-        
         switch mode {
         case .fullScreenBase:
             self.navigationController?.popViewController(animated: true)
@@ -338,8 +330,6 @@ class EstablishmentDetailVC: UIViewController {
                 self.delegate?.detailDismissed()
             })
         }
-        
-
     }
     
     @objc private func yelpButtonPressed() {
@@ -370,7 +360,6 @@ class EstablishmentDetailVC: UIViewController {
             }),
             ("Delete \(establishmentName)", {
                 [weak self] in self?.alert(title: "Are you sure you want to delete this \(establishmentName)?", message: "This will also delete all of your visits to this \(establishmentName). This action cannot be undone.", positiveAction: { [weak self] in
-                    #warning("need to test actually deleting more")
                     Network.shared.deleteEstablishment(establishment: establishment) { _ in return }
                     self?.dismissChild()
                     NotificationCenter.default.post(name: .establishmentDeleted, object: nil, userInfo: ["establishment": establishment])
@@ -417,7 +406,6 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
         header.tag = indexPath.section
         return header
     }
-    
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         let count = visits.count
@@ -478,6 +466,8 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
         }
     }
     
+    
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if scrollView == collectionView {
             guard allowButtonsToChangeSelected else { return }
@@ -508,41 +498,32 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
     }
 }
 
-
 // MARK: SearchLocationDelegate
 extension EstablishmentDetailVC: SelectLocationDelegate {
-    
     func locationSelected(coordinate: CLLocationCoordinate2D, fullAddress: String) {
-        
         guard let establishment = establishment else { return }
-        establishment.longitude = coordinate.longitude
-        establishment.latitude = coordinate.latitude
+        establishment.updatePropertiesWithFullAddress(address: fullAddress, coordinate: coordinate)
         
         Network.shared.updateEstablishment(establishment: establishment, success: { _ in return })
-        #warning("also need to update the addresses and stuff")
-        
         if let mapLocationView = mapLocationView {
             mapLocationView.updateLocation(coordinate: coordinate)
         }
     }
 }
 
-// MARK: EnterTextViewDelegate
-extension EstablishmentDetailVC: EnterTextViewDelegate {
+// MARK: EnterValueViewDelegate
+extension EstablishmentDetailVC: EnterValueViewDelegate {
+    func ratingFound(float: Float?) { return }
+    
     func textFound(string: String?) {
-        
         guard let string = string, let establishment = establishment else { return }
         self.showMessage("Updated name")
         establishment.name = string
-        
         Network.shared.updateEstablishment(establishment: establishment, success: { _ in return })
-        
         if let header = headerView {
             header.headerLabel.text = string
         } else {
             navigationItem.title = string
         }
-        
-        
     }
 }
