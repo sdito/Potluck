@@ -127,6 +127,7 @@ class Network {
             AF.request(url).response(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
                 if let data = response.data {
                     let image = UIImage(data: data)
+                    
                     DispatchQueue.main.async {
                         imageReturned(image)
                     }

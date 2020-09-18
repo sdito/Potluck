@@ -167,16 +167,18 @@ class ImageSelectorVC: UIViewController {
     
     
     private func setUp() {
+        #warning("need to test limited")
         
         requestOptions.isSynchronous = false
         requestOptions.deliveryMode = .highQualityFormat
+    
         PHPhotoLibrary.requestAuthorization { [weak self] status in
             guard let self = self else { return }
             switch status {
-            case .authorized:
+            case .authorized, .limited:
                 let fetchOptions = PHFetchOptions()
                 fetchOptions.sortDescriptors = [.init(key: "creationDate", ascending: false)]
-                
+
                 self.allPhotos = PHAsset.fetchAssets(with: .image, options: fetchOptions)
                 
                 DispatchQueue.main.async {
@@ -420,11 +422,6 @@ class ImageSelectorVC: UIViewController {
 
 // MARK: Collection view
 extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource {
-//    
-//    func numberOfSections(in collectionView: UICollectionView) -> Int {
-//        #warning("delete later")
-//        return 4
-//    }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return allPhotos.count
@@ -486,6 +483,7 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
         delegate.scrollViewContentOffset(scrollView: collectionView)
     }
 }

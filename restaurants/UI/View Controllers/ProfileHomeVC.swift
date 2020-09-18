@@ -49,6 +49,7 @@ class ProfileHomeVC: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
+    
     private func getInitialUserVisits() {
         if Network.shared.loggedIn {
             Network.shared.getUserFeed { [weak self] (result) in
@@ -114,16 +115,26 @@ class ProfileHomeVC: UIViewController {
     }
     
     @objc private func userLoggedIn() {
+        clearCaches()
         DispatchQueue.main.async {
             self.tableView.restore()
         }
+        
         getInitialUserVisits()
     }
     
     @objc private func userLoggedOut() {
+        clearCaches()
         visits = []
         tableView.reloadData()
         noUserTableView()
+    }
+    
+    private func clearCaches() {
+        photoIndexCache = [:]
+        imageCache.removeAllObjects()
+        otherImageCache.removeAllObjects()
+        
     }
     
     @objc private func establishmentDeleted(notification: Notification) {

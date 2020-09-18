@@ -107,7 +107,6 @@ class SearchHelperVC: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         let cellType = mode.cellType(section: section).cellType
         switch cellType {
         case .location:
@@ -115,15 +114,29 @@ class SearchHelperVC: UITableViewController {
         case .establishment:
             return filteredEstablishments.count
         }
-        
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return mode.cellType(section: section).title
+        let cellType = mode.cellType(section: section).cellType
+        var count: Int {
+            switch cellType {
+            case .location:
+                return searchResults.count
+            case .establishment:
+                return filteredEstablishments.count
+            }
+        }
+        
+        if count == 0 {
+            return nil
+        } else {
+            return mode.cellType(section: section).title
+        }
+        
+        
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
         
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! TwoLevelCell
         
@@ -145,7 +158,6 @@ class SearchHelperVC: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        #warning("need to complete with establishment")
         
         let cellType = mode.cellType(section: indexPath.section).cellType
         
@@ -157,7 +169,6 @@ class SearchHelperVC: UITableViewController {
             let result = searchResults[indexPath.row]
             delegate?.searchFound(search: result)
         }
-        
         
         self.tableView.isHidden = true
         self.tableView.layoutIfNeeded()
@@ -176,6 +187,8 @@ class SearchHelperVC: UITableViewController {
             tableView.reloadSections(IndexSet([0]), with: .none)
         }
     }
+    
+    
     
     
 }

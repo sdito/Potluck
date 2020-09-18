@@ -8,7 +8,7 @@
 
 import UIKit
 import MapKit
-
+#warning("add button to center back when no visits are visible")
 class ProfileMapVC: UIViewController {
     
     private let mapView = MKMapView()
@@ -20,6 +20,8 @@ class ProfileMapVC: UIViewController {
     private var allowHelperToChange = true
     private let geoCoder = CLGeocoder()
     private var vc: SearchHelperVC?
+    private let locationButton = OverlayButton()
+    private var locationButtonShown = true
     private var establishments: [Establishment] = [] {
         didSet {
             self.vc?.establishments = establishments
@@ -35,6 +37,7 @@ class ProfileMapVC: UIViewController {
         setUpMap()
         setUpSearchBar()
         setUpSearchHelper()
+        setUpLocationButton()
         edgesForExtendedLayout = [.top, .left, .right]
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: .magnifyingGlassImage, style: .plain, target: self, action: #selector(searchBarPressed))
         
@@ -53,7 +56,8 @@ class ProfileMapVC: UIViewController {
     }
     
     private func getRestaurantData() {
-        Network.shared.getUserEstablishments { (result) in
+        Network.shared.getUserEstablishments { [weak self] (result) in
+            guard let self = self else { return }
             DispatchQueue.main.async {
                 switch result {
                 case .success(let establishments):
@@ -62,7 +66,7 @@ class ProfileMapVC: UIViewController {
                         let annotation = RestaurantAnnotation(establishment: establishment)
                         self.mapView.addAnnotation(annotation)
                     }
-                    self.mapView.fitAllAnnotations(newAnnotations: self.mapView.annotations, fitInTopHalf: false)
+                    self.fitAnnotations()
                 case .failure(let error):
                     print(error)
                 }
@@ -109,6 +113,38 @@ class ProfileMapVC: UIViewController {
         vc!.tableView.constrain(.bottom, to: self.view, .bottom, constant: 20.0)
         vc!.tableView.layer.cornerRadius = 10.0
         vc!.tableView.clipsToBounds = true
+    }
+    
+    private func setUpLocationButton() {
+        locationButton.setImage(.locationImage, for: .normal)
+        locationButton.tintColor = Colors.locationColor
+        self.view.addSubview(locationButton)
+        locationButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        locationButton.bottomAnchor.constraint(equalTo: self.mapView.bottomAnchor, constant: -searchBarDistance).isActive = true
+        locationButton.addTarget(self, action: #selector(fitAnnotations), for: .touchUpInside)
+        locationButton.layoutIfNeeded()
+        handleHidingOrShowingLocationButton(animated: false, show: false)
+    }
+    
+    private func handleHidingOrShowingLocationButton(animated: Bool, show: Bool) {
+        guard show != locationButtonShown else { return }
+
+        locationButtonShown = show
+        var transform: CGAffineTransform {
+            if show {
+                return .identity
+            } else {
+                return CGAffineTransform(translationX: 0, y: searchBarDistance + locationButton.bounds.height)
+            }
+        }
+        
+        if animated {
+            UIView.animate(withDuration: 0.3) {
+                self.locationButton.transform = transform
+            }
+        } else {
+            locationButton.transform = transform
+        }
         
     }
     
@@ -139,6 +175,10 @@ class ProfileMapVC: UIViewController {
         }
     }
     
+    @objc private func fitAnnotations() {
+        self.mapView.fitAllAnnotations(newAnnotations: self.mapView.annotations, fitInTopHalf: false)
+    }
+    
     @objc private func establishmentUpdated(notification: Notification) {
         if let establishment = notification.userInfo?["establishment"] as? Establishment {
             for annotation in mapView.annotations {
@@ -156,7 +196,6 @@ class ProfileMapVC: UIViewController {
     }
     
     func deleteEstablishment(establishment: Establishment) {
-        #warning("delete from establishments")
         for annotation in mapView.annotations {
             guard let annotation = annotation as? RestaurantAnnotation else { continue }
             if let annotationEstablishment = annotation.establishment {
@@ -166,6 +205,8 @@ class ProfileMapVC: UIViewController {
                 }
             }
         }
+        
+        establishments = establishments.filter({ $0.djangoID != establishment.djangoID })
     }
     
     @objc private func searchBarPressed() {
@@ -174,6 +215,7 @@ class ProfileMapVC: UIViewController {
         handleSearchBarTransform(animated: true)
         if searchBarShown {
             searchBar.becomeFirstResponder()
+            mapView.deselectAllAnnotations()
         } else {
             searchBar.endEditing(true)
         }
@@ -200,7 +242,14 @@ extension ProfileMapVC: MKMapViewDelegate {
         return annotationView
     }
     
+    
+    
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        
+        if searchBarShown {
+            searchBarPressed()
+        }
+        
         guard let viewAnnotation = view.annotation as? RestaurantAnnotation else { return }
         guard let establishment = viewAnnotation.establishment else { return }
         let childHeight = self.view.bounds.height * 0.6
@@ -214,6 +263,19 @@ extension ProfileMapVC: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
         removeChildViewControllersFromBottomOf(typeToRemove: EstablishmentDetailVC.self) { (_) in return }
     }
+    
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        let annotationCount = mapView.annotations(in: mapView.visibleMapRect).count
+        if annotationCount != establishments.count {
+            // show the location view, if not already shown
+            handleHidingOrShowingLocationButton(animated: true, show: true)
+        } else {
+            // hide the location view, if not already hidden
+            handleHidingOrShowingLocationButton(animated: true, show: false)
+        }
+    }
+    
+    
 }
 
 // MARK: EstablishmentDetailDelegate

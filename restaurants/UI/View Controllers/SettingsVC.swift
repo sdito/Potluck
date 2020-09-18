@@ -31,6 +31,27 @@ class SettingsVC: UIViewController {
         case editAccountInfo = "Edit account info"
         case resetAllData = "Reset all data"
         case hapticFeedback = "Enable haptic feedback"
+        
+        func action(vc: UIViewController) {
+            switch self {
+            case .logout:
+                
+                vc.alert(title: "Logout", message: "Are you sure you want to log out of your account \(Network.shared.account?.username ?? "now")?") {
+                    if Network.shared.loggedIn {
+                        Network.shared.account?.logOut()
+                        vc.showMessage("Logged out of account")
+                        vc.navigationController?.popViewController(animated: true)
+                    }
+                }
+                
+            case .editAccountInfo:
+                print("Need to edit account info")
+            case .resetAllData:
+                print("Need to reset all data")
+            case .hapticFeedback:
+                print("Need to do haptic feedback")
+            }
+        }
     }
 
     override func viewDidLoad() {
@@ -47,6 +68,8 @@ class SettingsVC: UIViewController {
         self.view.addSubview(tableView)
         tableView.constrainSides(to: self.view)
     }
+    
+    
     
     
 }
@@ -75,29 +98,8 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
         let row = Setting.allCases[indexPath.section].rows[indexPath.row]
-        
-        switch row {
-        case .logout:
-            
-            self.alert(title: "Logout", message: "Are you sure you want to log out of your account \(Network.shared.account?.username ?? "now")?") {
-                if Network.shared.loggedIn {
-                    Network.shared.account?.logOut()
-                    self.showMessage("Logged out of account")
-                    self.navigationController?.popViewController(animated: true)
-                }
-            }
-            
-            
-        case .editAccountInfo:
-            print("Need to edit account info")
-        case .resetAllData:
-            print("Need to reset all data")
-        case .hapticFeedback:
-            print("Need to do haptic feedback")
-        }
-        
+        row.action(vc: self)
         
     }
     

@@ -204,6 +204,7 @@ class SubmitRestaurantVC: UIViewController {
         
         containerViewHeightAnchor = containerView.heightAnchor.constraint(equalToConstant: containerViewBaseHeight!)
         containerViewHeightAnchor?.isActive = true
+        
         containerView.constrain(.bottom, to: self.view, .bottom)
         containerView.constrain(.leading, to: self.view, .leading)
         containerView.constrain(.trailing, to: self.view, .trailing)
@@ -356,9 +357,8 @@ class SubmitRestaurantVC: UIViewController {
             self.coordinateRawValue = location
         }
     }
-    
-    
 }
+
 
 // MARK: ImageSelectorDelegate
 extension SubmitRestaurantVC: ImageSelectorDelegate {
@@ -378,8 +378,11 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
                 newHeight = max(self.containerViewBaseHeight, self.containerViewHeightAnchor.constant - abs(scrollDiff))
             }
             if newHeight != self.containerViewHeightAnchor.constant {
-                allowChanges = false
                 
+                
+                
+                allowChanges = false
+                #warning("this block ruins everything")
                 if isScrollingDown {
                     let difference = newHeight - self.containerViewHeightAnchor.constant
                     scrollView.contentOffset.y -= difference
@@ -390,6 +393,9 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
                     }
                 }
                 allowChanges = true
+                
+                
+                
             }
             previousScrollOffset = scrollView.contentOffset.y
             

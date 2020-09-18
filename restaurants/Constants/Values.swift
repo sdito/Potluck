@@ -54,6 +54,7 @@ extension UIImage {
     static let detailImage = UIImage(systemName: "doc.text.magnifyingglass")!
     static let plusImage = UIImage(systemName: "plus")!
     static let minusImage = UIImage(systemName: "minus")!
+    static let locationTriangle = UIImage(systemName: "location.fill")!
 }
 
 
