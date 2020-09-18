@@ -231,6 +231,8 @@ extension SelectLocationVC: UISearchBarDelegate {
 
 // MARK: Search complete delegate
 extension SelectLocationVC: SearchHelperComplete {
+    func establishmentSelected(establishment: Establishment) { return }
+    
     func searchFound(search: MKLocalSearchCompletion) {
         locationHasBeenSelected = true
         let addressFound = "\(search.title) \(search.subtitle)"

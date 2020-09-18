@@ -24,12 +24,14 @@ class Visit: Codable {
     var rating: Double?
     var yelpID: String?
     
-    private var serverDate: Date
+    private var serverDateVisited: Date // from extracting the date on the main image
+    private var serverDatePosted: Date; #warning("need to use, for auto_add in django")
+    
     var longitude: Double?
     var latitude: Double?
     
-    var currentDate: Date {
-        return serverDate.convertFromUTC()
+    var currentDateVisited: Date { // visited
+        return serverDateVisited.convertFromUTC()
     }
     
     var listPhotos: [String] {
@@ -40,12 +42,12 @@ class Visit: Codable {
         return arr
     }
     
-    var userDate: String {
-        return currentDate.dateString()
+    var userDateVisited: String {
+        return currentDateVisited.dateString()
     }
     
-    var shortUserDate: String {
-        return currentDate.dateString(style: .short)
+    var shortUserDateVisited: String {
+        return currentDateVisited.dateString(style: .short)
     }
     
     var coordinate: CLLocationCoordinate2D? {
@@ -87,7 +89,7 @@ class Visit: Codable {
     }
     
     func changeValueProcess(presentingVC: UIViewController, mode: EnterValueView.Mode, enterTextViewDelegate: EnterValueViewDelegate?) {
-        let text: String? = (mode == .rating) ? nil : "Edit comment for visit to \(self.restaurantName) on \(self.shortUserDate)"
+        let text: String? = (mode == .rating) ? nil : "Edit comment for visit to \(self.restaurantName) on \(self.shortUserDateVisited)"
         let placeHolder: String? = (mode == .rating) ? nil : "Enter new comment"
         
         let editTextView = EnterValueView(text: text, placeholder: placeHolder, controller: nil, delegate: enterTextViewDelegate, mode: mode)
@@ -104,7 +106,8 @@ class Visit: Codable {
         case restaurantName = "restaurant_name"
         case mainImage = "main_image"
         case comment
-        case serverDate = "date"
+        case serverDateVisited = "date_visited"
+        case serverDatePosted = "date_posted"
         case mainImageHeight = "main_image_height"
         case mainImageWidth = "main_image_width"
         case accountID = "account"

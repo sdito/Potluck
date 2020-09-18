@@ -68,6 +68,13 @@ class EstablishmentDetailVC: UIViewController {
         setUpSpacer()
         setUpCollectionView()
         edgesForExtendedLayout = [.left, .top, .right]
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(visitChanged(notification:)), name: .visitUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(visitDeleted(notification:)), name: .visitDeleted, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -270,7 +277,7 @@ class EstablishmentDetailVC: UIViewController {
     private func addViewsToScrollingStack() {
         for (i, visit) in visits.enumerated() {
             let button = SizeChangeButton.genericScrollingButton()
-            button.setTitle(visit.shortUserDate, for: .normal)
+            button.setTitle(visit.shortUserDateVisited, for: .normal)
             button.tag = i
             button.addTarget(self, action: #selector(dateButtonAction(sender:)), for: .touchUpInside)
             scrollingStack.stackView.addArrangedSubview(button)
@@ -325,7 +332,7 @@ class EstablishmentDetailVC: UIViewController {
         case .fullScreenHeaderAndMap:
             self.dismiss(animated: true, completion: nil)
         case .halfScreenBase:
-            self.parent?.removeChildViewControllersFromBottom(onCompletion: { [weak self] (done) in
+            self.parent?.removeChildViewControllersFromBottomOf(typeToRemove: EstablishmentDetailVC.self, onCompletion: { [weak self] (done) in
                 guard let self = self else { return }
                 self.delegate?.detailDismissed()
             })
@@ -368,6 +375,31 @@ class EstablishmentDetailVC: UIViewController {
         ])
     }
     
+    @objc private func visitChanged(notification: Notification) {
+        if let dict = notification.userInfo as? [String:Any] {
+            if let visit = dict["visit"] as? Visit, let index = visits.firstIndex(where: {$0.djangoOwnID == visit.djangoOwnID}) {
+                visits[index].comment = visit.comment
+                visits[index].rating = visit.rating
+                let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: index)) as? HeaderEstablishmentReusableView
+                header?.update(visit: visits[index])
+            }
+        }
+    }
+    
+    @objc private func visitDeleted(notification: Notification) {
+        if let dict = notification.userInfo as? [String:Any] {
+            if let visit = dict["visit"] as? Visit, let index = visits.firstIndex(where: {$0.djangoOwnID == visit.djangoOwnID}) {
+                visits.remove(at: index)
+                collectionView.deleteSections(IndexSet([index]))
+                // TODO: Remove stuff from image cache
+                // need to update the top buttons
+                collectionView.contentOffset = .zero
+                scrollingStack.stackView.arrangedSubviews.forEach({$0.removeFromSuperview()})
+                addViewsToScrollingStack()
+            }
+        }
+    }
+    
     @objc private func dateButtonAction(sender: UIButton) {
         if !sender.isSelected {
             UIDevice.vibrateSelectionChanged()
@@ -402,7 +434,7 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerIdentifier, for: indexPath) as! HeaderEstablishmentReusableView
-        header.setUp(visit: visits[indexPath.section])
+        header.setUp(visit: visits[indexPath.section], allowPressing: (mode == .halfScreenBase || mode == .fullScreenBase))
         header.tag = indexPath.section
         return header
     }
@@ -527,3 +559,4 @@ extension EstablishmentDetailVC: EnterValueViewDelegate {
         }
     }
 }
+

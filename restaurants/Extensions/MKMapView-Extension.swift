@@ -25,8 +25,13 @@ extension MKMapView {
     }
     
     func setRegionAroundAnnotation(annotation: MKPointAnnotation, distance: Int = 7500, animated: Bool = false) {
+        setRegionAroundCoordinate(coordinate: annotation.coordinate, distance: distance, animated: animated)
+        
+    }
+    
+    func setRegionAroundCoordinate(coordinate: CLLocationCoordinate2D, distance: Int, animated: Bool) {
         let meterSize = CLLocationDistance(exactly: distance)!
-        let region = MKCoordinateRegion(center: annotation.coordinate, latitudinalMeters: meterSize, longitudinalMeters: meterSize)
+        let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: meterSize, longitudinalMeters: meterSize)
         self.setRegion(region, animated: animated)
     }
     

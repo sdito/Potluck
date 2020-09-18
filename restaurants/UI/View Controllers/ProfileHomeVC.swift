@@ -41,6 +41,8 @@ class ProfileHomeVC: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(establishmentDeleted(notification:)), name: .establishmentDeleted, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(establishmentUpdated(notification:)), name: .establishmentUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(visitUpdated(notification:)), name: .visitUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(visitDeleted(notification:)), name: .visitDeleted, object: nil)
     }
     
     deinit {
@@ -112,6 +114,9 @@ class ProfileHomeVC: UIViewController {
     }
     
     @objc private func userLoggedIn() {
+        DispatchQueue.main.async {
+            self.tableView.restore()
+        }
         getInitialUserVisits()
     }
     
@@ -128,9 +133,30 @@ class ProfileHomeVC: UIViewController {
     }
     
     @objc private func establishmentUpdated(notification: Notification) {
-        print("Update establishment is being called")
         if let establishment = notification.userInfo?["establishment"] as? Establishment {
             changeEstablishment(establishment: establishment, delete: false)
+        }
+    }
+    
+    @objc private func visitUpdated(notification: Notification) {
+        if let dict = notification.userInfo as? [String:Any], let visit = dict["visit"] as? Visit {
+            if let index = visits.firstIndex(where: { $0.djangoOwnID == visit.djangoOwnID }) {
+                let previousVisit = visits[index]
+                previousVisit.comment = visit.comment
+                previousVisit.rating = visit.rating
+                let cell = tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? VisitCell
+                cell?.visit = previousVisit
+                cell?.update()
+            }
+        }
+    }
+    
+    @objc private func visitDeleted(notification: Notification) {
+        if let dict = notification.userInfo as? [String:Any], let visit = dict["visit"] as? Visit {
+            if let index = visits.firstIndex(where: { $0.djangoOwnID == visit.djangoOwnID }) {
+                visits.remove(at: index)
+                tableView.reloadData()
+            }
         }
     }
     
@@ -140,8 +166,10 @@ class ProfileHomeVC: UIViewController {
     }
     
     @objc private func refreshControlSelector() {
-        print("Refresh control selected")
         #warning("need to complete, might be different if i cache")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            self.tableView.refreshControl?.endRefreshing()
+        }
     }
     
     private func changeEstablishment(establishment: Establishment, delete: Bool) {

@@ -98,7 +98,8 @@ extension Network {
         })
     }
     
-    func userPostNotVisited(establishment: Establishment, mainImage: UIImage, otherImages: [UIImage]?, comment: String?, rating: Float?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
+    #warning("need to upload with date")
+    func userPostNotVisited(establishment: Establishment, mainImage: UIImage, mainImageDate: Date, otherImages: [UIImage]?, comment: String?, rating: Float?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
         // add everything into the params for the request
         do {
             let data = try encoder.encode(establishment)
@@ -112,6 +113,8 @@ extension Network {
                 if let rating = rating {
                     establishmentJson["rating"] = rating
                 }
+                
+                establishmentJson["date_visited"] = self.dateFormatter.string(from: mainImageDate)
                 
                 let req = reqVisit(params: establishmentJson, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages)
                 req?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
@@ -150,8 +153,8 @@ extension Network {
         }
     }
     
-    
-    func userPostAlreadyVisited(djangoID: Int, mainImage: UIImage, otherImages: [UIImage]?, comment: String?, rating: Float?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
+    #warning("need to upload with date")
+    func userPostAlreadyVisited(djangoID: Int, mainImage: UIImage, mainImageDate: Date, otherImages: [UIImage]?, comment: String?, rating: Float?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
         
         var params: Parameters = ["restaurant_id":djangoID]
         if let comment = comment, comment != "" {
@@ -161,6 +164,8 @@ extension Network {
         if let rating = rating {
             params["rating"] = rating
         }
+        
+        params["date_visited"] = self.dateFormatter.string(from: mainImageDate)
         
         let request = reqVisit(params: params, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages)
         request?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
@@ -221,7 +226,7 @@ extension Network {
         
         let req = reqVisit(params: params, visit: visit, requestType: .updateVisit)
         
-        req?.response(completionHandler: { (result) in
+        req?.response(queue: DispatchQueue.global(qos: .background), completionHandler: { (result) in
             guard let code = result.response?.statusCode else {
                 success(false)
                 return

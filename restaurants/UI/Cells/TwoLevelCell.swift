@@ -77,16 +77,19 @@ class TwoLevelCell: UITableViewCell {
         establishment = nil
     }
     
-    func setUpWith(main: String, secondary: String) {
+    func setUpWith(main: String, secondary: String, showButton: Bool = true) {
         resetValues()
         mainLabel.text = main
         secondLabel.text = secondary
         self.address = secondary
         self.name = main
-        mapButton()
+        
+        if showButton {
+            mapButton()
+        }
     }
     
-    func setUpWith(establishment: Establishment) {
+    func setUpWith(establishment: Establishment, showButton: Bool = true) {
         resetValues()
         self.establishment = establishment
         mainLabel.text = establishment.name
@@ -104,7 +107,11 @@ class TwoLevelCell: UITableViewCell {
         self.coordinate = establishment.coordinate
         self.address = establishment.displayAddress
         self.name = establishment.name
-        detailButton()
+        
+        if showButton {
+            detailButton()
+        }
+        
     }
     
     func setUpWith(restaurant: Restaurant) {

@@ -158,7 +158,7 @@ extension Network {
                 establishmentJson["visits"] = nil
                 
                 let req = reqEstablishment(requestType: .updateEstablishment, params: establishmentJson, establishment: establishment)
-                req?.response(completionHandler: { (result) in
+                req?.response(queue: DispatchQueue.global(qos: .background), completionHandler: { (result) in
                     guard let code = result.response?.statusCode else {
                         success(false)
                         return

@@ -29,8 +29,6 @@ class SubmitRestaurantVC: UIViewController {
     private let headerStackView = UIStackView()
     private let showMapPopUpButton = UIButton()
     private var sliderRatingView: SliderRatingView?
-//    private var sliderStackView = UIStackView()
-//    private let sliderView = UISlider()
     
     private let textView = PlaceholderTextView(placeholder: "Add comment. Type of meal, how the experience was, who you went with, etc. (Optional)", font: UIFont.systemFont(ofSize: UIFont.systemFontSize))
     
@@ -230,21 +228,6 @@ class SubmitRestaurantVC: UIViewController {
             fatalError()
         }
         
-        // To dismiss
-        // self.presentingViewController?.dismiss(animated: true, completion: nil)
-        
-//        guard 2 == 3 else {
-//            let progressView = ProgressView(delegate: self)
-//            let vc = ShowViewVC(newView: progressView, fromBottom: false)
-//            vc.modalPresentationStyle = .overFullScreen
-//            self.navigationController?.present(vc, animated: false, completion: nil)
-//            
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-//                progressView.successAnimation()
-//            }
-//            return
-//        }
-        
         if selectedPhotos.count > 0 {
             
             var selectedPhotosCopy = selectedPhotos
@@ -256,6 +239,8 @@ class SubmitRestaurantVC: UIViewController {
             var firstPhoto: UIImage {
                 return firstPhotoWhole.maxImage ?? firstPhotoWhole.image
             }
+            
+            let firstPhotoDate = firstPhotoWhole.date.convertToUTC()
             
             let progressView = ProgressView(delegate: self)
             let vc = ShowViewVC(newView: progressView, fromBottom: false)
@@ -274,11 +259,12 @@ class SubmitRestaurantVC: UIViewController {
             case .rawValue:
                 // Will only get called if no yelp restaurant is found from the parts
                 let rawValueEstablishment = Establishment(name: nameRawValue!, fullAddressString: addressRawValue, coordinate: coordinateRawValue)
-                executeForNonVisitedEstablishment(rawValueEstablishment, mainImage: firstPhoto, otherImages: otherPhotos, progressView: progressView, comment: newComment)
+                executeForNonVisitedEstablishment(rawValueEstablishment, mainImage: firstPhoto, otherImages: otherPhotos, progressView: progressView, comment: newComment, firstPhotoDate: firstPhotoDate)
             case .establishment:
                 if let id = establishment!.djangoID {
                     Network.shared.userPostAlreadyVisited(djangoID: id,
                                                           mainImage: firstPhoto,
+                                                          mainImageDate: firstPhotoDate,
                                                           otherImages: otherPhotos,
                                                           comment: textView.text,
                                                           rating: sliderRatingView?.sliderValue,
@@ -295,22 +281,23 @@ class SubmitRestaurantVC: UIViewController {
                         }
                     }
                 } else {
-                    executeForNonVisitedEstablishment(establishment!, mainImage: firstPhoto, otherImages: otherPhotos, progressView: progressView, comment: newComment)
+                    executeForNonVisitedEstablishment(establishment!, mainImage: firstPhoto, otherImages: otherPhotos, progressView: progressView, comment: newComment, firstPhotoDate: firstPhotoDate)
                 }
                 
             case .restaurant:
                 // turn restaurant into establishment
                 let convertedEstablishment = restaurant!.turnIntoEstablishment()
-                executeForNonVisitedEstablishment(convertedEstablishment, mainImage: firstPhoto, otherImages: otherPhotos, progressView: progressView, comment: newComment)
+                executeForNonVisitedEstablishment(convertedEstablishment, mainImage: firstPhoto, otherImages: otherPhotos, progressView: progressView, comment: newComment, firstPhotoDate: firstPhotoDate)
             }
         } else {
             imageSelector.noPhotosSelectedAlert()
         }
     }
     
-    private func executeForNonVisitedEstablishment(_ establishment: Establishment, mainImage: UIImage, otherImages: [UIImage]?, progressView: ProgressView, comment: String?) {
+    private func executeForNonVisitedEstablishment(_ establishment: Establishment, mainImage: UIImage, otherImages: [UIImage]?, progressView: ProgressView, comment: String?, firstPhotoDate: Date) {
         Network.shared.userPostNotVisited(establishment: establishment,
                                           mainImage: mainImage,
+                                          mainImageDate: firstPhotoDate,
                                           otherImages: otherImages,
                                           comment: comment,
                                           rating: sliderRatingView?.sliderValue,
@@ -433,6 +420,7 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
     
     func photosUpdated(to selectedPhotos: [ImageSelectorVC.ImageInfo]) {
         self.selectedPhotos = selectedPhotos
+        
     }
 }
 
@@ -440,7 +428,6 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
 // MARK: ProgressViewDelegate
 extension SubmitRestaurantVC: ProgressViewDelegate {
     func endAnimationComplete() {
-        print("Success was achieved")
         #warning("need to complete for showing from restaurant detail")
         // TODO: pretty bad temporary fix
         // Could go wrong with any additional changes

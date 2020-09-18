@@ -19,7 +19,7 @@ extension UIViewController {
         child.view.constrain(.leading, to: self.view, .leading)
         child.view.constrain(.trailing, to: self.view, .trailing)
         child.view.constrain(.bottom, to: self.view, .bottom)
-        //child.view.heightAnchor.constraint(equalToConstant: childHeight).isActive = true
+        
         child.view.frame.size.height = childHeight
         child.didMove(toParent: self)
         
@@ -30,18 +30,23 @@ extension UIViewController {
         }
     }
     
-    func removeChildViewControllersFromBottom(onCompletion: @escaping (Bool) -> Void) {
+    func removeChildViewControllersFromBottomOf<T>(typeToRemove: T, onCompletion: @escaping (Bool) -> Void) {
         for vc in self.children {
-            let height = vc.view.bounds.height
-            UIView.animate(withDuration: 0.3, animations: {
-                vc.view.transform = CGAffineTransform(translationX: 0, y: height)
-            }) { (complete) in
-                if complete {
-                    vc.willMove(toParent: nil)
-                    vc.view.removeFromSuperview()
-                    vc.removeFromParent()
-                    onCompletion(true)
+            if type(of: vc).isEqual(typeToRemove) {
+                print("Removing child...")
+                let height = vc.view.bounds.height
+                UIView.animate(withDuration: 0.3, animations: {
+                    vc.view.transform = CGAffineTransform(translationX: 0, y: height)
+                }) { (complete) in
+                    if complete {
+                        vc.willMove(toParent: nil)
+                        vc.view.removeFromSuperview()
+                        vc.removeFromParent()
+                        onCompletion(true)
+                    }
                 }
+            } else {
+                print("Isn't remove child...")
             }
         }
     }

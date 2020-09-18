@@ -235,7 +235,7 @@ class VisitCell: UITableViewCell {
         commentLabel.text = commentText
         restaurantNameButton.setTitle(visit.restaurantName, for: .normal)
         
-        dateLabel.text = visit.userDate
+        dateLabel.text = visit.userDateVisited
         ratingLabel.attributedText = visit.ratingString
         
         
@@ -335,9 +335,7 @@ extension VisitCell: EnterValueViewDelegate {
         visit.rating = Double(String(format: "%.1f", Double(rating)))
         self.findViewController()?.showMessage("Rating changed")
         delegate?.updatedVisit(visit: visit)
-        
         Network.shared.updateVisit(visit: visit, rating: rating, newComment: nil, success: { _ in return })
-        
     }
     
     func textFound(string: String?) {

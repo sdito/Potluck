@@ -105,6 +105,7 @@ class EnterValueView: UIView {
             textField!.font = .smallerThanNormal
             textField!.layer.cornerRadius = 8.0
             stackView.addArrangedSubview(textField!)
+            textField?.delegate = self
         case .textView:
             textView = PlaceholderTextView(placeholder: placeholder ?? "", font: .smallerThanNormal)
             textView!.translatesAutoresizingMaskIntoConstraints = false
@@ -115,6 +116,7 @@ class EnterValueView: UIView {
             textView!.backgroundColor = .clear
             textView!.layer.borderWidth = 1.0
             textView!.layer.borderColor = UIColor.systemBackground.cgColor
+            textView?.delegate = self
         case .rating:
             ratingView = SliderRatingView()
             stackView.addArrangedSubview(ratingView!)
@@ -188,5 +190,36 @@ class EnterValueView: UIView {
         controller?.removeAnimatedSelector()
     }
     
-    
+    private func raiseViewForKeyboard() {
+        
+        let selfArea = self.frame
+        let heightToTop = selfArea.minY
+        let buffer: CGFloat = 50
+        
+        UIView.animate(withDuration: 0.2) {
+            self.transform = CGAffineTransform(translationX: 0, y: -(heightToTop - buffer))
+        } completion: { (done) in
+            
+        }
+
+        
+        
+    }
+}
+
+// MARK: Text field
+extension EnterValueView: UITextFieldDelegate {
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        raiseViewForKeyboard()
+        return true
+    }
+}
+
+
+// MARK: Text view
+extension EnterValueView: UITextViewDelegate {
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        raiseViewForKeyboard()
+        return true
+    }
 }
