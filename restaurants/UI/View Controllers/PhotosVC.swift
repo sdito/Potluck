@@ -89,19 +89,21 @@ extension PhotosVC: UICollectionViewDelegate, UICollectionViewDataSource {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PhotoCell
         
         // add the image to the imageView
-        let key = "\(indexPath.row)" as NSString
+        let imageUrl = photos[indexPath.row]
+        let key = imageUrl as NSString
+        cell.url = imageUrl
+        
         if let cachedImage = imageCache.object(forKey: key) {
             cell.imageView.image = cachedImage
         } else {
-            
-            let imageUrl = photos[indexPath.row]
             cell.imageView.appStartSkeleton()
             Network.shared.getImage(url: imageUrl) { [weak self] (img) in
                 guard let self = self else { return }
                 cell.imageView.appEndSkeleton()
-                cell.imageView.image = img
-                if let img = img {
-                    self.imageCache.setObject(img, forKey: key)
+                let resized = img?.resizeImageToSizeButKeepAspectRatio(targetSize: cell.bounds.size)
+                cell.imageView.image = resized
+                if let resized = resized {
+                    self.imageCache.setObject(resized, forKey: key)
                 }
             }
         }
@@ -114,7 +116,7 @@ extension PhotosVC: UICollectionViewDelegate, UICollectionViewDataSource {
         cellSelected.imageView.hero.id = .photosToSinglePhotoID
         let imageFromCell = cellSelected.imageView.image
         if let image = imageFromCell {
-            let newVC = SinglePhotoVC(image: image, imageURL: nil, cell: cellSelected, asset: nil)
+            let newVC = SinglePhotoVC(image: image, imageURL: cellSelected.url, cell: cellSelected, asset: nil)
             self.present(newVC, animated: true)
             
         }

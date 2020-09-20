@@ -79,8 +79,23 @@ class ReviewView: UIView {
         textLabel.numberOfLines = 0
         stackView.addArrangedSubview(textLabel)
         
-        profileImageView.addImageFromUrl(review.imageURL, backupImage: "person.crop.circle")
         
+        if let imageUrl = review.imageURL {
+            Network.shared.getImage(url: imageUrl) { [weak self] (imageFound) in
+                if let imageFound = imageFound {
+                    let resized = imageFound.resizeImageToSizeButKeepAspectRatio(targetSize: profileImageView.bounds.size)
+                    profileImageView.image = resized
+                } else {
+                    self?.setUpWithPlaceholder(imageView: profileImageView)
+                }
+            }
+        } else {
+            self.setUpWithPlaceholder(imageView: profileImageView)
+        }
+    }
+    
+    func setUpWithPlaceholder(imageView: UIImageView) {
+        imageView.image = UIImage(systemName: "person.crop.circle")
     }
 
 }

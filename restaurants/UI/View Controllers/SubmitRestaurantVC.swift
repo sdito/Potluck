@@ -318,9 +318,7 @@ class SubmitRestaurantVC: UIViewController {
     @objc private func showMapOnPopUp() {
         let mapLocationView = MapLocationView(locationTitle: nameRawValue ?? restaurant?.name ?? establishment?.name ?? "Restaurant",
                                               coordinate: restaurant?.coordinate ?? establishment?.coordinate ?? nil,
-                                              address: addressRawValue ?? restaurant?.address.displayAddress?.joined(separator: ", ") ?? establishment?.displayAddress,
-                                              userInteractionEnabled: true,
-                                              wantedDistance: 1000)
+                                              address: addressRawValue ?? restaurant?.address.displayAddress?.joined(separator: ", ") ?? establishment?.displayAddress)
         mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
         mapLocationView.layer.cornerRadius = 25.0
         mapLocationView.clipsToBounds = true
@@ -362,7 +360,7 @@ class SubmitRestaurantVC: UIViewController {
 
 // MARK: ImageSelectorDelegate
 extension SubmitRestaurantVC: ImageSelectorDelegate {
-    
+
     func scrollViewContentOffset(scrollView: UIScrollView) {
         if allowChanges {
             let scrollingMultiplier: CGFloat = 1.5
@@ -386,10 +384,10 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
                 if isScrollingDown {
                     let difference = newHeight - self.containerViewHeightAnchor.constant
                     scrollView.contentOffset.y -= difference
-                    self.containerViewHeightAnchor.constant = newHeight
+                    self.containerViewHeightAnchor?.constant = newHeight
                 } else if isScrollingUp {
                     if scrollView.contentOffset.y < 10.0 {
-                        self.containerViewHeightAnchor.constant = newHeight
+                        self.containerViewHeightAnchor?.constant = newHeight
                     }
                 }
                 allowChanges = true

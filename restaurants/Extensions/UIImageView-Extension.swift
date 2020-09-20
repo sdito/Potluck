@@ -10,13 +10,22 @@ import UIKit
 
 extension UIImageView {
     
-    func addImageFromUrl(_ url: String?, skeleton: Bool = true, backupImage: String? = nil) {
+    func addImageFromUrl(_ url: String?, autoResize: Bool, skeleton: Bool = true, backupImage: String? = nil) {
         if let url = url {
             if skeleton { self.appStartSkeleton() }
             Network.shared.getImage(url: url) { [weak self] (img) in
                 guard let self = self else { return }
                 if skeleton { self.appEndSkeleton() }
-                self.image = img
+                
+                if let img = img {
+                    if autoResize {
+                        let resized = img.resizeToBeNoLargerThanScreenWidth()
+                        self.image = resized
+                    } else {
+                        self.image = img
+                    }
+                    
+                }
             }
         } else if let backup = backupImage {
             if backup == "person.crop.circle" {
@@ -28,7 +37,6 @@ extension UIImageView {
             }
         }
     }
-    
     
     
 }

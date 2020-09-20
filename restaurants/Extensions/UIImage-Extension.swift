@@ -10,7 +10,45 @@ import UIKit
 
 extension UIImage {
     
-    func resizeImage(to targetSize: CGSize) -> UIImage {
+    func resizeImageToSizeButKeepAspectRatio(targetSize: CGSize) -> UIImage {
+        // i.e. resize to 200 / 200, with original size of 1000 / 400
+        // new size would be 500 / 200, i.e. go to the minimum size
+        let selfSize = self.size
+        #warning("need to complete, use for photosVCs, then make sure detail photo reloads the full size image")
+        if selfSize.width <= targetSize.width || selfSize.height <= targetSize.height {
+            // already smaller than the target
+            return self
+        } else {
+            let widthRatio = targetSize.width / selfSize.width
+            let heightRatio = targetSize.height / selfSize.height
+            
+            if heightRatio >= widthRatio {
+                let size = CGSize(width: selfSize.width * heightRatio, height: targetSize.height)
+                return resizeImage(to: size)
+            } else {
+                let size = CGSize(width: targetSize.width, height: selfSize.height * widthRatio)
+                return resizeImage(to: size)
+            }
+        }
+    }
+    
+    func resizeToBeNoLargerThanScreenWidth() -> UIImage {
+        let width = self.size.width
+        let height = self.size.height
+        
+        let screenWidth = UIScreen.main.bounds.width
+        
+        if screenWidth >= width {
+            return self
+        } else {
+            let widthRatio = screenWidth / width
+            
+            return resizeImage(to: CGSize(width: screenWidth, height: height * widthRatio))
+        }
+    }
+    
+    
+    private func resizeImage(to targetSize: CGSize) -> UIImage {
 
         let widthRatio  = targetSize.width  / self.size.width
         let heightRatio = targetSize.height / self.size.height

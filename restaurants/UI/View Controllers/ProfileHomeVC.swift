@@ -289,7 +289,6 @@ extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     private func removeImagesFromCacheFor(visit: Visit) {
-        #warning("need to complete and use")
         print("Remove images from cache: \(visit.djangoOwnID)")
         let mainKey = NSString(string: "\(visit.djangoOwnID)-main")
         imageCache.removeObject(forKey: mainKey)
@@ -346,11 +345,12 @@ extension ProfileHomeVC: VisitCellDelegate {
                 Network.shared.getImage(url: imageUrl) { [weak self] (imageFound) in
                     if let image = imageFound {
                         print("Image gotten from request: \(imageRequestKey)")
-                        newObject.image = image
+                        let resized = image.resizeToBeNoLargerThanScreenWidth()
+                        newObject.image = resized
 
                         if let cell = self?.cellFrom(visit: visit) {
                             print("Image set from request: \(imageRequestKey)")
-                            cell.otherImageViews[i].image = image
+                            cell.otherImageViews[i].image = resized
                         }
 
                     } else {

@@ -31,7 +31,7 @@ class Network {
     
     lazy var dateFormatter: DateFormatter = {
         let df = DateFormatter()
-        df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXXXX"
+        df.dateFormat = "yyyy-MM-dd'T'HH:mm"
         return df
     }()
     
@@ -127,7 +127,6 @@ class Network {
             AF.request(url).response(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
                 if let data = response.data {
                     let image = UIImage(data: data)
-                    
                     DispatchQueue.main.async {
                         imageReturned(image)
                     }

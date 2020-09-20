@@ -50,8 +50,8 @@ class EstablishmentDetailVC: UIViewController {
         self.establishment = establishment
         self.delegate = delegate
         self.mode = mode
-        
     }
+    
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -467,18 +467,23 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! PhotoCell
         let visit = visits[indexPath.section]
-        let key = NSString(string: "\(indexPath.section).\(indexPath.row)")
+        let listPhotos = visit.listPhotos
+        let url = listPhotos[indexPath.row]
+        let key = NSString(string: url)
+        
         if let image = imageCache.object(forKey: key) {
+            cell.url = url
             cell.imageView.image = image
         } else {
-            let listPhotos = visit.listPhotos
-            let url = listPhotos[indexPath.row]
+
             cell.imageView.appStartSkeleton()
             Network.shared.getImage(url: url) { [weak self] (image) in
+                let resized = image?.resizeImageToSizeButKeepAspectRatio(targetSize: cell.bounds.size)
                 cell.imageView.appEndSkeleton()
-                cell.imageView.image = image
-                if let image = image {
-                    self?.imageCache.setObject(image, forKey: key)
+                cell.url = url
+                cell.imageView.image = resized
+                if let resized = resized {
+                    self?.imageCache.setObject(resized, forKey: key)
                 }
             }
         }
@@ -490,9 +495,8 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
             let cellSelected = collectionView.cellForItem(at: indexPath) as! PhotoCell
             cellSelected.imageView.hero.id = .photosToSinglePhotoID
             let imageFromCell = cellSelected.imageView.image
-            
             if let image = imageFromCell {
-                let newVC = SinglePhotoVC(image: image, imageURL: nil, cell: cellSelected, asset: nil)
+                let newVC = SinglePhotoVC(image: image, imageURL: cellSelected.url, cell: cellSelected, asset: nil)
                 self.navigationController?.present(newVC, animated: true, completion: nil)
             }
         }

@@ -193,7 +193,7 @@ class VisitCell: UITableViewCell {
         guard let parent = self.findViewController() else { return }
         
         if let coordinate = visit?.coordinate {
-            let mapLocationView = MapLocationView(locationTitle: visit?.restaurantName ?? "Location", coordinate: coordinate, address: nil, userInteractionEnabled: true, wantedDistance: 1000)
+            let mapLocationView = MapLocationView(locationTitle: visit?.restaurantName ?? "Location", coordinate: coordinate, address: nil)
             mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
             mapLocationView.layer.cornerRadius = 25.0
             mapLocationView.clipsToBounds = true
@@ -301,8 +301,9 @@ class VisitCell: UITableViewCell {
             Network.shared.getImage(url: url) { [weak self] (img) in
                 guard let self = self else { return }
                 self.visitImageView.appEndSkeleton()
-                self.visitImageView.image = img
-                imageFound(img)
+                let resized = img?.resizeToBeNoLargerThanScreenWidth()
+                self.visitImageView.image = resized
+                imageFound(resized)
             }
         } else {
             imageFound(nil)

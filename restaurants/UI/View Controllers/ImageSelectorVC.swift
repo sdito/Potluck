@@ -19,11 +19,11 @@ protocol ImageSelectorDelegate: class {
 
 class ImageSelectorVC: UIViewController {
     
-    weak var delegate: ImageSelectorDelegate!
+    weak var delegate: ImageSelectorDelegate?
     
     private var selectedPhotos: [ImageInfo] = [] {
         didSet {
-            delegate.photosUpdated(to: self.selectedPhotos)
+            delegate?.photosUpdated(to: self.selectedPhotos)
             updateSelectUpToLabel()
             DispatchQueue.main.asyncAfter(deadline: .now() + self.stackViewAnimationDuration + 0.1) {
                 for (i, arrangedView) in self.scrollingView.stackView.arrangedSubviews.enumerated() {
@@ -132,6 +132,7 @@ class ImageSelectorVC: UIViewController {
         placeholderView.tag = -1
         placeholderView.isHidden = true
         
+        
     }
     
     
@@ -167,8 +168,6 @@ class ImageSelectorVC: UIViewController {
     
     
     private func setUp() {
-        #warning("need to test limited")
-        
         requestOptions.isSynchronous = false
         requestOptions.deliveryMode = .highQualityFormat
     
@@ -176,6 +175,7 @@ class ImageSelectorVC: UIViewController {
             guard let self = self else { return }
             switch status {
             case .authorized, .limited:
+                self.collectionView.restore()
                 let fetchOptions = PHFetchOptions()
                 fetchOptions.sortDescriptors = [.init(key: "creationDate", ascending: false)]
 
@@ -190,9 +190,13 @@ class ImageSelectorVC: UIViewController {
                 print("Found \(self.allPhotos.count) assets")
             case .denied, .restricted:
                 print("Not allowed")
+                DispatchQueue.main.async {
+                    let button = self.collectionView.setEmptyWithAction(message: "Photo authorization not enabled. Enable to upload photos from your visits.", buttonTitle: "Change authorization")
+                    button.addTarget(self, action: #selector(self.photosNotAuthorized), for: .touchUpInside)
+                }
             case .notDetermined:
                 // Should not see this when requesting
-                print("Not determined yet")
+                print("Not determined yet...should ask???")
             @unknown default:
                 fatalError()
             }
@@ -405,6 +409,11 @@ class ImageSelectorVC: UIViewController {
         self.alert(title: "Photos", message: "Press and hold then drag a photo to change the order. The first photo is the main photo and will be displayed first.")
     }
     
+    @objc private func photosNotAuthorized() {
+        print("Photos are not authorized")
+        #warning("need to give instructions here")
+    }
+    
     private func updateSelectUpToLabel() {
         let count = selectedPhotos.count
         let value = maxPhotos - count
@@ -441,8 +450,9 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
         if let cachedImage = imageCache.object(forKey: key) {
             cell.imageView.image = cachedImage
         } else {
-            imageManager.requestImage(for: asset, targetSize: CGSize(width: layout.itemSize.width * 3.0, height: layout.itemSize.height * 3.0), contentMode: .aspectFit, options: requestOptions) { (image, info) in
+            imageManager.requestImage(for: asset, targetSize: CGSize(width: layout.itemSize.width, height: layout.itemSize.height), contentMode: .aspectFill, options: requestOptions) { (image, info) in
                 if let image = image {
+                    print(self.layout.itemSize.width, image.size.width)
                     cell.imageView.image = image
                     self.imageCache.setObject(image, forKey: key)
                 } else {
@@ -483,7 +493,9 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        
-        delegate.scrollViewContentOffset(scrollView: collectionView)
+        delegate?.scrollViewContentOffset(scrollView: collectionView)
     }
+    
+    
 }
+

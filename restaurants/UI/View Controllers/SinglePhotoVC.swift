@@ -97,8 +97,10 @@ class SinglePhotoVC: UIViewController {
             let ratio = image.size.height / image.size.width
             imageView.image = image
             imageView.heightAnchor.constraint(equalToConstant: self.view.frame.width * ratio).isActive = true
-        } else if let imageURL = imageURL {
-            imageView.addImageFromUrl(imageURL)
+        }
+        
+        if let imageURL = imageURL {
+            imageView.addImageFromUrl(imageURL, autoResize: true, skeleton: image == nil)
         }
         
         if let asset = asset, imageURL == nil {

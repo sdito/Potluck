@@ -235,7 +235,6 @@ extension SearchRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier)!
-        var location = false
         var cellText: NSAttributedString {
             switch tableViewDisplay {
             case .searchType:
@@ -243,7 +242,6 @@ extension SearchRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
             case .location:
                 let locationText = locationResults[indexPath.row]
                 if locationText == .currentLocation {
-                    location = true
                     return locationText.addImageAtBeginning(image: .locationImage, color: Colors.locationColor)
                 } else if locationText == .mapLocation {
                     return locationText.addImageAtBeginning(image: .mapImage, color: Colors.locationColor)

@@ -283,10 +283,11 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
             cell.restaurantImageView.appStartSkeleton()
             Network.shared.getImage(url: restaurant.imageURL) { [weak self] (img) in
                 guard let self = self else { return }
+                let resized = img?.resizeToBeNoLargerThanScreenWidth()
                 cell.restaurantImageView.appEndSkeleton()
-                cell.restaurantImageView.image = img
-                if let img = img {
-                    self.imageCache.setObject(img, forKey: key)
+                cell.restaurantImageView.image = resized
+                if let resized = resized {
+                    self.imageCache.setObject(resized, forKey: key)
                 }
             }
         }

@@ -98,7 +98,6 @@ extension Network {
         })
     }
     
-    #warning("need to upload with date")
     func userPostNotVisited(establishment: Establishment, mainImage: UIImage, mainImageDate: Date, otherImages: [UIImage]?, comment: String?, rating: Float?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
         // add everything into the params for the request
         do {
@@ -153,7 +152,6 @@ extension Network {
         }
     }
     
-    #warning("need to upload with date")
     func userPostAlreadyVisited(djangoID: Int, mainImage: UIImage, mainImageDate: Date, otherImages: [UIImage]?, comment: String?, rating: Float?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
         
         var params: Parameters = ["restaurant_id":djangoID]
@@ -166,10 +164,9 @@ extension Network {
         }
         
         params["date_visited"] = self.dateFormatter.string(from: mainImageDate)
-        
+
         let request = reqVisit(params: params, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages)
         request?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
-            
             guard let self = self else { return }
             guard let data = response.data, response.error == nil else {
                 completion(Result.failure(.other(alamoFireError: response.error)))
@@ -197,7 +194,6 @@ extension Network {
     // Get the user's own posts
     func getUserFeed(completion: @escaping (Result<[Visit], Errors.VisitEstablishment>) -> Void) {
         let req = reqVisit(params: nil, visit: nil, requestType: .userFeed)
-        
         guard let request = req else {
             completion(Result.failure(.noAccount))
             return
@@ -213,7 +209,7 @@ extension Network {
                 completion(Result.success(vis))
             } catch {
                 print(error)
-                fatalError()
+//                fatalError()
             }
         }
     }

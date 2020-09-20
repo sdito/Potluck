@@ -15,6 +15,7 @@ class PhotoCell: UICollectionViewCell {
     var asset: PHAsset?
     var allowsSelection = false
     var imageView: UIImageView!
+    var url: String?
     
     private var selectedImage = UIImageView(image: .checkmarkCircleImage)
     

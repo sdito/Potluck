@@ -125,7 +125,7 @@ class RestaurantSelectedView: UIView {
                 self.restaurant = restaurant
                 self.titleLabel.text = restaurant.name
                 self.starRatingView.updateNumberOfStarsAndReviews(stars: restaurant.rating ?? 0.0, numReviews: restaurant.reviewCount ?? 0)
-                self.imageView.addImageFromUrl(restaurant.imageURL, skeleton: true)
+                self.imageView.addImageFromUrl(restaurant.imageURL, autoResize: true, skeleton: true)
                 self.setMoneyAndTypeLabelText(restaurant)
                 
                 for potentialView in self.wholeStackView.subviews {
@@ -237,7 +237,7 @@ class RestaurantSelectedView: UIView {
         imageView.widthAnchor.constraint(equalToConstant: imageViewWidth).isActive = true
         
         if !isDummy {
-            imageView.addImageFromUrl(restaurant.imageURL, skeleton: true)
+            imageView.addImageFromUrl(restaurant.imageURL, autoResize: true, skeleton: true)
         }
         
     }

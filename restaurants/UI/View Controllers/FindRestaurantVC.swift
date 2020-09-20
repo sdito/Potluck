@@ -100,9 +100,7 @@ class FindRestaurantVC: UIViewController {
     private func setUp () {
         self.navigationItem.title = "Explore"
         if UIDevice.locationServicesEnabled() {
-            
             let (authorized, needToRequest) = UIDevice.handleAuthorization()
-            
             if authorized {
                 locationAllowed = true
                 mapView.showsUserLocation = true
@@ -122,7 +120,6 @@ class FindRestaurantVC: UIViewController {
     
     private func handleNonCoordinateSearch() {
         locationAllowed = false
-        print("This is being called")
         if let previousSearch = UIDevice.readRecentLocationSearchesFromUserDefaults().first {
             restaurantSearch = Network.RestaurantSearch(yelpCategory: nil, location: previousSearch, coordinate: nil)
             getRestaurantsFromPreSetRestaurantSearch(initial: true)

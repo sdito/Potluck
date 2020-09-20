@@ -141,10 +141,11 @@ class TwoLevelCell: UITableViewCell {
                 vc.present(establishmentDetailVC, animated: true, completion: nil)
             } else {
                 if coordinate != nil || address != nil {
-                    let mapLocationView = MapLocationView(locationTitle: name ?? "Location", coordinate: coordinate, address: address, userInteractionEnabled: true, wantedDistance: 1000)
+                    let mapLocationView = MapLocationView(locationTitle: name ?? "Location", coordinate: coordinate, address: address)
                     mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
                     mapLocationView.layer.cornerRadius = 25.0
                     mapLocationView.clipsToBounds = true
+                    
                     let newVc = ShowViewVC(newView: mapLocationView, fromBottom: true)
                     newVc.modalPresentationStyle = .overFullScreen
                     vc.navigationController?.present(newVc, animated: false, completion: nil)

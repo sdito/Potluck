@@ -168,18 +168,3 @@ extension HeaderEstablishmentReusableView: EnterValueViewDelegate {
         NotificationCenter.default.post(name: .visitUpdated, object: nil, userInfo: ["visit": visit])
     }
 }
-
-
-#warning("where to check for the notification")
-/*
- // FOR UPDATING -- should be done
- */
-
-
-/*
- // FOR Deleting
- 
- ProfileHomeVC
- EstablishmentDetailVC
- 
- */

@@ -57,6 +57,10 @@ class RestaurantDetailVC: UIViewController {
         edgesForExtendedLayout = [.left, .top, .right]
     }
     
+    deinit {
+        print("Is being deinitialized")
+    }
+    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         allowNavigationBarChange = false
@@ -233,7 +237,7 @@ class RestaurantDetailVC: UIViewController {
             imageView.image = imageAlreadyFound
             imageView.isUserInteractionEnabled = true
         } else {
-            imageView.addImageFromUrl(restaurant.imageURL)
+            imageView.addImageFromUrl(restaurant.imageURL, autoResize: true)
         }
     
         headerDetailView = HeaderDetailView(restaurant: restaurant, vc: self, allowVisit: allowVisit)
@@ -241,9 +245,9 @@ class RestaurantDetailVC: UIViewController {
 
         stackView.addArrangedSubview(RestaurantCategoriesView(restaurant: restaurant))
         
-        if let userLocation = locationManager.getUserLocation() {
-            stackView.addArrangedSubview(MapCutoutView(userLocation: userLocation, userDestination: restaurant.coordinate, restaurant: restaurant, vc: self))
-        }
+        stackView.addArrangedSubview(MapCutoutView(userLocation: locationManager.getUserLocation() ?? .simulatorDefault, userDestination: restaurant.coordinate, restaurant: restaurant, vc: self))
+        
+        
         scrollView.setCorrectContentSize()
         
         setUpHero()
@@ -270,7 +274,7 @@ class RestaurantDetailVC: UIViewController {
                     }
                     if self.restaurant.imageURL == nil {
                         if let firstPhoto = self.restaurant.additionalInfo?.photos.first {
-                            self.imageView.addImageFromUrl(firstPhoto)
+                            self.imageView.addImageFromUrl(firstPhoto, autoResize: true)
                         }
                     }
                 }
@@ -300,7 +304,6 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
-        print("This is being called")
         let navHeight = (navigationController?.navigationBar.frame.height ?? 0.0)
         let offset = scrollView.contentOffset.y - navHeight
         

@@ -11,62 +11,65 @@ import MapKit
 
 class MapLocationView: UIView {
     
-    private var mapView = MKMapView()
-    
+    private let imageView = UIImageView()
     private var locationTitle: String?
     private var coordinate: CLLocationCoordinate2D?
     private var address: String?
-    private var wantedDistance = 7500
+    private var wantedDistance = 4000
+    
     
     var mapAlpha: CGFloat {
-        return mapView.alpha
+        return imageView.alpha
     }
     
-    init(locationTitle: String, coordinate: CLLocationCoordinate2D?, address: String?, userInteractionEnabled: Bool = false, wantedDistance: Int = 7500) {
+    init(locationTitle: String, coordinate: CLLocationCoordinate2D?, address: String?) {
         super.init(frame: .zero)
         self.coordinate = coordinate
         self.address = address
         self.locationTitle = locationTitle
-        self.wantedDistance = wantedDistance
-        setUpMap(userInteractionEnabled: userInteractionEnabled)
-        setUpLocation()
+        setUpMap()
+        
+        
+        
+        for _ in 1...10 {
+            print(self.bounds.size, imageView.bounds.size, self.frame.size, imageView.bounds.size)
+        }
+        
+        
+        #warning("this is really bad")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            self.setUpLocation()
+        }
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
     
-    private func setUpMap(userInteractionEnabled: Bool) {
+    
+    private func setUpMap() {
         self.translatesAutoresizingMaskIntoConstraints = false
-        mapView.translatesAutoresizingMaskIntoConstraints = false
-        mapView.showsUserLocation = false
-        mapView.isUserInteractionEnabled = userInteractionEnabled
-        mapView.delegate = self
-        self.addSubview(mapView)
-        mapView.constrainSides(to: self)
-        mapView.pointOfInterestFilter = .init(excluding: [.restaurant, .cafe])
-        
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(imageView)
+        imageView.constrainSides(to: self)
+        imageView.backgroundColor = .secondarySystemBackground
+        imageView.contentMode = .scaleAspectFill
+        imageView.appStartSkeleton()
     }
     
     func setAlpha(_ value: CGFloat) {
-        self.mapView.alpha = value
+        self.imageView.alpha = value
     }
     
     private func setUpLocation() {
         
-        let annotation = MKPointAnnotation()
-        annotation.title = locationTitle ?? "Location"
-        
         if let coordinate = coordinate {
-            
-            annotation.coordinate = coordinate
-            mapView.addAnnotation(annotation)
-            self.mapView.setRegionAroundAnnotation(annotation: annotation, distance: self.wantedDistance)
+            setUpSnapshot(with: coordinate)
         } else if let address = address {
             let geoCoder = CLGeocoder()
             geoCoder.geocodeAddressString(address) { [weak self] (placeMarks, error) in
                 guard let self = self else { return }
-                
+
                 guard let placeMarks = placeMarks, let first = placeMarks.first else {
                     print("Not able to locate restaurant")
                     return
@@ -75,10 +78,7 @@ class MapLocationView: UIView {
                     print("Not able to get coordinate from location")
                     return
                 }
-                
-                annotation.coordinate = location
-                self.mapView.addAnnotation(annotation)
-                self.mapView.setRegionAroundAnnotation(annotation: annotation, distance: self.wantedDistance)
+                self.setUpSnapshot(with: location)
             }
         } else {
             fatalError("Need to have either a coordinate or an address")
@@ -86,30 +86,55 @@ class MapLocationView: UIView {
         
     }
     
+    func setUpSnapshot(with coordinate: CLLocationCoordinate2D) {
+        
+        
+        let options = MKMapSnapshotter.Options()
+        options.region = MKCoordinateRegion(center: coordinate, latitudinalMeters: CLLocationDistance(wantedDistance), longitudinalMeters: CLLocationDistance(wantedDistance))
+        options.size = imageView.frame.size
+        options.scale = UIScreen.main.scale
+        options.pointOfInterestFilter = .init(excluding: [.restaurant, .cafe])
+        
+        let snapshotter = MKMapSnapshotter(options: options)
+
+        snapshotter.start(with: .global(qos: .userInteractive)) { [weak self] (snapshot, error) in
+            guard let snapshot = snapshot else {
+                print("Snapshot error: \(String(describing: error))")
+                return
+            }
+            
+            DispatchQueue.main.async {
+                let pin = MKPinAnnotationView(annotation: nil, reuseIdentifier: nil)
+                let image = snapshot.image
+                
+                UIGraphicsBeginImageContextWithOptions(image.size, true, image.scale)
+                image.draw(at: CGPoint.zero)
+
+                var point = snapshot.point(for: coordinate)
+                
+                point.x = point.x + pin.centerOffset.x - (pin.bounds.size.width / 2)
+                point.y = point.y + pin.centerOffset.y - (pin.bounds.size.height / 2)
+                
+                pin.image?.draw(at: point)
+                
+                let compositeImage = UIGraphicsGetImageFromCurrentImageContext()
+                UIGraphicsEndImageContext()
+                
+                self?.imageView.appEndSkeleton()
+                self?.imageView.image = compositeImage
+            }
+        }
+    }
+    
     func updateLocation(coordinate: CLLocationCoordinate2D) {
+        #warning("would need to do")
         self.coordinate = coordinate
-        mapView.removeAnnotations(mapView.annotations)
+        imageView.appStartSkeleton()
         setUpLocation()
     }
     
     
     
+    
 }
 
-extension MapLocationView: MKMapViewDelegate {
-    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        guard annotation is MKPointAnnotation else { return nil }
-
-        let identifier = "Annotation"
-        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
-
-        if annotationView == nil {
-            annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-            annotationView!.canShowCallout = true
-        } else {
-            annotationView!.annotation = annotation
-        }
-
-        return annotationView
-    }
-}

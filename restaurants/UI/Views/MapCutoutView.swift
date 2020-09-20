@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 import CoreLocation
 
-
+#warning("potentially make into snapshot view like MapLocationView")
 
 protocol MapCutoutViewDelegate: class {
     func locationPressed(name: String, destination: CLLocationCoordinate2D)
@@ -60,6 +60,7 @@ class MapCutoutView: UIView {
         request.transportType = .automobile
 
         let directions = MKDirections(request: request)
+    
         directions.calculate { [weak self] response, error in
             guard let unwrappedResponse = response else { return }
             
