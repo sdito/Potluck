@@ -12,6 +12,22 @@ import MapKit
 
 extension UIViewController {
     
+    func appAlert(title: String?, message: String?, buttons: [AlertView.ButtonAction]?) {
+        let alertView = AlertView(title: title, message: message, buttons: buttons)
+        let vc = ShowViewVC(newView: alertView, mode: .middle, allowScreenPressToDismiss: false)
+        alertView.showViewVC = vc
+        vc.modalPresentationStyle = .overFullScreen
+        self.present(vc, animated: false, completion: nil)
+    }
+    
+    func appActionSheet(buttons: [ActionSheetView.ButtonAction]) {
+        let actionSheetView = ActionSheetView(buttons: buttons)
+        let vc = ShowViewVC(newView: actionSheetView, mode: .bottom, allowScreenPressToDismiss: true, alphaValue: 0.7, viewSpecificAnimation: actionSheetView)
+        actionSheetView.showViewVC = vc
+        vc.modalPresentationStyle = .overFullScreen
+        self.present(vc, animated: false, completion: nil)
+    }
+    
     func showAddingChildFromBottom(child: UIViewController, childHeight: CGFloat) {
         child.view.translatesAutoresizingMaskIntoConstraints = false
         addChild(child)
@@ -125,22 +141,7 @@ extension UIViewController {
     
     
     // MARK: Alerts
-    func alert(title: String, message: String, button: String = "Ok") {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(.init(title: button, style: .default, handler: nil))
-        self.present(alert, animated: true)
-    }
-    
-    func alert(title: String, message: String?, negativeButton: String = "Cancel", positiveButton: String = "Ok", positiveAction: @escaping () -> ()) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(.init(title: negativeButton, style: .cancel, handler: nil))
-        let action = UIAlertAction(title: positiveButton, style: .default) { (alertAction) in
-            positiveAction()
-        }
-        alert.addAction(action)
-        self.present(alert, animated: true)
-    }
-    
+    #warning("eventually delete, replace with appAlert")
     func actionSheet(title: String? = nil, message: String? = nil, actions: [(title: String, pressed: () -> ())]) {
         let actionSheet = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
         

@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 import CoreLocation
 
-#warning("potentially make into snapshot view like MapLocationView")
+
 
 protocol MapCutoutViewDelegate: class {
     func locationPressed(name: String, destination: CLLocationCoordinate2D)
@@ -23,7 +23,9 @@ class MapCutoutView: UIView {
     weak var delegate: MapCutoutViewDelegate!
     private var restaurant: Restaurant?
     private let locationManager = CLLocationManager()
-    private var mapView = MKMapView()
+    private var imageView = UIImageView()
+    private let height: CGFloat = 200.0
+    private let options = MKMapSnapshotter.Options()
     
     init(userLocation: CLLocationCoordinate2D, userDestination: CLLocationCoordinate2D, restaurant: Restaurant, vc: UIViewController) {
         super.init(frame: .zero)
@@ -38,46 +40,109 @@ class MapCutoutView: UIView {
     
     private func setUp(userLocation: CLLocationCoordinate2D, userDestination: CLLocationCoordinate2D, restaurant: Restaurant) {
         self.translatesAutoresizingMaskIntoConstraints = false
-        setUpMapView()
-        showMarksAndRoute(current: userLocation, destination: userDestination)
-        addAnnotationForDestination(destination: userDestination, restaurant: restaurant)
+        setUpImageView()
         handlePressingMap()
+        handleDirections(currentLocation: userLocation, destination: userDestination)
     }
     
-    private func setUpMapView() {
-        mapView.delegate = self
-        mapView.showsUserLocation = true
-        mapView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(mapView)
-        mapView.constrainSides(to: self)
-        mapView.heightAnchor.constraint(equalToConstant: 200.0).isActive = true
+    private func setUpImageView() {
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(imageView)
+        imageView.constrainSides(to: self)
+        imageView.heightAnchor.constraint(equalToConstant: height).isActive = true
+        imageView.backgroundColor = .systemBackground
+        imageView.appStartSkeleton()
     }
 
-    private func showMarksAndRoute(current: CLLocationCoordinate2D, destination: CLLocationCoordinate2D) {
+    
+    private func handleDirections(currentLocation: CLLocationCoordinate2D, destination: CLLocationCoordinate2D) {
         let request = MKDirections.Request()
-        request.source = MKMapItem(placemark: MKPlacemark(coordinate: current, addressDictionary: nil))
-        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination, addressDictionary: nil))
-        request.transportType = .automobile
-
+        request.source = MKMapItem(placemark: MKPlacemark(coordinate: currentLocation))
+        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
+                
         let directions = MKDirections(request: request)
-    
         directions.calculate { [weak self] response, error in
-            guard let unwrappedResponse = response else { return }
-            
-            if let route = unwrappedResponse.routes.first, self != nil {
-                let travelTime = route.expectedTravelTime
-                self!.addTimeLabel(time: travelTime)
-                self!.mapView.addOverlay(route.polyline)
-                self!.mapView.setVisibleMapRect(route.polyline.boundingMapRect, edgePadding: UIEdgeInsets(top: 30.0, left: 30.0, bottom: 30.0, right: 30.0), animated: false)
+            guard let response = response else { return }
+            self?.stepImagesFromDirectionsResponse(response: response) { [weak self] stepImage in
+                self?.imageView.appEndSkeleton()
+                self?.imageView.image = stepImage
             }
         }
     }
     
-    private func addAnnotationForDestination(destination: CLLocationCoordinate2D, restaurant: Restaurant) {
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = destination
-        annotation.title = restaurant.name
-        mapView.addAnnotation(annotation)
+    func stepImagesFromDirectionsResponse(response: MKDirections.Response, completionHandler: @escaping (UIImage?) -> Void) {
+        
+        guard let route = response.routes.first else {
+            completionHandler(nil)
+            return
+        }
+        
+    
+        var boundingRect = route.polyline.boundingMapRect
+        boundingRect = boundingRect.insetBy(dx: -boundingRect.width * 0.1, dy: -boundingRect.height * 0.1)
+        
+        options.region = MKCoordinateRegion(boundingRect)
+        options.size = CGSize(width: UIScreen.main.bounds.width, height: height)
+        
+        options.scale = UIScreen.main.scale
+        options.pointOfInterestFilter = .init(excluding: [.restaurant, .cafe])
+        
+        
+        let snapshotter = MKMapSnapshotter(options: options)
+        
+        snapshotter.start { snapshot, error in
+            
+            guard let snapshot = snapshot else { return }
+            
+            let image = snapshot.image
+            
+            UIGraphicsBeginImageContextWithOptions(image.size, true, image.scale)
+            image.draw(at: CGPoint.zero)
+            
+            // draw the path
+            guard let c = UIGraphicsGetCurrentContext() else { return }
+            c.setStrokeColor(UIColor.blue.cgColor)
+            c.setLineWidth(4)
+            c.beginPath()
+            for step in route.steps {
+                let coordinates: UnsafeMutablePointer<CLLocationCoordinate2D> = UnsafeMutablePointer<CLLocationCoordinate2D>.allocate(capacity: step.polyline.pointCount)
+                defer { coordinates.deallocate() }
+                
+                step.polyline.getCoordinates(coordinates, range: NSRange(location: 0, length: step.polyline.pointCount))
+                
+                for i in 0 ..< step.polyline.pointCount {
+                    let p = snapshot.point(for: coordinates[i])
+                    if i == 0 {
+                        c.move(to: p)
+                    } else {
+                        c.addLine(to: p)
+                    }
+                }
+            }
+            c.strokePath()
+
+            let visibleRect = CGRect(origin: CGPoint.zero, size: image.size)
+
+            for mapItem in [response.source, response.destination]
+                where mapItem.placemark.location != nil {
+                var point = snapshot.point(for: mapItem.placemark.location!.coordinate)
+                if visibleRect.contains(point) {
+                    let pin = MKPinAnnotationView(annotation: nil, reuseIdentifier: nil)
+                    pin.pinTintColor = mapItem.isEqual(response.source) ? MKPinAnnotationView.greenPinColor() : MKPinAnnotationView.redPinColor()
+                    point.x = point.x + pin.centerOffset.x - (pin.bounds.size.width / 2)
+                    point.y = point.y + pin.centerOffset.y - (pin.bounds.size.height / 2)
+                    pin.image?.draw(at: point)
+                }
+            }
+
+            let stepImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            self.addTimeLabel(time: route.expectedTravelTime)
+            for _ in 1...10 {
+                print("Step image is being returned")
+            }
+            completionHandler(stepImage)
+        }
     }
     
     private func handlePressingMap() {
@@ -85,8 +150,8 @@ class MapCutoutView: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.backgroundColor = .clear
-        mapView.addSubview(button)
-        button.constrainSides(to: mapView)
+        self.addSubview(button)
+        button.constrainSides(to: self)
         button.addTarget(self, action: #selector(mapButtonPressed), for: .touchUpInside)
     }
     
@@ -97,11 +162,11 @@ class MapCutoutView: UIView {
         label.font = .mediumBold
         label.textColor = .white
         label.fadedBackground()
-        mapView.addSubview(label)
+        self.addSubview(label)
         
         NSLayoutConstraint.activate([
-            label.trailingAnchor.constraint(equalTo: mapView.trailingAnchor, constant: -5.0),
-            label.bottomAnchor.constraint(equalTo: mapView.bottomAnchor, constant: -5.0)
+            label.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5.0),
+            label.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5.0)
         ])
         
     }
@@ -113,11 +178,3 @@ class MapCutoutView: UIView {
     }
 }
 
-
-extension MapCutoutView: MKMapViewDelegate {
-    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-        let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
-        renderer.strokeColor = .systemBlue
-        return renderer
-    }
-}

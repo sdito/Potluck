@@ -28,7 +28,7 @@ extension UICollectionView {
         let button = SizeChangeButton(sizeDifference: .large, restingColor: .secondaryLabel, selectedColor: Colors.main)
         button.setTitle(buttonTitle, for: .normal)
         button.titleLabel?.textAlignment = .center
-        button.titleLabel?.font = .mediumBold
+        button.titleLabel?.font = .largerBold
         
         
         stack.addArrangedSubview(label)
@@ -48,7 +48,9 @@ extension UICollectionView {
     }
     
     func restore() {
-        self.backgroundView = nil
+        DispatchQueue.main.async {
+            self.backgroundView = nil
+        }
     }
     
     func showLoadingOnCollectionView() {

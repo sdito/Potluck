@@ -36,13 +36,17 @@ class SettingsVC: UIViewController {
             switch self {
             case .logout:
                 
-                vc.alert(title: "Logout", message: "Are you sure you want to log out of your account \(Network.shared.account?.username ?? "now")?") {
-                    if Network.shared.loggedIn {
-                        Network.shared.account?.logOut()
-                        vc.showMessage("Logged out of account")
-                        vc.navigationController?.popViewController(animated: true)
-                    }
-                }
+                vc.appAlert(title: "Logout", message: "Are you sure you want to log out of your account \(Network.shared.account?.username ?? "now")?", buttons: [
+                    ("Cancel", nil),
+                    ("Logout", {
+                        if Network.shared.loggedIn {
+                            Network.shared.account?.logOut()
+                            vc.showMessage("Logged out of account")
+                            vc.navigationController?.popViewController(animated: true)
+                        }
+                    })
+                ])
+                
                 
             case .editAccountInfo:
                 print("Need to edit account info")

@@ -83,7 +83,10 @@ extension UITableView {
     }
 
     func restore() {
-        self.backgroundView = nil
-        self.separatorStyle = .singleLine
+        DispatchQueue.main.async {
+            self.backgroundView = nil
+            self.separatorStyle = .singleLine
+        }
+        
     }
 }

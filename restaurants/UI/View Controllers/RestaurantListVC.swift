@@ -285,7 +285,13 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
                 guard let self = self else { return }
                 let resized = img?.resizeToBeNoLargerThanScreenWidth()
                 cell.restaurantImageView.appEndSkeleton()
-                cell.restaurantImageView.image = resized
+                
+                #warning("see if this actually does everything")
+                if cell.restaurant.id == restaurant.id {
+                    cell.restaurantImageView.image = resized
+                }
+                
+                
                 if let resized = resized {
                     self.imageCache.setObject(resized, forKey: key)
                 }

@@ -91,9 +91,11 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
                 ("Edit comment", { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .textView, enterTextViewDelegate: self) }),
                 ("Edit rating", { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .rating, enterTextViewDelegate: self) })
             ])}),
-            ("Delete visit", { [weak self] in vc.alert(title: "Are you sure you want to delete this visit?", message: "This action cannot be undone.") { [weak self] in
-                self?.handleDeleting()
-            } })
+            ("Delete visit", { [weak self] in vc.appAlert(title: "Are you sure you want to delete this visit?", message: "This action cannot be undone.", buttons: [
+                ("Cancel", nil),
+                ("Delete", { [weak self] in self?.handleDeleting() } )
+            ]) })
+            
         ])
     }
     

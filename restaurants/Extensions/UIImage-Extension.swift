@@ -14,7 +14,6 @@ extension UIImage {
         // i.e. resize to 200 / 200, with original size of 1000 / 400
         // new size would be 500 / 200, i.e. go to the minimum size
         let selfSize = self.size
-        #warning("need to complete, use for photosVCs, then make sure detail photo reloads the full size image")
         if selfSize.width <= targetSize.width || selfSize.height <= targetSize.height {
             // already smaller than the target
             return self
@@ -63,7 +62,7 @@ extension UIImage {
         
         let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
 
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        UIGraphicsBeginImageContextWithOptions(newSize, false, UIScreen.main.scale)
         self.draw(in: rect)
         let newImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()

@@ -15,8 +15,6 @@ protocol EnterValueViewDelegate: class {
 
 class EnterValueView: UIView {
     
-    #warning("raise when textField is activated")
-    
     private weak var delegate: EnterValueViewDelegate?
     weak var controller: ShowViewVC?
     private let stackView = UIStackView()
@@ -30,7 +28,6 @@ class EnterValueView: UIView {
     private let cancelButton = SizeChangeButton(sizeDifference: .inverse, restingColor: Colors.main, selectedColor: Colors.main)
     private let doneButton = SizeChangeButton(sizeDifference: .inverse, restingColor: Colors.main, selectedColor: Colors.main)
     private var mode: Mode = .textField
-    
     
     
     init(text: String?, placeholder: String?, controller: ShowViewVC?, delegate: EnterValueViewDelegate?, mode: Mode) {
@@ -62,7 +59,7 @@ class EnterValueView: UIView {
     
     private func setUp(text: String?, placeholder: String?) {
         
-        let blurEffect = UIBlurEffect(style: .systemMaterial)
+        let blurEffect = UIBlurEffect(style: .systemThinMaterial)
         let blurEffectView = UIVisualEffectView(effect: blurEffect)
         blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.addSubview(blurEffectView)
@@ -135,7 +132,6 @@ class EnterValueView: UIView {
         doneButton.addTarget(self, action: #selector(doneAction), for: .touchUpInside)
         
         [cancelButton, doneButton].forEach { (button) in
-            
             button.titleLabel?.font = .largerBold
             button.layer.cornerRadius = 4.0
             button.clipsToBounds = true
@@ -147,7 +143,7 @@ class EnterValueView: UIView {
     }
     
     @objc private func cancelAction() {
-        controller?.removeAnimatedSelector()
+        controller?.removeAnimatedSelectorDone()
     }
     
     @objc private func doneAction() {
@@ -167,7 +163,7 @@ class EnterValueView: UIView {
             
             if string.count > 0 {
                 delegate?.textFound(string: string)
-                controller?.removeAnimatedSelector()
+                controller?.removeAnimatedSelectorDone()
             } else {
                 UIDevice.vibrateError()
                 text.1.shakeView()
@@ -187,7 +183,7 @@ class EnterValueView: UIView {
     
     private func executeForRating(rating: Float?) {
         delegate?.ratingFound(float: rating)
-        controller?.removeAnimatedSelector()
+        controller?.removeAnimatedSelectorDone()
     }
     
     private func raiseViewForKeyboard() {

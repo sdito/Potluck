@@ -45,7 +45,6 @@ class FindRestaurantVC: UIViewController {
     private var restaurants: [Restaurant] = [] {
         didSet {
             if restaurantListVC != nil {
-                #warning("animation is smoother when this is commented out, something in restaurantListVC could be slowing it down...")
                 self.restaurantListVC.restaurants = self.restaurants
             }
         }

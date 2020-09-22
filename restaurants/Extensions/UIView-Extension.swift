@@ -11,8 +11,8 @@ import SkeletonView
 
 extension UIView {
     
-    func addBlurEffect() {
-        let blur = UIVisualEffectView(effect: UIBlurEffect(style: .systemThinMaterial))
+    func addBlurEffect(style: UIBlurEffect.Style = .systemThinMaterial) {
+        let blur = UIVisualEffectView(effect: UIBlurEffect(style: style))
         blur.translatesAutoresizingMaskIntoConstraints = false
         blur.isUserInteractionEnabled = false
         self.insertSubview(blur, at: 0)

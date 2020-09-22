@@ -148,7 +148,6 @@ extension Network {
     
     
     func updateEstablishment(establishment: Establishment, success: @escaping (Bool) -> Void) {
-        #warning("need to complete")
         NotificationCenter.default.post(name: .establishmentUpdated, object: nil, userInfo: ["establishment": establishment])
         
         do {

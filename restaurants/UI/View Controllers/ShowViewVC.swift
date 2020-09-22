@@ -8,22 +8,39 @@
 
 import UIKit
 
+protocol ViewSpecificAnimation: class {
+    func start(duration: TimeInterval)
+}
+
 class ShowViewVC: UIViewController {
     
     private var newView: UIView
     private var travelDistance: CGFloat = 0.0
-    private var fromBottom = true
+    private var mode = Mode.middle
     private let fromTopConstant: CGFloat = 50.0
+    private let fromBottomDistance: CGFloat = 22.5
+    private var allowScreenPressToDismiss = true
+    private var alphaValue: CGFloat = 0.5
+    private var viewSpecificAnimation: ViewSpecificAnimation?
     
-    init(newView: UIView, fromBottom: Bool) {
+    init(newView: UIView, mode: Mode, allowScreenPressToDismiss: Bool = true, alphaValue: CGFloat = 0.5, viewSpecificAnimation: ViewSpecificAnimation? = nil) {
         self.newView = newView
-        self.fromBottom = fromBottom
+        self.mode = mode
+        self.allowScreenPressToDismiss = allowScreenPressToDismiss
+        self.alphaValue = alphaValue
+        self.viewSpecificAnimation = viewSpecificAnimation
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
         self.newView = UIView()
         super.init(coder: coder)
+    }
+    
+    enum Mode {
+        case top
+        case middle
+        case bottom
     }
     
     override func viewDidLoad() {
@@ -37,33 +54,35 @@ class ShowViewVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if fromBottom {
-            fromBottomAnimation()
-        } else {
-            fromTopAnimation()
+        switch mode {
+        case .top:
+            topAnimation()
+        case .middle:
+            middleOrBottomAnimation()
+        case .bottom:
+            middleOrBottomAnimation()
         }
-        
         
     }
     
-    private func fromTopAnimation() {
+    private func topAnimation() {
         let duration = TimeInterval(exactly: 0.2)!
-        
+        viewSpecificAnimation?.start(duration: duration)
         UIView.animate(withDuration: duration) {
-            self.view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+            self.view.backgroundColor = UIColor.black.withAlphaComponent(self.alphaValue)
             self.newView.transform = CGAffineTransform.identity
         }
     }
     
-    private func fromBottomAnimation() {
-        
+    private func middleOrBottomAnimation() {
         let duration = TimeInterval(exactly: 0.5)!
-        let firstDuration = 0.3
+        viewSpecificAnimation?.start(duration: duration)
+        let firstDuration = duration * 0.6
         
         UIView.animateKeyframes(withDuration: duration, delay: 0.0, animations: {
             
             UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: duration) {
-                self.view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+                self.view.backgroundColor = UIColor.black.withAlphaComponent(self.alphaValue)
             }
             
             UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: firstDuration/duration) {
@@ -76,18 +95,21 @@ class ShowViewVC: UIViewController {
         })
     }
     
+    
+    
     private func addCancelButton() {
         let cancelButton = UIButton()
         self.view.insertSubview(cancelButton, at: 1)
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
         cancelButton.constrainSides(to: self.view)
-        cancelButton.addTarget(self, action: #selector(removeAnimatedSelector), for: .touchUpInside)
+        if allowScreenPressToDismiss {
+            cancelButton.addTarget(self, action: #selector(removeAnimatedSelectorDone), for: .touchUpInside)
+        }
         cancelButton.setTitleColor(.black, for: .normal)
     }
     
     private func add(newView: UIView) {
         self.view.insertSubview(newView, at: 2)
-        
         
         newView.layoutIfNeeded()
         
@@ -96,39 +118,106 @@ class ShowViewVC: UIViewController {
         
         travelDistance = screenHeight / 2.0 + newViewHeight / 2.0
         
-        if fromBottom {
-            newView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-            newView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
-            newView.transform = CGAffineTransform(translationX: 0, y: travelDistance)
-        } else {
-            
+        switch mode {
+        case .top:
             newView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
             newView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: fromTopConstant).isActive = true
             newView.transform = CGAffineTransform(translationX: 0, y: -(fromTopConstant + newViewHeight))
+        case .middle:
+            newView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+            newView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+            newView.transform = CGAffineTransform(translationX: 0, y: travelDistance)
+        case .bottom:
+            newView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+            newView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -fromBottomDistance).isActive = true
+            newView.transform = CGAffineTransform(translationX: 0, y: fromTopConstant + newViewHeight)
         }
-        
         
     }
     
     
-    @objc func removeAnimatedSelector() {
+    @objc func removeAnimatedSelectorDone() {
         
-        if fromBottom {
-            UIView.animate(withDuration: 0.3, animations: {
-                self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
-                self.newView.transform = CGAffineTransform(translationX: 0, y: self.travelDistance)
-            }) { (true) in
-                self.dismiss(animated: false, completion: nil)
-            }
-        } else {
+        switch mode {
+        case .top:
             UIView.animate(withDuration: 0.3, animations: {
                 self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
                 self.newView.transform = CGAffineTransform(translationX: 0, y: -(self.fromTopConstant + self.newView.frame.height))
             }) { (true) in
                 self.dismiss(animated: false, completion: nil)
             }
+        case .middle:
+            UIView.animate(withDuration: 0.3, animations: {
+                self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
+                self.newView.transform = CGAffineTransform(translationX: 0, y: self.travelDistance)
+            }) { (true) in
+                self.dismiss(animated: false, completion: nil)
+            }
+        case .bottom:
+            UIView.animate(withDuration: 0.3, animations: {
+                self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
+                self.newView.transform = CGAffineTransform(translationX: 0, y: self.fromBottomDistance + self.newView.frame.height)
+            }) { (true) in
+                self.dismiss(animated: false, completion: nil)
+            }
+        }
+    }
+    
+    func removeFromSuperviewAlert(completion: @escaping (Bool) -> Void) {
+        UIView.animate(withDuration: 0.3, animations: {
+            self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
+            self.newView.transform = CGAffineTransform(translationX: 0, y: self.travelDistance)
+        }) { (done) in
+            self.dismiss(animated: false, completion: nil)
+            if done {
+                completion(true)
+            }
+        }
+    }
+    
+    func removeFromSuperviewActionSheet(completion: @escaping (Bool) -> Void) {
+        UIView.animate(withDuration: 0.3, animations: {
+            self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
+            self.newView.transform = CGAffineTransform(translationX: 0, y: self.fromBottomDistance + self.newView.frame.height)
+        }) { (done) in
+            self.dismiss(animated: false, completion: nil)
+            if done {
+                completion(true)
+            }
+        }
+    }
+    
+    func showNextViewFromSide(nextView: UIView) {
+        // make sure nothing else gets pressed
+        newView.isUserInteractionEnabled = false
+        
+        // add it to the view to the right
+        self.view.addSubview(nextView)
+        nextView.layoutIfNeeded()
+        
+        switch mode {
+        case .bottom:
+            nextView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+            nextView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -fromBottomDistance).isActive = true
+            nextView.transform = CGAffineTransform(translationX: UIScreen.main.bounds.width, y: 0)
+        default:
+            fatalError(); #warning("would need to complete")
         }
         
+        UIView.animate(withDuration: 0.4) {
+            nextView.transform = CGAffineTransform(translationX: -12.5, y: 0)
+            self.newView.transform = CGAffineTransform(translationX: -UIScreen.main.bounds.width, y: 0)
+        } completion: { (done) in
+            if done {
+                UIView.animate(withDuration: 0.2) {
+                    nextView.transform = .identity
+                } completion: { (done) in
+                    self.newView = nextView
+                }
+            }
+        }
+        
+
         
     }
 

@@ -62,11 +62,20 @@ class ProfileMapVC: UIViewController {
                 switch result {
                 case .success(let establishments):
                     self.establishments = establishments
-                    for establishment in establishments {
-                        let annotation = RestaurantAnnotation(establishment: establishment)
-                        self.mapView.addAnnotation(annotation)
+                    self.mapView.removeAnnotations(self.mapView.annotations)
+                    if establishments.count > 0 {
+                        for establishment in establishments {
+                            let annotation = RestaurantAnnotation(establishment: establishment)
+                            self.mapView.addAnnotation(annotation)
+                        }
+                        self.fitAnnotations()
+                    } else {
+                        self.appAlert(title: "No places", message: "Places you add will show up on the map, where you can then view your visits.", buttons: [
+                            ("Back", { [weak self] in self?.navigationController?.popViewController(animated: true) }),
+                            ("Add visit", { [weak self] in self?.tabBarController?.presentAddRestaurantVC() })
+                        ])
                     }
-                    self.fitAnnotations()
+                    
                 case .failure(let error):
                     print(error)
                 }
@@ -210,7 +219,6 @@ class ProfileMapVC: UIViewController {
     }
     
     @objc private func searchBarPressed() {
-        #warning("dont let stuff be pressed maybe")
         searchBarShown = !searchBarShown
         handleSearchBarTransform(animated: true)
         if searchBarShown {
@@ -219,7 +227,6 @@ class ProfileMapVC: UIViewController {
         } else {
             searchBar.endEditing(true)
         }
-        
     }
     
 }
@@ -242,7 +249,7 @@ extension ProfileMapVC: MKMapViewDelegate {
         return annotationView
     }
     
-    
+
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         

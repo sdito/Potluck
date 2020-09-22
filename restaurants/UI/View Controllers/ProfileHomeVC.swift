@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+#warning("option to filter by post date or visit date")
 class ProfileHomeVC: UIViewController {
     
     private let tableView = UITableView()
@@ -325,7 +325,7 @@ extension ProfileHomeVC: VisitCellDelegate {
     }
     
     func moreImageRequest(visit: Visit?, cell: VisitCell) {
-        print("More images requested...")
+        
         guard let visit = visit else { return }
         
         for (i, imageUrl) in visit.otherImages.map({$0.image}).enumerated() {
@@ -355,6 +355,7 @@ extension ProfileHomeVC: VisitCellDelegate {
 
                     } else {
                         // remove the value from the cache
+                        print("Image not found for url: \(imageRequestKey)")
                         self?.otherImageCache.removeObject(forKey: imageRequestKey)
                     }
                 }
@@ -368,20 +369,18 @@ extension ProfileHomeVC: VisitCellDelegate {
     
     func delete(visit: Visit?) {
         guard let visit = visit else { return }
-        self.alert(title: "Are you sure you want to delete this visit?", message: "This action can't be undone.") {
-            Network.shared.deleteVisit(visit: visit) { (success) in return }
-            
-            let indexToDelete = self.visits.firstIndex { (v) -> Bool in
-                v.djangoOwnID == visit.djangoOwnID
-            }
-            
-            if let idx = indexToDelete {
-                guard let cellToDelete = self.tableView.cellForRow(at: IndexPath(row: idx, section: 0)) as? VisitCell else { return }
-            
-                if cellToDelete.visit?.djangoOwnID == visit.djangoOwnID {
-                    self.visits.remove(at: idx)
-                    self.tableView.deleteRows(at: [IndexPath(row: idx, section: 0)], with: .automatic)
-                }
+        Network.shared.deleteVisit(visit: visit) { (success) in return }
+        
+        let indexToDelete = self.visits.firstIndex { (v) -> Bool in
+            v.djangoOwnID == visit.djangoOwnID
+        }
+        
+        if let idx = indexToDelete {
+            guard let cellToDelete = self.tableView.cellForRow(at: IndexPath(row: idx, section: 0)) as? VisitCell else { return }
+        
+            if cellToDelete.visit?.djangoOwnID == visit.djangoOwnID {
+                self.visits.remove(at: idx)
+                self.tableView.deleteRows(at: [IndexPath(row: idx, section: 0)], with: .automatic)
             }
         }
     }

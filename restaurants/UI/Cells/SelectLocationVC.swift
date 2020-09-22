@@ -131,9 +131,13 @@ class SelectLocationVC: UIViewController {
     
     @objc private func doneWithSelectingLocation() {
         if askPermissionBeforeSending {
-            self.alert(title: "Are you sure you want to select this location?", message: nil) { [weak self] in
-                self?.executeDoneWithSelectingLocation()
-            }
+            
+            self.appAlert(title: "Are you sure you want to select this location?", message: nil, buttons: [
+                ("Cancel", nil),
+                ("Select", { [weak self] in
+                    self?.executeDoneWithSelectingLocation()
+                })
+            ])            
         } else {
             executeDoneWithSelectingLocation()
         }

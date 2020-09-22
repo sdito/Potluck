@@ -244,7 +244,7 @@ class SubmitRestaurantVC: UIViewController {
             let firstPhotoDate = firstPhotoWhole.date.convertToUTC()
             
             let progressView = ProgressView(delegate: self)
-            let vc = ShowViewVC(newView: progressView, fromBottom: false)
+            let vc = ShowViewVC(newView: progressView, mode: .top)
             vc.modalPresentationStyle = .overFullScreen
             self.navigationController?.present(vc, animated: false, completion: nil)
             
@@ -323,7 +323,7 @@ class SubmitRestaurantVC: UIViewController {
         mapLocationView.layer.cornerRadius = 25.0
         mapLocationView.clipsToBounds = true
         
-        let newVc = ShowViewVC(newView: mapLocationView, fromBottom: true)
+        let newVc = ShowViewVC(newView: mapLocationView, mode: .middle)
         newVc.modalPresentationStyle = .overFullScreen
         self.navigationController?.present(newVc, animated: false, completion: nil)
     }
@@ -376,11 +376,7 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
                 newHeight = max(self.containerViewBaseHeight, self.containerViewHeightAnchor.constant - abs(scrollDiff))
             }
             if newHeight != self.containerViewHeightAnchor.constant {
-                
-                
-                
                 allowChanges = false
-                #warning("this block ruins everything")
                 if isScrollingDown {
                     let difference = newHeight - self.containerViewHeightAnchor.constant
                     scrollView.contentOffset.y -= difference
@@ -391,9 +387,6 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
                     }
                 }
                 allowChanges = true
-                
-                
-                
             }
             previousScrollOffset = scrollView.contentOffset.y
             

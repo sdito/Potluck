@@ -18,7 +18,7 @@ protocol RestaurantCellDelegate: class {
 
 class RestaurantCell: UITableViewCell {
     
-    private var restaurant: Restaurant!
+    var restaurant: Restaurant!
     private weak var delegate: RestaurantCellDelegate!
     
     var titleLabel = UILabel()
@@ -103,6 +103,7 @@ class RestaurantCell: UITableViewCell {
         restaurantImageView.backgroundColor = .secondarySystemBackground
         restaurantImageView.layer.cornerRadius = 5.0
         restaurantImageView.clipsToBounds = true
+        restaurantImageView.contentMode = .scaleAspectFill
     }
     
     private func setUpTransactions() {

@@ -244,9 +244,7 @@ class RestaurantDetailVC: UIViewController {
         stackView.addArrangedSubview(headerDetailView)
 
         stackView.addArrangedSubview(RestaurantCategoriesView(restaurant: restaurant))
-        
         stackView.addArrangedSubview(MapCutoutView(userLocation: locationManager.getUserLocation() ?? .simulatorDefault, userDestination: restaurant.coordinate, restaurant: restaurant, vc: self))
-        
         
         scrollView.setCorrectContentSize()
         
@@ -276,11 +274,6 @@ class RestaurantDetailVC: UIViewController {
                         if let firstPhoto = self.restaurant.additionalInfo?.photos.first {
                             self.imageView.addImageFromUrl(firstPhoto, autoResize: true)
                         }
-                    }
-                }
-                if let dateData = self.restaurant.systemTime {
-                    for day in dateData {
-                        print(day)
                     }
                 }
             }

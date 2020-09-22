@@ -191,7 +191,7 @@ class ImageSelectorVC: UIViewController {
             case .denied, .restricted:
                 print("Not allowed")
                 DispatchQueue.main.async {
-                    let button = self.collectionView.setEmptyWithAction(message: "Photo authorization not enabled. Enable to upload photos from your visits.", buttonTitle: "Change authorization")
+                    let button = self.collectionView.setEmptyWithAction(message: "Photo authorization not enabled. Enable to upload photos from your visits.", buttonTitle: "Enable access in privacy settings")
                     button.addTarget(self, action: #selector(self.photosNotAuthorized), for: .touchUpInside)
                 }
             case .notDetermined:
@@ -406,12 +406,15 @@ class ImageSelectorVC: UIViewController {
     }
     
     @objc private func infoButtonPressed() {
-        self.alert(title: "Photos", message: "Press and hold then drag a photo to change the order. The first photo is the main photo and will be displayed first.")
+        self.appAlert(title: "Photos", message: "Press and hold then drag a photo to change the order. The first photo is the main photo and will be displayed first.", buttons: [("Ok", nil)])
     }
     
     @objc private func photosNotAuthorized() {
-        print("Photos are not authorized")
-        #warning("need to give instructions here")
+        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else { return }
+
+        if UIApplication.shared.canOpenURL(settingsUrl) {
+            UIApplication.shared.open(settingsUrl, completionHandler: { _ in return })
+        }
     }
     
     private func updateSelectUpToLabel() {

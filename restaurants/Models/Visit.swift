@@ -25,7 +25,7 @@ class Visit: Codable {
     var yelpID: String?
     
     private var serverDateVisited: Date // from extracting the date on the main image
-    private var serverDatePosted: Date; #warning("need to use, for auto_add in django")
+    private var serverDatePosted: Date  // need to use, for auto_add in django
     
     var longitude: Double?
     var latitude: Double?
@@ -94,7 +94,7 @@ class Visit: Codable {
         
         let editTextView = EnterValueView(text: text, placeholder: placeHolder, controller: nil, delegate: enterTextViewDelegate, mode: mode)
         
-        let vc = ShowViewVC(newView: editTextView, fromBottom: true)
+        let vc = ShowViewVC(newView: editTextView, mode: .middle)
         editTextView.controller = vc
         vc.modalPresentationStyle = .overFullScreen
         presentingVC.present(vc, animated: false, completion: nil)

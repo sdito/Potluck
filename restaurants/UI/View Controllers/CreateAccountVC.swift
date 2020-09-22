@@ -131,7 +131,8 @@ class CreateAccountVC: UIViewController {
                                 self.navigationController?.popViewController(animated: true)
                             }
                         case .failure(let error):
-                           self.alert(title: "Error", message: error.message)
+                            self.appAlert(title: "Error", message: error.message, buttons: [("Ok", nil)])
+                        
                         }
                     }
                 }
@@ -140,14 +141,14 @@ class CreateAccountVC: UIViewController {
                 if messages.count < 1 {
                     messages = ["Please try again."]
                 }
-                self.alert(title: "Unable to create account", message: messages.joined(separator: "\n\n"))
+                self.appAlert(title: "Unable to create account", message: messages.joined(separator: "\n\n"), buttons: [("Ok", nil)])
                 UIDevice.vibrateError()
             }
         case .logIn:
             emailLogInField.shakeIfNeeded()
             passwordLogInField.shakeIfNeeded()
             guard let email = emailLogInField.text, let password = passwordLogInField.text, email.count > 0 && password.count > 0 else {
-                self.alert(title: "Unable to log in", message: "Please enter a valid email and password to log in.")
+                self.appAlert(title: "Unable to log in", message: "Please enter a valid email and password to log in.", buttons: [("Ok", nil)])
                 UIDevice.vibrateError()
                 return
             }
@@ -161,7 +162,7 @@ class CreateAccountVC: UIViewController {
                             self.navigationController?.popViewController(animated: true)
                         }
                     case .failure(let error):
-                        self.alert(title: "Error", message: error.message)
+                        self.appAlert(title: "Error", message: error.message, buttons: [("Ok", nil)])
                         UIDevice.vibrateError()
                         break
                     }

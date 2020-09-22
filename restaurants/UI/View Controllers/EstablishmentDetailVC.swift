@@ -294,7 +294,7 @@ class EstablishmentDetailVC: UIViewController {
     
     private func changeTextForEstablishment() {
         let editTextView = EnterValueView(text: "Rename \(establishment?.name ?? "your place")", placeholder: "Enter new name", controller: nil, delegate: self, mode: .textField)
-        let vc = ShowViewVC(newView: editTextView, fromBottom: true)
+        let vc = ShowViewVC(newView: editTextView, mode: .middle)
         editTextView.controller = vc
         vc.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: false, completion: nil)
@@ -365,12 +365,16 @@ class EstablishmentDetailVC: UIViewController {
                      ("Edit location", { [weak self] in self?.selectNewLocation()})
                 ])
             }),
+            
             ("Delete \(establishmentName)", {
-                [weak self] in self?.alert(title: "Are you sure you want to delete this \(establishmentName)?", message: "This will also delete all of your visits to this \(establishmentName). This action cannot be undone.", positiveAction: { [weak self] in
-                    Network.shared.deleteEstablishment(establishment: establishment) { _ in return }
-                    self?.dismissChild()
-                    NotificationCenter.default.post(name: .establishmentDeleted, object: nil, userInfo: ["establishment": establishment])
-                })
+                [weak self] in self?.appAlert(title: "Are you sure you want to delete this \(establishmentName)", message: "This will also delete all of your visits to this \(establishmentName). This action cannot be undone.", buttons: [
+                    ("Cancel", nil),
+                    ("Delete", { [weak self] in
+                        Network.shared.deleteEstablishment(establishment: establishment) { _ in return }
+                        self?.dismissChild()
+                        NotificationCenter.default.post(name: .establishmentDeleted, object: nil, userInfo: ["establishment": establishment])
+                    })
+                ])
             })
         ])
     }

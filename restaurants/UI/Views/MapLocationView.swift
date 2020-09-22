@@ -31,11 +31,6 @@ class MapLocationView: UIView {
         
         
         
-        for _ in 1...10 {
-            print(self.bounds.size, imageView.bounds.size, self.frame.size, imageView.bounds.size)
-        }
-        
-        
         #warning("this is really bad")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             self.setUpLocation()
@@ -87,7 +82,6 @@ class MapLocationView: UIView {
     }
     
     func setUpSnapshot(with coordinate: CLLocationCoordinate2D) {
-        
         
         let options = MKMapSnapshotter.Options()
         options.region = MKCoordinateRegion(center: coordinate, latitudinalMeters: CLLocationDistance(wantedDistance), longitudinalMeters: CLLocationDistance(wantedDistance))

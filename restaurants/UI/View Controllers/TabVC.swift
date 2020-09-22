@@ -16,6 +16,7 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("need to make sure errors are correct on VisitView in django")
     #warning("maybe have a widget")
     #warning("add tags to visits")
+    #warning("image url can expire before it is seen")
     /*
      if previousIndex != i {
          let generator = UISelectionFeedbackGenerator()
@@ -47,7 +48,20 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if viewController.isKind(of: AddRestaurantVC.self) {
-            self.presentAddRestaurantVC()
+//            self.presentAddRestaurantVC()
+//            return false
+
+            
+            self.appActionSheet(buttons: [
+                AppAction(title: "One", action: { print("One") }),
+                AppAction(title: "Two", action: { print("Two") }),
+                AppAction(title: "Action sheet", action: nil, buttons: [
+                    AppAction(title: "AAA", action: { print("AAA") }),
+                    AppAction(title: "BBB", action: { print("BBB") }),
+                    AppAction(title: "CCC", action: { print("CCC") }),
+                ])
+            ])
+            
             return false
         }
         return true

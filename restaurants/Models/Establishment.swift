@@ -132,8 +132,6 @@ class Establishment: Codable {
     }
     
     func updateSelfForValuesThatAreNil(newEstablishment new: Establishment) {
-        
-        #warning("need to complete")
         if self.longitude == nil { self.longitude = new.longitude }
         if self.latitude == nil { self.latitude = new.longitude }
         if self.yelpID == nil { self.yelpID = new.yelpID }
