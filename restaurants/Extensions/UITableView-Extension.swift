@@ -101,7 +101,9 @@ extension UITableView {
         guard let tableSuper = self.superview else { return nil }
         firstCell.isUserInteractionEnabled = false
         
-        let dummyView = UIView(frame: CGRect(x: firstCell.frame.origin.x - animationSwipeSize, y: firstCell.frame.origin.y, width: animationSwipeSize, height: firstCell.frame.height))
+        let firstCellFrame = self.convert(firstCell.frame, to: tableSuper)
+        
+        let dummyView = UIView(frame: CGRect(x: firstCellFrame.origin.x - animationSwipeSize, y: firstCellFrame.origin.y, width: animationSwipeSize, height: firstCellFrame.height))
         dummyView.translatesAutoresizingMaskIntoConstraints = false
         dummyView.backgroundColor = infoBackgroundColor
         tableSuper.addSubview(dummyView)

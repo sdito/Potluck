@@ -14,7 +14,7 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("place for other images, maybe make all images into just images")
     
     #warning("need to make sure errors are correct on VisitView in django")
-    #warning("maybe have a widget")
+    #warning("maybe have a widget -> one that has a map based on the last area you searched, that has buttons for search shortcuts, one that lets you add a visit maybe")
     #warning("add tags to visits")
     #warning("image url can expire before it is seen")
     #warning("setting to override dark mode in app")
@@ -43,6 +43,8 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if viewController.isKind(of: AddRestaurantVC.self) {
+            
+            #warning("only do this if the user is logged in, have an alert or something if they are not")
             self.presentAddRestaurantVC()
             return false
         }

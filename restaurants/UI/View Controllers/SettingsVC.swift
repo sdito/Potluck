@@ -14,6 +14,8 @@ class SettingsVC: UIViewController {
     private let reuseIdentifier = "settingCellReuseIdentifier"
     private let infoBackgroundColor = UIColor.systemYellow
     private var dummyView: UIView?
+    private var contentOffset: CGFloat?
+    private var originalDummyContentOffsetY: CGFloat = 0.0
     var seenBefore = false
     
     override func viewDidLoad() {
@@ -42,10 +44,9 @@ class SettingsVC: UIViewController {
         if !seenBefore {
             seenBefore = true
             dummyView = tableView.simulateSwipingOnFirstCell(infoBackgroundColor: infoBackgroundColor)
+            originalDummyContentOffsetY = dummyView?.frame.origin.y ?? 0.0
         }
     }
-    
-    
     
     override func viewWillDisappear(_ animated: Bool) {
         dummyView?.alpha = 0.0
@@ -102,5 +103,18 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         return UISwipeActionsConfiguration(actions: [action])
     }
     
+    
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView == tableView {
+            let value = scrollView.contentOffset.y
+            if let contentOffset = contentOffset {
+                let difference = value - contentOffset
+                dummyView?.frame.origin.y = originalDummyContentOffsetY - difference
+            } else {
+                contentOffset = value
+            }
+        }
+    }
     
 }

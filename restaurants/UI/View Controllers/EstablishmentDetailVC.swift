@@ -67,7 +67,8 @@ class EstablishmentDetailVC: UIViewController {
         setUpScrollingSelectDateView()
         setUpSpacer()
         setUpCollectionView()
-        edgesForExtendedLayout = [.left, .top, .right]
+        
+        edgesForExtendedLayout = []
         
         NotificationCenter.default.addObserver(self, selector: #selector(visitChanged(notification:)), name: .visitUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(visitDeleted(notification:)), name: .visitDeleted, object: nil)
@@ -80,7 +81,7 @@ class EstablishmentDetailVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
-        self.setNavigationBarColor(color: Colors.navigationBarColor)
+        self.setNavigationBarColor()
         self.tabBarController?.tabBar.isHidden = false
     }
     

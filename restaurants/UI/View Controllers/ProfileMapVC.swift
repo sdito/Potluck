@@ -48,7 +48,7 @@ class ProfileMapVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
-        self.setNavigationBarColor(color: Colors.navigationBarColor)
+        self.setNavigationBarColor()
     }
     
     deinit {

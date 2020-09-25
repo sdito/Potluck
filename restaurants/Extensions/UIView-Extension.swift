@@ -11,6 +11,10 @@ import SkeletonView
 
 extension UIView {
     
+    var appTraitCollection: UITraitCollection {
+        return self.findViewController()?.traitCollection ?? self.traitCollection
+    }
+    
     func addBlurEffect(style: UIBlurEffect.Style = .systemThinMaterial) {
         let blur = UIVisualEffectView(effect: UIBlurEffect(style: style))
         blur.translatesAutoresizingMaskIntoConstraints = false
@@ -93,23 +97,25 @@ extension UIView {
     static let notificationLabelTag = 7
     
     func showNotificationStyleText(str: String) {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .smallBold
-        label.textAlignment = .center
-        label.textColor = .white
-        label.text = str
-        label.backgroundColor = Colors.secondary
-        self.addSubview(label)
-        label.equalSides()
-        label.layoutIfNeeded()
-        NSLayoutConstraint.activate([
-            label.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: label.bounds.height / 3.0),
-            label.topAnchor.constraint(equalTo: self.topAnchor, constant: -(label.bounds.height / 3.0))
-        ])
-        label.clipsToBounds = true
-        label.layer.cornerRadius = label.bounds.height / 2.0
-        label.tag = UIView.notificationLabelTag
+        self.appTraitCollection.performAsCurrent {
+            let label = UILabel()
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.font = .smallBold
+            label.textAlignment = .center
+            label.textColor = .white
+            label.text = str
+            label.backgroundColor = Colors.secondary
+            self.addSubview(label)
+            label.equalSides()
+            label.layoutIfNeeded()
+            NSLayoutConstraint.activate([
+                label.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: label.bounds.height / 3.0),
+                label.topAnchor.constraint(equalTo: self.topAnchor, constant: -(label.bounds.height / 3.0))
+            ])
+            label.clipsToBounds = true
+            label.layer.cornerRadius = label.bounds.height / 2.0
+            label.tag = UIView.notificationLabelTag
+        }
     }
     
     func removeNotificationStyleText() {
@@ -155,7 +161,7 @@ extension UIView {
         self.layer.insertSublayer(gradientLayer, at: 0)
     }
     
-    func setGradientBackgroundVertical(colorBottom: UIColor, colorTop: UIColor){
+    func setGradientBackgroundVertical(colorBottom: UIColor, colorTop: UIColor) {
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = [colorTop.cgColor, colorBottom.cgColor]
         gradientLayer.startPoint = CGPoint(x: 0.5, y: 1.0)
@@ -170,7 +176,10 @@ extension UIView {
             self.isSkeletonable = true
         }
         
-        self.showAnimatedGradientSkeleton(transition: .none)
+        self.appTraitCollection.performAsCurrent {
+            self.showAnimatedGradientSkeleton(transition: .none)
+        }
+        
     }
     
     func appEndSkeleton() {

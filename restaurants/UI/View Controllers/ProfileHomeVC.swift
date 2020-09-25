@@ -28,7 +28,7 @@ class ProfileHomeVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
-        self.setNavigationBarColor(color: Colors.navigationBarColor)
+        self.setNavigationBarColor()
         self.navigationController?.navigationBar.tintColor = Colors.main
         self.tableView.separatorInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         

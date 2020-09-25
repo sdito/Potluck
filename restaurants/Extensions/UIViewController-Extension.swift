@@ -83,6 +83,11 @@ extension UIViewController {
         let baseVC = AddRestaurantVC()
         let vc = UINavigationController(rootViewController: baseVC)
         vc.modalPresentationStyle = .fullScreen
+        
+        vc.navigationBar.tintColor = Colors.main
+        vc.setNavigationBarColor()
+        vc.navigationBar.isTranslucent = false
+        
         self.present(vc, animated: true, completion: nil)
     }
     
@@ -151,11 +156,20 @@ extension UIViewController {
         mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey : value])
     }
     
-    func setNavigationBarColor(color: UIColor) {
-        let image = UIImage(color: color)
-        #warning("need to fix this when for system light/dark mode change")
-        self.navigationController?.navigationBar.setBackgroundImage(image, for: .default)
-        self.navigationController?.navigationBar.shadowImage = image
+    func setNavigationBarColor(alpha: CGFloat = 1.0) {
+        
+        self.traitCollection.performAsCurrent {
+//            let image = UIImage(color: color)
+//
+//            self.navigationController?.navigationBar.setBackgroundImage(image, for: .default)
+//            self.navigationController?.navigationBar.shadowImage = image
+            
+            self.navigationController?.navigationBar.shadowImage = UIImage(color: .clear)
+            let navView = self.navigationController?.navigationBar.subviews.first
+            navView?.alpha = alpha
+        }
+        
+        
     }
     
     

@@ -32,7 +32,6 @@ class RestaurantDetailVC: UIViewController {
     private var navigationTitleHidden = true
     private var distanceOfImageView: CGFloat = 10000.0
     private var latestAlpha = 0.0
-    private var navBarColor: UIColor?
     private let morePhotosNormalTitle = "More photos"
     private let morePhotosScrolledTitle = "Release for photos"
     private var haveMorePhotosShowOnRelease = false
@@ -87,7 +86,7 @@ class RestaurantDetailVC: UIViewController {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         self.tabBarController?.tabBar.isHidden = false
-        self.setNavigationBarColor(color: Colors.navigationBarColor.withAlphaComponent(0.0))
+        self.setNavigationBarColor(alpha: 0.0)
     }
 
     private func setUpScrollView() {
@@ -213,8 +212,7 @@ class RestaurantDetailVC: UIViewController {
         self.view.backgroundColor = .secondarySystemBackground
         self.navigationItem.title = ""
         
-        navBarColor = Colors.navigationBarColor.withAlphaComponent(0.0)
-        self.setNavigationBarColor(color: navBarColor!)
+        self.setNavigationBarColor(alpha: 0.0)
         self.navigationController?.navigationBar.tintColor = Colors.main
         
         setUpScrollView()
@@ -231,6 +229,7 @@ class RestaurantDetailVC: UIViewController {
         
         setTitleInfo()
         imageView.layoutIfNeeded()
+        
         distanceOfImageView = imageView.bounds.height - (self.navigationController?.navigationBar.bounds.height ?? 0.0)
         
         if let imageAlreadyFound = imageAlreadyFound {
@@ -331,18 +330,17 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
         }
         
         let secondOffset = scrollView.contentOffset.y
+        
         if secondOffset > distanceOfImageView {
-            
             if navigationTitleHidden {
+                
                 self.navigationItem.title = restaurant.name
                 navigationTitleHidden = false
             }
             if latestAlpha != 1.0 {
                 if allowNavigationBarChange {
-                    navBarColor = Colors.navigationBarColor.withAlphaComponent(1.0)
-                    self.setNavigationBarColor(color: navBarColor!)
+                    self.setNavigationBarColor(alpha: 1.0)
                 }
-                
             }
         } else {
             if !navigationTitleHidden {
@@ -359,13 +357,15 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
             if ratio != latestAlpha {
                 
                 if allowNavigationBarChange {
-                    navBarColor = Colors.navigationBarColor.withAlphaComponent(CGFloat(ratio))
-                    self.setNavigationBarColor(color: navBarColor!)
+                    self.setNavigationBarColor(alpha: CGFloat(ratio))
                 }
                 
                 latestAlpha = ratio
             }
         }
+        
+        
+        
     }
 }
 

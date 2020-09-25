@@ -60,7 +60,7 @@ class RestaurantSpecificInfoVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.setNavigationBarColor(color: Colors.navigationBarColor)
+        self.setNavigationBarColor()
     }
     
     func setUp(restaurant: Restaurant) {

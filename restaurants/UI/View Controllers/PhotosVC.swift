@@ -50,7 +50,7 @@ class PhotosVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.setNavigationBarColor(color: Colors.navigationBarColor)
+        self.setNavigationBarColor()
     }
 
     private func setUpCollectionView() {

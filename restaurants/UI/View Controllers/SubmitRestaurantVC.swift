@@ -82,12 +82,14 @@ class SubmitRestaurantVC: UIViewController {
         setUpImageSelector()
         findAssociatedRestaurant()
         setUpNavigationBar()
+        
+        self.edgesForExtendedLayout = [.bottom, .left, .right]
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
-        self.setNavigationBarColor(color: Colors.navigationBarColor)
+        self.setNavigationBarColor()
         self.tabBarController?.tabBar.isHidden = true
     }
     

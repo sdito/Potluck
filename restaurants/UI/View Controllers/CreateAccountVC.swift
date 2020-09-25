@@ -40,6 +40,7 @@ class CreateAccountVC: UIViewController {
         setUpDoneButton()
         setUpAlterBetweenLogInAndCreate()
         setUpDummyView()
+        self.edgesForExtendedLayout = []
     }
     
     

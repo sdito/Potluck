@@ -55,8 +55,7 @@ class AddRestaurantVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
-        self.navigationController?.navigationBar.tintColor = Colors.main
-        self.setNavigationBarColor(color: Colors.navigationBarColor)
+        
         setUpHeaderPortionWithCancel()
         setUpSearchOptions()
         setUpSearchTableView()
@@ -74,7 +73,6 @@ class AddRestaurantVC: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
-        
         if self.isBeingDismissed || self.navigationController?.isBeingDismissed ?? false {
             // View disappearing..check for any establishments without a django ID"
             // also need to check the stuff about creating a visit then adding a django id to the establishment
@@ -87,7 +85,6 @@ class AddRestaurantVC: UIViewController {
             print()
         }
     }
-    
     
     private func setUpHeaderPortionWithCancel() {
         self.view.addSubview(headerView)
