@@ -11,59 +11,22 @@ import UIKit
 class SettingsVC: UIViewController {
     
     private let tableView = UITableView(frame: .zero, style: .grouped)
+    private let reuseIdentifier = "settingCellReuseIdentifier"
+    private let infoBackgroundColor = UIColor.systemYellow
+    private var dummyView: UIView?
+    var seenBefore = false
     
-    enum Setting: String, CaseIterable {
-        case account = "Account"
-        case settings = "Settings"
-        
-        var rows: [Row] {
-            switch self {
-            case .account:
-                return [.logout, .editAccountInfo]
-            case .settings:
-                return [.resetAllData, .hapticFeedback]
-            }
-        }
-    }
-    
-    enum Row: String {
-        case logout = "Logout"
-        case editAccountInfo = "Edit account info"
-        case resetAllData = "Reset all data"
-        case hapticFeedback = "Enable haptic feedback"
-        
-        func action(vc: UIViewController) {
-            switch self {
-            case .logout:
-                
-                vc.appAlert(title: "Logout", message: "Are you sure you want to log out of your account \(Network.shared.account?.username ?? "now")?", buttons: [
-                    ("Cancel", nil),
-                    ("Logout", {
-                        if Network.shared.loggedIn {
-                            Network.shared.account?.logOut()
-                            vc.showMessage("Logged out of account")
-                            vc.navigationController?.popViewController(animated: true)
-                        }
-                    })
-                ])
-                
-                
-            case .editAccountInfo:
-                print("Need to edit account info")
-            case .resetAllData:
-                print("Need to reset all data")
-            case .hapticFeedback:
-                print("Need to do haptic feedback")
-            }
-        }
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
         setUpTableView()
+        navigationItem.title = "Settings"
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadSettingsNotification), name: .reloadSettings, object: nil)
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
     
     private func setUpTableView() {
         tableView.delegate = self
@@ -71,11 +34,26 @@ class SettingsVC: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(tableView)
         tableView.constrainSides(to: self.view)
+        tableView.register(SettingCell.self, forCellReuseIdentifier: reuseIdentifier)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if !seenBefore {
+            seenBefore = true
+            dummyView = tableView.simulateSwipingOnFirstCell(infoBackgroundColor: infoBackgroundColor)
+        }
     }
     
     
     
+    override func viewWillDisappear(_ animated: Bool) {
+        dummyView?.alpha = 0.0
+    }
     
+    @objc private func reloadSettingsNotification() {
+        tableView.reloadData()
+    }
 }
 
 
@@ -94,17 +72,34 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
-        let text = Setting.allCases[indexPath.section].rows[indexPath.row]
-        cell.textLabel?.text = text.rawValue
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! SettingCell
+        let cellRow = Setting.allCases[indexPath.section].rows[indexPath.row]
+        cell.setUp(value: cellRow)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let row = Setting.allCases[indexPath.section].rows[indexPath.row]
-        row.action(vc: self)
+        if let selectAction = row.pressAction {
+            selectAction()
+        }
+    }
+    
+    
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        #warning("complete and implement")
+        let action = UIContextualAction(style: .normal, title: "Info", handler: { (ac:UIContextualAction, view:UIView, success: (Bool) -> Void) in
+            let cellRow = Setting.allCases[indexPath.section].rows[indexPath.row]
+            self.appAlert(title: cellRow.title, message: cellRow.description, buttons: [
+                ("Ok", nil)
+            ])
+            success(true)
+        })
         
+        action.backgroundColor = infoBackgroundColor
+        
+        return UISwipeActionsConfiguration(actions: [action])
     }
     
     

@@ -19,8 +19,12 @@ extension UIImageView {
                 
                 if let img = img {
                     if autoResize {
-                        let resized = img.resizeToBeNoLargerThanScreenWidth()
-                        self.image = resized
+                        DispatchQueue.global(qos: .background).async {
+                            let resized = img.resizeToBeNoLargerThanScreenWidth()
+                            DispatchQueue.main.async {
+                                self.image = resized
+                            }
+                        }
                     } else {
                         self.image = img
                     }

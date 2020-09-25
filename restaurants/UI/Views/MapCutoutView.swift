@@ -79,11 +79,11 @@ class MapCutoutView: UIView {
         
     
         var boundingRect = route.polyline.boundingMapRect
-        boundingRect = boundingRect.insetBy(dx: -boundingRect.width * 0.1, dy: -boundingRect.height * 0.1)
+        boundingRect = boundingRect.insetBy(dx: -boundingRect.width * 0.2, dy: -boundingRect.height * 0.2)
         
         options.region = MKCoordinateRegion(boundingRect)
         options.size = CGSize(width: UIScreen.main.bounds.width, height: height)
-        
+        options.traitCollection = self.traitCollection
         options.scale = UIScreen.main.scale
         options.pointOfInterestFilter = .init(excluding: [.restaurant, .cafe])
         
@@ -138,9 +138,6 @@ class MapCutoutView: UIView {
             let stepImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
             self.addTimeLabel(time: route.expectedTravelTime)
-            for _ in 1...10 {
-                print("Step image is being returned")
-            }
             completionHandler(stepImage)
         }
     }
@@ -164,10 +161,8 @@ class MapCutoutView: UIView {
         label.fadedBackground()
         self.addSubview(label)
         
-        NSLayoutConstraint.activate([
-            label.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5.0),
-            label.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5.0)
-        ])
+        label.constrain(.trailing, to: self, .trailing, constant: 5.0)
+        label.constrain(.bottom, to: self, .bottom, constant: 5.0)
         
     }
     

@@ -12,6 +12,18 @@ import MapKit
 
 extension UIViewController {
     
+    var visibleViewController: UIViewController? {
+        if let navigationController = self as? UINavigationController {
+            return navigationController.topViewController?.visibleViewController
+        } else if let tabBarController = self as? UITabBarController {
+            return tabBarController.selectedViewController?.visibleViewController
+        } else if let presentedViewController = presentedViewController {
+            return presentedViewController.visibleViewController
+        } else {
+            return self
+        }
+    }
+    
     func appAlert(title: String?, message: String?, buttons: [AlertView.ButtonAction]?) {
         let alertView = AlertView(title: title, message: message, buttons: buttons)
         let vc = ShowViewVC(newView: alertView, mode: .middle, allowScreenPressToDismiss: false)
@@ -139,27 +151,9 @@ extension UIViewController {
         mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey : value])
     }
     
-    
-    // MARK: Alerts
-    #warning("eventually delete, replace with appAlert")
-    func actionSheet(title: String? = nil, message: String? = nil, actions: [(title: String, pressed: () -> ())]) {
-        let actionSheet = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
-        
-        for action in actions {
-            //let act = UIAlertAction(title: action.title, style: .default, handler: action.pressed)
-            let act = UIAlertAction(title: action.title, style: .default) { (alertAction) in
-                action.pressed()
-            }
-            actionSheet.addAction(act)
-        }
-        actionSheet.addAction(.init(title: "Cancel", style: .cancel, handler: nil))
-        self.present(actionSheet, animated: true)
-        
-    }
-    
-    
     func setNavigationBarColor(color: UIColor) {
         let image = UIImage(color: color)
+        #warning("need to fix this when for system light/dark mode change")
         self.navigationController?.navigationBar.setBackgroundImage(image, for: .default)
         self.navigationController?.navigationBar.shadowImage = image
     }

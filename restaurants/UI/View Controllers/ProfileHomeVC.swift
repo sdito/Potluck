@@ -103,6 +103,7 @@ class ProfileHomeVC: UIViewController {
     }
     
     @objc private func rightBarButtonItemSelector() {
+        
         if Network.shared.loggedIn {
             self.navigationController?.pushViewController(SettingsVC(), animated: true)
         } else {
@@ -344,15 +345,20 @@ extension ProfileHomeVC: VisitCellDelegate {
                 otherImageCache.setObject(newObject, forKey: imageRequestKey)
                 Network.shared.getImage(url: imageUrl) { [weak self] (imageFound) in
                     if let image = imageFound {
-                        print("Image gotten from request: \(imageRequestKey)")
-                        let resized = image.resizeToBeNoLargerThanScreenWidth()
-                        newObject.image = resized
+                        DispatchQueue.global(qos: .background).async {
+                            #warning("See if this is actually doing anything")
+                            let resized = image.resizeToBeNoLargerThanScreenWidth()
+                            DispatchQueue.main.async {
+                                print("Image gotten from request: \(imageRequestKey)")
+                                
+                                newObject.image = resized
 
-                        if let cell = self?.cellFrom(visit: visit) {
-                            print("Image set from request: \(imageRequestKey)")
-                            cell.otherImageViews[i].image = resized
+                                if let cell = self?.cellFrom(visit: visit) {
+                                    print("Image set from request: \(imageRequestKey)")
+                                    cell.otherImageViews[i].image = resized
+                                }
+                            }
                         }
-
                     } else {
                         // remove the value from the cache
                         print("Image not found for url: \(imageRequestKey)")

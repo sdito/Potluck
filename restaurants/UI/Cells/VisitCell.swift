@@ -207,19 +207,18 @@ class VisitCell: UITableViewCell {
     
     @objc private func moreActionsSelector() {
         
-        guard let delegate = delegate else { return }
-        guard let vc = self.findViewController() else { return }
-        guard let visit = visit else { return }
-        
-        self.findViewController()?.actionSheet(actions: [
-            ("Edit visit", {[weak self] in vc.actionSheet(actions: [
-                ("Edit comment", { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .textView, enterTextViewDelegate: self) }),
-                ("Edit rating", { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .rating, enterTextViewDelegate: self) })
-            ])}),
-            ("Delete visit", { [weak self] in vc.appAlert(title: "Are you sure you want to delete this visit?", message: "This action cannot be undone.", buttons: [
-                ("Cancel", nil),
-                ("Delete", { [weak self] in delegate.delete(visit: self?.visit) } )
-            ]) })
+        guard let delegate = delegate, let vc = findViewController(), let visit = visit else { return }
+        vc.appActionSheet(buttons: [
+            AppAction(title: "Edit visit", action: nil, buttons: [
+                AppAction(title: "Edit comment", action: { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .textView, enterTextViewDelegate: self) }),
+                AppAction(title: "Edit rating", action: { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .rating, enterTextViewDelegate: self) })
+            ]),
+            AppAction(title: "Delete visit", action: { [weak self] in
+                vc.appAlert(title: "Are you sure you want to delete this visit?", message: "This action cannot be undone.", buttons: [
+                    ("Cancel", nil),
+                    ("Delete", { [weak self] in delegate.delete(visit: self?.visit) } )
+                ])
+            })
         ])
     }
     
@@ -302,14 +301,19 @@ class VisitCell: UITableViewCell {
             Network.shared.getImage(url: url) { [weak self] (img) in
                 guard let self = self else { return }
                 self.visitImageView.appEndSkeleton()
-                let resized = img?.resizeToBeNoLargerThanScreenWidth()
-                self.visitImageView.image = resized
-                imageFound(resized)
+                DispatchQueue.global(qos: .background).async {
+                    let resized = img?.resizeToBeNoLargerThanScreenWidth()
+                    DispatchQueue.main.async {
+                        self.visitImageView.image = resized
+                        imageFound(resized)
+                    }
+                }
             }
         } else {
             imageFound(nil)
         }
     }
+    
 }
 
 // MARK: ScrollingStackViewDelegate

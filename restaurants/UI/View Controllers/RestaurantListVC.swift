@@ -13,8 +13,13 @@ import Hero
 class RestaurantListVC: UIViewController {
     
     var locationAllowed = true
+    var atMiddle = true {
+        didSet {
+            self.handleSettingFooterSize()
+        }
+    }
     private var searchUpdatedFromHere = false
-    private var imageCache = NSCache<NSString, UIImage>(); #warning("major issues with the image cache, might need to change to have a global one, idk")
+    private var imageCache = NSCache<NSString, UIImage>()
     private var owner: FindRestaurantVC!
     private var searchCompleteDelegate: SearchCompleteDelegate!
     private var topContainerView: UIView!
@@ -22,6 +27,7 @@ class RestaurantListVC: UIViewController {
     private var restaurantSearchBar = RestaurantSearchBar()
     private var scrollingStackViewForSearchButtons: ScrollingStackView!
     private let topViewPadding: CGFloat = 7.0
+    
     let filterButton = SizeChangeButton(sizeDifference: .medium, restingColor: .secondaryLabel, selectedColor: .secondaryLabel)
     
     var restaurants: [Restaurant]? {
@@ -31,7 +37,6 @@ class RestaurantListVC: UIViewController {
             if tableView.numberOfRows(inSection: 0) > 0 {
                 tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
             }
-            
         }
     }
     
@@ -221,7 +226,10 @@ class RestaurantListVC: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = UITableView.automaticDimension
+        tableView.showsVerticalScrollIndicator = false
+        // could use by knowing if in medium or full mode, if medium have it as tall as the diff between cell and total, else none
         
+        handleSettingFooterSize()
     }
     
     @objc private func showFilterController() {
@@ -235,15 +243,31 @@ class RestaurantListVC: UIViewController {
     }
     
     func scrollToRestaurant(_ restaurant: Restaurant) {
-        #warning("will not scroll to the last few rows, need to fix, also issue with the image cache")
         
         let indexToScrollTo = restaurants?.firstIndex { (rest) -> Bool in rest.id == restaurant.id }
         guard let index = indexToScrollTo else { return }
         
         tableView.scrollToRow(at: IndexPath(row: index, section: 0), at: .top, animated: true)
+    }
+    
+    private func handleSettingFooterSize() {
+        
+        var contentOffset: CGFloat {
+            if self.atMiddle, let restaurants = self.restaurants, restaurants.count > 0 {
+                let lastRow = tableView.visibleCells.first?.bounds.height ?? 0.0//self.tableView.cellForRow(at: IndexPath(row: restaurants.count - 1, section: 0))
+                return self.tableView.bounds.height - lastRow
+            } else {
+                return 0.0
+            }
+        }
+        
+        #warning("working, but need to call when the last cell is actually laid out")
+        UIView.animate(withDuration: 0.3) {
+            self.tableView.contentInset.bottom = contentOffset
+        }
+        
         
     }
-
 }
 
 
@@ -276,24 +300,26 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: restaurantCellReuseIdentifier) as! RestaurantCell
         let restaurant = restaurants![indexPath.row]
         cell.setUp(restaurant: restaurant, place: indexPath.row + 1, vc: owner)
+        cell.imageView?.image = nil
         let key = "\(indexPath.section).\(indexPath.row)" as NSString
         if let cachedImage = imageCache.object(forKey: key) {
             cell.restaurantImageView.image = cachedImage
         } else {
             cell.restaurantImageView.appStartSkeleton()
             Network.shared.getImage(url: restaurant.imageURL) { [weak self] (img) in
-                guard let self = self else { return }
-                let resized = img?.resizeToBeNoLargerThanScreenWidth()
                 cell.restaurantImageView.appEndSkeleton()
-                
-                #warning("see if this actually does everything")
-                if cell.restaurant.id == restaurant.id {
-                    cell.restaurantImageView.image = resized
-                }
-                
-                
-                if let resized = resized {
-                    self.imageCache.setObject(resized, forKey: key)
+                guard let self = self else { return }
+                DispatchQueue.global(qos: .background).async {
+                    let resized = img?.resizeToBeNoLargerThanScreenWidth()
+                    DispatchQueue.main.async {
+                        if cell.restaurant.id == restaurant.id {
+                            cell.restaurantImageView.image = resized
+                        }
+                        
+                        if let resized = resized {
+                            self.imageCache.setObject(resized, forKey: key)
+                        }
+                    }
                 }
             }
         }
@@ -322,7 +348,6 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
 
 
 // MARK: SearchUpdatedFromMasterDelegate
-
 extension RestaurantListVC: SearchUpdatedFromMasterDelegate {
     func newSearch(search: Network.RestaurantSearch) {
         if searchUpdatedFromHere {

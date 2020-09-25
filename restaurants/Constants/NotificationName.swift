@@ -16,4 +16,5 @@ extension Notification.Name {
     static let establishmentUpdated = Notification.Name("com.stevendito.establishmentUpdated")
     static let visitUpdated = Notification.Name("com.stevendito.visitUpdated")
     static let visitDeleted = Notification.Name("com.stevendito.visitDeleted")
+    static let reloadSettings = Notification.Name("com.stevendito.reloadSettings")
 }

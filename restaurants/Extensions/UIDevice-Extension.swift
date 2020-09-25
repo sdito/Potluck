@@ -8,21 +8,112 @@
 
 import UIKit
 import CoreLocation
+import Photos
 
 extension UIDevice {
+    
+    static let enabled = "Enabled"
+    static let notEnabled = "Not enabled"
+    static let hapticFeedbackEnabled = "hapticFeedbackEnabled"
+    
+    #warning("start of dark mode override")
+    static let systemDarkModeKey = "systemDarkModeKey"
+    static let system = "System"
+    static let overrideDark = "Dark"
+    static let overrideLight = "Light"
+    
+    static func getSystemAppearanceOverrideValue() -> String {
+        let value = UserDefaults.standard.value(forKey: systemDarkModeKey) as? String
+        if let value = value {
+            if value == overrideDark {
+                return overrideDark
+            } else if value == overrideLight {
+                return overrideLight
+            } else {
+                return system
+            }
+        } else {
+            return system
+        }
+    }
+    
+    static func setSystemAppearance(standard: Bool = false, dark: Bool = false, light: Bool = false) {
+        var value: String {
+            if dark {
+                return overrideDark
+            } else if light {
+                return overrideLight
+            } else {
+                return system
+            }
+        }
+        
+        UserDefaults.standard.setValue(value, forKey: systemDarkModeKey)
+        NotificationCenter.default.post(name: .reloadSettings, object: nil)
+        setSystemAppearanceToWindow(window: nil)
+    }
+    
+    static func setSystemAppearanceToWindow(window: UIWindow?) {
+        
+        var useWindow: UIWindow? {
+            if let window = window {
+                return window
+            } else {
+                return UIApplication.appKeyWindow
+            }
+        }
+        
+        let value = UserDefaults.standard.value(forKey: systemDarkModeKey) as? String ?? system
+        if value == overrideDark {
+            print("Setting to dark...")
+            useWindow?.overrideUserInterfaceStyle = .dark
+        } else if value == overrideLight {
+            print("Setting to light...")
+            useWindow?.overrideUserInterfaceStyle = .light
+            print("Setting to system...")
+        } else {
+            useWindow?.overrideUserInterfaceStyle = .unspecified
+        }
+        
+    }
+    
+    #warning("end of dark mode override")
+    
+    static func isHapticFeedbackEnabled() -> Bool {
+        // nil or true -> enabled; false -> not enabled
+        if let value = UserDefaults.standard.value(forKey: hapticFeedbackEnabled) as? Bool {
+            return value
+        } else {
+            return true
+        }
+    }
+    
+    static func changeEnablingHapticFeedback() {
+        let value = UserDefaults.standard.value(forKey: hapticFeedbackEnabled) as? Bool ?? true
+        UserDefaults.standard.setValue(!value, forKey: hapticFeedbackEnabled)
+    }
+    
+    
     static func vibrateSelectionChanged() {
-        let generator = UISelectionFeedbackGenerator()
-        generator.prepare()
-        generator.selectionChanged()
+        if isHapticFeedbackEnabled() {
+            let generator = UISelectionFeedbackGenerator()
+            generator.prepare()
+            generator.selectionChanged()
+        }
     }
     static func vibrateSuccess() {
-        let generator = UINotificationFeedbackGenerator()
-        generator.prepare()
-        generator.notificationOccurred(.success)
+        if isHapticFeedbackEnabled() {
+            let generator = UINotificationFeedbackGenerator()
+            generator.prepare()
+            generator.notificationOccurred(.success)
+        }
     }
     static func vibrateError() {
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.error)
+        if isHapticFeedbackEnabled() {
+            let generator = UINotificationFeedbackGenerator()
+            generator.prepare()
+            generator.notificationOccurred(.error)
+        }
     }
     
     static func readRecentLocationSearchesFromUserDefaults() -> [String] {
@@ -59,4 +150,47 @@ extension UIDevice {
     static func completeLocationEnabled() -> Bool {
         return locationServicesEnabled() && handleAuthorization().authorized
     }
+    
+    static func locationAuthorizedString() -> String {
+        if locationServicesEnabled() && handleAuthorization().authorized {
+            return enabled
+        } else {
+            return notEnabled
+        }
+    }
+    
+    static func photoAccessAuthorizedString() -> String {
+        
+        switch PHPhotoLibrary.authorizationStatus() {
+        case .notDetermined:
+            return notEnabled
+        case .restricted:
+            return notEnabled
+        case .denied:
+            return notEnabled
+        case .authorized:
+            return enabled
+        case .limited:
+            return enabled
+        default:
+            return notEnabled
+        }
+    }
+    
+    static func openAppSettings() {
+        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else { return }
+
+        if UIApplication.shared.canOpenURL(settingsUrl) {
+            UIApplication.shared.open(settingsUrl, completionHandler: { _ in return })
+        }
+    }
+    
+    static func goToReviewPage() {
+        #warning("update with this apps id, 1493046325 is the ID portion")
+        guard let reviewUrl = URL(string: "itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=1493046325&onlyLatestVersion=true&pageNumber=0&sortOrdering=1&type=Purple+Software") else { return }
+        if UIApplication.shared.canOpenURL(reviewUrl) {
+            UIApplication.shared.open(reviewUrl, completionHandler: { _ in return })
+        }
+    }
+    
 }

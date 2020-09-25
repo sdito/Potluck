@@ -358,16 +358,14 @@ class EstablishmentDetailVC: UIViewController {
     @objc private func editEstablishmentPressed() {
         guard let establishment = establishment else { return }
         let establishmentName = establishment.isRestaurant ? "Restaurant" : "Place"
-        self.actionSheet(actions: [
-            ("Edit \(establishmentName)", { [weak self] in
-                self?.actionSheet(actions:
-                    [("Edit name", { [weak self] in self?.changeTextForEstablishment()}),
-                     ("Edit location", { [weak self] in self?.selectNewLocation()})
-                ])
-            }),
-            
-            ("Delete \(establishmentName)", {
-                [weak self] in self?.appAlert(title: "Are you sure you want to delete this \(establishmentName)", message: "This will also delete all of your visits to this \(establishmentName). This action cannot be undone.", buttons: [
+        
+        self.appActionSheet(buttons: [
+            AppAction(title: "Edit \(establishmentName)", action: nil, buttons: [
+                AppAction(title: "Edit name", action: { [weak self] in self?.changeTextForEstablishment()} ),
+                AppAction(title: "Edit location", action: { [weak self] in self?.selectNewLocation()} )
+            ]),
+            AppAction(title: "Delete \(establishmentName)", action: {
+                self.appAlert(title: "Are you sure you want to delete this \(establishmentName)", message: "This will also delete all of your visits to this \(establishmentName). This action cannot be undone.", buttons: [
                     ("Cancel", nil),
                     ("Delete", { [weak self] in
                         Network.shared.deleteEstablishment(establishment: establishment) { _ in return }
@@ -377,6 +375,8 @@ class EstablishmentDetailVC: UIViewController {
                 ])
             })
         ])
+        
+        
     }
     
     @objc private func visitChanged(notification: Notification) {
@@ -479,15 +479,19 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
             cell.url = url
             cell.imageView.image = image
         } else {
-
             cell.imageView.appStartSkeleton()
             Network.shared.getImage(url: url) { [weak self] (image) in
-                let resized = image?.resizeImageToSizeButKeepAspectRatio(targetSize: cell.bounds.size)
                 cell.imageView.appEndSkeleton()
-                cell.url = url
-                cell.imageView.image = resized
-                if let resized = resized {
-                    self?.imageCache.setObject(resized, forKey: key)
+                let bounds = cell.bounds.size
+                DispatchQueue.global(qos: .background).async {
+                    let resized = image?.resizeImageToSizeButKeepAspectRatio(targetSize: bounds)
+                    DispatchQueue.main.async {
+                        cell.url = url
+                        cell.imageView.image = resized
+                        if let resized = resized {
+                            self?.imageCache.setObject(resized, forKey: key)
+                        }
+                    }
                 }
             }
         }

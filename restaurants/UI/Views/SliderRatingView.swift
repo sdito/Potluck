@@ -86,9 +86,10 @@ class SliderRatingView: UIView {
     
     @objc private func sliderValueButtonSelector() {
         
-        self.findViewController()?.actionSheet(actions: [
-            ("Clear rating value", { [weak self] in self?.sliderValue = nil })
+        self.findViewController()?.appActionSheet(buttons: [
+            AppAction(title: "Clear rating value", action: { [weak self] in self?.sliderValue = nil } )
         ])
+        
     }
     
 }

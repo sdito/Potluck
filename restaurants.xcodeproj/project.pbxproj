@@ -57,6 +57,9 @@
 		E2574A3224B7D41D006618D7 /* ScrollingStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A3124B7D41D006618D7 /* ScrollingStackView.swift */; };
 		E263DE2224D0F8E700C0B584 /* SizeChangeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E263DE2124D0F8E700C0B584 /* SizeChangeButton.swift */; };
 		E26CD819251997B70082DBE0 /* ActionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26CD818251997B70082DBE0 /* ActionSheetView.swift */; };
+		E26CD824251BCF510082DBE0 /* SettingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26CD823251BCF510082DBE0 /* SettingCell.swift */; };
+		E26CD828251C0A550082DBE0 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26CD827251C0A550082DBE0 /* Setting.swift */; };
+		E26CD832251D42BB0082DBE0 /* UIApplication-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26CD831251D42BB0082DBE0 /* UIApplication-Extension.swift */; };
 		E2705B5624C3C1340049C1A8 /* RestaurantCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2705B5524C3C1340049C1A8 /* RestaurantCell.swift */; };
 		E271233E24CFD40400A1CC2B /* RestaurantSelectedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E271233D24CFD40400A1CC2B /* RestaurantSelectedView.swift */; };
 		E2768DE824B1020F004CB475 /* RestaurantAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2768DE724B1020F004CB475 /* RestaurantAnnotation.swift */; };
@@ -154,6 +157,9 @@
 		E2574A3124B7D41D006618D7 /* ScrollingStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollingStackView.swift; sourceTree = "<group>"; };
 		E263DE2124D0F8E700C0B584 /* SizeChangeButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeChangeButton.swift; sourceTree = "<group>"; };
 		E26CD818251997B70082DBE0 /* ActionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionSheetView.swift; sourceTree = "<group>"; };
+		E26CD823251BCF510082DBE0 /* SettingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingCell.swift; sourceTree = "<group>"; };
+		E26CD827251C0A550082DBE0 /* Setting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setting.swift; sourceTree = "<group>"; };
+		E26CD831251D42BB0082DBE0 /* UIApplication-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication-Extension.swift"; sourceTree = "<group>"; };
 		E2705B5524C3C1340049C1A8 /* RestaurantCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantCell.swift; sourceTree = "<group>"; };
 		E271233D24CFD40400A1CC2B /* RestaurantSelectedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantSelectedView.swift; sourceTree = "<group>"; };
 		E2768DE724B1020F004CB475 /* RestaurantAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantAnnotation.swift; sourceTree = "<group>"; };
@@ -314,6 +320,7 @@
 		E2778DE624BBA5B600151F29 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				E26CD823251BCF510082DBE0 /* SettingCell.swift */,
 				E23AF9FA24F62075004542A2 /* VisitCell.swift */,
 				E20EA82F24E4AE790064DB86 /* CheckBoxCell.swift */,
 				E2778DE424BBA5B200151F29 /* PhotoCell.swift */,
@@ -381,6 +388,7 @@
 				E2E6E0A42505B40F0005A55B /* UICollectionView-Extension.swift */,
 				E2E6E0A6250761540005A55B /* BinaryFloatingPoint-Extension.swift */,
 				E2E6E0A8250AC77A0005A55B /* UIDevice-Extension.swift */,
+				E26CD831251D42BB0082DBE0 /* UIApplication-Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -417,6 +425,7 @@
 				E2B6A2B624AFECD10070DECA /* Restaurant.swift */,
 				E215535224B3C9A700494E1A /* Review.swift */,
 				E239840F24E9F09800F3828C /* Account.swift */,
+				E26CD827251C0A550082DBE0 /* Setting.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -541,6 +550,7 @@
 				E2E6E09F250445100005A55B /* ProfileMapVC.swift in Sources */,
 				E26CD819251997B70082DBE0 /* ActionSheetView.swift in Sources */,
 				E27A757024A85AA100E446EE /* UIViewController-Extension.swift in Sources */,
+				E26CD828251C0A550082DBE0 /* Setting.swift in Sources */,
 				E2768DF024B15340004CB475 /* Colors.swift in Sources */,
 				E2A0147324F617ED00379518 /* UITableView-Extension.swift in Sources */,
 				E23AF9FB24F62075004542A2 /* VisitCell.swift in Sources */,
@@ -581,6 +591,8 @@
 				E20EA83024E4AE790064DB86 /* CheckBoxCell.swift in Sources */,
 				E27A755C24A8557E00E446EE /* SceneDelegate.swift in Sources */,
 				E23AFA0D24FCCC30004542A2 /* PlaceholderTextView.swift in Sources */,
+				E26CD832251D42BB0082DBE0 /* UIApplication-Extension.swift in Sources */,
+				E26CD824251BCF510082DBE0 /* SettingCell.swift in Sources */,
 				E23AFA0B24FC961D004542A2 /* ShowViewVC.swift in Sources */,
 				E233541624B15F8C00A85DA3 /* Values.swift in Sources */,
 				E239841624EB632100F3828C /* TabVC.swift in Sources */,

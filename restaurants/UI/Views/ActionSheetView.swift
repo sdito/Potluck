@@ -139,8 +139,6 @@ class ActionSheetView: UIView {
             }
         }
     }
-    
-    
 }
 
 extension ActionSheetView: ViewSpecificAnimation {

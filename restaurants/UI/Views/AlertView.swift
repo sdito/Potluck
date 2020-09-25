@@ -110,8 +110,6 @@ class AlertView: UIView {
     }
     
     @objc private func buttonAction(sender: UIButton) {
-        #warning("need to fix")
-        
         showViewVC?.removeFromSuperviewAlert(completion: { (done) in
             if done {
                 guard let buttons = self.buttons else { return }
@@ -122,8 +120,7 @@ class AlertView: UIView {
             }
             
         })
-        
-        
     }
+    
     
 }

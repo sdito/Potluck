@@ -83,8 +83,13 @@ class ReviewView: UIView {
         if let imageUrl = review.imageURL {
             Network.shared.getImage(url: imageUrl) { [weak self] (imageFound) in
                 if let imageFound = imageFound {
-                    let resized = imageFound.resizeImageToSizeButKeepAspectRatio(targetSize: profileImageView.bounds.size)
-                    profileImageView.image = resized
+                    let bounds = profileImageView.bounds.size
+                    DispatchQueue.global(qos: .background).async {
+                        let resized = imageFound.resizeImageToSizeButKeepAspectRatio(targetSize: bounds)
+                        DispatchQueue.main.async {
+                            profileImageView.image = resized
+                        }
+                    }
                 } else {
                     self?.setUpWithPlaceholder(imageView: profileImageView)
                 }

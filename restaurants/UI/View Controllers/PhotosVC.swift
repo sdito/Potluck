@@ -100,10 +100,15 @@ extension PhotosVC: UICollectionViewDelegate, UICollectionViewDataSource {
             Network.shared.getImage(url: imageUrl) { [weak self] (img) in
                 guard let self = self else { return }
                 cell.imageView.appEndSkeleton()
-                let resized = img?.resizeImageToSizeButKeepAspectRatio(targetSize: cell.bounds.size)
-                cell.imageView.image = resized
-                if let resized = resized {
-                    self.imageCache.setObject(resized, forKey: key)
+                let bounds = cell.bounds.size
+                DispatchQueue.global(qos: .background).async {
+                    let resized = img?.resizeImageToSizeButKeepAspectRatio(targetSize: bounds)
+                    DispatchQueue.main.async {
+                        cell.imageView.image = resized
+                        if let resized = resized {
+                            self.imageCache.setObject(resized, forKey: key)
+                        }
+                    }
                 }
             }
         }

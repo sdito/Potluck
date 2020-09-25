@@ -410,11 +410,7 @@ class ImageSelectorVC: UIViewController {
     }
     
     @objc private func photosNotAuthorized() {
-        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else { return }
-
-        if UIApplication.shared.canOpenURL(settingsUrl) {
-            UIApplication.shared.open(settingsUrl, completionHandler: { _ in return })
-        }
+        UIDevice.openAppSettings()
     }
     
     private func updateSelectUpToLabel() {

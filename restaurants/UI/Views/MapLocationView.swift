@@ -88,6 +88,7 @@ class MapLocationView: UIView {
         options.size = imageView.frame.size
         options.scale = UIScreen.main.scale
         options.pointOfInterestFilter = .init(excluding: [.restaurant, .cafe])
+        options.traitCollection = self.traitCollection
         
         let snapshotter = MKMapSnapshotter(options: options)
 

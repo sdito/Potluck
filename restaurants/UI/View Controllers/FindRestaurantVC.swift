@@ -49,6 +49,7 @@ class FindRestaurantVC: UIViewController {
             }
         }
     }
+    private var trueMidPoint: CGFloat = 0.0
     private var containerView = UIView()
     private var childTopAnchor: NSLayoutConstraint!
     private var lastPanOffset: CGFloat?
@@ -57,7 +58,11 @@ class FindRestaurantVC: UIViewController {
     let locationManager = CLLocationManager()
     var mapView = MKMapView()
     private var moreRestaurantsButton: OverlayButton?
-    private var childPosition: ChildPosition = .middle
+    private var childPosition: ChildPosition = .middle {
+        didSet {
+            self.restaurantListVC.atMiddle = self.childPosition == .middle
+        }
+    }
     private var restaurantSelectedView: RestaurantSelectedView?
     private var userMovedMapView = false
     private var locationAllowed = true {
@@ -163,6 +168,8 @@ class FindRestaurantVC: UIViewController {
         let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleFullScreenPanningSelector))
         self.containerView.addGestureRecognizer(panGestureRecognizer)
 
+        self.view.layoutIfNeeded()
+        trueMidPoint = restaurantListVC.view.convert(restaurantListVC.view.frame.origin, to: self.view).y - CGFloat.heightDistanceBetweenChildOverParent
     }
     
     @objc private func handleFullScreenPanningSelector(sender: UIPanGestureRecognizer) {
@@ -175,7 +182,6 @@ class FindRestaurantVC: UIViewController {
             startingChildSizeConstant = childTopAnchor.constant
         case .changed:
             if let lastPanOffset = lastPanOffset {
-            
                 let difference = touchPoint.y - lastPanOffset
                 childTopAnchor.constant += (difference * 1.5) // 1.5 or else it will scroll back up too slow and require multiple swipes
                 
@@ -199,28 +205,31 @@ class FindRestaurantVC: UIViewController {
             // Dragging ended, either need to put all the way at the top, at exact middle, or all the way at the bottom
             // split the screen into thirds, whatever third it ends up in is the position it goes to
             
+            let accountedDistance = restaurantListVC.view.convert(restaurantListVC.view.frame.origin, to: self.view).y - CGFloat.heightDistanceBetweenChildOverParent// position in total height
+        
             let velocityRaw = sender.velocity(in: self.view.window).y
             let absoluteVelocity = abs(velocityRaw)
-            
-            if absoluteVelocity > 400.0 { // arbitrary number to decide what counts as a gesture for swiping up/down the whole list
+            if absoluteVelocity > 250.0 { // arbitrary number to decide what counts as a gesture for swiping up/down the whole list
                 if velocityRaw < 0.0 {
-                    // negative is scroll all the way up
+                    // negative user is scrolling up
                     scrollChildToTop()
+                    if accountedDistance > trueMidPoint {
+                        // in bottom half, scroll to middle
+                        scrollChildToMiddle()
+                    } else {
+                        scrollChildToTop()
+                    }
                 } else {
-                    // positive is all the way down
-                    scrollChildToBottom(allowedDistance: allowedDistance)
+                    // positive user is scrolling down
+                    if accountedDistance < trueMidPoint {
+                        scrollChildToMiddle()
+                    } else {
+                        scrollChildToBottom(allowedDistance: allowedDistance)
+                    }
                 }
             } else {
-                // Either need to scroll to the top, middle, or bottom
-                
-                // for accountedDistance, 0.0 is the true top
-                let accountedDistance = touchPointY - allowedDistance
-                let accountedHeight = containerView.frame.height - allowedDistance
-                print("Accounted height: \(accountedHeight), Accounted distance: \(accountedDistance)")
-                let rangePortion = accountedHeight / 3.0
-                
-                let topRange = 0.0..<rangePortion
-                let mediumRange = topRange.upperBound..<rangePortion*2.0
+                let topRange = 0.0..<trueMidPoint*0.5
+                let mediumRange = topRange.upperBound..<trueMidPoint*1.33
                 let bottomRange = mediumRange.upperBound...
                 
                 if topRange ~= accountedDistance {
@@ -293,6 +302,7 @@ class FindRestaurantVC: UIViewController {
                 self.childTopAnchor.constant = constant
                 self.view.layoutIfNeeded()
             }
+            
         }
     }
     

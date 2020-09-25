@@ -23,7 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tab = TabVC()
         window?.rootViewController = tab
         window?.makeKeyAndVisible()
-        
+        UIDevice.setSystemAppearanceToWindow(window: window)
         Network.shared.setUpInitialRun()
     }
 

@@ -375,12 +375,13 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
 extension RestaurantDetailVC: MapCutoutViewDelegate {
     func locationPressed(name: String, destination: CLLocationCoordinate2D) {
         print("Map selected for \(name), with a location of latitude - \(destination.latitude) and longitude - \(destination.longitude)")
-        //self.openMaps(coordinate: destination, name: name)
-        self.actionSheet(actions: [
-            ("Drive", { [weak self] in self?.openMaps(coordinate: destination, name: name, method: "driving") }),
-            ("Walk", { [weak self] in self?.openMaps(coordinate: destination, name: name, method: "walk") }),
-            ("Transit", { [weak self] in self?.openMaps(coordinate: destination, name: name, method: "transit") })
+        
+        self.appActionSheet(buttons: [
+            AppAction(title: "Drive", action: { [weak self] in self?.openMaps(coordinate: destination, name: name, method: "driving") }),
+            AppAction(title: "Walk", action: { [weak self] in self?.openMaps(coordinate: destination, name: name, method: "walk") }),
+            AppAction(title: "Transit", action: { [weak self] in self?.openMaps(coordinate: destination, name: name, method: "transit") })
         ])
+        
     }
 }
 

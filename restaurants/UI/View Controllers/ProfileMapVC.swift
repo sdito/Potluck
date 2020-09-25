@@ -8,7 +8,7 @@
 
 import UIKit
 import MapKit
-#warning("add button to center back when no visits are visible")
+
 class ProfileMapVC: UIViewController {
     
     private let mapView = MKMapView()
