@@ -9,7 +9,7 @@
 import UIKit
 #warning("option to filter by post date or visit date")
 class ProfileHomeVC: UIViewController {
-    
+    private let showOnMapButton = OverlayButton()
     private let tableView = UITableView()
     private var allowHintToCreateRestaurant = false
     private var visits: [Visit] = []
@@ -34,6 +34,7 @@ class ProfileHomeVC: UIViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: .settingsImage, style: .plain, target: self, action: #selector(rightBarButtonItemSelector))
         navigationItem.title = "Profile"
+        navigationController?.navigationBar.isTranslucent = false
         setUpTableView()
         getInitialUserVisits()
         
@@ -51,17 +52,17 @@ class ProfileHomeVC: UIViewController {
     
     
     private func getInitialUserVisits() {
+        setMapButton(hidden: true)
         if Network.shared.loggedIn {
             Network.shared.getUserFeed { [weak self] (result) in
                 DispatchQueue.main.async {
                     guard let self = self else { return }
                     switch result {
                     case .success(let visits):
-                        
                         self.allowHintToCreateRestaurant = true
                         self.visits = visits
                         self.tableView.reloadData()
-                        
+                        self.setMapButton(hidden: visits.count < 1)
                     case .failure(let error):
                         print(error)
                     }
@@ -85,8 +86,7 @@ class ProfileHomeVC: UIViewController {
         tableView.refreshControl = refreshControl
         
         self.tableView.backgroundColor = .systemBackground
-        
-        let showOnMapButton = OverlayButton()
+
         showOnMapButton.setTitle("Show on map", for: .normal)
         showOnMapButton.addTarget(self, action: #selector(showOnMapButtonPressed), for: .touchUpInside)
         
@@ -184,13 +184,16 @@ class ProfileHomeVC: UIViewController {
         }
     }
     
+    private func setMapButton(hidden: Bool) {
+        DispatchQueue.main.async {
+            self.showOnMapButton.isHidden = hidden
+        }
+    }
+        
     private func changeEstablishment(establishment: Establishment, delete: Bool) {
-        
         guard let establishmentID = establishment.djangoID else { return }
-        
         var indexesToChange: [Int] = []
         var visitsToChange: [Visit] = []
-        
         for (idx, visit) in visits.enumerated() {
             if visit.djangoRestaurantID == establishmentID {
                 indexesToChange.append(idx)
@@ -201,19 +204,15 @@ class ProfileHomeVC: UIViewController {
                 }
             }
         }
-        
         let indexPaths = indexesToChange.map({IndexPath(row: $0, section: 0)})
-        
         if delete {
             // remove from visits
             for idx in indexesToChange.sorted().reversed() {
                 visits.remove(at: idx)
             }
-            
             for vis in visitsToChange {
                 removeImagesFromCacheFor(visit: vis)
             }
-            
             // remove from the table view
             tableView.deleteRows(at: indexPaths, with: .automatic)
         } else {
@@ -346,7 +345,6 @@ extension ProfileHomeVC: VisitCellDelegate {
                 Network.shared.getImage(url: imageUrl) { [weak self] (imageFound) in
                     if let image = imageFound {
                         DispatchQueue.global(qos: .background).async {
-                            #warning("See if this is actually doing anything")
                             let resized = image.resizeToBeNoLargerThanScreenWidth()
                             DispatchQueue.main.async {
                                 print("Image gotten from request: \(imageRequestKey)")

@@ -20,12 +20,14 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("setting to override dark mode in app")
     #warning("skStore thing to pop up to review the app")
     
+    private let home = UINavigationController(rootViewController: ProfileHomeVC())
+    private let addRestaurant = AddRestaurantVC()
+    private let explore = UINavigationController(rootViewController: FindRestaurantVC())
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.delegate = self
-        let home = UINavigationController(rootViewController: ProfileHomeVC())
-        let addRestaurant = AddRestaurantVC()
-        let explore = UINavigationController(rootViewController: FindRestaurantVC())
+        
         addRestaurant.view.backgroundColor = .greenSea
         
         let personTabImage = UIImage.personImage.withBaselineOffset(fromBottom: UIFont.systemFontSize / 2)
@@ -45,12 +47,29 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
         if viewController.isKind(of: AddRestaurantVC.self) {
             
             #warning("only do this if the user is logged in, have an alert or something if they are not")
-            self.presentAddRestaurantVC()
+            if Network.shared.loggedIn {
+                self.presentAddRestaurantVC()
+            } else {
+                self.userNotLoggedInAlert(tabVC: self)
+            }
+            
             return false
         }
         return true
     }
     
+    func getProfileTabIndex() -> Int {
+        for (i, tab) in self.children.enumerated() {
+            if tab == home {
+                return i
+            }
+        }
+        return 0
+    }
+    
+    func getProfileNavigationController() -> UINavigationController {
+        return home
+    }
 
 }
 

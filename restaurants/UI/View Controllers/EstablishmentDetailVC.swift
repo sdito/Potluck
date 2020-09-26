@@ -351,9 +351,14 @@ class EstablishmentDetailVC: UIViewController {
     @objc private func addVisitPressed() {
         // needs to be able to handle the cases for the half screen and the full screen, both should be with a navigation controller similar to how it is shown from RestaurantDetailVC
         guard let establishment = establishment else { return }
-        let addVisitVC = SubmitRestaurantVC(rawValues: nil, establishment: establishment, restaurant: nil)
-        addVisitVC.edgesForExtendedLayout = .bottom
-        self.navigationController?.pushViewController(addVisitVC, animated: true)
+        if Network.shared.loggedIn {
+            let addVisitVC = SubmitRestaurantVC(rawValues: nil, establishment: establishment, restaurant: nil)
+            addVisitVC.edgesForExtendedLayout = .bottom
+            self.navigationController?.pushViewController(addVisitVC, animated: true)
+        } else {
+            self.userNotLoggedInAlert(tabVC: nil)
+        }
+        
     }
     
     @objc private func editEstablishmentPressed() {

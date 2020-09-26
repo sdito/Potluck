@@ -89,8 +89,8 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
     
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        #warning("complete and implement")
-        let action = UIContextualAction(style: .normal, title: "Info", handler: { (ac:UIContextualAction, view:UIView, success: (Bool) -> Void) in
+        
+        let action = UIContextualAction(style: .normal, title: "Info", handler: { (ac: UIContextualAction, view: UIView, success: (Bool) -> Void) in
             let cellRow = Setting.allCases[indexPath.section].rows[indexPath.row]
             self.appAlert(title: cellRow.title, message: cellRow.description, buttons: [
                 ("Ok", nil)

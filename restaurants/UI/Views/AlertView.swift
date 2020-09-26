@@ -81,8 +81,9 @@ class AlertView: UIView {
     private func setUpButtons() {
         if let buttons = buttons, buttons.count > 0 {
             buttonStackView.translatesAutoresizingMaskIntoConstraints = false
+            
             stackView.addArrangedSubview(buttonStackView)
-            buttonStackView.spacing = 5.0
+            buttonStackView.spacing = 7.5
             buttonStackView.distribution = .fillEqually
             buttonStackView.alignment = .fill
             
@@ -96,6 +97,8 @@ class AlertView: UIView {
             
             for (index, button) in buttons.enumerated() {
                 let b = SizeChangeButton(sizeDifference: .inverse, restingColor: Colors.main, selectedColor: Colors.main)
+                b.titleLabel?.numberOfLines = 2
+                b.titleLabel?.textAlignment = .center
                 b.translatesAutoresizingMaskIntoConstraints = false
                 b.setTitle(button.buttonTitle, for: .normal)
                 buttonStackView.addArrangedSubview(b)
@@ -104,8 +107,11 @@ class AlertView: UIView {
                 b.clipsToBounds = true
                 b.addBlurEffect()
                 b.tag = index
+                b.titleEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+                
                 b.addTarget(self, action: #selector(buttonAction(sender:)), for: .touchUpInside)
             }
+            self.layoutIfNeeded()
         }
     }
     

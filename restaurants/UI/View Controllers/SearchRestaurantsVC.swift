@@ -75,6 +75,9 @@ class SearchRestaurantsVC: UIViewController {
         setUpSearchCompleter()
         previousLocationSearches = UIDevice.readRecentLocationSearchesFromUserDefaults()
         locationResults = deviceCurrentAndMapLocations + previousLocationSearches
+        
+        self.navigationController?.navigationBar.isTranslucent = false
+        self.edgesForExtendedLayout = []
     }
     
     override func viewWillAppear(_ animated: Bool) {

@@ -86,6 +86,7 @@ class RestaurantDetailVC: UIViewController {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         self.tabBarController?.tabBar.isHidden = false
+        self.navigationController?.navigationBar.isTranslucent = true
         self.setNavigationBarColor(alpha: 0.0)
     }
 
@@ -363,9 +364,6 @@ extension RestaurantDetailVC: UIScrollViewDelegate {
                 latestAlpha = ratio
             }
         }
-        
-        
-        
     }
 }
 
@@ -389,10 +387,13 @@ extension RestaurantDetailVC: MapCutoutViewDelegate {
 extension RestaurantDetailVC: HeaderDetailViewDelegate {
     
     func visitRestaurant() {
-        let addVisitVC = SubmitRestaurantVC(rawValues: nil, establishment: nil, restaurant: restaurant)
-        addVisitVC.edgesForExtendedLayout = .bottom
-        self.navigationController?.pushViewController(addVisitVC, animated: true)
-        
+        if Network.shared.loggedIn {
+            let addVisitVC = SubmitRestaurantVC(rawValues: nil, establishment: nil, restaurant: restaurant)
+            addVisitVC.edgesForExtendedLayout = .bottom
+            self.navigationController?.pushViewController(addVisitVC, animated: true)
+        } else {
+            self.userNotLoggedInAlert(tabVC: nil)
+        }
     }
     
     func callRestaurant() {
@@ -401,11 +402,9 @@ extension RestaurantDetailVC: HeaderDetailViewDelegate {
     }
     
     func urlPressedToOpen() {
-        if let urlString = restaurant.url, let url = URL(string: urlString) {
-            let config = SFSafariViewController.Configuration()
-            config.entersReaderIfAvailable = true
-            let vc = SFSafariViewController(url: url, configuration: config)
-            self.present(vc, animated: true, completion: nil)
+        
+        if let urlString = restaurant.url{
+            self.openLink(url: urlString)
         } else {
             self.showMessage("Unable to find URL")
         }

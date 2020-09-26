@@ -8,38 +8,49 @@
 
 import UIKit
 import SkeletonView
+import SafariServices
 
 class ReviewView: UIView {
+    
+    private let stackView = UIStackView()
+    private let profileImageView = UIImageView()
+    private let textLabel = UILabel()
+    private var review: Review?
 
     init(review: Review) {
         super.init(frame: .zero)
-        setUp(review: review)
-        
+        self.review = review
+        self.backgroundColor = .systemBackground
+        self.translatesAutoresizingMaskIntoConstraints = false
+        setUpStackView()
+        setUpNameAndProfile(review: review)
+        setUpStars(review: review)
+        setUpText(review: review)
+        setUpImage(review: review)
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
     
-    func setUp(review: Review) {
-        self.backgroundColor = .systemBackground
-        self.translatesAutoresizingMaskIntoConstraints = false
-
-        let stackView = UIStackView()
+    
+    private func setUpStackView() {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.alignment = .leading
         stackView.spacing = 5.0
         self.addSubview(stackView)
         stackView.constrainSides(to: self, distance: 8.0)
-
-        // profile image left and label with name right
+    }
+    
+    private func setUpNameAndProfile(review: Review) {
         let nameStackView = UIStackView()
         nameStackView.translatesAutoresizingMaskIntoConstraints = false
         nameStackView.spacing = 7.5
-        let profileImageView = UIImageView()
+        
         let userName = UILabel()
         userName.font = .secondaryTitle
+        userName.text = review.reviewerName
         stackView.addArrangedSubview(nameStackView)
 
         nameStackView.addArrangedSubview(profileImageView)
@@ -51,13 +62,10 @@ class ReviewView: UIView {
         profileImageView.clipsToBounds = true
         profileImageView.contentMode = .scaleAspectFill
         
-        NSLayoutConstraint.activate([
-            profileImageView.heightAnchor.constraint(equalToConstant: profileImageViewWidth),
-            profileImageView.widthAnchor.constraint(equalToConstant: profileImageViewWidth)
-        ])
-        
-        userName.text = review.reviewerName
-        
+        profileImageView.equalSides(size: profileImageViewWidth)
+    }
+    
+    private func setUpStars(review: Review) {
         let starsStackView = UIStackView()
         starsStackView.axis = .horizontal
         starsStackView.spacing = 4.0
@@ -72,30 +80,51 @@ class ReviewView: UIView {
         }
         
         stackView.addArrangedSubview(starsStackView)
-            
-        let textLabel = UILabel()
-        textLabel.text = review.text
-        textLabel.textColor = .secondaryLabel
+    }
+    
+    private func setUpText(review: Review) {
+        
         textLabel.numberOfLines = 0
+        
+        let mutableAttributedString = NSMutableAttributedString()
+        let body = NSAttributedString(string: review.text, attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
+        mutableAttributedString.append(body)
+        
+        let more = NSAttributedString(string: "MORE", attributes: [NSAttributedString.Key.foregroundColor: UIColor.label, NSAttributedString.Key.font: UIFont.mediumBold])
+        mutableAttributedString.append(more)
+        
+        textLabel.attributedText = mutableAttributedString
         stackView.addArrangedSubview(textLabel)
         
-        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(moreOnReviewPressed))
+        textLabel.isUserInteractionEnabled = true
+        textLabel.addGestureRecognizer(tapGestureRecognizer)
+    }
+    
+    private func setUpImage(review: Review) {
         if let imageUrl = review.imageURL {
             Network.shared.getImage(url: imageUrl) { [weak self] (imageFound) in
+                guard let self = self else { return }
                 if let imageFound = imageFound {
-                    let bounds = profileImageView.bounds.size
+                    let bounds = self.profileImageView.bounds.size
                     DispatchQueue.global(qos: .background).async {
                         let resized = imageFound.resizeImageToSizeButKeepAspectRatio(targetSize: bounds)
                         DispatchQueue.main.async {
-                            profileImageView.image = resized
+                            self.profileImageView.image = resized
                         }
                     }
                 } else {
-                    self?.setUpWithPlaceholder(imageView: profileImageView)
+                    self.setUpWithPlaceholder(imageView: self.profileImageView)
                 }
             }
         } else {
-            self.setUpWithPlaceholder(imageView: profileImageView)
+            self.setUpWithPlaceholder(imageView: self.profileImageView)
+        }
+    }
+    
+    @objc private func moreOnReviewPressed() {
+        if let url = review?.url {
+            self.findViewController()?.openLink(url: url)
         }
     }
     
@@ -104,3 +133,4 @@ class ReviewView: UIView {
     }
 
 }
+

@@ -91,6 +91,7 @@ class SubmitRestaurantVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         self.setNavigationBarColor()
         self.tabBarController?.tabBar.isHidden = true
+        self.navigationController?.navigationBar.isTranslucent = false
     }
     
     override func viewDidAppear(_ animated: Bool) {

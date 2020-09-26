@@ -9,8 +9,18 @@
 import UIKit
 import CoreLocation
 import MapKit
+import SafariServices
 
 extension UIViewController {
+    
+    func openLink(url: String) {
+        guard let link = URL(string: url) else { return }
+        let config = SFSafariViewController.Configuration()
+        config.entersReaderIfAvailable = true
+        let vc = SFSafariViewController(url: link, configuration: config)
+        vc.preferredControlTintColor = Colors.main
+        self.present(vc, animated: true, completion: nil)
+    }
     
     var visibleViewController: UIViewController? {
         if let navigationController = self as? UINavigationController {
@@ -80,15 +90,21 @@ extension UIViewController {
     }
     
     func presentAddRestaurantVC() {
-        let baseVC = AddRestaurantVC()
-        let vc = UINavigationController(rootViewController: baseVC)
-        vc.modalPresentationStyle = .fullScreen
+        if Network.shared.loggedIn {
+            let baseVC = AddRestaurantVC()
+            let vc = UINavigationController(rootViewController: baseVC)
+            vc.modalPresentationStyle = .fullScreen
+            
+            vc.navigationBar.tintColor = Colors.main
+            vc.setNavigationBarColor()
+            vc.navigationBar.isTranslucent = false
+            
+            self.present(vc, animated: true, completion: nil)
+        } else {
+            #warning("need to test")
+            userNotLoggedInAlert(tabVC: nil)
+        }
         
-        vc.navigationBar.tintColor = Colors.main
-        vc.setNavigationBarColor()
-        vc.navigationBar.isTranslucent = false
-        
-        self.present(vc, animated: true, completion: nil)
     }
     
     func showMessage(_ string: String, lastsFor: Double = 3.0, on presentingVC: UIViewController? = nil) {
@@ -157,23 +173,29 @@ extension UIViewController {
     }
     
     func setNavigationBarColor(alpha: CGFloat = 1.0) {
-        
         self.traitCollection.performAsCurrent {
-//            let image = UIImage(color: color)
-//
-//            self.navigationController?.navigationBar.setBackgroundImage(image, for: .default)
-//            self.navigationController?.navigationBar.shadowImage = image
-            
             self.navigationController?.navigationBar.shadowImage = UIImage(color: .clear)
             let navView = self.navigationController?.navigationBar.subviews.first
             navView?.alpha = alpha
         }
-        
-        
     }
     
-    
-    
+    func userNotLoggedInAlert(tabVC: TabVC?) {
+        var buttons: [(String, (() -> ())?)] {
+            if let tabVC = tabVC {
+                return
+                    [("Cancel", nil),
+                    ("Log in", {
+                    tabVC.selectedIndex = tabVC.getProfileTabIndex()
+                    let vc = tabVC.getProfileNavigationController()
+                    vc.pushViewController(CreateAccountVC(), animated: true)
+                })]
+            } else {
+                return [("Ok", nil)]
+            }
+        }
+        self.appAlert(title: "Not logged in", message: "In order to add a visit, you either need to log in to an existing account or create a new account.", buttons: buttons)
+    }
 }
 
 

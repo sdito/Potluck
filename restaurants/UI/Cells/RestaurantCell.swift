@@ -72,7 +72,7 @@ class RestaurantCell: UITableViewCell {
     private func setUpStarRatingStack() {
         let starRatingStackView = UIStackView()
         starRatingStackView.translatesAutoresizingMaskIntoConstraints = false
-        starRatingStackView.spacing = 5.0
+        starRatingStackView.spacing = 8.0
         starRatingStackView.alignment = .center
         starRatingStackView.distribution = .fill
         starRatingStackView.addArrangedSubview(starRatingView)

@@ -10,8 +10,8 @@ import UIKit
 
 class StarRatingView: UIView {
     
-    private var starViews: [UIImageView] = []
-    private var numReviewsLabel = UILabel()
+    private let imageView = UIImageView()
+    private let numReviewsLabel = UILabel()
     
     init(stars: Double, numReviews: Int, forceWhite: Bool, noBackgroundColor: Bool = false) {
         super.init(frame: .zero)
@@ -24,26 +24,14 @@ class StarRatingView: UIView {
     }
     
     func updateNumberOfStarsAndReviews(stars: Double, numReviews: Int) {
-        var numberStarsLeft = stars
-        for starView in starViews {
-            if numberStarsLeft > 0.99 {
-                // add a full star at the end
-                starView.image = UIImage(systemName: "star.fill")
-                numberStarsLeft -= 1.0
-            } else if numberStarsLeft > 0.01 {
-                // add a half star at the end
-                starView.image = UIImage(systemName: "star.lefthalf.fill")
-                numberStarsLeft = 0.0
-            } else {
-                // add an empty star at the end
-                starView.image = UIImage(systemName: "star")
-            }
-        }
+        
+        imageView.image = getImageFor(stars: stars)
         
         if numReviews > 0 {
+            numReviewsLabel.isHidden = false
             numReviewsLabel.text = "\(numReviews)"
         } else {
-            numReviewsLabel.removeFromSuperview()
+            numReviewsLabel.isHidden = true
         }
         
     }
@@ -51,52 +39,63 @@ class StarRatingView: UIView {
     
     private func setUp(stars: Double, numReviews: Int, forceWhite: Bool, noBackgroundColor: Bool = false) {
         self.translatesAutoresizingMaskIntoConstraints = false
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        numReviewsLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        imageView.contentMode = .scaleAspectFit
+        
+        stackView.axis = .horizontal
+        stackView.spacing = 4.0
+        self.addSubview(stackView)
+        stackView.constrainSides(to: self, distance: 3.0)
+        stackView.addArrangedSubview(imageView)
+        
+        if forceWhite {
+            numReviewsLabel.textColor = .white
+        } else {
+            numReviewsLabel.textColor = .label
+        }
+        numReviewsLabel.font = .mediumBold
+        stackView.addArrangedSubview(numReviewsLabel)
+        
+        self.layer.cornerRadius = 5.0
         if !noBackgroundColor {
             self.fadedBackground()
         }
         
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.spacing = 2.0
-        
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(stackView)
-        NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 3.0),
-            stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -3.0),
-            stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 3.0),
-            stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -3.0)
-        ])
-        
-        var numberStarsLeft = stars
-        
-        for num in 1...5 {
-            let imageView = UIImageView()
-            imageView.tag = num
-            starViews.append(imageView)
-            if numberStarsLeft > 0.99 {
-                // add a full star at the end
-                imageView.image = UIImage(systemName: "star.fill")
-                numberStarsLeft -= 1.0
-            } else if numberStarsLeft > 0.01 {
-                // add a half star at the end
-                imageView.image = UIImage(systemName: "star.lefthalf.fill")
-                numberStarsLeft = 0.0
-            } else {
-                // add an empty star at the end
-                imageView.image = UIImage(systemName: "star")
-            }
-            imageView.tintColor = Colors.main
-            stackView.addArrangedSubview(imageView)
-        }
-        
-        if numReviews > 0 {
-            numReviewsLabel.textColor = forceWhite ? .white : .label
-            
-            numReviewsLabel.text = "\(numReviews)"
-            stackView.addArrangedSubview(numReviewsLabel)
-        }
-        self.layer.cornerRadius = 5.0
+        updateNumberOfStarsAndReviews(stars: stars, numReviews: numReviews)
     }
+    
+    private func getImageFor(stars: Double) -> UIImage {
+        var ending: String {
+            if stars < 1.0 {
+                return "0.0"
+            } else if stars < 1.25 {
+                return "1.0"
+            } else if stars < 1.75 {
+                return "1.5"
+            } else if stars < 2.25 {
+                return "2.0"
+            } else if stars < 2.75 {
+                return "2.5"
+            } else if stars < 3.25 {
+                return "3.0"
+            } else if stars < 3.75 {
+                return "3.5"
+            } else if stars < 4.25 {
+                return "4.0"
+            } else if stars < 4.75 {
+                return "4.5"
+            } else {
+                return "5.0"
+            }
+        }
+        let image = UIImage(named: "stars-\(ending)")!
+        return image
+        
+    }
+    
 }
