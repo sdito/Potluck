@@ -21,8 +21,10 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("skStore thing to pop up to review the app")
     
     private let home = UINavigationController(rootViewController: ProfileHomeVC())
+    private let feed = UINavigationController(rootViewController: FeedHomeVC())
     private let addRestaurant = AddRestaurantVC()
     private let explore = UINavigationController(rootViewController: FindRestaurantVC())
+    private let settings = UINavigationController(rootViewController: SettingsVC())
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,13 +33,18 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
         addRestaurant.view.backgroundColor = .greenSea
         
         let personTabImage = UIImage.personImage.withBaselineOffset(fromBottom: UIFont.systemFontSize / 2)
+        let feedImage = UIImage.houseImage.withBaselineOffset(fromBottom: UIFont.systemFontSize / 2)
         let plusTabImage = UIImage.plusImage.withBaselineOffset(fromBottom: UIFont.systemFontSize / 2)
         let magnifyingGlassImage = UIImage.magnifyingGlassImage.withBaselineOffset(fromBottom: UIFont.systemFontSize / 2)
+        let settingsImage = UIImage.settingsImage.withBaselineOffset(fromBottom: UIFont.systemFontSize / 2)
         
         home.tabBarItem = UITabBarItem(title: nil, image: personTabImage, selectedImage: personTabImage)
+        feed.tabBarItem = UITabBarItem(title: nil, image: feedImage, selectedImage: feedImage)
         addRestaurant.tabBarItem = UITabBarItem(title: nil, image: plusTabImage, selectedImage: plusTabImage)
         explore.tabBarItem = UITabBarItem(title: nil, image: magnifyingGlassImage, selectedImage: magnifyingGlassImage)
-        self.setViewControllers([explore,addRestaurant, home], animated: false)
+        settings.tabBarItem = UITabBarItem(title: nil, image: settingsImage, selectedImage: settingsImage)
+        
+        self.setViewControllers([explore, feed, addRestaurant, home, settings], animated: false)
         self.tabBar.tintColor = Colors.main
         self.tabBar.barTintColor = Colors.navigationBarColor
         
@@ -46,7 +53,6 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if viewController.isKind(of: AddRestaurantVC.self) {
             
-            #warning("only do this if the user is logged in, have an alert or something if they are not")
             if Network.shared.loggedIn {
                 self.presentAddRestaurantVC()
             } else {
@@ -60,7 +66,7 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     
     func getProfileTabIndex() -> Int {
         for (i, tab) in self.children.enumerated() {
-            if tab == home {
+            if tab == settings {
                 return i
             }
         }
@@ -68,7 +74,7 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     }
     
     func getProfileNavigationController() -> UINavigationController {
-        return home
+        return settings
     }
 
 }

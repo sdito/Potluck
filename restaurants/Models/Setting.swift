@@ -13,7 +13,7 @@ enum Setting: String, CaseIterable {
     
     case account = "Account"
     case settings = "Settings"
-    case privacy = "Privacy"
+    case privacy = "Privacy"; #warning("contacts in this section")
     
     private typealias RV = Row.Value
     
@@ -53,7 +53,7 @@ enum Setting: String, CaseIterable {
                     return Row(title: "Logout",
                                description: "",
                                mode: .arrowOpen,
-                               subtitle: Network.shared.account?.username ?? "username",
+                               subtitle: Network.shared.account?.username ?? "Log in",
                                pressAction: { logoutAction() } )
                 case .editAccountInfo:
                     return Row(title: "Edit account info",
@@ -83,7 +83,6 @@ enum Setting: String, CaseIterable {
                                mode: .arrowOpen,
                                pressAction: { UIDevice.goToReviewPage() } )
                 case .appAppearance:
-                    #warning("need to complete with action and stuff")
                     return Row(title: "App theme",
                                description: "The app will use your system setting for dark or light mode by default. This setting allows you to override that for only this app.",
                                mode: .arrowOpen,
@@ -96,16 +95,21 @@ enum Setting: String, CaseIterable {
     
     private static func logoutAction() {
         guard let vc = UIApplication.topMostViewController else { return }
-        vc.appAlert(title: "Logout", message: "Are you sure you want to log out of your account \(Network.shared.account?.username ?? "now")?", buttons: [
-            ("Cancel", nil),
-            ("Logout", {
-                if Network.shared.loggedIn {
-                    Network.shared.account?.logOut()
-                    vc.showMessage("Logged out of account")
-                    vc.navigationController?.popViewController(animated: true)
-                }
-            })
-        ])
+        if Network.shared.loggedIn {
+            vc.appAlert(title: "Logout", message: "Are you sure you want to log out of your account \(Network.shared.account?.username ?? "now")?", buttons: [
+                ("Cancel", nil),
+                ("Logout", {
+                    if Network.shared.loggedIn {
+                        Network.shared.account?.logOut()
+                        vc.showMessage("Logged out of account")
+                        vc.navigationController?.popViewController(animated: true)
+                    }
+                })
+            ])
+        } else {
+            vc.navigationController?.pushViewController(CreateAccountVC(), animated: true)
+        }
+        
     }
     
     private static func changeAppearanceAction() {

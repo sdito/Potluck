@@ -98,37 +98,6 @@ extension Network {
         })
     }
     
-    func createEstablishmentOnly(from establishment: Establishment, completion: @escaping (Result<Establishment, Errors.VisitEstablishment>) -> Void) {
-        #warning("need to actually use")
-        do {
-            let data = try encoder.encode(establishment)
-            let json = try? JSONSerialization.jsonObject(with: data, options: [])
-            
-            if let establishmentJson = json as? [String:Any] {
-                let request = reqEstablishment(requestType: .createEstablishment, params: establishmentJson, establishment: nil)
-                request?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
-                    guard let self = self else { return }
-                    guard let dataFound = response.data, response.error == nil else {
-                        fatalError()
-                    }
-                    
-                    do {
-                        let establishment = try self.decoder.decode(Establishment.self, from: dataFound)
-                        completion(Result.success(establishment))
-                    } catch {
-                        print(error)
-                    }
-                    
-                })
-            } else {
-                completion(Result.failure(.encoding))
-            }
-        } catch {
-            completion(Result.failure(.encoding))
-            print(error)
-        }
-    }
-    
     func deleteEstablishment(establishment: Establishment, success: @escaping (Bool) -> Void) {
         let request = reqEstablishment(requestType: .deleteEstablishment, params: nil, establishment: establishment)
         guard let req = request else { success(false); return }

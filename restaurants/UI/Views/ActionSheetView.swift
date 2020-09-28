@@ -7,8 +7,7 @@
 //
 
 import UIKit
-#warning("add animation to go from one action sheet to another action sheet")
-#warning("maybe put this in a new file")
+
 typealias AppAction = ActionSheetView.ButtonAction
 
 class ActionSheetView: UIView {

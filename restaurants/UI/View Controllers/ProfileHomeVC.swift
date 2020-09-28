@@ -7,7 +7,7 @@
 //
 
 import UIKit
-#warning("option to filter by post date or visit date")
+#warning("option to filter by post date or visit date ***")
 class ProfileHomeVC: UIViewController {
     private let showOnMapButton = OverlayButton()
     private let tableView = UITableView()
@@ -31,8 +31,7 @@ class ProfileHomeVC: UIViewController {
         self.setNavigationBarColor()
         self.navigationController?.navigationBar.tintColor = Colors.main
         self.tableView.separatorInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: .settingsImage, style: .plain, target: self, action: #selector(rightBarButtonItemSelector))
+    
         navigationItem.title = "Profile"
         navigationController?.navigationBar.isTranslucent = false
         setUpTableView()

@@ -103,6 +103,7 @@
 		E2E6E0A52505B40F0005A55B /* UICollectionView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E6E0A42505B40F0005A55B /* UICollectionView-Extension.swift */; };
 		E2E6E0A7250761540005A55B /* BinaryFloatingPoint-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E6E0A6250761540005A55B /* BinaryFloatingPoint-Extension.swift */; };
 		E2E6E0A9250AC77A0005A55B /* UIDevice-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E6E0A8250AC77A0005A55B /* UIDevice-Extension.swift */; };
+		E2F52703251FDBF600282997 /* FeedHomeVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F52702251FDBF600282997 /* FeedHomeVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -205,6 +206,7 @@
 		E2E6E0A42505B40F0005A55B /* UICollectionView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UICollectionView-Extension.swift"; sourceTree = "<group>"; };
 		E2E6E0A6250761540005A55B /* BinaryFloatingPoint-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BinaryFloatingPoint-Extension.swift"; sourceTree = "<group>"; };
 		E2E6E0A8250AC77A0005A55B /* UIDevice-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDevice-Extension.swift"; sourceTree = "<group>"; };
+		E2F52702251FDBF600282997 /* FeedHomeVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedHomeVC.swift; sourceTree = "<group>"; };
 		F1B89F6FBA7BC1CC1A76E4E2 /* Pods_restaurants.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_restaurants.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -241,6 +243,7 @@
 			isa = PBXGroup;
 			children = (
 				E239841524EB632100F3828C /* TabVC.swift */,
+				E2F52702251FDBF600282997 /* FeedHomeVC.swift */,
 				E20EA83124E792AD0064DB86 /* ProfileHomeVC.swift */,
 				E2E6E0A0250461040005A55B /* EstablishmentDetailVC.swift */,
 				E2E6E09E250445100005A55B /* ProfileMapVC.swift */,
@@ -625,6 +628,7 @@
 				E2768DEE24B15284004CB475 /* RestaurantAnnotationView.swift in Sources */,
 				E2778DE524BBA5B200151F29 /* PhotoCell.swift in Sources */,
 				E215535324B3C9A700494E1A /* Review.swift in Sources */,
+				E2F52703251FDBF600282997 /* FeedHomeVC.swift in Sources */,
 				E2E6E0A3250581F10005A55B /* HeaderEstablishmentReusableView.swift in Sources */,
 				E2B6A2B924B007030070DECA /* CLLocationCoordinate2D-Extension.swift in Sources */,
 				E215534924B297CC00494E1A /* OverlayButton.swift in Sources */,

@@ -101,7 +101,6 @@ extension UIViewController {
             
             self.present(vc, animated: true, completion: nil)
         } else {
-            #warning("need to test")
             userNotLoggedInAlert(tabVC: nil)
         }
         

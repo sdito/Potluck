@@ -55,6 +55,8 @@ extension UIImage {
     static let plusImage = UIImage(systemName: "plus")!
     static let minusImage = UIImage(systemName: "minus")!
     static let locationTriangle = UIImage(systemName: "location.fill")!
+    static let houseImage = UIImage(systemName: "house")!
+    static let personBadgeImage = UIImage(systemName: "person.badge.plus")!
 }
 
 

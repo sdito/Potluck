@@ -15,8 +15,6 @@ extension UIDevice {
     static let enabled = "Enabled"
     static let notEnabled = "Not enabled"
     static let hapticFeedbackEnabled = "hapticFeedbackEnabled"
-    
-    #warning("start of dark mode override")
     static let systemDarkModeKey = "systemDarkModeKey"
     static let system = "System"
     static let overrideDark = "Dark"
@@ -76,8 +74,6 @@ extension UIDevice {
         }
         
     }
-    
-    #warning("end of dark mode override")
     
     static func isHapticFeedbackEnabled() -> Bool {
         // nil or true -> enabled; false -> not enabled

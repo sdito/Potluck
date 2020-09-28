@@ -21,9 +21,14 @@ class SettingsVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
+        self.navigationController?.navigationBar.isTranslucent = false
+        self.navigationController?.navigationBar.tintColor = Colors.main
         setUpTableView()
         navigationItem.title = "Settings"
+        
         NotificationCenter.default.addObserver(self, selector: #selector(reloadSettingsNotification), name: .reloadSettings, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadSettingsNotification), name: .userLoggedIn, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadSettingsNotification), name: .userLoggedOut, object: nil)
     }
     
     deinit {
@@ -53,7 +58,10 @@ class SettingsVC: UIViewController {
     }
     
     @objc private func reloadSettingsNotification() {
-        tableView.reloadData()
+        print("This is being called")
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
 }
 

@@ -49,6 +49,7 @@ class ProfileMapVC: UIViewController {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         self.setNavigationBarColor()
+        
     }
     
     deinit {

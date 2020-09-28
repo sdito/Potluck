@@ -27,6 +27,7 @@ class RestaurantListVC: UIViewController {
     private var restaurantSearchBar = RestaurantSearchBar()
     private var scrollingStackViewForSearchButtons: ScrollingStackView!
     private let topViewPadding: CGFloat = 7.0
+    private var allowMasterToChangePosition = true
     
     let filterButton = SizeChangeButton(sizeDifference: .medium, restingColor: .secondaryLabel, selectedColor: .secondaryLabel)
     
@@ -343,6 +344,21 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
         }
         self.parent?.navigationController?.pushViewController(RestaurantDetailVC(restaurant: restaurant, fromCell: cell, imageAlreadyFound: imageToSend, allowVisit: true), animated: true)
         self.tableView.cellForRow(at: indexPath)?.isSelected = false
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView == tableView {
+            let offset = scrollView.contentOffset.y
+            if offset < -30.0 {
+                
+                scrollView.isScrollEnabled = false
+                scrollView.isScrollEnabled = true
+                
+                allowMasterToChangePosition = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: { self.allowMasterToChangePosition = true })
+                owner.lowerChildPosition()
+            }
+        }
     }
 }
 

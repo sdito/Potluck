@@ -49,6 +49,7 @@ class FindRestaurantVC: UIViewController {
             }
         }
     }
+    private let allowedDistance = 2 * CGFloat.heightDistanceBetweenChildOverParent
     private var trueMidPoint: CGFloat = 0.0
     private var containerView = UIView()
     private var childTopAnchor: NSLayoutConstraint!
@@ -174,7 +175,7 @@ class FindRestaurantVC: UIViewController {
     
     @objc private func handleFullScreenPanningSelector(sender: UIPanGestureRecognizer) {
         let touchPoint = sender.location(in: self.view.window)
-        let allowedDistance = 2 * CGFloat.heightDistanceBetweenChildOverParent
+
         let touchPointY = touchPoint.y
         switch sender.state {
         case .began:
@@ -415,7 +416,14 @@ class FindRestaurantVC: UIViewController {
                 self.moreRestaurantsButton?.hideFromScreen()
             }
         }
-        
+    }
+    
+    func lowerChildPosition() {
+        if childPosition == .top {
+            scrollChildToMiddle()
+        } else if childPosition == .middle {
+            scrollChildToBottom(allowedDistance: allowedDistance)
+        }
     }
     
 }
