@@ -11,6 +11,7 @@ import UIKit
 protocol EnterValueViewDelegate: class {
     func textFound(string: String?)
     func ratingFound(float: Float?)
+    func phoneFound(string: String?)
 }
 
 class EnterValueView: UIView {
@@ -23,6 +24,7 @@ class EnterValueView: UIView {
     private var textField: PaddingTextField?
     private var textView: PlaceholderTextView?
     private var ratingView: SliderRatingView?
+    private var phoneNumberTextField: PhoneTextField?
     
     private let buttonStackView = UIStackView()
     private let cancelButton = SizeChangeButton(sizeDifference: .inverse, restingColor: Colors.main, selectedColor: Colors.main)
@@ -46,10 +48,11 @@ class EnterValueView: UIView {
         case textField
         case textView
         case rating
+        case phone
         
         var viewSize: CGFloat {
             switch self {
-            case .textField, .textView:
+            case .textField, .textView, .phone:
                 return 0.7
             case .rating:
                 return 0.9
@@ -118,6 +121,16 @@ class EnterValueView: UIView {
             ratingView = SliderRatingView()
             stackView.addArrangedSubview(ratingView!)
             ratingView?.widthAnchor.constraint(equalTo: stackView.widthAnchor).isActive = true
+        case .phone:
+            phoneNumberTextField = PhoneTextField()
+            phoneNumberTextField!.translatesAutoresizingMaskIntoConstraints = false
+            phoneNumberTextField!.addBlurEffect()
+            phoneNumberTextField!.placeholder = placeholder
+            phoneNumberTextField!.font = .largerBold
+            phoneNumberTextField!.layer.cornerRadius = 8.0
+            phoneNumberTextField!.clipsToBounds = true
+            stackView.addArrangedSubview(phoneNumberTextField!)
+            phoneNumberTextField?.delegate = self
         }
         
         
@@ -178,6 +191,15 @@ class EnterValueView: UIView {
                 UIDevice.vibrateError()
                 ratingView?.shakeView()
             }
+        } else if mode == .phone {
+            if let number = phoneNumberTextField?.phoneNumberValue {
+                delegate?.phoneFound(string: number)
+                controller?.removeAnimatedSelectorDone()
+            } else {
+                UIDevice.vibrateError()
+                phoneNumberTextField?.shakeView()
+            }
+            
         }
     }
     
@@ -197,9 +219,6 @@ class EnterValueView: UIView {
         } completion: { (done) in
             
         }
-
-        
-        
     }
 }
 
@@ -210,7 +229,6 @@ extension EnterValueView: UITextFieldDelegate {
         return true
     }
 }
-
 
 // MARK: Text view
 extension EnterValueView: UITextViewDelegate {

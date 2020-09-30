@@ -9,6 +9,7 @@
 import Foundation
 
 
+
 class Account: Decodable {
     
     static let emailKey = "django-keychain-email"
@@ -27,7 +28,6 @@ class Account: Decodable {
         self.token = token
         self.phone = phone
     }
-    
     
     static func readFromKeychain() -> Account? {
         let keyChain = Network.shared.keychain
@@ -57,6 +57,15 @@ class Account: Decodable {
         }
         
         NotificationCenter.default.post(name: .userLoggedIn, object: self)
+    }
+    
+    func updatePhone(newPhone: String?) {
+        self.phone = newPhone
+        let keyChain = Network.shared.keychain
+        keyChain.delete(Account.phoneKey)
+        if let phone = newPhone {
+            keyChain.set(phone, forKey: Account.phoneKey)
+        }
     }
     
     func logOut() {

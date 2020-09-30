@@ -53,4 +53,7 @@ struct Errors {
         case other
     }
     
+    enum Friends: Error {
+        case other
+    }
 }

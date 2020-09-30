@@ -20,11 +20,16 @@ enum Setting: String, CaseIterable {
     var rows: [Row] {
         switch self {
         case .account:
-            return [RV.logout.instance, RV.editAccountInfo.instance]
+            if Network.shared.loggedIn {
+                return [RV.logout.instance, RV.phoneNumber.instance]
+            } else {
+                return [RV.logout.instance]
+            }
+            
         case .settings:
             return [RV.appAppearance.instance, RV.reviewApp.instance, RV.hapticFeedback.instance]
         case .privacy:
-            return [RV.locationEnabled.instance, RV.photosEnabled.instance]
+            return [RV.locationEnabled.instance, RV.photosEnabled.instance, RV.contactsEnabled.instance]
         }
     }
     
@@ -40,10 +45,11 @@ enum Setting: String, CaseIterable {
         
         enum Value {
             case logout
-            case editAccountInfo
+            case phoneNumber
             case hapticFeedback
             case locationEnabled
             case photosEnabled
+            case contactsEnabled
             case reviewApp
             case appAppearance
             
@@ -55,10 +61,12 @@ enum Setting: String, CaseIterable {
                                mode: .arrowOpen,
                                subtitle: Network.shared.account?.username ?? "Log in",
                                pressAction: { logoutAction() } )
-                case .editAccountInfo:
-                    return Row(title: "Edit account info",
-                               description: "",
-                               mode: .arrowOpen)
+                case .phoneNumber:
+                    return Row(title: "Phone number",
+                               description: "Your phone number is used to help you find your fiends on the app. It is optional to include your phone number.",
+                               mode: .arrowOpen,
+                               subtitle: Network.shared.account?.phone ?? "None",
+                               pressAction: { phoneNumberAction() })
                 case .hapticFeedback:
                     return Row(title: "Haptic feedback enabled",
                                description: "Haptic feedback is the tap or quick vibration you feel when interacting with different elements of the application, such as selecting a button to change your restaurant search.",
@@ -77,6 +85,12 @@ enum Setting: String, CaseIterable {
                                mode: .arrowOpen,
                                subtitle: UIDevice.photoAccessAuthorizedString(),
                                pressAction: { UIDevice.openAppSettings() })
+                case .contactsEnabled:
+                    return Row(title: "Contacts access",
+                               description: "Contacts access is used to help you find your friends on this app. If this is not enabled, then you will need to manually find your friends.",
+                               mode: .arrowOpen,
+                               subtitle: UIDevice.contactAccessAuthorizedString(),
+                               pressAction: { UIDevice.openAppSettings() } )
                 case .reviewApp:
                     return Row(title: "Rate app in App Store",
                                description: "Rating the app would be very much appreciated",
@@ -121,7 +135,48 @@ enum Setting: String, CaseIterable {
         ])
     }
     
+    private static func phoneNumberAction() {
+        guard let vc = UIApplication.topMostViewController else { return }
+        let hasPhoneNumber = Network.shared.account?.phone != nil
+
+        if hasPhoneNumber {
+            vc.appActionSheet(buttons: [
+                AppAction(title: "Change phone number", action: { showEnterPhoneNumber(on: vc) }),
+                AppAction(title: "Delete phone number", action: {
+                    vc.appAlert(title: "Are you sure you want to remove your phone number?", message: "This will not remove your friends.", buttons: [
+                        ("Cancel", nil),
+                        ("Remove", { Manager.shared.phoneFound(string: nil) } )
+                    ])
+                }),
+            ])
+        } else {
+            showEnterPhoneNumber(on: vc)
+        }
+    }
+    
+    private static func showEnterPhoneNumber(on vc: UIViewController) {
+        let editTextView = EnterValueView(text: "Enter phone number", placeholder: nil, controller: nil, delegate: Manager.shared, mode: .phone)
+        let showViewVC = ShowViewVC(newView: editTextView, mode: .middle)
+        editTextView.controller = showViewVC
+        showViewVC.modalPresentationStyle = .overFullScreen
+        vc.present(showViewVC, animated: false, completion: nil)
+    }
+    
 }
 
 
-
+fileprivate class Manager: EnterValueViewDelegate {
+    func textFound(string: String?) { return }
+    func ratingFound(float: Float?) { return }
+    
+    func phoneFound(string: String?) {
+        Network.shared.account?.updatePhone(newPhone: string)
+        Network.shared.alterUserPhoneNumber(newNumber: string) { (done) in
+            print("Alter users phone number succeeded: \(done)")
+        }
+        NotificationCenter.default.post(name: .reloadSettings, object: nil)
+    }
+    
+    private init() {}
+    fileprivate static let shared = Manager()
+}

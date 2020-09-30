@@ -58,9 +58,10 @@ class SettingsVC: UIViewController {
     }
     
     @objc private func reloadSettingsNotification() {
-        print("This is being called")
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            UIView.transition(with: self.tableView, duration: 0.4, options: .transitionCrossDissolve, animations: { self.tableView.reloadData()} , completion: nil)
+            self.tableView.layoutIfNeeded()
         }
     }
 }

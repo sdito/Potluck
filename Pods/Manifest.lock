@@ -4,6 +4,12 @@ PODS:
     - Alamofire (~> 5.1)
   - Hero (1.5.0)
   - KeychainSwift (19.0.0)
+  - PhoneNumberKit (3.3.1):
+    - PhoneNumberKit/PhoneNumberKitCore (= 3.3.1)
+    - PhoneNumberKit/UIKit (= 3.3.1)
+  - PhoneNumberKit/PhoneNumberKitCore (3.3.1)
+  - PhoneNumberKit/UIKit (3.3.1):
+    - PhoneNumberKit/PhoneNumberKitCore
   - SkeletonView (1.8.7)
 
 DEPENDENCIES:
@@ -11,6 +17,7 @@ DEPENDENCIES:
   - AlamofireImage (~> 4.1)
   - Hero
   - KeychainSwift (~> 19.0)
+  - PhoneNumberKit (~> 3.3)
   - SkeletonView
 
 SPEC REPOS:
@@ -19,6 +26,7 @@ SPEC REPOS:
     - AlamofireImage
     - Hero
     - KeychainSwift
+    - PhoneNumberKit
     - SkeletonView
 
 SPEC CHECKSUMS:
@@ -26,8 +34,9 @@ SPEC CHECKSUMS:
   AlamofireImage: c4a2ba349885fb3064feb74d2e547bd42ce9be10
   Hero: b7385b75e7259da62f4f85462f59a5082d66b058
   KeychainSwift: a06190cf933ad46b1e0abc3d77d29c06331715c7
+  PhoneNumberKit: ff153d5e299f6da566cb73c6aa71e354933b2932
   SkeletonView: ba5370f41280b2f0a76918bb143c1294232bb4f4
 
-PODFILE CHECKSUM: 5229f856a509788c764b726fbe3abbfed3f4158d
+PODFILE CHECKSUM: abe1adf8a3cb3a73ec6946fd7e22edbc8b811774
 
 COCOAPODS: 1.8.4

@@ -9,11 +9,14 @@
 import UIKit
 import CoreLocation
 import Photos
+import Contacts
 
 extension UIDevice {
     
     static let enabled = "Enabled"
     static let notEnabled = "Not enabled"
+    static let notDetermined = "Not determined"
+    
     static let hapticFeedbackEnabled = "hapticFeedbackEnabled"
     static let systemDarkModeKey = "systemDarkModeKey"
     static let system = "System"
@@ -156,10 +159,9 @@ extension UIDevice {
     }
     
     static func photoAccessAuthorizedString() -> String {
-        
         switch PHPhotoLibrary.authorizationStatus() {
         case .notDetermined:
-            return notEnabled
+            return notDetermined
         case .restricted:
             return notEnabled
         case .denied:
@@ -167,6 +169,21 @@ extension UIDevice {
         case .authorized:
             return enabled
         case .limited:
+            return enabled
+        default:
+            return notEnabled
+        }
+    }
+    
+    static func contactAccessAuthorizedString() -> String {
+        switch CNContactStore.authorizationStatus(for: .contacts) {
+        case .notDetermined:
+            return notDetermined
+        case .restricted:
+            return notEnabled
+        case .denied:
+            return notEnabled
+        case .authorized:
             return enabled
         default:
             return notEnabled

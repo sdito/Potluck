@@ -45,9 +45,7 @@ extension Network {
     
     private func reqVisit(params: Parameters?, visit: Visit?, requestType: VisitRequestType, mainImage: UIImage? = nil, otherImages: [UIImage]? = nil) -> DataRequest? {
         guard let token = Network.shared.account?.token else { return nil }
-        let headers: HTTPHeaders = [
-            "Authorization": "Token \(token)"
-        ]
+        let headers: HTTPHeaders = ["Authorization": "Token \(token)"]
         
         let requestUrl = Network.djangoURL + requestType.url(visit: visit)
         

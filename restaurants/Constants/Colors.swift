@@ -14,4 +14,15 @@ struct Colors {
     static var navigationBarColor = UIColor.systemBackground
     static let locationColor = UIColor.systemTeal
     static let baseSliderColor = UIColor.systemGray
+    
+    static var random: UIColor {
+        let range = CGFloat(0.2)...CGFloat(0.8)
+        return UIColor(
+            red:   .random(in: range),
+            green: .random(in: range),
+            blue:  .random(in: range),
+            alpha: 1.0
+        )
+    }
+    
 }

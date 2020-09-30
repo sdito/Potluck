@@ -172,4 +172,5 @@ extension HeaderEstablishmentReusableView: EnterValueViewDelegate {
         
         NotificationCenter.default.post(name: .visitUpdated, object: nil, userInfo: ["visit": visit])
     }
+    func phoneFound(string: String?) { return }
 }

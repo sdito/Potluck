@@ -335,7 +335,7 @@ extension VisitCell: ScrollingStackViewDelegate {
 
 // MARK: EnterValueViewDelegate
 extension VisitCell: EnterValueViewDelegate {
-    
+    func phoneFound(string: String?) { return }
     func ratingFound(float: Float?) {
         guard let visit = visit, let rating = float else { return }
         visit.rating = Double(String(format: "%.1f", Double(rating)))

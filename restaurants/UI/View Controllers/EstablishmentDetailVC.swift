@@ -564,6 +564,7 @@ extension EstablishmentDetailVC: SelectLocationDelegate {
 // MARK: EnterValueViewDelegate
 extension EstablishmentDetailVC: EnterValueViewDelegate {
     func ratingFound(float: Float?) { return }
+    func phoneFound(string: String?) { return }
     
     func textFound(string: String?) {
         guard let string = string, let establishment = establishment else { return }

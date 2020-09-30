@@ -7,8 +7,7 @@
 //
 
 import UIKit
-import Contacts
-import CoreTelephony
+
 
 class FeedHomeVC: UIViewController {
 
@@ -27,58 +26,18 @@ class FeedHomeVC: UIViewController {
         let addPerson = UIBarButtonItem(image: .personBadgeImage, style: .plain, target: self, action: #selector(addPersonAction))
         self.navigationItem.rightBarButtonItem = addPerson
     }
-    
 
     
     @objc private func addPersonAction() {
-        let contactStore = CNContactStore()
-        var contacts: [CNContact] = []
-
-        
-        let keys = [CNContactFormatter.descriptorForRequiredKeys(for: .fullName), CNContactPhoneNumbersKey] as [Any]
-        let request = CNContactFetchRequest(keysToFetch: keys as! [CNKeyDescriptor])
-        do {
-            try contactStore.enumerateContacts(with: request) { (contact, stop) in
-                // Array containing all unified contacts from everywhere
-                contacts.append(contact)
-            }
-        } catch {
-            print("unable to fetch contacts")
+        if Network.shared.loggedIn {
+            self.navigationController?.pushViewController(AddFriendsVC(), animated: true)
+        } else {
+            let tabVC = self.tabBarController as? TabVC
+            self.userNotLoggedInAlert(tabVC: tabVC)
         }
         
-        let networkInfo = CTTelephonyNetworkInfo()
-        guard let carrier = networkInfo.serviceSubscriberCellularProviders else { return }
-        
-        guard let value = carrier.values.first else { return }
-        
-        print(value.isoCountryCode)
-        
-        for contact in contacts {
-            let rawPhone = contact.phoneNumbers.first?.value.stringValue
-            let cleanedPhone = rawPhone?.phoneNumberFound()
-            print(cleanedPhone)
-        }
-
-    }
-}
-
-
-extension String {
-    
-    func phoneNumberFound() -> String? {
-        do {
-            let detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.phoneNumber.rawValue)
-            let matches = detector.matches(in: self, options: [], range: NSRange(location: 0, length: self.count))
-            if let match = matches.first {
-                let number = match.phoneNumber
-                number
-                return number
-            } else {
-                return nil
-            }
-        } catch {
-            return nil
-        }
     }
     
 }
+
+

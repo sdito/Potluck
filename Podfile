@@ -10,5 +10,5 @@ pod 'AlamofireImage', '~> 4.1'
 pod 'SkeletonView'
 pod 'Hero'
 pod 'KeychainSwift', '~> 19.0'
-
+pod 'PhoneNumberKit', '~> 3.3'
 end

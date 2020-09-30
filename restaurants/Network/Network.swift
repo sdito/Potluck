@@ -12,8 +12,11 @@ import CoreLocation
 import KeychainSwift
 
 class Network {
-    
+    /// 200
     static let okCode: Int = 200
+    /// 201
+    static let createdCode: Int = 201
+    /// 204
     static let deletedCode: Int = 204
     
     var account: Account?
