@@ -155,7 +155,6 @@ extension AddFriendsVC: PersonCellDelegate {
             self.showMessage("Request \(accept ? "accepted" : "rejected") from \(request.fromPerson.actualName ?? request.fromPerson.username ?? "user")", on: self)
         }
         
-        
         Network.shared.answerFriendRequest(request: request, accept: accept) { (result) in
             print("Result to accepting request is: \(result)")
         }

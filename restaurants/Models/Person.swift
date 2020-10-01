@@ -35,15 +35,29 @@ class Person: Decodable {
     
     struct PersonRequest: Decodable {
         var fromPerson: Person
+        var toPerson: Person
         var dateAsked: Date
         var id: Int
         var message: String?
         
         enum CodingKeys: String, CodingKey {
             case fromPerson = "from_account"
+            case toPerson = "to_account"
             case dateAsked = "date_asked"
             case id
             case message
+        }
+    }
+    
+    struct Friend: Decodable {
+        var friend: Person
+        var date: Date
+        var friendID: Int
+        
+        enum CodingKeys: String, CodingKey {
+            case friend
+            case date
+            case friendID = "id"
         }
     }
     

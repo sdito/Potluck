@@ -21,7 +21,7 @@ enum Setting: String, CaseIterable {
         switch self {
         case .account:
             if Network.shared.loggedIn {
-                return [RV.logout.instance, RV.phoneNumber.instance]
+                return [RV.logout.instance, RV.phoneNumber.instance, RV.friends.instance]
             } else {
                 return [RV.logout.instance]
             }
@@ -46,6 +46,7 @@ enum Setting: String, CaseIterable {
         enum Value {
             case logout
             case phoneNumber
+            case friends
             case hapticFeedback
             case locationEnabled
             case photosEnabled
@@ -67,6 +68,12 @@ enum Setting: String, CaseIterable {
                                mode: .arrowOpen,
                                subtitle: Network.shared.account?.phone ?? "None",
                                pressAction: { phoneNumberAction() })
+                case .friends:
+                    return Row(title: "Friends",
+                               description: "Friends allow you to see their posts and vice versa.",
+                               mode: .arrowOpen,
+                               subtitle: nil,
+                               pressAction: { friendsAction() })
                 case .hapticFeedback:
                     return Row(title: "Haptic feedback enabled",
                                description: "Haptic feedback is the tap or quick vibration you feel when interacting with different elements of the application, such as selecting a button to change your restaurant search.",
@@ -160,6 +167,13 @@ enum Setting: String, CaseIterable {
         editTextView.controller = showViewVC
         showViewVC.modalPresentationStyle = .overFullScreen
         vc.present(showViewVC, animated: false, completion: nil)
+    }
+    
+    private static func friendsAction() {
+        guard let vc = UIApplication.topMostViewController?.navigationController else { fatalError() }
+        print("Friends action started")
+        let tableVC = GenericTableVC(mode: .friends)
+        vc.pushViewController(tableVC, animated: true)
     }
     
 }

@@ -19,6 +19,7 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("image url can expire before it is seen")
     #warning("setting to override dark mode in app")
     #warning("skStore thing to pop up to review the app")
+    #warning("unique together the reverse way too")
     
     private let home = UINavigationController(rootViewController: ProfileHomeVC())
     private let feed = UINavigationController(rootViewController: FeedHomeVC())

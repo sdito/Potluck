@@ -54,6 +54,7 @@
 		E253A6AE2522AD0200778500 /* PhoneTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6AD2522AD0200778500 /* PhoneTextField.swift */; };
 		E253A6B12523FBAF00778500 /* Person.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6B02523FBAF00778500 /* Person.swift */; };
 		E253A6B52523FCDA00778500 /* Person-Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6B42523FCDA00778500 /* Person-Network.swift */; };
+		E253A6B8252501BE00778500 /* GenericTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6B7252501BE00778500 /* GenericTableVC.swift */; };
 		E2574A2324B53348006618D7 /* UIImageView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2224B53348006618D7 /* UIImageView-Extension.swift */; };
 		E2574A2524B58D14006618D7 /* TwoLevelButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2424B58D14006618D7 /* TwoLevelButton.swift */; };
 		E2574A2724B65069006618D7 /* PriceLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2624B65069006618D7 /* PriceLabel.swift */; };
@@ -160,6 +161,7 @@
 		E253A6AD2522AD0200778500 /* PhoneTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneTextField.swift; sourceTree = "<group>"; };
 		E253A6B02523FBAF00778500 /* Person.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Person.swift; sourceTree = "<group>"; };
 		E253A6B42523FCDA00778500 /* Person-Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Person-Network.swift"; sourceTree = "<group>"; };
+		E253A6B7252501BE00778500 /* GenericTableVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericTableVC.swift; sourceTree = "<group>"; };
 		E2574A2224B53348006618D7 /* UIImageView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView-Extension.swift"; sourceTree = "<group>"; };
 		E2574A2424B58D14006618D7 /* TwoLevelButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoLevelButton.swift; sourceTree = "<group>"; };
 		E2574A2624B65069006618D7 /* PriceLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceLabel.swift; sourceTree = "<group>"; };
@@ -274,6 +276,7 @@
 				E23AFA0424F8DBB4004542A2 /* SelectLocationVC.swift */,
 				E23AFA0624F978DC004542A2 /* SearchHelperVC.swift */,
 				E23AFA0A24FC961D004542A2 /* ShowViewVC.swift */,
+				E253A6B7252501BE00778500 /* GenericTableVC.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -591,6 +594,7 @@
 				E239841A24EC6C7500F3828C /* SubmitRestaurantVC.swift in Sources */,
 				E288B12725192F1A004B2849 /* AlertView.swift in Sources */,
 				E271233E24CFD40400A1CC2B /* RestaurantSelectedView.swift in Sources */,
+				E253A6B8252501BE00778500 /* GenericTableVC.swift in Sources */,
 				E284DC0924BBD82100790A29 /* SinglePhotoVC.swift in Sources */,
 				E215535F24B5220500494E1A /* ReviewView.swift in Sources */,
 				E21255312512A3CB0049E9FD /* SliderRatingView.swift in Sources */,

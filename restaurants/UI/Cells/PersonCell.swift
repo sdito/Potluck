@@ -18,8 +18,11 @@ protocol PersonCellDelegate: class {
 class PersonCell: UITableViewCell {
     
     private weak var delegate: PersonCellDelegate?
+    
     private var contact: Person?
     private var personRequest: Person.PersonRequest?
+    private var friend: Person.Friend?
+    
     private let outerStackView = UIStackView()
     private let personImageView = UIImageView()
     private let primaryLabel = UILabel()
@@ -72,7 +75,6 @@ class PersonCell: UITableViewCell {
         personImageView.contentMode = .scaleAspectFit
         personImageView.clipsToBounds = true
         personImageView.image = UIImage.personCircleImage.withConfiguration(configuration)
-        
     }
     
     private func setUpLabels() {
@@ -178,9 +180,25 @@ class PersonCell: UITableViewCell {
         self.cancelButton.isHidden = false
     }
     
+    func setUpValuesFriend(friend: Person.Friend) {
+        resetValues()
+        self.friend = friend
+        
+        if let username = friend.friend.username {
+            primaryLabel.text = username
+        }
+        
+        secondaryLabel.text = "Friends since \(friend.date.dateString(style: .medium))"
+        
+        let color = friend.friend.color
+        personImageView.backgroundColor = color
+        personImageView.tintColor = color.lighter
+    }
+    
     func resetValues() {
         self.contact = nil
         self.personRequest = nil
+        self.friend = nil
         self.delegate = nil
         self.primaryLabel.text = nil
         self.secondaryLabel.text = nil

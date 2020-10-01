@@ -15,8 +15,10 @@ extension Network {
         case relatedPeople
         case answerFriendRequest
         case sendFriendRequest
+        case getFriends
+        case deleteFriend
         
-        func url(int: Int? = nil) -> String {
+        func url(int: Int?) -> String {
             switch self {
             case .relatedPeople:
                 return "findusers"
@@ -24,25 +26,31 @@ extension Network {
                 return "friendrequest/\(int!)/"
             case .sendFriendRequest:
                 return "friendrequest"
+            case .getFriends:
+                return "friend"
+            case .deleteFriend:
+                return "friend/\(int!)/"
             }
         }
         
         var method: HTTPMethod {
             switch self {
-            case .relatedPeople:
+            case .relatedPeople, .getFriends:
                 return .get
             case .answerFriendRequest:
                 return .put
             case .sendFriendRequest:
                 return .post
+            case .deleteFriend:
+                return .delete
             }
         }
     }
     
-    private func reqPerson(params: Parameters, requestType: PersonRequestType) -> DataRequest? {
+    private func reqPerson(params: Parameters?, requestType: PersonRequestType, id: Int? = nil) -> DataRequest? {
         guard let token = Network.shared.account?.token else { return nil }
         let headers: HTTPHeaders = ["Authorization": "Token \(token)"]
-        let request = AF.request(Network.djangoURL + requestType.url(), method: requestType.method, parameters: params, headers: headers)
+        let request = AF.request(Network.djangoURL + requestType.url(int: id), method: requestType.method, parameters: params, headers: headers)
         return request
     }
     
@@ -56,7 +64,6 @@ extension Network {
                 peopleFound(Result.failure(.other))
                 return
             }
-            
             do {
                 let accountsFound = try self.decoder.decode(Person.FindRelated.self, from: data)
                 peopleFound(Result.success(accountsFound))
@@ -68,11 +75,21 @@ extension Network {
     }
     
     func answerFriendRequest(request: Person.PersonRequest, accept: Bool, complete: @escaping (Bool) -> Void) {
-        #warning("need to complete and implement")
         let params: [String:Any] = ["accept_request": accept]
-        guard let req = reqPerson(params: params, requestType: .answerFriendRequest) else { complete(false); return }
+        guard let req = reqPerson(params: params, requestType: .answerFriendRequest, id: request.id) else { complete(false); return }
         req.responseJSON(queue: .global(qos: .background)) { (response) in
-            <#code#>
+            guard let code = response.response?.statusCode, response.error == nil else {
+                complete(false)
+                return
+            }
+            
+            if code == Network.createdCode {
+                complete(true)
+            } else if code == Network.deletedCode {
+                complete(true)
+            } else {
+                complete(false)
+            }
         }
     }
     
@@ -90,6 +107,36 @@ extension Network {
             } else {
                 complete(false)
             }
+        })
+    }
+    
+    func getFriends(friendsFound: @escaping (Result<[Person.Friend], Errors.Friends>) -> Void) {
+        guard let req = reqPerson(params: nil, requestType: .getFriends) else { return }
+        req.responseJSON(queue: .global(qos: .userInteractive)) { [unowned self] (response) in
+            guard let data = response.data, response.error == nil else {
+                print(response.error as Any)
+                friendsFound(Result.failure(.other))
+                return
+            }
+            
+            do {
+                var friends = try self.decoder.decode([Person.Friend].self, from: data)
+                friends.sort { (p1, p2) -> Bool in
+                    p1.friend.username ?? "" < p2.friend.username ?? ""
+                }
+                friendsFound(Result.success(friends))
+            } catch {
+                print(error)
+                friendsFound(Result.failure(.other))
+            }
+        }
+    }
+    
+    func deleteFriend(friend: Person.Friend, complete: @escaping (Bool) -> Void) {
+        let req = reqPerson(params: nil, requestType: .deleteFriend, id: friend.friendID)
+        req?.responseJSON(queue: .global(qos: .background), completionHandler: { (response) in
+            guard let statusCode = response.response?.statusCode else { complete(false); return }
+            complete(statusCode == Network.deletedCode)
         })
     }
     
