@@ -12,6 +12,7 @@ import UIKit
 protocol PersonCellDelegate: class {
     func cellSelected(contact: Person?)
     func requestResponse(request: Person.PersonRequest, accept: Bool)
+    func editFriendRequest(request: Person.PersonRequest)
 }
 
 
@@ -128,24 +129,23 @@ class PersonCell: UITableViewCell {
         }
     }
     
+    @objc private func deleteRequestButtonSelected() {
+        guard let req = personRequest else { return }
+        delegate?.editFriendRequest(request: req)
+    }
+    
     func setUpValues(contact: Person, delegate: PersonCellDelegate) {
         resetValues()
         self.contact = contact
         self.delegate = delegate
         primaryLabel.text = contact.actualName
-        
         if let username = contact.username {
             secondaryLabel.text = username
         } else {
             secondaryLabel.text = contact.phone
         }
-        
-        let color = contact.color
-        personImageView.backgroundColor = color
-        personImageView.tintColor = color.lighter
-        
+        setUpProfileIcon(color: contact.color)
         addButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
-        
         if contact.username != nil {
             addButton.setImage(UIImage.plusImage.withConfiguration(configuration), for: .normal)
             addButton.tintColor = UIColor.systemGreen
@@ -157,42 +157,43 @@ class PersonCell: UITableViewCell {
     
     func setUpValuesPersonRequest(person: Person.PersonRequest, delegate: PersonCellDelegate) {
         resetValues()
-        
         self.personRequest = person
         self.delegate = delegate
         let contact = person.fromPerson
-        
         if let username = contact.username {
             primaryLabel.text = username
         }
-        
         if let message = person.message {
             secondaryLabel.text = message
         }
-        
-        let color = contact.color
-        personImageView.backgroundColor = color
-        personImageView.tintColor = color.lighter
-        
+        setUpProfileIcon(color: contact.color)
         addButton.tintColor = .systemGreen
         addButton.setImage(UIImage.checkImage.withConfiguration(configuration), for: .normal)
         addButton.addTarget(self, action: #selector(requestButtonAction(sender:)), for: .touchUpInside)
         self.cancelButton.isHidden = false
     }
     
+    func setUpForSentRequest(request: Person.PersonRequest, delegate: PersonCellDelegate) {
+        resetValues()
+        self.delegate = delegate
+        self.personRequest = request
+        let usePerson = request.toPerson
+        primaryLabel.text = usePerson.username
+        secondaryLabel.text = request.message ?? request.dateAsked.dateString(style: .medium)
+        setUpProfileIcon(color: usePerson.color)
+        addButton.tintColor = .systemRed
+        addButton.setImage(UIImage.trashImage.withConfiguration(configuration), for: .normal)
+        addButton.addTarget(self, action: #selector(deleteRequestButtonSelected), for: .touchUpInside)
+    }
+    
     func setUpValuesFriend(friend: Person.Friend) {
         resetValues()
         self.friend = friend
-        
         if let username = friend.friend.username {
             primaryLabel.text = username
         }
-        
         secondaryLabel.text = "Friends since \(friend.date.dateString(style: .medium))"
-        
-        let color = friend.friend.color
-        personImageView.backgroundColor = color
-        personImageView.tintColor = color.lighter
+        setUpProfileIcon(color: friend.friend.color)
     }
     
     func resetValues() {
@@ -205,6 +206,11 @@ class PersonCell: UITableViewCell {
         self.cancelButton.isHidden = true
         self.addButton.setImage(UIImage(), for: .normal)
         self.addButton.removeTarget(self, action: #selector(buttonAction), for: .allEvents)
+    }
+    
+    private func setUpProfileIcon(color: UIColor) {
+        personImageView.backgroundColor = color
+        personImageView.tintColor = color.lighter
     }
     
 }

@@ -50,6 +50,14 @@ extension UIViewController {
         self.present(vc, animated: false, completion: nil)
     }
     
+    func askForPhoneNumber(delegate: EnterValueViewDelegate) {
+        let editTextView = EnterValueView(text: "Enter phone number", placeholder: nil, controller: nil, delegate: delegate, mode: .phone)
+        let showViewVC = ShowViewVC(newView: editTextView, mode: .middle)
+        editTextView.controller = showViewVC
+        showViewVC.modalPresentationStyle = .overFullScreen
+        self.present(showViewVC, animated: false, completion: nil)
+    }
+    
     func showAddingChildFromBottom(child: UIViewController, childHeight: CGFloat) {
         child.view.translatesAutoresizingMaskIntoConstraints = false
         addChild(child)

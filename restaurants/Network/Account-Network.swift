@@ -29,7 +29,7 @@ extension Network {
             case .createAccount:
                 return "register"
             case .alterPhone:
-                return "phone"
+                return "account"
             }
         }
         var method: HTTPMethod {
@@ -89,7 +89,12 @@ extension Network {
         
         let req = reqAccount(params: params, requestType: .createAccount)
         let decoder = JSONDecoder()
-        req.validate().responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
+        req.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
+            
+            for _ in 1...10 {
+                print(response.value)
+            }
+            
             guard let data = response.data, response.error == nil else {
                 completion(Result.failure(.unableToCreateAccount))
                 return

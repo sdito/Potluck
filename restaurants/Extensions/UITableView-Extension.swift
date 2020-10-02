@@ -35,11 +35,11 @@ extension UITableView {
         case center
         case bottom
     }
-
+    
+    @discardableResult
     func setEmptyWithAction(message: String, buttonTitle: String, area: BackgroundViewArea) -> UIButton {
-        
         let container = UIView()
-
+        
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical

@@ -13,7 +13,7 @@ enum Setting: String, CaseIterable {
     
     case account = "Account"
     case settings = "Settings"
-    case privacy = "Privacy"; #warning("contacts in this section")
+    case privacy = "Privacy"
     
     private typealias RV = Row.Value
     
@@ -21,7 +21,7 @@ enum Setting: String, CaseIterable {
         switch self {
         case .account:
             if Network.shared.loggedIn {
-                return [RV.logout.instance, RV.phoneNumber.instance, RV.friends.instance]
+                return [RV.logout.instance, RV.phoneNumber.instance, RV.friends.instance, RV.requestsSent.instance, RV.requestsReceived.instance]
             } else {
                 return [RV.logout.instance]
             }
@@ -47,6 +47,8 @@ enum Setting: String, CaseIterable {
             case logout
             case phoneNumber
             case friends
+            case requestsSent
+            case requestsReceived
             case hapticFeedback
             case locationEnabled
             case photosEnabled
@@ -58,7 +60,7 @@ enum Setting: String, CaseIterable {
                 switch self {
                 case .logout:
                     return Row(title: "Logout",
-                               description: "",
+                               description: "If you don't use an account, there will be only limited features for you to use.",
                                mode: .arrowOpen,
                                subtitle: Network.shared.account?.username ?? "Log in",
                                pressAction: { logoutAction() } )
@@ -69,11 +71,23 @@ enum Setting: String, CaseIterable {
                                subtitle: Network.shared.account?.phone ?? "None",
                                pressAction: { phoneNumberAction() })
                 case .friends:
-                    return Row(title: "Friends",
+                    return Row(title: "Friend list",
                                description: "Friends allow you to see their posts and vice versa.",
                                mode: .arrowOpen,
                                subtitle: nil,
-                               pressAction: { friendsAction() })
+                               pressAction: { friendsAction(mode: .friends) })
+                case .requestsSent:
+                    return Row(title: "Friend requests sent",
+                               description: "You can edit your pending friend requests in case you accidentally sent one.",
+                               mode: .arrowOpen,
+                               subtitle: "Edit",
+                               pressAction: { friendsAction(mode: .requestsSent) })
+                case .requestsReceived:
+                    return Row(title: "Friend requests received",
+                               description: "You can reject or accept the friend requests, if there are any.",
+                               mode: .arrowOpen,
+                               subtitle: "Answer",
+                               pressAction: { friendsAction(mode: .requestsReceived) })
                 case .hapticFeedback:
                     return Row(title: "Haptic feedback enabled",
                                description: "Haptic feedback is the tap or quick vibration you feel when interacting with different elements of the application, such as selecting a button to change your restaurant search.",
@@ -162,17 +176,12 @@ enum Setting: String, CaseIterable {
     }
     
     private static func showEnterPhoneNumber(on vc: UIViewController) {
-        let editTextView = EnterValueView(text: "Enter phone number", placeholder: nil, controller: nil, delegate: Manager.shared, mode: .phone)
-        let showViewVC = ShowViewVC(newView: editTextView, mode: .middle)
-        editTextView.controller = showViewVC
-        showViewVC.modalPresentationStyle = .overFullScreen
-        vc.present(showViewVC, animated: false, completion: nil)
+        vc.askForPhoneNumber(delegate: Manager.shared)
     }
     
-    private static func friendsAction() {
-        guard let vc = UIApplication.topMostViewController?.navigationController else { fatalError() }
-        print("Friends action started")
-        let tableVC = GenericTableVC(mode: .friends)
+    private static func friendsAction(mode: GenericTableVC.Mode) {
+        guard let vc = UIApplication.topMostViewController?.navigationController else { return }
+        let tableVC = GenericTableVC(mode: mode)
         vc.pushViewController(tableVC, animated: true)
     }
     

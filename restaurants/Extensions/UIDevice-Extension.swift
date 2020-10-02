@@ -66,12 +66,9 @@ extension UIDevice {
         
         let value = UserDefaults.standard.value(forKey: systemDarkModeKey) as? String ?? system
         if value == overrideDark {
-            print("Setting to dark...")
             useWindow?.overrideUserInterfaceStyle = .dark
         } else if value == overrideLight {
-            print("Setting to light...")
             useWindow?.overrideUserInterfaceStyle = .light
-            print("Setting to system...")
         } else {
             useWindow?.overrideUserInterfaceStyle = .unspecified
         }

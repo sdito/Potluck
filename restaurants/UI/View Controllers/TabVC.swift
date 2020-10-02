@@ -9,7 +9,6 @@
 import UIKit
 
 class TabVC: UITabBarController, UITabBarControllerDelegate {
-    
     #warning("pagination on django")
     #warning("place for other images, maybe make all images into just images")
     
@@ -20,6 +19,7 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("setting to override dark mode in app")
     #warning("skStore thing to pop up to review the app")
     #warning("unique together the reverse way too")
+    #warning("random fake people when the user searches if/when/since there are no people ")
     
     private let home = UINavigationController(rootViewController: ProfileHomeVC())
     private let feed = UINavigationController(rootViewController: FeedHomeVC())

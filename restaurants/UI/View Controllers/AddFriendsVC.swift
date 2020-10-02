@@ -12,19 +12,19 @@ class AddFriendsVC: UIViewController {
     
     private let reuseIdentifier = "personCellReuseIdentifier"
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
-    
+    private var askForPhoneButton: UIButton?
     private var pending: [Person.PersonRequest] = []
     private var easyAdd: [Person] = []
     private var askToJoin: [Person] = []
+    private let searchBar = UISearchBar()
+    private let stackView = UIStackView()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .systemBackground
-        self.navigationItem.title = "Add friends"
-        
+        setUpViewAndNavBar()
+        setUpSearchBar()
         setUpTableView()
         setUpContacts()
-        
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOutSelector), name: .userLoggedOut, object: nil)
     }
     
@@ -35,7 +35,7 @@ class AddFriendsVC: UIViewController {
     enum Option: String, CaseIterable {
         case requests = "Pending requests"
         case onApp = "Easy add"
-        case message = "Ask to join app"
+        case message = "Ask to join"
     }
     
     func rowsPerson(option: Option) -> [Person]? {
@@ -58,13 +58,37 @@ class AddFriendsVC: UIViewController {
         }
     }
     
+    private func setUpViewAndNavBar() {
+        self.view.backgroundColor = .systemBackground
+        self.navigationItem.title = "Add friends"
+        
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.distribution = .fill
+        stackView.alignment = .fill
+        self.view.addSubview(stackView)
+        stackView.constrainSides(to: self.view)
+        
+        #warning("maybe delete this")
+        let searchItem = UIBarButtonItem(image: .magnifyingGlassImage, style: .plain, target: self, action: #selector(searchBarButtonAction))
+        self.navigationItem.rightBarButtonItem = searchItem
+    }
+    
+    private func setUpSearchBar() {
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        searchBar.placeholder = "Find friends by username"
+        searchBar.searchBarStyle = .minimal
+        searchBar.backgroundColor = self.view.backgroundColor
+        stackView.addArrangedSubview(searchBar)
+        searchBar.isHidden = true
+    }
+    
     private func setUpTableView() {
         tableView.register(PersonCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
         tableView.delegate = self
-        self.view.addSubview(tableView)
-        tableView.constrainSides(to: self.view)
+        stackView.addArrangedSubview(tableView)
     }
     
     private func setUpContacts() {
@@ -91,6 +115,12 @@ class AddFriendsVC: UIViewController {
                         contact.actualName = removed.actualName
                     }
                 }
+                
+                let requestPhoneNumbers = requests.map({$0.fromPerson.phone}).filter({$0 != nil}).map({$0!})
+                userContacts = userContacts.filter({!requestPhoneNumbers.contains($0.phone ?? "")})
+                userContacts.sort { (p1, p2) -> Bool in
+                    p1.actualName ?? "" < p2.actualName ?? ""
+                }
 
                 self.askToJoin = userContacts
                 self.easyAdd = contactsFound
@@ -105,20 +135,37 @@ class AddFriendsVC: UIViewController {
             }
         }
     }
+    
     @objc private func userLoggedOutSelector() {
         self.navigationController?.popViewController(animated: true)
     }
+    
+    @objc private func addPhoneAction(sender: UIButton) {
+        self.askForPhoneButton = sender
+        self.askForPhoneNumber(delegate: self)
+    }
+    
+    @objc private func searchBarButtonAction() {
+        let isNowHidden = !self.searchBar.isHidden
+        
+        if isNowHidden {
+            searchBar.endEditing(true)
+        } else {
+            searchBar.becomeFirstResponder()
+        }
+        
+        UIView.animate(withDuration: 0.4) {
+            self.searchBar.isHidden = isNowHidden
+        }
+    }
+    
 }
 
-
+// MARK: Table view
 extension AddFriendsVC: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return Option.allCases.count
-    }
-    
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return Option.allCases[section].rawValue
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -144,6 +191,36 @@ extension AddFriendsVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let header = UITableViewHeaderFooterView()
+        header.textLabel?.text = Option.allCases[section].rawValue.uppercased()
+        
+        if Option.allCases[section] == .message && Network.shared.account?.phone == nil {
+            let button = SizeChangeButton(sizeDifference: .inverse, restingColor: .secondaryLabel, selectedColor: Colors.main)
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.setTitle("Add your number", for: .normal)
+            
+            header.contentView.addSubview(button)
+            button.setTitleColor(.secondaryLabel, for: .normal)
+            
+            button.constrain(.trailing, to: header.contentView, .trailing)
+            button.constrain(.top, to: header.contentView, .top)
+            button.constrain(.bottom, to: header.contentView, .bottom)
+            button.addTarget(self, action: #selector(addPhoneAction(sender:)), for: .touchUpInside)
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 12.0)
+        }
+        
+        return header
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if !searchBar.isHidden && searchBar.isFirstResponder {
+            print("Is shutting down search bar")
+            searchBar.endEditing(true)
+        }
+    }
+    
 }
 
 // MARK: PersonCellDelegate
@@ -183,8 +260,21 @@ extension AddFriendsVC: PersonCellDelegate {
             let strURL: String = sms.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
             UIApplication.shared.open(URL.init(string: strURL)!, options: [:], completionHandler: nil)
         }
-        
-        
     }
+    func editFriendRequest(request: Person.PersonRequest) { return }
 }
 
+
+
+extension AddFriendsVC: EnterValueViewDelegate {
+    func textFound(string: String?) { return }
+    func ratingFound(float: Float?) { return }
+    
+    func phoneFound(string: String?) {
+        askForPhoneButton?.isHidden = true
+        self.showMessage("Phone number added")
+        Network.shared.account?.updatePhone(newPhone: string)
+        Network.shared.alterUserPhoneNumber(newNumber: string, complete: { _ in return })
+        NotificationCenter.default.post(name: .reloadSettings, object: nil)
+    }
+}

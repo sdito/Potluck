@@ -17,14 +17,16 @@ extension Network {
         case sendFriendRequest
         case getFriends
         case deleteFriend
+        case getSentFriendRequests
+        case rescindFriendRequest
         
         func url(int: Int?) -> String {
             switch self {
             case .relatedPeople:
                 return "findusers"
-            case .answerFriendRequest:
+            case .answerFriendRequest, .rescindFriendRequest:
                 return "friendrequest/\(int!)/"
-            case .sendFriendRequest:
+            case .sendFriendRequest, .getSentFriendRequests:
                 return "friendrequest"
             case .getFriends:
                 return "friend"
@@ -35,13 +37,13 @@ extension Network {
         
         var method: HTTPMethod {
             switch self {
-            case .relatedPeople, .getFriends:
+            case .relatedPeople, .getFriends, .getSentFriendRequests:
                 return .get
             case .answerFriendRequest:
                 return .put
             case .sendFriendRequest:
                 return .post
-            case .deleteFriend:
+            case .deleteFriend, .rescindFriendRequest:
                 return .delete
             }
         }
@@ -138,6 +140,46 @@ extension Network {
             guard let statusCode = response.response?.statusCode else { complete(false); return }
             complete(statusCode == Network.deletedCode)
         })
+    }
+    
+    func getFriendRequests(sent: Bool = false, received: Bool = false, requestsFound: @escaping (Result<[Person.PersonRequest], Errors.Friends>) -> Void) {
+        
+        var value: String {
+            if sent {
+                return "sent"
+            } else if received {
+                return "received"
+            } else {
+                fatalError()
+            }
+        }
+        
+        let params: Parameters = ["type": value]
+        guard let req = reqPerson(params: params, requestType: .getSentFriendRequests) else { requestsFound(Result.failure(.other)); return }
+        req.responseJSON(queue: .global(qos: .userInteractive)) { [unowned self] (response) in
+            guard let data = response.data, response.error == nil else {
+                requestsFound(Result.failure(.other))
+                return
+            }
+            
+            do {
+                let requests = try self.decoder.decode([Person.PersonRequest].self, from: data)
+                requestsFound(Result.success(requests))
+            } catch {
+                print(error)
+                requestsFound(Result.failure(.other))
+            }
+        }
+    }
+    func rescindFriendRequest(request: Person.PersonRequest, complete: @escaping (Bool) -> Void) {
+        guard let req = reqPerson(params: nil, requestType: .rescindFriendRequest, id: request.id) else { complete(false); return }
+        req.responseJSON(queue: .global(qos: .background)) { (response) in
+            guard let statusCode = response.response?.statusCode else {
+                complete(false)
+                return
+            }
+            complete(statusCode == Network.deletedCode)
+        }
     }
     
 }
