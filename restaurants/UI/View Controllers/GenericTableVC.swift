@@ -187,10 +187,25 @@ class GenericTableVC: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        var person: Person?
+        #warning("need to do")
+        if let element = friends?.appAtIndex(indexPath.row) {
+            person = element.friend
+        } else if let element = requests?.appAtIndex(indexPath.row) {
+            if let notUser = element.notUser {
+                person = notUser
+            }
+        }
+        
+        guard let p = person, p.id != nil else { return }
+        navigationController?.pushViewController(UserProfileVC(person: p), animated: true)
+        
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         handleDeletion(indexPath: indexPath)
+        
     }
     
     override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
@@ -200,9 +215,9 @@ class GenericTableVC: UITableViewController {
             return .none
         }
     }
-
 }
 
+// MARK: PersonCellDelegate
 extension GenericTableVC: PersonCellDelegate {
     func cellSelected(contact: Person?) { return }
     
@@ -233,7 +248,5 @@ extension GenericTableVC: PersonCellDelegate {
             })
         ])
     }
-    
 }
 
-#warning("text for when there are no rows in the tableview, based on the mode, and also handle loading stuff")

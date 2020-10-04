@@ -280,5 +280,12 @@ extension UIView {
         }
     }
 
+    static func onePixelView() -> UIView {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.heightAnchor.constraint(equalToConstant: 1.0).isActive = true
+        view.backgroundColor = .clear
+        return view
+    }
     
 }

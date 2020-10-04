@@ -30,9 +30,9 @@ class Visit: Codable {
     var longitude: Double?
     var latitude: Double?
     
-    var currentDateVisited: Date { // visited
-        return serverDateVisited.convertFromUTC()
-    }
+//    var currentDateVisited: Date { // visited
+//        return serverDateVisited.convertFromUTC()
+//    }
     
     var listPhotos: [String] {
         var arr: [String] = [mainImage]
@@ -43,11 +43,11 @@ class Visit: Codable {
     }
     
     var userDateVisited: String {
-        return currentDateVisited.dateString()
+        return serverDateVisited.dateString()
     }
     
     var shortUserDateVisited: String {
-        return currentDateVisited.dateString(style: .short)
+        return serverDateVisited.dateString(style: .short)
     }
     
     var coordinate: CLLocationCoordinate2D? {
@@ -78,7 +78,7 @@ class Visit: Codable {
     }
     
     func getEstablishment() -> Establishment {
-        let establishment = Establishment(name: self.restaurantName, isRestaurant: false, djangoID: self.djangoRestaurantID, longitude: self.longitude, latitude: self.latitude, yelpID: self.yelpID, category: nil, address1: nil, address2: nil, address3: nil, city: nil, zipCode: nil, state: nil, country: nil, firstVisited: nil, visits: nil)
+        let establishment = Establishment(name: self.restaurantName, isRestaurant: false, djangoID: self.djangoRestaurantID, longitude: self.longitude, latitude: self.latitude, yelpID: self.yelpID, category: nil, address1: nil, address2: nil, address3: nil, city: nil, zipCode: nil, state: nil, country: nil, firstVisited: nil, visits: nil, userId: Network.shared.account?.id)
         return establishment
     }
     

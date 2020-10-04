@@ -11,6 +11,17 @@ import UIKit
 class LogInField: UIView {
     
     private let minUsernameLength = 3
+    var hideButton = false {
+        didSet {
+            if style != .password {
+                if hideButton {
+                    viewButton.isHidden = true
+                } else {
+                    viewButton.isHidden = false
+                }
+            }
+        }
+    }
     
     var text: String? {
         return textField.text

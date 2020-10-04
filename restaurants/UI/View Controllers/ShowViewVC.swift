@@ -137,7 +137,6 @@ class ShowViewVC: UIViewController {
     
     
     @objc func removeAnimatedSelectorDone() {
-        
         switch mode {
         case .top:
             UIView.animate(withDuration: 0.3, animations: {
@@ -159,6 +158,20 @@ class ShowViewVC: UIViewController {
                 self.newView.transform = CGAffineTransform(translationX: 0, y: self.fromBottomDistance + self.newView.frame.height)
             }) { (true) in
                 self.dismiss(animated: false, completion: nil)
+            }
+        }
+    }
+    
+    func removeFromSuperviewTop(completion: @escaping (Bool) -> Void) {
+        DispatchQueue.main.async {
+            UIView.animate(withDuration: 0.3, animations: {
+                self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
+                self.newView.transform = CGAffineTransform(translationX: 0, y: -(self.fromTopConstant + self.newView.frame.height))
+            }) { (done) in
+                self.dismiss(animated: false, completion: nil)
+                if done {
+                    completion(true)
+                }
             }
         }
     }
@@ -216,9 +229,6 @@ class ShowViewVC: UIViewController {
                 }
             }
         }
-        
-
-        
     }
 
 }

@@ -21,6 +21,7 @@ extension Network {
         case logIn
         case createAccount
         case alterPhone
+        case searchForAccounts
         
         var url: String {
             switch self {
@@ -28,7 +29,7 @@ extension Network {
                 return "login"
             case .createAccount:
                 return "register"
-            case .alterPhone:
+            case .alterPhone, .searchForAccounts:
                 return "account"
             }
         }
@@ -38,11 +39,13 @@ extension Network {
                 return .post
             case .alterPhone:
                 return .put
+            case .searchForAccounts:
+                return .get
             }
         }
         var headers: HTTPHeaders? {
             switch self {
-            case .alterPhone:
+            case .alterPhone, .searchForAccounts:
                 guard let token = Network.shared.account?.token else { return nil }
                 return  ["Authorization": "Token \(token)"]
             case .logIn, .createAccount:
@@ -86,14 +89,10 @@ extension Network {
             "password": password,
             "username": username
         ]
-        
+        #warning("for loggoing in on loading screen, have a cancel button and thus having a loading screen")
         let req = reqAccount(params: params, requestType: .createAccount)
         let decoder = JSONDecoder()
         req.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
-            
-            for _ in 1...10 {
-                print(response.value)
-            }
             
             guard let data = response.data, response.error == nil else {
                 completion(Result.failure(.unableToCreateAccount))
@@ -145,8 +144,26 @@ extension Network {
             } else {
                 complete(false)
             }
-            
             return
+        }
+    }
+    
+    func searchForAccountsBy(term: String, accountsFound: @escaping (Result<[Person], Errors.Friends>) -> Void) {
+        let parmas: Parameters = ["search": term]
+        let req = reqAccount(params: parmas, requestType: .searchForAccounts)
+        req.responseJSON(queue: .global(qos: .userInteractive)) { [unowned self] (response) in
+            guard let data = response.data, response.error == nil else {
+                accountsFound(Result.failure(.other))
+                return
+            }
+            
+            do {
+                let accounts = try self.decoder.decode([Person].self, from: data)
+                accountsFound(Result.success(accounts))
+            } catch {
+                accountsFound(Result.failure(.other))
+            }
+            
         }
     }
     

@@ -58,6 +58,15 @@ extension UIViewController {
         self.present(showViewVC, animated: false, completion: nil)
     }
     
+    func showLoadingView() -> LoadingView {
+        let loadingView = LoadingView()
+        let showViewVC = ShowViewVC(newView: loadingView, mode: .top, allowScreenPressToDismiss: false)
+        loadingView.controller = showViewVC
+        showViewVC.modalPresentationStyle = .overFullScreen
+        self.present(showViewVC, animated: false, completion: nil)
+        return loadingView
+    }
+    
     func showAddingChildFromBottom(child: UIViewController, childHeight: CGFloat) {
         child.view.translatesAutoresizingMaskIntoConstraints = false
         addChild(child)

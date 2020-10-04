@@ -14,17 +14,20 @@ class Account: Decodable {
     
     static let emailKey = "django-keychain-email"
     static let usernameKey = "django-keychain-username"
+    static let idKey = "django-keychain-id"
     static let tokenKey = "django-keychain-token"
     static let phoneKey = "django-keychain-phone"
     
     var email: String
     var username: String
-    var phone: String?
+    let id: Int
     let token: String
+    var phone: String?
     
-    init(email: String, username: String, token: String, phone: String?) {
+    init(email: String, username: String, id: Int, token: String, phone: String?) {
         self.email = email
         self.username = username
+        self.id = id
         self.token = token
         self.phone = phone
     }
@@ -35,9 +38,10 @@ class Account: Decodable {
         let email = keyChain.get(Account.emailKey)
         let token = keyChain.get(Account.tokenKey)
         let phone = keyChain.get(Account.phoneKey)
+        let id = Int(keyChain.get(Account.idKey) ?? "-1")
         
-        if let email = email, let token = token, let username = username {
-            let account = Account(email: email, username: username, token: token, phone: phone)
+        if let email = email, let token = token, let username = username, let id = id {
+            let account = Account(email: email, username: username, id: id, token: token, phone: phone)
             return account
         } else {
             return nil
@@ -49,6 +53,7 @@ class Account: Decodable {
         keyChain.set(self.username, forKey: Account.usernameKey)
         keyChain.set(self.email, forKey: Account.emailKey)
         keyChain.set(self.token, forKey: Account.tokenKey)
+        keyChain.set("\(self.id)", forKey: Account.idKey)
         
         if let phone = self.phone {
             keyChain.set(phone, forKey: Account.phoneKey)
@@ -74,6 +79,7 @@ class Account: Decodable {
         keyChain.delete(Account.emailKey)
         keyChain.delete(Account.tokenKey)
         keyChain.delete(Account.phoneKey)
+        keyChain.delete(Account.idKey)
         Network.shared.account = nil
         
         NotificationCenter.default.post(name: .userLoggedOut, object: nil)

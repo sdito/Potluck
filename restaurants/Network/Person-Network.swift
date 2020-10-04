@@ -19,6 +19,7 @@ extension Network {
         case deleteFriend
         case getSentFriendRequests
         case rescindFriendRequest
+        case getPersonProfile
         
         func url(int: Int?) -> String {
             switch self {
@@ -32,12 +33,14 @@ extension Network {
                 return "friend"
             case .deleteFriend:
                 return "friend/\(int!)/"
+            case .getPersonProfile:
+                return "profile"
             }
         }
         
         var method: HTTPMethod {
             switch self {
-            case .relatedPeople, .getFriends, .getSentFriendRequests:
+            case .relatedPeople, .getFriends, .getSentFriendRequests, .getPersonProfile:
                 return .get
             case .answerFriendRequest:
                 return .put
@@ -181,5 +184,26 @@ extension Network {
             complete(statusCode == Network.deletedCode)
         }
     }
+    
+    func getPersonProfile(person: Person?, profileFound: @escaping (Result<Person.Profile, Errors.Friends>) -> Void) {
+        guard let personId = person?.id else { profileFound(Result.failure(.other)); return }
+        let params: Parameters = ["account": personId]
+        guard let req = reqPerson(params: params, requestType: .getPersonProfile) else { profileFound(Result.failure(.other)); return }
+        req.responseJSON(queue: .global(qos: .userInteractive)) { [unowned self] (response) in
+            guard let data = response.data, response.error == nil else {
+                profileFound(Result.failure(.other))
+                return
+            }
+            
+            do {
+                let profile = try self.decoder.decode(Person.Profile.self, from: data)
+                profileFound(Result.success(profile))
+            } catch {
+                print(error)
+                profileFound(Result.failure(.other))
+            }
+        }
+    }
+    
     
 }

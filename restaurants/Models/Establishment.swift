@@ -13,6 +13,7 @@ class Establishment: Codable {
     
     var name: String
     var isRestaurant: Bool
+    var userId: Int?
     var djangoID: Int?
     var longitude: Double?
     var latitude: Double?
@@ -66,7 +67,7 @@ class Establishment: Codable {
     }
     
     init(name: String, isRestaurant: Bool, djangoID: Int?, longitude: Double?, latitude: Double?, yelpID: String?, category: String?, address1: String?,
-         address2: String?, address3: String?, city: String?, zipCode: String?, state: String?, country: String?, firstVisited: Date?, visits: [Visit]?) {
+         address2: String?, address3: String?, city: String?, zipCode: String?, state: String?, country: String?, firstVisited: Date?, visits: [Visit]?, userId: Int?) {
         self.name = name
         self.isRestaurant = isRestaurant
         self.djangoID = djangoID
@@ -110,6 +111,7 @@ class Establishment: Codable {
         case country
         case firstVisited = "first_visited"
         case visits
+        case userId = "account"
     }
     
     struct EstablishmentDecoder: Decodable {

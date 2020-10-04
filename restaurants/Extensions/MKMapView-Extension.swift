@@ -128,7 +128,7 @@ extension MKMapView {
         self.fitAllAnnotations(newAnnotations: newAnnotations, fitInTopHalf: fitInTopHalf)
     }
     
-    func fitAllAnnotations(newAnnotations: [MKAnnotation], fitInTopHalf: Bool) {
+    func fitAllAnnotations(newAnnotations: [MKAnnotation], fitInTopHalf: Bool, animated: Bool = true) {
         if newAnnotations.count > 0 {
             var zoomRect = MKMapRect.null
             for annotation in newAnnotations {
@@ -138,9 +138,9 @@ extension MKMapView {
             }
             if fitInTopHalf {
                 zoomRect.size.height = zoomRect.size.height * 2
-                self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 20, left: 50, bottom: 100, right: 50), animated: true)
+                self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 20, left: 50, bottom: 100, right: 50), animated: animated)
             } else {
-                self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 50, left: 50, bottom: 120, right: 50), animated: true)
+                self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 50, left: 50, bottom: 120, right: 50), animated: animated)
             }
         }
     }

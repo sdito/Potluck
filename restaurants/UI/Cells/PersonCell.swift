@@ -138,12 +138,18 @@ class PersonCell: UITableViewCell {
         resetValues()
         self.contact = contact
         self.delegate = delegate
-        primaryLabel.text = contact.actualName
-        if let username = contact.username {
-            secondaryLabel.text = username
+        
+        if let actualName = contact.actualName {
+            primaryLabel.text = actualName
+            if let username = contact.username {
+                secondaryLabel.text = username
+            } else {
+                secondaryLabel.text = contact.phone
+            }
         } else {
-            secondaryLabel.text = contact.phone
+            primaryLabel.text = contact.username
         }
+        
         setUpProfileIcon(color: contact.color)
         addButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         if contact.username != nil {

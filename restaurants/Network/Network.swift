@@ -51,7 +51,8 @@ class Network {
             guard let date = self.dateFormatter.date(from: dateStr) else {
                 throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot decode date string \(dateStr)")
             }
-            return date
+            // Received in UTC from django
+            return date.convertFromUTC()
         })
         return decoder
     }()

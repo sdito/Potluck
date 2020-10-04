@@ -151,7 +151,8 @@ class Restaurant: Decodable {
                                           state: self.address.state,
                                           country: self.address.country,
                                           firstVisited: nil,
-                                          visits: nil)
+                                          visits: nil,
+                                          userId: Network.shared.account?.id)
         return establishment
     }
     

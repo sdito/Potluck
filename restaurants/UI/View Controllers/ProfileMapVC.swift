@@ -246,11 +246,8 @@ extension ProfileMapVC: MKMapViewDelegate {
         } else {
             annotationView!.annotation = annotation
         }
-        
         return annotationView
     }
-    
-
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         

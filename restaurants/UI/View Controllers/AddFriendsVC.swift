@@ -13,11 +13,15 @@ class AddFriendsVC: UIViewController {
     private let reuseIdentifier = "personCellReuseIdentifier"
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
     private var askForPhoneButton: UIButton?
+    
+    private var searchResults: [Person] = []
     private var pending: [Person.PersonRequest] = []
     private var easyAdd: [Person] = []
     private var askToJoin: [Person] = []
+    
     private let searchBar = UISearchBar()
     private let stackView = UIStackView()
+    private var searchBarTimer: Timer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +37,7 @@ class AddFriendsVC: UIViewController {
     }
     
     enum Option: String, CaseIterable {
+        case searchResults = "Search results"
         case requests = "Pending requests"
         case onApp = "Easy add"
         case message = "Ask to join"
@@ -46,12 +51,14 @@ class AddFriendsVC: UIViewController {
             return self.askToJoin
         case .requests:
             return nil
+        case .searchResults:
+            return self.searchResults
         }
     }
     
     func rowsPersonRequest(option: Option) -> [Person.PersonRequest]? {
         switch option {
-        case .onApp, .message:
+        case .onApp, .message, .searchResults:
             return nil
         case .requests:
             return self.pending
@@ -69,7 +76,6 @@ class AddFriendsVC: UIViewController {
         self.view.addSubview(stackView)
         stackView.constrainSides(to: self.view)
         
-        #warning("maybe delete this")
         let searchItem = UIBarButtonItem(image: .magnifyingGlassImage, style: .plain, target: self, action: #selector(searchBarButtonAction))
         self.navigationItem.rightBarButtonItem = searchItem
     }
@@ -81,6 +87,7 @@ class AddFriendsVC: UIViewController {
         searchBar.backgroundColor = self.view.backgroundColor
         stackView.addArrangedSubview(searchBar)
         searchBar.isHidden = true
+        searchBar.delegate = self
     }
     
     private func setUpTableView() {
@@ -190,9 +197,27 @@ extension AddFriendsVC: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let option = Option.allCases[indexPath.section]
+        var person: Person?
+        
+        if let rowPerson = rowsPerson(option: option) {
+            let element = rowPerson[indexPath.row]
+            person = element
+        } else if let rowRequest = rowsPersonRequest(option: option) {
+            let element = rowRequest[indexPath.row]
+            person = element.fromPerson
+        }
+        
+        guard let p = person, p.id != nil else { return }
+        
+        self.navigationController?.pushViewController(UserProfileVC(person: p), animated: true)
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let option = Option.allCases[section]
+        let count = rowsPerson(option: option)?.count ?? rowsPersonRequest(option: option)?.count ?? 0
+        guard count > 0 else { return UIView.onePixelView() }
+
         let header = UITableViewHeaderFooterView()
         header.textLabel?.text = Option.allCases[section].rawValue.uppercased()
         
@@ -220,7 +245,53 @@ extension AddFriendsVC: UITableViewDataSource, UITableViewDelegate {
             searchBar.endEditing(true)
         }
     }
+}
+
+// MARK: Search bar
+extension AddFriendsVC: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        searchBarTimer?.invalidate()
+        if searchBar.text == "" {
+            fireTimer()
+        } else {
+            // just to only run the network code after typing has been done for a second
+            searchBarTimer = Timer.scheduledTimer(timeInterval: 0.75, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: false)
+        }
+    }
     
+    @objc private func fireTimer() {
+        
+        let searchTerm = searchBar.text ?? ""
+        guard searchTerm != "" else {
+            guard let idx = Option.allCases.firstIndex(of: .searchResults) else { return }
+            searchResults = []
+            DispatchQueue.main.async {
+                self.tableView.reloadSections(IndexSet([idx]), with: .automatic)
+            }
+            return
+        }
+        
+        searchBar.showLoadingOnSearchBar()
+        Network.shared.searchForAccountsBy(term: searchTerm) { [weak self] (result) in
+            self?.searchBar.endLoadingOnSearchBar()
+            guard let self = self else { return }
+            switch result {
+            case .success(let people):
+                for person in people {
+                    print(person.username!)
+                }
+                self.searchResults = people
+                guard let idx = Option.allCases.firstIndex(of: .searchResults) else { return }
+                DispatchQueue.main.async { [weak self] in
+                    self?.tableView.reloadSections(IndexSet([idx]), with: .automatic)
+                }
+            case .failure(_):
+                print("Not a successful searchForAccountsBy")
+            }
+        }
+        
+        
+    }
 }
 
 // MARK: PersonCellDelegate
@@ -241,12 +312,20 @@ extension AddFriendsVC: PersonCellDelegate {
         guard let contact = contact else { return }
         
         if let username = contact.username, let id = contact.id {
-            
-            print("Need to hide the cell first, and remove from the data source")
+            var duplicate = false
             if let index = easyAdd.firstIndex(where: {$0.id == id}), let section = Option.allCases.firstIndex(where: {$0 == .onApp}) {
                 easyAdd.remove(at: index)
                 tableView.deleteRows(at: [IndexPath(row: index, section: section)], with: .automatic)
                 self.showMessage("Sent request to \(contact.actualName ?? username)", on: self)
+                duplicate = true
+            }
+            
+            if let index = searchResults.firstIndex(where: {$0.id == id}), let section = Option.allCases.firstIndex(where: {$0 == .searchResults}) {
+                searchResults.remove(at: index)
+                tableView.deleteRows(at: [IndexPath(row: index, section: section)], with: .automatic)
+                if !duplicate {
+                    self.showMessage("Sent request to \(contact.actualName ?? username)", on: self)
+                }
             }
             
             Network.shared.sendFriendRequest(toPerson: contact) { (done) in
@@ -265,7 +344,7 @@ extension AddFriendsVC: PersonCellDelegate {
 }
 
 
-
+// MARK: EnterValueViewDelegate
 extension AddFriendsVC: EnterValueViewDelegate {
     func textFound(string: String?) { return }
     func ratingFound(float: Float?) { return }

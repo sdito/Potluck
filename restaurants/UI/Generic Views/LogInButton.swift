@@ -15,7 +15,7 @@ class LogInButton: UIButton {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.layer.cornerRadius = 5.0
         self.titleEdgeInsets = UIEdgeInsets(top: 5.0, left: 10.0, bottom: 5.0, right: 10.0)
-        self.setTitleColor(.label, for: .normal)
+        self.setTitleColor(.systemBackground, for: .normal)
         self.backgroundColor = Colors.main
         self.titleLabel?.font = .largerBold
         self.layer.cornerRadius = 5.0
@@ -26,7 +26,4 @@ class LogInButton: UIButton {
         super.init(coder: coder)
     }
     
-    override func draw(_ rect: CGRect) {
-        self.setGradientBackground(colorOne: Colors.main, colorTwo: Colors.secondary)
-    }
 }

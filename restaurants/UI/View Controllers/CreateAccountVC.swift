@@ -25,6 +25,10 @@ class CreateAccountVC: UIViewController {
     private let createAccountString = "Create account instead"
     private let logInString = "Log in instead"
     
+    var emailText: String? {
+        return emailLogInField.text?.lowercased()
+    }
+    
     enum Mode {
         case createAccount
         case logIn
@@ -108,8 +112,43 @@ class CreateAccountVC: UIViewController {
         }
     }
     
+    private func handleRegisterUserRequest(email: String, username: String, password: String) {
+        Network.shared.registerUser(email: email, username: username, password: password) { [weak self] (result) in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let success):
+                    if success {
+                        self.showMessage("Created new account as \(Network.shared.account!.username)")
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                case .failure(let error):
+                    self.appAlert(title: "Error", message: error.message, buttons: [("Ok", nil)])
+                }
+            }
+        }
+    }
+    
+    private func handleLogInUserRequest(email: String, password: String) {
+        Network.shared.retrieveToken(email: email, password: password) { [weak self] (result) in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let success):
+                    if success {
+                        self.showMessage("Logged into \(Network.shared.account?.username ?? "account")")
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                case .failure(let error):
+                    self.appAlert(title: "Error", message: error.message, buttons: [("Ok", nil)])
+                    UIDevice.vibrateError()
+                    break
+                }
+            }
+        }
+    }
+    
     @objc func executeCreateOrLogIn() {
-        
         switch mode! {
         case .createAccount:
             emailLogInField.shakeIfNeeded()
@@ -120,23 +159,8 @@ class CreateAccountVC: UIViewController {
             let passwordIsValid = passwordLogInField.isValid
             let usernameIsValid = usernameLogInField.isValid
             
-            if emailIsValid.0 && usernameIsValid.0 && passwordIsValid.0, let email = emailLogInField.text, let password = passwordLogInField.text, let username = usernameLogInField.text {
-                
-                Network.shared.registerUser(email: email, username: username, password: password) { [weak self] (result) in
-                    DispatchQueue.main.async {
-                        guard let self = self else { return }
-                        switch result {
-                        case .success(let success):
-                            if success {
-                                self.showMessage("Created new account as \(Network.shared.account!.username)")
-                                self.navigationController?.popViewController(animated: true)
-                            }
-                        case .failure(let error):
-                            self.appAlert(title: "Error", message: error.message, buttons: [("Ok", nil)])
-                        
-                        }
-                    }
-                }
+            if emailIsValid.0 && usernameIsValid.0 && passwordIsValid.0, let email = emailText, let password = passwordLogInField.text, let username = usernameLogInField.text {
+                handleRegisterUserRequest(email: email, username: username, password: password)
             } else {
                 var messages = [emailIsValid.1, usernameIsValid.1, passwordIsValid.1].filter({$0 != nil}).map({$0!})
                 if messages.count < 1 {
@@ -148,44 +172,31 @@ class CreateAccountVC: UIViewController {
         case .logIn:
             emailLogInField.shakeIfNeeded()
             passwordLogInField.shakeIfNeeded()
-            guard let email = emailLogInField.text, let password = passwordLogInField.text, email.count > 0 && password.count > 0 else {
+            guard let email = emailText, let password = passwordLogInField.text, email.count > 0 && password.count > 0 else {
                 self.appAlert(title: "Unable to log in", message: "Please enter a valid email and password to log in.", buttons: [("Ok", nil)])
                 UIDevice.vibrateError()
                 return
             }
-            Network.shared.retrieveToken(email: email, password: password) { [weak self] (result) in
-                DispatchQueue.main.async {
-                    guard let self = self else { return }
-                    switch result {
-                    case .success(let success):
-                        if success {
-                            self.showMessage("Logged into \(Network.shared.account?.username ?? "account")")
-                            self.navigationController?.popViewController(animated: true)
-                        }
-                    case .failure(let error):
-                        self.appAlert(title: "Error", message: error.message, buttons: [("Ok", nil)])
-                        UIDevice.vibrateError()
-                        break
-                    }
-                }
-            }
+            handleLogInUserRequest(email: email, password: password)
         }
     }
     
     private func handleModeSwitch() {
+        let combo = [emailLogInField, usernameLogInField]
         switch mode! {
         case .createAccount:
             logInAndCreateToggleButton.setTitle(logInString, for: .normal)
             doneButton.setTitle("Create account", for: .normal)
             if stackView.subviews.contains(dummyView) { dummyView.removeFromSuperview() }
             usernameLogInField.isHidden = false
+            combo.forEach({$0.hideButton = false})
         case .logIn:
             logInAndCreateToggleButton.setTitle(createAccountString, for: .normal)
             doneButton.setTitle("Log in", for: .normal)
             stackView.insertArrangedSubview(dummyView, at: 1)
-            
             dummyView.heightAnchor.constraint(equalToConstant: usernameLogInField.bounds.height).isActive = true
             usernameLogInField.isHidden = true
+            combo.forEach({$0.hideButton = true})
         }
     }
     

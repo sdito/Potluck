@@ -55,6 +55,10 @@
 		E253A6B12523FBAF00778500 /* Person.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6B02523FBAF00778500 /* Person.swift */; };
 		E253A6B52523FCDA00778500 /* Person-Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6B42523FCDA00778500 /* Person-Network.swift */; };
 		E253A6B8252501BE00778500 /* GenericTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6B7252501BE00778500 /* GenericTableVC.swift */; };
+		E253A6BF25281ED200778500 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6BE25281ED200778500 /* LoadingView.swift */; };
+		E253A6C32528EBA100778500 /* UISearchBar-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6C22528EBA100778500 /* UISearchBar-Extension.swift */; };
+		E253A6C72529284B00778500 /* UserProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6C62529284B00778500 /* UserProfileVC.swift */; };
+		E253A6CB2529313400778500 /* Array-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6CA2529313400778500 /* Array-Extension.swift */; };
 		E2574A2324B53348006618D7 /* UIImageView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2224B53348006618D7 /* UIImageView-Extension.swift */; };
 		E2574A2524B58D14006618D7 /* TwoLevelButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2424B58D14006618D7 /* TwoLevelButton.swift */; };
 		E2574A2724B65069006618D7 /* PriceLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2624B65069006618D7 /* PriceLabel.swift */; };
@@ -162,6 +166,10 @@
 		E253A6B02523FBAF00778500 /* Person.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Person.swift; sourceTree = "<group>"; };
 		E253A6B42523FCDA00778500 /* Person-Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Person-Network.swift"; sourceTree = "<group>"; };
 		E253A6B7252501BE00778500 /* GenericTableVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericTableVC.swift; sourceTree = "<group>"; };
+		E253A6BE25281ED200778500 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		E253A6C22528EBA100778500 /* UISearchBar-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UISearchBar-Extension.swift"; sourceTree = "<group>"; };
+		E253A6C62529284B00778500 /* UserProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileVC.swift; sourceTree = "<group>"; };
+		E253A6CA2529313400778500 /* Array-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array-Extension.swift"; sourceTree = "<group>"; };
 		E2574A2224B53348006618D7 /* UIImageView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView-Extension.swift"; sourceTree = "<group>"; };
 		E2574A2424B58D14006618D7 /* TwoLevelButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoLevelButton.swift; sourceTree = "<group>"; };
 		E2574A2624B65069006618D7 /* PriceLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceLabel.swift; sourceTree = "<group>"; };
@@ -255,8 +263,10 @@
 			isa = PBXGroup;
 			children = (
 				E239841524EB632100F3828C /* TabVC.swift */,
+				E253A6C62529284B00778500 /* UserProfileVC.swift */,
 				E2F52702251FDBF600282997 /* FeedHomeVC.swift */,
 				E253A6A62521733900778500 /* AddFriendsVC.swift */,
+				E253A6B7252501BE00778500 /* GenericTableVC.swift */,
 				E20EA83124E792AD0064DB86 /* ProfileHomeVC.swift */,
 				E2E6E0A0250461040005A55B /* EstablishmentDetailVC.swift */,
 				E2E6E09E250445100005A55B /* ProfileMapVC.swift */,
@@ -276,7 +286,6 @@
 				E23AFA0424F8DBB4004542A2 /* SelectLocationVC.swift */,
 				E23AFA0624F978DC004542A2 /* SearchHelperVC.swift */,
 				E23AFA0A24FC961D004542A2 /* ShowViewVC.swift */,
-				E253A6B7252501BE00778500 /* GenericTableVC.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -284,6 +293,7 @@
 		E2574A2F24B7D37E006618D7 /* Generic Views */ = {
 			isa = PBXGroup;
 			children = (
+				E253A6BE25281ED200778500 /* LoadingView.swift */,
 				E23AFA1024FF0E5C004542A2 /* ProgressView.swift */,
 				E23AFA0824F9C7E7004542A2 /* HeaderView.swift */,
 				E2E180F024E8B3F6004AA4BE /* LogInButton.swift */,
@@ -388,26 +398,28 @@
 		E27A757724AFC75B00E446EE /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */,
-				E27A756F24A85AA100E446EE /* UIViewController-Extension.swift */,
-				E2574A2224B53348006618D7 /* UIImageView-Extension.swift */,
-				E27A757124A85CF900E446EE /* CLLocationManager-Extension.swift */,
-				E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */,
-				E233541724B1627200A85DA3 /* UIImage-Extension.swift */,
-				E215534E24B2C16F00494E1A /* UIButton-Extension.swift */,
-				E27A757324AEDD3A00E446EE /* MKMapView-Extension.swift */,
-				E215534C24B2A20E00494E1A /* UIView-Extension.swift */,
-				E215535424B3F29D00494E1A /* Date-Extension.swift */,
-				E215535C24B5007500494E1A /* UIScrollView-Extension.swift */,
-				E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */,
-				E2778DD824B7F9DC00151F29 /* String-Extension.swift */,
-				E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */,
-				E2A0147224F617ED00379518 /* UITableView-Extension.swift */,
-				E23AFA0224F8D1EF004542A2 /* CLLocationDistance-Extension.swift */,
-				E2E6E0A42505B40F0005A55B /* UICollectionView-Extension.swift */,
 				E2E6E0A6250761540005A55B /* BinaryFloatingPoint-Extension.swift */,
-				E2E6E0A8250AC77A0005A55B /* UIDevice-Extension.swift */,
+				E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */,
+				E23AFA0224F8D1EF004542A2 /* CLLocationDistance-Extension.swift */,
+				E27A757124A85CF900E446EE /* CLLocationManager-Extension.swift */,
+				E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */,
+				E215535424B3F29D00494E1A /* Date-Extension.swift */,
+				E27A757324AEDD3A00E446EE /* MKMapView-Extension.swift */,
+				E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */,
+				E2778DD824B7F9DC00151F29 /* String-Extension.swift */,
+				E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */,
 				E26CD831251D42BB0082DBE0 /* UIApplication-Extension.swift */,
+				E215534E24B2C16F00494E1A /* UIButton-Extension.swift */,
+				E2E6E0A42505B40F0005A55B /* UICollectionView-Extension.swift */,
+				E2E6E0A8250AC77A0005A55B /* UIDevice-Extension.swift */,
+				E233541724B1627200A85DA3 /* UIImage-Extension.swift */,
+				E2574A2224B53348006618D7 /* UIImageView-Extension.swift */,
+				E215534C24B2A20E00494E1A /* UIView-Extension.swift */,
+				E27A756F24A85AA100E446EE /* UIViewController-Extension.swift */,
+				E215535C24B5007500494E1A /* UIScrollView-Extension.swift */,
+				E253A6C22528EBA100778500 /* UISearchBar-Extension.swift */,
+				E2A0147224F617ED00379518 /* UITableView-Extension.swift */,
+				E253A6CA2529313400778500 /* Array-Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -568,6 +580,7 @@
 				E23AFA0524F8DBB4004542A2 /* SelectLocationVC.swift in Sources */,
 				E2574A2324B53348006618D7 /* UIImageView-Extension.swift in Sources */,
 				E2DC2F2724EDCED0002C6A07 /* ImageXView.swift in Sources */,
+				E253A6C32528EBA100778500 /* UISearchBar-Extension.swift in Sources */,
 				E2E6E09F250445100005A55B /* ProfileMapVC.swift in Sources */,
 				E26CD819251997B70082DBE0 /* ActionSheetView.swift in Sources */,
 				E27A757024A85AA100E446EE /* UIViewController-Extension.swift in Sources */,
@@ -597,6 +610,7 @@
 				E253A6B8252501BE00778500 /* GenericTableVC.swift in Sources */,
 				E284DC0924BBD82100790A29 /* SinglePhotoVC.swift in Sources */,
 				E215535F24B5220500494E1A /* ReviewView.swift in Sources */,
+				E253A6CB2529313400778500 /* Array-Extension.swift in Sources */,
 				E21255312512A3CB0049E9FD /* SliderRatingView.swift in Sources */,
 				E215534D24B2A20E00494E1A /* UIView-Extension.swift in Sources */,
 				E20EA83424E7A98D0064DB86 /* CreateAccountVC.swift in Sources */,
@@ -631,7 +645,9 @@
 				E2E6E0A9250AC77A0005A55B /* UIDevice-Extension.swift in Sources */,
 				E215535724B3F83E00494E1A /* StarRatingView.swift in Sources */,
 				E20EA82A24E282980064DB86 /* SpacerView.swift in Sources */,
+				E253A6C72529284B00778500 /* UserProfileVC.swift in Sources */,
 				E29AF2F724D690F5004C60FC /* SearchRestaurantsVC.swift in Sources */,
+				E253A6BF25281ED200778500 /* LoadingView.swift in Sources */,
 				E2574A3224B7D41D006618D7 /* ScrollingStackView.swift in Sources */,
 				E23AFA0124F89D31004542A2 /* TwoLevelCell.swift in Sources */,
 				E253A6AA2521872C00778500 /* PersonCell.swift in Sources */,

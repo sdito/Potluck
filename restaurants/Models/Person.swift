@@ -47,6 +47,23 @@ class Person: Decodable {
             case id
             case message
         }
+        
+        var notUser: Person? {
+            guard let userId = Network.shared.account?.username else { return nil }
+            if fromPerson.username == userId {
+                return toPerson
+            } else if toPerson.username == userId {
+                return fromPerson
+            } else {
+                return nil
+            }
+        }
+    }
+    
+    struct Profile: Decodable {
+        var account: Person
+        var establishments: [Establishment]?
+        var visits: [Visit]?
     }
     
     struct Friend: Decodable {

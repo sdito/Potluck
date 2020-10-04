@@ -19,7 +19,10 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("setting to override dark mode in app")
     #warning("skStore thing to pop up to review the app")
     #warning("unique together the reverse way too")
-    #warning("random fake people when the user searches if/when/since there are no people ")
+    #warning("unique together i.e. do not allow the reverse of friends to be true")
+    
+    #warning("profile image icon")
+    #warning("start with profile for other users")
     
     private let home = UINavigationController(rootViewController: ProfileHomeVC())
     private let feed = UINavigationController(rootViewController: FeedHomeVC())
@@ -30,8 +33,6 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.delegate = self
-        
-        addRestaurant.view.backgroundColor = .greenSea
         
         let personTabImage = UIImage.personImage.withBaselineOffset(fromBottom: UIFont.systemFontSize / 2)
         let feedImage = UIImage.houseImage.withBaselineOffset(fromBottom: UIFont.systemFontSize / 2)
