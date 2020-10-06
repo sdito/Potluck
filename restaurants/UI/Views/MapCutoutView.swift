@@ -62,7 +62,10 @@ class MapCutoutView: UIView {
                 
         let directions = MKDirections(request: request)
         directions.calculate { [weak self] response, error in
-            guard let response = response else { return }
+            guard let response = response else {
+                self?.imageView.appEndSkeleton()
+                return
+            }
             self?.stepImagesFromDirectionsResponse(response: response) { [weak self] stepImage in
                 self?.imageView.appEndSkeleton()
                 self?.imageView.image = stepImage
@@ -92,7 +95,9 @@ class MapCutoutView: UIView {
         
         snapshotter.start { snapshot, error in
             
-            guard let snapshot = snapshot else { return }
+            guard let snapshot = snapshot else {
+                return
+            }
             
             let image = snapshot.image
             
@@ -100,7 +105,9 @@ class MapCutoutView: UIView {
             image.draw(at: CGPoint.zero)
             
             // draw the path
-            guard let c = UIGraphicsGetCurrentContext() else { return }
+            guard let c = UIGraphicsGetCurrentContext() else {
+                return
+            }
             c.setStrokeColor(UIColor.blue.cgColor)
             c.setLineWidth(4)
             c.beginPath()

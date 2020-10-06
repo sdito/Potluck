@@ -244,6 +244,7 @@ class RestaurantDetailVC: UIViewController {
         stackView.addArrangedSubview(headerDetailView)
 
         stackView.addArrangedSubview(RestaurantCategoriesView(restaurant: restaurant))
+        
         stackView.addArrangedSubview(MapCutoutView(userLocation: locationManager.getUserLocation() ?? .simulatorDefault, userDestination: restaurant.coordinate, restaurant: restaurant, vc: self))
         
         scrollView.setCorrectContentSize()

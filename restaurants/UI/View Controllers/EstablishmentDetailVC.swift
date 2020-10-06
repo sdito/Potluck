@@ -82,6 +82,7 @@ class EstablishmentDetailVC: UIViewController {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         self.setNavigationBarColor()
+        self.navigationController?.navigationBar.isTranslucent = false
         self.tabBarController?.tabBar.isHidden = false
     }
     
@@ -139,12 +140,11 @@ class EstablishmentDetailVC: UIViewController {
         }
         
         if mode == .fullScreenBase {
-            var barButtonItems: [UIBarButtonItem] = []
             self.navigationItem.title = establishment.name
-            // and ability to add visit
-            let addVisitBarButtonItem = UIBarButtonItem(image: .plusImage, style: .plain, target: self, action: #selector(addVisitPressed))
-            barButtonItems.append(addVisitBarButtonItem)
             
+            var barButtonItems: [UIBarButtonItem] = []
+            
+            // Show on yelp always
             if establishment.yelpID != nil {
                 self.navigationController?.navigationBar.tintColor = Colors.main
                 let yelpBarButtonItem = UIBarButtonItem(image: .detailImage, style: .plain, target: self, action: #selector(yelpButtonPressed))
@@ -152,32 +152,43 @@ class EstablishmentDetailVC: UIViewController {
                 barButtonItems.append(yelpBarButtonItem)
             }
             
-            // edit visit
-            let editEstablishmentBarButtonItem = UIBarButtonItem(image: .threeDotsImage, style: .plain, target: self, action: #selector(editEstablishmentPressed))
-            editEstablishmentBarButtonItem.imageInsets = UIEdgeInsets(top: 0, left: 40.0, bottom: 0, right: 0)
-            barButtonItems.append(editEstablishmentBarButtonItem)
-            
+            // Only show these for own users data
+            if establishment.isCurrentUsersEstablishment {
+                // and ability to add visit
+                let addVisitBarButtonItem = UIBarButtonItem(image: .plusImage, style: .plain, target: self, action: #selector(addVisitPressed))
+                barButtonItems.append(addVisitBarButtonItem)
+                
+                // edit visit
+                let editEstablishmentBarButtonItem = UIBarButtonItem(image: .threeDotsImage, style: .plain, target: self, action: #selector(editEstablishmentPressed))
+                editEstablishmentBarButtonItem.imageInsets = UIEdgeInsets(top: 0, left: 40.0, bottom: 0, right: 0)
+                barButtonItems.append(editEstablishmentBarButtonItem)
+                #warning("need to make the spacing tighter")
+            }
             navigationItem.rightBarButtonItems = barButtonItems
-            #warning("need to make the spacing tighter")
         }
     }
     
     private func setUpHeader(establishment: Establishment) {
+        #warning("handle not being user's establishemnt for header here")
         if mode == .halfScreenBase || mode == .fullScreenHeaderAndMap {
             headerView = HeaderView(leftButtonTitle: "Done", rightButtonTitle: "", title: establishment.name)
             headerView!.headerLabel.font = .secondaryTitle
             
-            if mode != .fullScreenHeaderAndMap {
-                headerView!.rightButton.setImage(.threeDotsImage, for: .normal)
-                headerView!.rightButton.addTarget(self, action: #selector(editEstablishmentPressed), for: .touchUpInside)
-                headerView!.rightButton.tintColor = Colors.main
+            // Only show these for own users data
+            if establishment.isCurrentUsersEstablishment {
+                if mode != .fullScreenHeaderAndMap {
+                    headerView!.rightButton.setImage(.threeDotsImage, for: .normal)
+                    headerView!.rightButton.addTarget(self, action: #selector(editEstablishmentPressed), for: .touchUpInside)
+                    headerView!.rightButton.tintColor = Colors.main
+                }
+                
+                if mode == .halfScreenBase {
+                    let addVisit = headerView?.insertButtonAtEnd(with: .plusImage)
+                    addVisit?.addTarget(self, action: #selector(addVisitPressed), for: .touchUpInside)
+                }
             }
             
-            if mode == .halfScreenBase {
-                let addVisit = headerView?.insertButtonAtEnd(with: .plusImage)
-                addVisit?.addTarget(self, action: #selector(addVisitPressed), for: .touchUpInside)
-            }
-            
+            // Always have the yelp button available
             if establishment.yelpID != nil && mode != .fullScreenHeaderAndMap {
                 let detailPressed = headerView?.insertButtonAtEnd(with: .detailImage)
                 detailPressed?.addTarget(self, action: #selector(yelpButtonPressed), for: .touchUpInside)
@@ -193,12 +204,10 @@ class EstablishmentDetailVC: UIViewController {
             spacer!.constrain(.leading, to: self.view, .leading)
             spacer!.constrain(.trailing, to: self.view, .trailing)
             spacer!.constrain(.top, to: headerView!, .bottom, constant: 5.0)
-            
-            
-            
         }
+        
+        // Set up the Map
         if mode == .fullScreenBase || mode == .fullScreenHeaderAndMap {
-            
             if let coordinate = establishment.coordinate {
                 mapLocationView = MapLocationView(locationTitle: establishment.name, coordinate: coordinate, address: establishment.displayAddress)
                 self.view.addSubview(mapLocationView!)
@@ -341,7 +350,7 @@ class EstablishmentDetailVC: UIViewController {
     }
     
     @objc private func yelpButtonPressed() {
-        guard let yelpId = establishment?.yelpID, let longitude = establishment?.longitude, let latitude = establishment?.longitude else { return }
+        guard let yelpId = establishment?.yelpID, let longitude = establishment?.longitude, let latitude = establishment?.latitude else { return }
         guard let establishment = establishment else { return }
         let restaurant = Restaurant(establishment: establishment, yelpID: yelpId, latitude: latitude, longitude: longitude)
         let restaurantDetail = RestaurantDetailVC(restaurant: restaurant, imageAlreadyFound: nil, allowVisit: false)

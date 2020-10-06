@@ -18,21 +18,17 @@ class Visit: Codable {
     var comment: String?
     var mainImageHeight: Int
     var mainImageWidth: Int
-    var accountID: Int
+    var userId: Int
     var accountUsername: String
     var otherImages: [VisitImage]
     var rating: Double?
     var yelpID: String?
     
-    private var serverDateVisited: Date // from extracting the date on the main image
-    private var serverDatePosted: Date  // need to use, for auto_add in django
+    private var serverDateVisited: Date
+    private var serverDatePosted: Date
     
     var longitude: Double?
     var latitude: Double?
-    
-//    var currentDateVisited: Date { // visited
-//        return serverDateVisited.convertFromUTC()
-//    }
     
     var listPhotos: [String] {
         var arr: [String] = [mainImage]
@@ -48,6 +44,11 @@ class Visit: Codable {
     
     var shortUserDateVisited: String {
         return serverDateVisited.dateString(style: .short)
+    }
+    
+    var isCurrentUsersVisit: Bool {
+        guard let id = Network.shared.account?.id else { return false }
+        return self.userId == id
     }
     
     var coordinate: CLLocationCoordinate2D? {
@@ -110,7 +111,7 @@ class Visit: Codable {
         case serverDatePosted = "date_posted"
         case mainImageHeight = "main_image_height"
         case mainImageWidth = "main_image_width"
-        case accountID = "account"
+        case userId = "account"
         case accountUsername = "account_username"
         case longitude = "restaurant_longitude"
         case latitude = "restaurant_latitude"

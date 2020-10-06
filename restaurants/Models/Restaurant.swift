@@ -70,7 +70,6 @@ class Restaurant: Decodable {
                     // have the open value now, now just need to convert it
                     let dayStart = open.start
                     let dayEnd = open.end
-                    
                     let newSystemTime = SystemTime(rawStartValue: Int(dayStart) ?? 0,
                                                    rawEndValue: Int(dayEnd) ?? 0,
                                                    weekday: Date.convertWeekdayFromYelpToStandard(yelpDate: open.day),
@@ -85,7 +84,6 @@ class Restaurant: Decodable {
             return nil
         }
     }
-    
     
     required init(from decoder: Decoder) throws {
         

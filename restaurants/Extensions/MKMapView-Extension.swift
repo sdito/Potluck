@@ -145,6 +145,18 @@ extension MKMapView {
         }
     }
     
+    func trueFitAllAnnotations(annotations: [MKAnnotation], animated: Bool) {
+        if annotations.count > 0 {
+            var zoomRect = MKMapRect.null
+            for annotation in annotations {
+                let annotationPoint = MKMapPoint(annotation.coordinate)
+                let pointRect = MKMapRect(x: annotationPoint.x, y: annotationPoint.y, width: 0.1, height: 0.1);
+                zoomRect = zoomRect.union(pointRect);
+            }
+            self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50), animated: animated)
+        }
+    }
+    
     func updateAllAnnotationZoom(topHalf: Bool) {
         let annotations = self.annotations.filter({$0 !== self.userLocation}) // need to remove userLocation else zooming will include it when not desired
         fitAllAnnotations(newAnnotations: annotations, fitInTopHalf: topHalf)

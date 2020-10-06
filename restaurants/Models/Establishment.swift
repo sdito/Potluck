@@ -61,6 +61,11 @@ class Establishment: Codable {
         }
     }
     
+    var isCurrentUsersEstablishment: Bool {
+        guard let id = Network.shared.account?.id else { return false }
+        return self.userId == id
+    }
+    
     init(name: String, isRestaurant: Bool) {
         self.name = name
         self.isRestaurant = isRestaurant
@@ -88,7 +93,6 @@ class Establishment: Codable {
     
     // from raw values (name, address? and coordinate?)
     init(name: String, fullAddressString: String?, coordinate: CLLocationCoordinate2D?) {
-        
         self.name = name
         self.isRestaurant = true
         self.updatePropertiesWithFullAddress(address: fullAddressString, coordinate: coordinate)
@@ -119,7 +123,6 @@ class Establishment: Codable {
     }
     
     func updatePropertiesWithFullAddress(address: String?, coordinate: CLLocationCoordinate2D?) {
-        
         if let address = address {
             let (partDictionary, _) = Network.shared.extractAddress(address: address, forYelp: false)
             self.address1 = partDictionary["address1"]
@@ -128,7 +131,6 @@ class Establishment: Codable {
             self.country = partDictionary["country"]
             self.zipCode = partDictionary["zip_code"]
         }
-        
         self.latitude = coordinate?.latitude
         self.longitude = coordinate?.longitude
     }

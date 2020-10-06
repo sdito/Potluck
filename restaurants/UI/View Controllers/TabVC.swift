@@ -23,6 +23,7 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     
     #warning("profile image icon")
     #warning("start with profile for other users")
+    #warning("visit detail (rather than just a photos view)")
     
     private let home = UINavigationController(rootViewController: ProfileHomeVC())
     private let feed = UINavigationController(rootViewController: FeedHomeVC())

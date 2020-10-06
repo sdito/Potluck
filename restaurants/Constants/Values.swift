@@ -61,6 +61,7 @@ extension UIImage {
     static let messageImage = UIImage(systemName: "message")!
     static let plusCircleImage = UIImage(systemName: "plus.circle")!
     static let trashImage = UIImage(systemName: "trash")!
+    static let squaresImage = UIImage(systemName: "square.stack.fill")!
 }
 
 
