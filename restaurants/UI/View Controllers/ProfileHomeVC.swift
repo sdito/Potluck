@@ -8,13 +8,16 @@
 
 import UIKit
 #warning("option to filter by post date or visit date ***")
+#warning("init with visits for other profile person thing")
 class ProfileHomeVC: UIViewController {
     private let showOnMapButton = OverlayButton()
     private let tableView = UITableView()
     private var allowHintToCreateRestaurant = false
     private var visits: [Visit] = []
+    private weak var selectedVisit: Visit?
     private let reuseIdentifier = "visitCellReuseIdentifier"
     private let refreshControl = UIRefreshControl()
+    private var preLoadedData = false
     
     private let imageCache = NSCache<NSString, UIImage>()
     private let otherImageCache = NSCache<NSString, ImageRequest>()
@@ -35,7 +38,19 @@ class ProfileHomeVC: UIViewController {
         navigationItem.title = "Profile"
         navigationController?.navigationBar.isTranslucent = false
         setUpTableView()
-        getInitialUserVisits()
+        
+        if !preLoadedData {
+            getInitialUserVisits()
+        } else {
+            tableView.reloadData()
+            if let elementId = selectedVisit?.djangoOwnID, let idx = visits.map({$0.djangoOwnID}).firstIndex(of: elementId) {
+                tableView.layoutIfNeeded()
+                DispatchQueue.main.async {
+                    self.tableView.scrollToRow(at: IndexPath(row: idx, section: 0), at: .top, animated: false)
+                }
+            }
+        }
+        
         
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
@@ -47,6 +62,19 @@ class ProfileHomeVC: UIViewController {
     
     deinit {
         NotificationCenter.default.removeObserver(self)
+    }
+    
+    init(visits: [Visit]?, selectedVisit: Visit? = nil) {
+        super.init(nibName: nil, bundle: nil)
+        if let visits = visits {
+            self.preLoadedData = true
+            self.visits = visits
+            self.selectedVisit = selectedVisit
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
     }
     
     
@@ -80,6 +108,8 @@ class ProfileHomeVC: UIViewController {
         tableView.dataSource = self
         tableView.register(VisitCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.separatorStyle = .none
+        tableView.rowHeight = UITableView.automaticDimension
+        //tableView.estimatedRowHeight = 1000
         
         refreshControl.addTarget(self, action: #selector(refreshControlSelector), for: .valueChanged)
         tableView.refreshControl = refreshControl

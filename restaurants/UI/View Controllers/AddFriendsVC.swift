@@ -95,6 +95,7 @@ class AddFriendsVC: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.rowHeight = UITableView.automaticDimension
         stackView.addArrangedSubview(tableView)
     }
     

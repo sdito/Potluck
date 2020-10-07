@@ -67,15 +67,20 @@ class PersonCell: UITableViewCell {
     }
     
     private func setUpPersonIcon() {
-        let sideSize: CGFloat = 35.0
+        
         personImageView.translatesAutoresizingMaskIntoConstraints = false
         outerStackView.addArrangedSubview(personImageView)
-        personImageView.equalSides(size: sideSize)
-        personImageView.layer.cornerRadius = sideSize / 2.0
+        
         personImageView.backgroundColor = .secondarySystemBackground
         personImageView.contentMode = .scaleAspectFit
         personImageView.clipsToBounds = true
         personImageView.image = UIImage.personCircleImage.withConfiguration(configuration)
+        
+        let sideSize: CGFloat = 35.0
+        personImageView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        personImageView.equalSides(size: sideSize)
+        personImageView.layer.cornerRadius = sideSize / 2.0
+        
     }
     
     private func setUpLabels() {
@@ -93,7 +98,6 @@ class PersonCell: UITableViewCell {
         labelStackView.alignment = .leading
         labelStackView.distribution = .fill
         outerStackView.addArrangedSubview(labelStackView)
-        
     }
     
     private func setUpButtons() {

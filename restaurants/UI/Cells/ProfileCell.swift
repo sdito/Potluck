@@ -11,7 +11,8 @@ import UIKit
 class ProfileCell: UICollectionViewCell {
     
     private let stackView = UIStackView()
-    private let imageView = UIImageView()
+    private let labelStackView = UIStackView()
+    let imageView = UIImageView()
     private let multipleImagesView = UIImageView(image: .squaresImage)
     private let placeLabel = UILabel()
     
@@ -28,13 +29,12 @@ class ProfileCell: UICollectionViewCell {
         setUpView()
         setUpStackView()
         setUpImageView()
-        setUpLabel()
+        setUpLabelStackView()
+        setUpNameLabel()
     }
     
     private func setUpView() {
         self.contentView.backgroundColor = .secondarySystemBackground
-        self.layer.cornerRadius = 5.0
-        self.clipsToBounds = true
     }
     
     private func setUpStackView() {
@@ -50,7 +50,9 @@ class ProfileCell: UICollectionViewCell {
     private func setUpImageView() {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.equalSides()
-        imageView.backgroundColor = .tertiarySystemBackground
+        imageView.backgroundColor = Colors.main
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
         
         multipleImagesView.translatesAutoresizingMaskIntoConstraints = false
         multipleImagesView.tintColor = .white
@@ -61,12 +63,29 @@ class ProfileCell: UICollectionViewCell {
         stackView.addArrangedSubview(imageView)
     }
     
-    private func setUpLabel() {
+    private func setUpLabelStackView() {
+        labelStackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.addArrangedSubview(labelStackView)
+        labelStackView.axis = .horizontal
+        labelStackView.distribution = .fill
+    }
+    
+    private func setUpNameLabel() {
         placeLabel.translatesAutoresizingMaskIntoConstraints = false
         placeLabel.textColor = .label
-        placeLabel.font = .smallBold
-        placeLabel.text = "This is placeholder text"
-        stackView.addArrangedSubview(placeLabel)
+        placeLabel.font = .mediumBold
+        labelStackView.addArrangedSubview(placeLabel)
+    }
+    
+    
+    
+    func setUp(with visit: Visit) {
+        placeLabel.text = visit.restaurantName
+        if visit.listPhotos.count > 1 {
+            multipleImagesView.isHidden = false
+        } else {
+            multipleImagesView.isHidden = true
+        }
     }
     
 }

@@ -41,8 +41,9 @@ class VisitCell: UITableViewCell {
     private let dateLabel = UILabel()
     private let ratingLabel = UILabel()
     private var dateAndButtonStackView: UIStackView!
-    private var dateAndButtonContainerView: UIView!
     
+    private let moreActionsButton = UIButton()
+    private let mapButton = UIButton()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -60,8 +61,6 @@ class VisitCell: UITableViewCell {
         setUpUiElementsForDateAndButtons()
         setUpScrollingStack()
         
-        
-        
         let lowerStackView = setUpLowerStack()
         
         setUpRestaurantNameLabel()
@@ -69,6 +68,8 @@ class VisitCell: UITableViewCell {
         
         setUpCommentLabel()
         lowerStackView.addArrangedSubview(commentLabel)
+        
+        
     }
     
     private func setUpBase() {
@@ -101,14 +102,12 @@ class VisitCell: UITableViewCell {
         spacer.translatesAutoresizingMaskIntoConstraints = false
         dateAndButtonStackView.addArrangedSubview(spacer)
         
-        let moreActionsButton = UIButton()
         moreActionsButton.translatesAutoresizingMaskIntoConstraints = false
         moreActionsButton.setImage(.threeDotsImage, for: .normal)
         moreActionsButton.tintColor = Colors.main
         moreActionsButton.addTarget(self, action: #selector(moreActionsSelector), for: .touchUpInside)
         dateAndButtonStackView.addArrangedSubview(moreActionsButton)
         
-        let mapButton = UIButton()
         mapButton.translatesAutoresizingMaskIntoConstraints = false
         mapButton.setImage(.mapImage, for: .normal)
         mapButton.tintColor = Colors.main
@@ -116,24 +115,15 @@ class VisitCell: UITableViewCell {
         dateAndButtonStackView.addArrangedSubview(mapButton)
         
         base.addSubview(dateAndButtonStackView)
-        dateAndButtonContainerView = UIView()
-        dateAndButtonContainerView.translatesAutoresizingMaskIntoConstraints = false
-        dateAndButtonContainerView.addSubview(dateAndButtonStackView)
-        
-        base.addSubview(dateAndButtonContainerView)
-        
-        dateAndButtonStackView.constrainSides(to: dateAndButtonContainerView, distance: 10.0)
-        
-        dateAndButtonContainerView.widthAnchor.constraint(equalTo: base.widthAnchor).isActive = true
-        dateAndButtonContainerView.constrain(.top, to: base, .top)
-        dateAndButtonContainerView.constrain(.leading, to: base, .leading)
-        dateAndButtonContainerView.constrain(.trailing, to: base, .trailing)
+        dateAndButtonStackView.constrain(.top, to: base, .top, constant: 10.0)
+        dateAndButtonStackView.constrain(.leading, to: base, .leading, constant: 10.0)
+        dateAndButtonStackView.constrain(.trailing, to: base, .trailing, constant: 10.0)
         
     }
     
     private func setUpScrollingStack() {
         base.addSubview(scrollingStackView)
-        scrollingStackView.constrain(.top, to: dateAndButtonContainerView, .bottom)
+        scrollingStackView.constrain(.top, to: dateAndButtonStackView, .bottom, constant: 10.0)
         scrollingStackView.constrain(.leading, to: base, .leading)
         scrollingStackView.constrain(.trailing, to: base, .trailing)
         
@@ -164,10 +154,11 @@ class VisitCell: UITableViewCell {
         
         base.addSubview(lowerStackView)
         
-        lowerStackView.constrain(.top, to: scrollingStackView, .bottom, constant: 10.0)
-        lowerStackView.constrain(.leading, to: base, .leading, constant: 10.0)
-        lowerStackView.constrain(.trailing, to: base, .trailing, constant: 10.0)
-        lowerStackView.constrain(.bottom, to: base, .bottom, constant: 10.0)
+        let priority = UILayoutPriority(rawValue: 999.0)
+        lowerStackView.constrain(.top, to: scrollingStackView, .bottom, constant: 10.0, priority: priority)
+        lowerStackView.constrain(.leading, to: base, .leading, constant: 10.0, priority: priority)
+        lowerStackView.constrain(.trailing, to: base, .trailing, constant: 10.0, priority: priority)
+        lowerStackView.constrain(.bottom, to: base, .bottom, constant: 10.0, priority: priority)
         
         return lowerStackView
     }
@@ -238,6 +229,7 @@ class VisitCell: UITableViewCell {
         dateLabel.text = visit.userDateVisited
         ratingLabel.attributedText = visit.ratingString
         
+        moreActionsButton.isHidden = !visit.isCurrentUsersVisit
         
         otherImageViews.forEach { (iv) in
             iv.removeFromSuperview()

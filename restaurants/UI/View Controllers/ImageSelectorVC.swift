@@ -153,6 +153,7 @@ class ImageSelectorVC: UIViewController {
         collectionView.dataSource = self
         collectionView.showsVerticalScrollIndicator = false
         collectionView.allowsMultipleSelection = true
+        collectionView.alwaysBounceVertical = true
         
         self.view.addSubview(collectionView)
         

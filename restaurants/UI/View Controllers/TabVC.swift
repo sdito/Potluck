@@ -25,7 +25,7 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("start with profile for other users")
     #warning("visit detail (rather than just a photos view)")
     
-    private let home = UINavigationController(rootViewController: ProfileHomeVC())
+    private let home = UINavigationController(rootViewController: ProfileHomeVC(visits: nil))
     private let feed = UINavigationController(rootViewController: FeedHomeVC())
     private let addRestaurant = AddRestaurantVC()
     private let explore = UINavigationController(rootViewController: FindRestaurantVC())

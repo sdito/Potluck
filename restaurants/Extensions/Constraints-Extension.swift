@@ -46,7 +46,7 @@ extension UIView {
     }
     
     @discardableResult
-    func constrain(_ selfSide: Side, to view: UIView, _ side: Side, constant: CGFloat = 0.0) -> NSLayoutConstraint {
+    func constrain(_ selfSide: Side, to view: UIView, _ side: Side, constant: CGFloat = 0.0, priority: UILayoutPriority? = nil) -> NSLayoutConstraint {
         guard selfSide.isYAxis == side.isYAxis else {
             fatalError("Sides are not on the same axis from constrain(selfSide")
         }
@@ -91,6 +91,10 @@ extension UIView {
             default:
                 break
             }
+        }
+        
+        if let priority = priority {
+            constraint.priority = priority
         }
         
         constraint.isActive = true
