@@ -37,7 +37,7 @@ class VisitCell: UITableViewCell {
     private let scrollingStackView = ScrollingStackView(subViews: [], showPlaceholder: true)
     private let restaurantNameButton = SizeChangeButton(sizeDifference: .inverse, restingColor: .label, selectedColor: Colors.main)
     private let commentLabel = UILabel()
-    private var visitImageViewHeightConstraint: NSLayoutConstraint?
+    var visitImageViewHeightConstraint: NSLayoutConstraint?
     private let dateLabel = UILabel()
     private let ratingLabel = UILabel()
     private var dateAndButtonStackView: UIStackView!
@@ -272,40 +272,7 @@ class VisitCell: UITableViewCell {
         commentLabel.text = commentText
         ratingLabel.attributedText = visit?.ratingString
     }
-    
-    
-    func setImage(url: String?, image: UIImage?, height: Int?, width: Int?, imageFound: @escaping (UIImage?) -> Void) {
-        
-        visitImageView.layoutIfNeeded()
-        
-        if let height = height, let width = width {
-            let ratio = CGFloat(width) / CGFloat(height)
-            visitImageViewHeightConstraint?.constant = visitImageView.bounds.width / ratio
-        } else {
-            visitImageViewHeightConstraint?.constant = baseHeight
-        }
-        
-        if let image = image {
-            visitImageView.image = image
-            imageFound(nil)
-        } else if let url = url {
-            self.visitImageView.appStartSkeleton()
-            Network.shared.getImage(url: url) { [weak self] (img) in
-                guard let self = self else { return }
-                self.visitImageView.appEndSkeleton()
-                DispatchQueue.global(qos: .background).async {
-                    let resized = img?.resizeToBeNoLargerThanScreenWidth()
-                    DispatchQueue.main.async {
-                        self.visitImageView.image = resized
-                        imageFound(resized)
-                    }
-                }
-            }
-        } else {
-            imageFound(nil)
-        }
-    }
-    
+
 }
 
 // MARK: ScrollingStackViewDelegate

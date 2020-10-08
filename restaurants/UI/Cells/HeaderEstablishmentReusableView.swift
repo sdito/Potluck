@@ -15,6 +15,7 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
     private let ratingLabel = UILabel()
     private let container = UIView()
     private let containerStack = UIStackView()
+    private let layerButton = UIButton()
     private var stackConstraint: NSLayoutConstraint?
     private var visit: Visit?
     private var allowPressing = false
@@ -71,7 +72,6 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
     }
     
     private func setUpClicking() {
-        let layerButton = UIButton()
         layerButton.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(layerButton)
         self.bringSubviewToFront(layerButton)
@@ -137,6 +137,12 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
         self.layoutIfNeeded()
         stackConstraint?.constant = dateLabel.bounds.width
         ratingLabel.attributedText = visit.ratingString
+        
+        if visit.isCurrentUsersVisit {
+            layerButton.isHidden = false
+        } else {
+            layerButton.isHidden = true
+        }
     }
     
     func update(visit: Visit) {

@@ -50,7 +50,7 @@ class ProfileCell: UICollectionViewCell {
     private func setUpImageView() {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.equalSides()
-        imageView.backgroundColor = Colors.main
+        imageView.backgroundColor = .secondarySystemBackground
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         

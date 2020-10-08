@@ -21,6 +21,10 @@ class GenericTableVC: UITableViewController {
         self.view.backgroundColor = .systemBackground
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     enum Mode: String {
         case friends = "Friends"
         case requestsSent = "Requests sent"
@@ -72,7 +76,7 @@ class GenericTableVC: UITableViewController {
     private func setUpForFriends() {
         let rightBarButtonItem = UIBarButtonItem(image: .personBadgeImage, style: .plain, target: self, action: #selector(addFriendsSelector))
         self.navigationItem.rightBarButtonItem = rightBarButtonItem
-        
+        NotificationCenter.default.addObserver(self, selector: #selector(friendIdRemoved(notification:)), name: .friendshipIdRemoved, object: nil)
         Network.shared.getFriends { [weak self] (result) in
             switch result {
             case .success(let friends):
@@ -152,6 +156,12 @@ class GenericTableVC: UITableViewController {
         self.navigationController?.pushViewController(AddFriendsVC(), animated: true)
     }
     
+    @objc private func friendIdRemoved(notification: Notification) {
+        guard let id = notification.userInfo?["friendshipId"] as? Int else { return }
+        guard let removedFriendship = friends?.removeAll(where: {$0.friendID == id}) else { return }
+    }
+    
+    // MARK: Table view
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var count: Int {
             switch mode {

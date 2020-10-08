@@ -130,6 +130,7 @@ class EstablishmentDetailVC: UIViewController {
     }
     
     private func setUpView(establishment: Establishment) {
+
         if mode == .halfScreenBase {
             self.view.clipsToBounds = true
             self.view.layer.cornerRadius = 12.5
@@ -154,6 +155,7 @@ class EstablishmentDetailVC: UIViewController {
             
             // Only show these for own users data
             if establishment.isCurrentUsersEstablishment {
+                
                 // and ability to add visit
                 let addVisitBarButtonItem = UIBarButtonItem(image: .plusImage, style: .plain, target: self, action: #selector(addVisitPressed))
                 barButtonItems.append(addVisitBarButtonItem)

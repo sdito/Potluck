@@ -89,6 +89,7 @@ class Establishment: Codable {
         self.country = country
         self.firstVisited = firstVisited
         self.visits = visits
+        self.userId = userId
     }
     
     // from raw values (name, address? and coordinate?)

@@ -137,8 +137,13 @@ extension Network {
         }
     }
     
-    func deleteFriend(friend: Person.Friend, complete: @escaping (Bool) -> Void) {
-        let req = reqPerson(params: nil, requestType: .deleteFriend, id: friend.friendID)
+    func deleteFriend(friend: Person.Friend?, id: Int? = nil, complete: @escaping (Bool) -> Void) {
+        guard let friendshipId = friend?.friendID ?? id else { return }
+        NotificationCenter.default.post(name: .friendshipIdRemoved, object: nil, userInfo: ["friendshipId": friendshipId])
+        
+        return; #warning("remove later, just for testing")
+        
+        let req = reqPerson(params: nil, requestType: .deleteFriend, id: friendshipId)
         req?.responseJSON(queue: .global(qos: .background), completionHandler: { (response) in
             guard let statusCode = response.response?.statusCode else { complete(false); return }
             complete(statusCode == Network.deletedCode)

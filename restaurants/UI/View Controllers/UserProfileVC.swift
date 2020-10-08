@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 
 class UserProfileVC: UIViewController {
-    
+    #warning("show something when the user does not have any visits, and no establishments (map)")
     var text = "Do any additional setup after loading the view, typically from a nib."
     private var person: Person?
     private var profile: Person.Profile?
@@ -26,6 +26,8 @@ class UserProfileVC: UIViewController {
     private var mapViewHeight: CGFloat?
     private var headerButton: UIButton?
     private let imageCache = NSCache<NSString, UIImage>()
+    private let refreshControl = UIRefreshControl()
+    private var threeDotsBarButtonItem: UIBarButtonItem?
     
     private var previousScrollOffset: CGFloat = 0.0
     private var allowChanges = true
@@ -33,7 +35,7 @@ class UserProfileVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
-        self.navigationItem.title = person?.username
+        setUpNavigationBar()
         getPersonData()
         setUpMap()
         setUpCollectionView()
@@ -46,6 +48,19 @@ class UserProfileVC: UIViewController {
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+    }
+    
+    private func setUpNavigationBar() {
+        if let username = person?.username {
+            let navigationTitleView = NavigationTitleView(upperText: username, lowerText: "Profile")
+            self.navigationItem.titleView = navigationTitleView
+        } else {
+            self.navigationItem.title = "Profile"
+        }
+        
+        #warning("need to actually implement -- if friends, option to remove friend, if not friends, option to add friend")
+        threeDotsBarButtonItem = UIBarButtonItem(image: .threeDotsImage, style: .plain, target: self, action: #selector(profileInfoPressed))
+        self.navigationItem.rightBarButtonItem = threeDotsBarButtonItem
     }
     
     private func setUpMap() {
@@ -88,11 +103,22 @@ class UserProfileVC: UIViewController {
         collectionView!.alwaysBounceVertical = true
         collectionView!.register(ProfileCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView!.register(TitleReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
+        
+        // set up the refresh control
+        #warning("need to do and implement")
+        
+        refreshControl.addTarget(self, action: #selector(refreshControlSelected), for: .valueChanged)
+        collectionView?.refreshControl = refreshControl
+        
     }
     
     private func getPersonData() {
         Network.shared.getPersonProfile(person: person) { [weak self] (response) in
             guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                self.collectionView?.refreshControl?.endRefreshing()
+            }
             switch response {
             case .success(let profile):
                 self.profile = profile
@@ -108,12 +134,16 @@ class UserProfileVC: UIViewController {
             guard let self = self else { return }
             if let establishments = profile.establishments {
                 for establishment in establishments {
-
                     let annotation = RestaurantAnnotation(establishment: establishment)
                     self.mapView.addAnnotation(annotation)
                 }
                 self.mapView.trueFitAllAnnotations(annotations: self.mapView.annotations, animated: false)
             }
+            
+            if profile.isOwnProfile {
+                self.hideBarButtonItem()
+            }
+            
             self.collectionView?.reloadData()
         }
     }
@@ -132,7 +162,52 @@ class UserProfileVC: UIViewController {
         } completion: { (done) in
             self.allowChanges = true
         }
-
+    }
+    
+    @objc private func refreshControlSelected() {
+        getPersonData()
+    }
+    
+    @objc private func profileInfoPressed() {
+        guard let profile = profile, !profile.isOwnProfile else { return }
+        
+        #warning("need to complete, do action sheet stuff")
+        
+        if profile.areFriends {
+            // Option to remove the friend
+            self.appActionSheet(buttons: [
+                AppAction(title: "Delete friendship", action: {
+                    self.appAlert(title: "Delete friendship", message: "Are you sure you want to delete this friendship?", buttons: [
+                        ("Cancel", nil),
+                        ("Delete", { [weak self] in
+                            #warning("actually delete here, also need to use notifications for GenericTableVC on friends mode (only friends mode)")
+                            Network.shared.deleteFriend(friend: nil, id: profile.friendshipId, complete: { _ in return })
+                            self?.hideBarButtonItem()
+                            self?.showMessage("Friend removed")
+                        })
+                    ])
+                })
+            ])
+        } else if profile.hasPendingReceivedRequest {
+            // Option to accept the request
+            self.appActionSheet(buttons: [
+                AppAction(title: "Accept friend request", action: nil)
+            ])
+        } else if profile.hasPendingSentRequest {
+            // Option to revoke the sent request
+            self.appActionSheet(buttons: [
+                AppAction(title: "Cancel friend request", action: nil)
+            ])
+        } else {
+            // Nothing else, so option to send the person a friend request
+            self.appActionSheet(buttons: [
+                AppAction(title: "Send friend request", action: nil)
+            ])
+        }
+    }
+    
+    private func hideBarButtonItem() {
+        threeDotsBarButtonItem?.image = nil
     }
     
 }
@@ -165,7 +240,15 @@ extension UserProfileVC: MKMapViewDelegate {
 // MARK: Collection view
 extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return profile?.visits?.count ?? 0
+        let count = profile?.visits?.count ?? 0
+        
+        if count == 0 {
+            collectionView.setEmptyWithAction(message: "\(person?.username ?? "This user") does not have any visits yet", buttonTitle: "")
+        } else {
+            collectionView.restore()
+        }
+        
+        return count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -209,11 +292,8 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let visits = profile?.visits, let visit = visits.appAtIndex(indexPath.item) {
-            
-            // can probably just use a visit cell
-            let profileVC = ProfileHomeVC(visits: visits, selectedVisit: visit)
+            let profileVC = ProfileHomeVC(visits: visits, selectedVisit: visit, prevImageCache: imageCache, otherUserUsername: person?.username)
             self.navigationController?.pushViewController(profileVC, animated: true)
-            
         }
     }
     
@@ -261,7 +341,6 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         self.allowChanges = true
-        print("Did end animation")
     }
     
 }

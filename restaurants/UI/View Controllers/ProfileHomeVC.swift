@@ -7,8 +7,7 @@
 //
 
 import UIKit
-#warning("option to filter by post date or visit date ***")
-#warning("init with visits for other profile person thing")
+
 class ProfileHomeVC: UIViewController {
     private let showOnMapButton = OverlayButton()
     private let tableView = UITableView()
@@ -18,10 +17,12 @@ class ProfileHomeVC: UIViewController {
     private let reuseIdentifier = "visitCellReuseIdentifier"
     private let refreshControl = UIRefreshControl()
     private var preLoadedData = false
+    private var otherUserUsername: String?
     
-    private let imageCache = NSCache<NSString, UIImage>()
+    private var imageCache: NSCache<NSString, UIImage>?
     private let otherImageCache = NSCache<NSString, ImageRequest>()
     private var photoIndexCache: [Int:Int] = [:]
+    private var allowMapButton = true
     
     private class ImageRequest {
         var requested: Bool = true
@@ -34,8 +35,14 @@ class ProfileHomeVC: UIViewController {
         self.setNavigationBarColor()
         self.navigationController?.navigationBar.tintColor = Colors.main
         self.tableView.separatorInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
-    
-        navigationItem.title = "Profile"
+        
+        if let username = otherUserUsername {
+            let navigationTitleView = NavigationTitleView(upperText: username, lowerText: "Visits")
+            navigationItem.titleView = navigationTitleView
+        } else {
+            navigationItem.title = "Visits"
+        }
+        
         navigationController?.navigationBar.isTranslucent = false
         setUpTableView()
         
@@ -51,7 +58,6 @@ class ProfileHomeVC: UIViewController {
             }
         }
         
-        
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(establishmentDeleted(notification:)), name: .establishmentDeleted, object: nil)
@@ -64,12 +70,22 @@ class ProfileHomeVC: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
-    init(visits: [Visit]?, selectedVisit: Visit? = nil) {
+    init(visits: [Visit]?, selectedVisit: Visit? = nil, prevImageCache: NSCache<NSString, UIImage>? = nil, otherUserUsername: String? = nil) {
         super.init(nibName: nil, bundle: nil)
         if let visits = visits {
-            self.preLoadedData = true
+            
+            if let cache = prevImageCache {
+                self.imageCache = cache
+            } else {
+                self.imageCache = NSCache<NSString, UIImage>()
+            }
+            
             self.visits = visits
             self.selectedVisit = selectedVisit
+            self.otherUserUsername = otherUserUsername
+            self.preLoadedData = true
+            self.allowMapButton = false
+            #warning("use otherUserUsername")
         }
     }
     
@@ -122,6 +138,9 @@ class ProfileHomeVC: UIViewController {
         self.view.addSubview(showOnMapButton)
         showOnMapButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
         showOnMapButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -((self.tabBarController?.tabBar.bounds.height ?? 0.0) + 10.0)).isActive = true
+        
+        if !allowMapButton { showOnMapButton.isHidden = true }
+        
     }
     
     private func noUserTableView() {
@@ -162,7 +181,7 @@ class ProfileHomeVC: UIViewController {
     
     private func clearCaches() {
         photoIndexCache = [:]
-        imageCache.removeAllObjects()
+        imageCache?.removeAllObjects()
         otherImageCache.removeAllObjects()
         
     }
@@ -214,8 +233,10 @@ class ProfileHomeVC: UIViewController {
     }
     
     private func setMapButton(hidden: Bool) {
-        DispatchQueue.main.async {
-            self.showOnMapButton.isHidden = hidden
+        if allowMapButton {
+            DispatchQueue.main.async {
+                self.showOnMapButton.isHidden = hidden
+            }
         }
     }
         
@@ -266,15 +287,36 @@ extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
         let visit = visits[indexPath.row]
         cell.setUpWith(visit: visit, selectedPhotoIndex: photoIndexCache[visit.djangoOwnID])
         cell.delegate = self
-        let key = NSString(string: "\(visit.djangoOwnID)-main")
+        let key = NSString(string: "\(visit.djangoOwnID)")
         
         // handle the main image
-        cell.setImage(url: visit.mainImage, image: imageCache.object(forKey: key), height: visit.mainImageHeight, width: visit.mainImageWidth) { (imageFound) in
-            if let imageFound = imageFound {
-                self.imageCache.setObject(imageFound, forKey: key)
+        let cellImageView = cell.visitImageView
+        cellImageView.layoutIfNeeded()
+        
+        let ratio = CGFloat(visit.mainImageWidth) / CGFloat(visit.mainImageHeight)
+        
+        cell.visitImageViewHeightConstraint?.constant = cellImageView.bounds.width / ratio
+        
+        cellImageView.image = nil
+        if let image = imageCache?.object(forKey: key) {
+            cellImageView.image = image
+        } else {
+            cellImageView.appStartSkeleton()
+            Network.shared.getImage(url: visit.mainImage) { [weak self] (imageFound) in
+                cellImageView.appEndSkeleton()
+                guard let imageFound = imageFound, let self = self else { return }
+                DispatchQueue.global(qos: .background).async {
+                    let resized = imageFound.resizeToBeNoLargerThanScreenWidth()
+                    DispatchQueue.main.async { [weak self] in
+                        self?.imageCache?.setObject(resized, forKey: key)
+//                        #warning("set here")
+                        if let cell = self?.cellFrom(visit: visit) {
+                            cell.visitImageView.image = resized
+                        }
+                    }
+                }
             }
         }
-        
         
         return cell
     }
@@ -291,7 +333,7 @@ extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
             defer { counter += 1 }
             if counter == 0 {
                 let key = NSString(string: "\(id)-main")
-                images[counter].1 = imageCache.object(forKey: key)
+                images[counter].1 = imageCache?.object(forKey: key)
             } else {
                 let key = NSString(string: "\(id)-\(counter-1)")
                 images[counter].1 = otherImageCache.object(forKey: key)?.image
@@ -319,8 +361,8 @@ extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
     
     private func removeImagesFromCacheFor(visit: Visit) {
         print("Remove images from cache: \(visit.djangoOwnID)")
-        let mainKey = NSString(string: "\(visit.djangoOwnID)-main")
-        imageCache.removeObject(forKey: mainKey)
+        let mainKey = NSString(string: "\(visit.djangoOwnID)")
+        imageCache?.removeObject(forKey: mainKey)
         
         for visIdx in 0..<visit.otherImages.count {
             let otherKey = NSString(string: "\(visit.djangoOwnID)-\(visIdx)")

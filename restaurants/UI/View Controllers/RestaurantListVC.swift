@@ -217,12 +217,10 @@ class RestaurantListVC: UIViewController {
         
         self.view.addSubview(tableView)
         
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: topContainerView.bottomAnchor, constant: topViewPadding),
-            tableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
-        ])
+        tableView.constrain(.top, to: topContainerView, .bottom, constant: topViewPadding)
+        tableView.constrain(.leading, to: self.view, .leading)
+        tableView.constrain(.trailing, to: self.view, .trailing)
+        tableView.constrain(.bottom, to: self.view, .bottom)
         
         tableView.delegate = self
         tableView.dataSource = self

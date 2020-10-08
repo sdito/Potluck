@@ -9,6 +9,7 @@
 import UIKit
 
 extension UICollectionView {
+    @discardableResult
     func setEmptyWithAction(message: String, buttonTitle: String) -> UIButton {
         
         let container = UIView()

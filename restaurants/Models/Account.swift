@@ -44,6 +44,7 @@ class Account: Decodable {
             let account = Account(email: email, username: username, id: id, token: token, phone: phone)
             return account
         } else {
+            print("Account is nil on log in")
             return nil
         }
     }
