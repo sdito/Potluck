@@ -94,6 +94,7 @@
 		E284DC0B24BE8EC400790A29 /* RestaurantSpecificInfoVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E284DC0A24BE8EC400790A29 /* RestaurantSpecificInfoVC.swift */; };
 		E287AB3F252C3F67008D8DBC /* TitleReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E287AB3E252C3F67008D8DBC /* TitleReusableView.swift */; };
 		E287AB42252E6849008D8DBC /* NavigationTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E287AB41252E6848008D8DBC /* NavigationTitleView.swift */; };
+		E287AB4D253186C7008D8DBC /* UIColor-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E287AB4C253186C7008D8DBC /* UIColor-Extension.swift */; };
 		E288B12725192F1A004B2849 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E288B12625192F1A004B2849 /* AlertView.swift */; };
 		E2894EC92501B0D40012E8D8 /* VisitImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2894EC82501B0D40012E8D8 /* VisitImage.swift */; };
 		E2894ECB2502F2E50012E8D8 /* NotificationName.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2894ECA2502F2E50012E8D8 /* NotificationName.swift */; };
@@ -210,6 +211,7 @@
 		E284DC0A24BE8EC400790A29 /* RestaurantSpecificInfoVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantSpecificInfoVC.swift; sourceTree = "<group>"; };
 		E287AB3E252C3F67008D8DBC /* TitleReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleReusableView.swift; sourceTree = "<group>"; };
 		E287AB41252E6848008D8DBC /* NavigationTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationTitleView.swift; sourceTree = "<group>"; };
+		E287AB4C253186C7008D8DBC /* UIColor-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor-Extension.swift"; sourceTree = "<group>"; };
 		E288B12625192F1A004B2849 /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
 		E2894EC82501B0D40012E8D8 /* VisitImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitImage.swift; sourceTree = "<group>"; };
 		E2894ECA2502F2E50012E8D8 /* NotificationName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationName.swift; sourceTree = "<group>"; };
@@ -429,6 +431,7 @@
 				E253A6C22528EBA100778500 /* UISearchBar-Extension.swift */,
 				E2A0147224F617ED00379518 /* UITableView-Extension.swift */,
 				E253A6CA2529313400778500 /* Array-Extension.swift */,
+				E287AB4C253186C7008D8DBC /* UIColor-Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -671,6 +674,7 @@
 				E2778DE124BB8C0F00151F29 /* HeaderDetailView.swift in Sources */,
 				E287AB42252E6849008D8DBC /* NavigationTitleView.swift in Sources */,
 				E215535D24B5007500494E1A /* UIScrollView-Extension.swift in Sources */,
+				E287AB4D253186C7008D8DBC /* UIColor-Extension.swift in Sources */,
 				E2A0146F24F5C00F00379518 /* Visit-Network.swift in Sources */,
 				E20EA82824E27BDD0064DB86 /* FilterRestaurantsVC.swift in Sources */,
 				E239841824EB642000F3828C /* AddRestaurantVC.swift in Sources */,

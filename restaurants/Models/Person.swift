@@ -15,8 +15,12 @@ class Person: Decodable {
     var username: String?
     var actualName: String?
     var id: Int?
+    var hex_color: String?
     lazy var alreadyInteracted = false
-    lazy var color = Colors.random
+    
+    var color: UIColor {
+        return UIColor(hex: hex_color) ?? Colors.random
+    }
     
     init(phone: String, username: String?, actualName: String?) {
         self.phone = phone
