@@ -15,6 +15,7 @@ class Person: Decodable {
     var username: String?
     var actualName: String?
     var id: Int?
+    lazy var alreadyInteracted = false
     lazy var color = Colors.random
     
     init(phone: String, username: String?, actualName: String?) {

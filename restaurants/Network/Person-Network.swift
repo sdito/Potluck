@@ -79,9 +79,11 @@ extension Network {
         }
     }
     
-    func answerFriendRequest(request: Person.PersonRequest, accept: Bool, complete: @escaping (Bool) -> Void) {
+    func answerFriendRequest(request: Person.PersonRequest?, id: Int? = nil, accept: Bool, complete: @escaping (Bool) -> Void) {
+        guard let friendRequestId = request?.id ?? id else { return }
+        
         let params: [String:Any] = ["accept_request": accept]
-        guard let req = reqPerson(params: params, requestType: .answerFriendRequest, id: request.id) else { complete(false); return }
+        guard let req = reqPerson(params: params, requestType: .answerFriendRequest, id: friendRequestId) else { complete(false); return }
         req.responseJSON(queue: .global(qos: .background)) { (response) in
             guard let code = response.response?.statusCode, response.error == nil else {
                 complete(false)
@@ -98,8 +100,9 @@ extension Network {
         }
     }
     
-    func sendFriendRequest(toPerson: Person, complete: @escaping (Bool) -> Void) {
-        guard let id = toPerson.id else { return }
+    func sendFriendRequest(toPerson: Person?, id: Int? = nil, complete: @escaping (Bool) -> Void) {
+        guard let id = toPerson?.id ?? id else { return }
+        
         let params: [String:Any] = ["to_user_id": id]
         guard let req = reqPerson(params: params, requestType: .sendFriendRequest) else { complete(false); return }
         req.responseJSON(queue: .global(qos: .background), completionHandler: { (response) in
@@ -141,8 +144,6 @@ extension Network {
         guard let friendshipId = friend?.friendID ?? id else { return }
         NotificationCenter.default.post(name: .friendshipIdRemoved, object: nil, userInfo: ["friendshipId": friendshipId])
         
-        return; #warning("remove later, just for testing")
-        
         let req = reqPerson(params: nil, requestType: .deleteFriend, id: friendshipId)
         req?.responseJSON(queue: .global(qos: .background), completionHandler: { (response) in
             guard let statusCode = response.response?.statusCode else { complete(false); return }
@@ -179,8 +180,9 @@ extension Network {
             }
         }
     }
-    func rescindFriendRequest(request: Person.PersonRequest, complete: @escaping (Bool) -> Void) {
-        guard let req = reqPerson(params: nil, requestType: .rescindFriendRequest, id: request.id) else { complete(false); return }
+    func rescindFriendRequest(request: Person.PersonRequest?, id: Int? = nil, complete: @escaping (Bool) -> Void) {
+        guard let useId = request?.id ?? id else { return }
+        guard let req = reqPerson(params: nil, requestType: .rescindFriendRequest, id: useId) else { complete(false); return }
         req.responseJSON(queue: .global(qos: .background)) { (response) in
             guard let statusCode = response.response?.statusCode else {
                 complete(false)

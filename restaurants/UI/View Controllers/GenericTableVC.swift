@@ -27,8 +27,8 @@ class GenericTableVC: UITableViewController {
     
     enum Mode: String {
         case friends = "Friends"
-        case requestsSent = "Requests sent"
-        case requestsReceived = "Requests received"
+        case requestsSent = "Sent"
+        case requestsReceived = "Received"
         
         var allowsDeletion: Bool {
             switch self {
@@ -91,12 +91,14 @@ class GenericTableVC: UITableViewController {
     }
     
     private func setUpForRequestsSent() {
+        NotificationCenter.default.addObserver(self, selector: #selector(friendRequestIdRemoved(notification:)), name: .friendshipRequestIdCompleted, object: nil)
         Network.shared.getFriendRequests(sent: true) { [weak self] (result) in
             self?.handleRequestResult(result: result)
         }
     }
     
     private func setUpForRequestsReceived() {
+        NotificationCenter.default.addObserver(self, selector: #selector(friendRequestIdRemoved(notification:)), name: .friendshipRequestIdCompleted, object: nil)
         Network.shared.getFriendRequests(received: true) { [weak self] (result) in
             self?.handleRequestResult(result: result)
         }
@@ -158,7 +160,16 @@ class GenericTableVC: UITableViewController {
     
     @objc private func friendIdRemoved(notification: Notification) {
         guard let id = notification.userInfo?["friendshipId"] as? Int else { return }
-        guard let removedFriendship = friends?.removeAll(where: {$0.friendID == id}) else { return }
+        guard let removedFriendshipIndex = friends?.firstIndex(where: {$0.friendID == id}) else { return }
+        friends?.remove(at: removedFriendshipIndex)
+        tableView.deleteRows(at: [IndexPath(row: removedFriendshipIndex, section: 0)], with: .automatic)
+    }
+    
+    @objc private func friendRequestIdRemoved(notification: Notification) {
+        guard let id = notification.userInfo?["friendRequestId"] as? Int else { return }
+        guard let removedRequestIndex = requests?.firstIndex(where: {$0.id == id}) else { return }
+        requests?.remove(at: removedRequestIndex)
+        tableView.deleteRows(at: [IndexPath(row: removedRequestIndex, section: 0)], with: .automatic)
     }
     
     // MARK: Table view

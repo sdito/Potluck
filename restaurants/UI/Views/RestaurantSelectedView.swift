@@ -121,6 +121,7 @@ class RestaurantSelectedView: UIView {
         
         performUpdateAnimation(restaurant: restaurant, isFirst: isFirst, isLast: isLast, updateStyle: updateStyle) { [weak self] (complete) in
             guard let self = self else { return }
+            self.imageView.image = nil
             if self.restaurant.id != restaurant.id {
                 self.restaurant = restaurant
                 self.titleLabel.text = restaurant.name
@@ -238,7 +239,7 @@ class RestaurantSelectedView: UIView {
         
         if !isDummy {
             imageView.addImageFromUrl(restaurant.imageURL, autoResize: true, skeleton: true)
-        }
+        } 
         
     }
     

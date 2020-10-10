@@ -22,10 +22,12 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("unique together i.e. do not allow the reverse of friends to be true")
     
     #warning("profile image icon")
+    
     #warning("start with profile for other users")
     #warning("visit detail (rather than just a photos view)")
+    #warning("map clustering only on profile maps (userProfileVC, profileMapVC)")
     
-    private let home = UINavigationController(rootViewController: ProfileHomeVC(visits: nil))
+    private let home = UINavigationController(rootViewController: ProfileHomeVC(visits: nil, prevImageCache: nil))
     private let feed = UINavigationController(rootViewController: FeedHomeVC())
     private let addRestaurant = AddRestaurantVC()
     private let explore = UINavigationController(rootViewController: FindRestaurantVC())

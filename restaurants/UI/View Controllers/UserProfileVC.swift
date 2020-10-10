@@ -170,17 +170,15 @@ class UserProfileVC: UIViewController {
     
     @objc private func profileInfoPressed() {
         guard let profile = profile, !profile.isOwnProfile else { return }
-        
-        #warning("need to complete, do action sheet stuff")
-        
+        // Completed
         if profile.areFriends {
             // Option to remove the friend
             self.appActionSheet(buttons: [
-                AppAction(title: "Delete friendship", action: {
-                    self.appAlert(title: "Delete friendship", message: "Are you sure you want to delete this friendship?", buttons: [
+                AppAction(title: "Delete friendship", action: { [weak self] in
+                    self?.appAlert(title: "Delete friendship", message: "Are you sure you want to delete this friendship?", buttons: [
                         ("Cancel", nil),
                         ("Delete", { [weak self] in
-                            #warning("actually delete here, also need to use notifications for GenericTableVC on friends mode (only friends mode)")
+                            // Notification in deleteFriend(friend: id: complete: )
                             Network.shared.deleteFriend(friend: nil, id: profile.friendshipId, complete: { _ in return })
                             self?.hideBarButtonItem()
                             self?.showMessage("Friend removed")
@@ -190,18 +188,42 @@ class UserProfileVC: UIViewController {
             ])
         } else if profile.hasPendingReceivedRequest {
             // Option to accept the request
+            guard let friendRequestId = profile.receivedRequestId else { return }
             self.appActionSheet(buttons: [
-                AppAction(title: "Accept friend request", action: nil)
+                AppAction(title: "Accept friend request", action: { [weak self] in
+                    NotificationCenter.default.post(name: .friendshipRequestIdCompleted, object: nil, userInfo: ["friendRequestId": friendRequestId])
+                    Network.shared.answerFriendRequest(request: nil, id: friendRequestId, accept: true, complete: { _ in return })
+                    self?.showMessage("Friend request accepted")
+                    self?.hideBarButtonItem()
+                }),
+                AppAction(title: "Reject friend request", action: { [weak self] in
+                    NotificationCenter.default.post(name: .friendshipRequestIdCompleted, object: nil, userInfo: ["friendRequestId": friendRequestId])
+                    Network.shared.answerFriendRequest(request: nil, id: friendRequestId, accept: false, complete: { _ in return })
+                    self?.showMessage("Friend request rejected")
+                    self?.hideBarButtonItem()
+                })
             ])
         } else if profile.hasPendingSentRequest {
             // Option to revoke the sent request
+            guard let friendRequestId = profile.sentRequestId else { return }
             self.appActionSheet(buttons: [
-                AppAction(title: "Cancel friend request", action: nil)
+                AppAction(title: "Cancel friend request", action: { [weak self] in
+                    NotificationCenter.default.post(name: .friendshipRequestIdCompleted, object: nil, userInfo: ["friendRequestId": friendRequestId])
+                    Network.shared.rescindFriendRequest(request: nil, id: friendRequestId, complete: { _ in return })
+                    self?.showMessage("Cancelled request")
+                    self?.hideBarButtonItem()
+                })
             ])
         } else {
             // Nothing else, so option to send the person a friend request
             self.appActionSheet(buttons: [
-                AppAction(title: "Send friend request", action: nil)
+                AppAction(title: "Send friend request", action: { [weak self] in
+                    guard let idUsed = profile.account.id else { return }
+                    NotificationCenter.default.post(name: .personIdUsed, object: nil, userInfo: ["personId": idUsed])
+                    Network.shared.sendFriendRequest(toPerson: nil, id: idUsed, complete: { _ in return })
+                    self?.showMessage("Friend request sent")
+                    self?.hideBarButtonItem()
+                })
             ])
         }
     }

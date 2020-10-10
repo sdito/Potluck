@@ -108,7 +108,7 @@ class MapCutoutView: UIView {
             guard let c = UIGraphicsGetCurrentContext() else {
                 return
             }
-            c.setStrokeColor(UIColor.blue.cgColor)
+            c.setStrokeColor(UIColor.systemYellow.cgColor)
             c.setLineWidth(4)
             c.beginPath()
             for step in route.steps {

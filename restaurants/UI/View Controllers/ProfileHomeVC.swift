@@ -72,14 +72,14 @@ class ProfileHomeVC: UIViewController {
     
     init(visits: [Visit]?, selectedVisit: Visit? = nil, prevImageCache: NSCache<NSString, UIImage>? = nil, otherUserUsername: String? = nil) {
         super.init(nibName: nil, bundle: nil)
+        
+        if let cache = prevImageCache {
+            self.imageCache = cache
+        } else {
+            self.imageCache = NSCache<NSString, UIImage>()
+        }
+        
         if let visits = visits {
-            
-            if let cache = prevImageCache {
-                self.imageCache = cache
-            } else {
-                self.imageCache = NSCache<NSString, UIImage>()
-            }
-            
             self.visits = visits
             self.selectedVisit = selectedVisit
             self.otherUserUsername = otherUserUsername
@@ -97,7 +97,7 @@ class ProfileHomeVC: UIViewController {
     private func getInitialUserVisits() {
         setMapButton(hidden: true)
         if Network.shared.loggedIn {
-            Network.shared.getUserFeed { [weak self] (result) in
+            Network.shared.getVisitFeed(feedType: .user) { [weak self] (result) in
                 DispatchQueue.main.async {
                     guard let self = self else { return }
                     switch result {
@@ -125,7 +125,6 @@ class ProfileHomeVC: UIViewController {
         tableView.register(VisitCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.separatorStyle = .none
         tableView.rowHeight = UITableView.automaticDimension
-        //tableView.estimatedRowHeight = 1000
         
         refreshControl.addTarget(self, action: #selector(refreshControlSelector), for: .valueChanged)
         tableView.refreshControl = refreshControl
@@ -309,7 +308,6 @@ extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
                     let resized = imageFound.resizeToBeNoLargerThanScreenWidth()
                     DispatchQueue.main.async { [weak self] in
                         self?.imageCache?.setObject(resized, forKey: key)
-//                        #warning("set here")
                         if let cell = self?.cellFrom(visit: visit) {
                             cell.visitImageView.image = resized
                         }

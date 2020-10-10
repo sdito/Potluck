@@ -29,7 +29,10 @@ class AddFriendsVC: UIViewController {
         setUpSearchBar()
         setUpTableView()
         setUpContacts()
+        
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOutSelector), name: .userLoggedOut, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(personIdDone(notification:)), name: .personIdUsed, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(friendshipRequestDone(notification:)), name: .friendshipRequestIdCompleted, object: nil)
     }
     
     deinit {
@@ -146,6 +149,26 @@ class AddFriendsVC: UIViewController {
     
     @objc private func userLoggedOutSelector() {
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func personIdDone(notification: Notification) {
+        guard let accountId = notification.userInfo?["personId"] as? Int else { return }
+        for (section, option) in Option.allCases.enumerated() {
+            if let personArray = rowsPerson(option: option) {
+                for (row, person) in personArray.enumerated() {
+                    if person.id == accountId {
+                        person.alreadyInteracted = true
+                        tableView.reloadRows(at: [IndexPath(row: row, section: section)], with: .automatic)
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc private func friendshipRequestDone(notification: Notification) {
+        let dict = notification.userInfo
+        guard let id = dict?["friendRequestId"] as? Int else { return }
+        updateUiForCompletedRequest(request: nil, id: id)
     }
     
     @objc private func addPhoneAction(sender: UIButton) {
@@ -285,28 +308,33 @@ extension AddFriendsVC: UISearchBarDelegate {
                 guard let idx = Option.allCases.firstIndex(of: .searchResults) else { return }
                 DispatchQueue.main.async { [weak self] in
                     self?.tableView.reloadSections(IndexSet([idx]), with: .automatic)
+                    if people.count == 0 {
+                        self?.showMessage("No people found")
+                    }
                 }
             case .failure(_):
                 print("Not a successful searchForAccountsBy")
             }
         }
-        
-        
     }
+    
+    private func updateUiForCompletedRequest(request: Person.PersonRequest?, id: Int?) {
+        guard let useId = request?.id ?? id else { return }
+        if let index = pending.firstIndex(where: {$0.id == useId}), let section = Option.allCases.firstIndex(where: {$0 == .requests}) {
+            pending.remove(at: index)
+            tableView.deleteRows(at: [IndexPath(row: index, section: section)], with: .automatic)
+            
+        }
+    }
+    
 }
 
 // MARK: PersonCellDelegate
 extension AddFriendsVC: PersonCellDelegate {
     func requestResponse(request: Person.PersonRequest, accept: Bool) {
-        if let index = pending.firstIndex(where: {$0.id == request.id}), let section = Option.allCases.firstIndex(where: {$0 == .requests}) {
-            pending.remove(at: index)
-            tableView.deleteRows(at: [IndexPath(row: index, section: section)], with: .automatic)
-            self.showMessage("Request \(accept ? "accepted" : "rejected") from \(request.fromPerson.actualName ?? request.fromPerson.username ?? "user")", on: self)
-        }
-        
-        Network.shared.answerFriendRequest(request: request, accept: accept) { (result) in
-            print("Result to accepting request is: \(result)")
-        }
+        updateUiForCompletedRequest(request: request, id: nil)
+        self.showMessage("Request \(accept ? "accepted" : "rejected") from \(request.fromPerson.actualName ?? request.fromPerson.username ?? "user")", on: self)
+        Network.shared.answerFriendRequest(request: request, accept: accept) { _ in return }
     }
     
     func cellSelected(contact: Person?) {
@@ -315,23 +343,22 @@ extension AddFriendsVC: PersonCellDelegate {
         if let username = contact.username, let id = contact.id {
             var duplicate = false
             if let index = easyAdd.firstIndex(where: {$0.id == id}), let section = Option.allCases.firstIndex(where: {$0 == .onApp}) {
-                easyAdd.remove(at: index)
-                tableView.deleteRows(at: [IndexPath(row: index, section: section)], with: .automatic)
+                //easyAdd.remove(at: index)
+                easyAdd[index].alreadyInteracted = true
+                tableView.reloadRows(at: [IndexPath(row: index, section: section)], with: .automatic)
                 self.showMessage("Sent request to \(contact.actualName ?? username)", on: self)
                 duplicate = true
             }
             
             if let index = searchResults.firstIndex(where: {$0.id == id}), let section = Option.allCases.firstIndex(where: {$0 == .searchResults}) {
-                searchResults.remove(at: index)
-                tableView.deleteRows(at: [IndexPath(row: index, section: section)], with: .automatic)
+                searchResults[index].alreadyInteracted = true
+                tableView.reloadRows(at: [IndexPath(row: index, section: section)], with: .automatic)
                 if !duplicate {
                     self.showMessage("Sent request to \(contact.actualName ?? username)", on: self)
                 }
             }
             
-            Network.shared.sendFriendRequest(toPerson: contact) { (done) in
-                print("Friend request send, done: \(done)")
-            }
+            Network.shared.sendFriendRequest(toPerson: contact) { _ in return }
             
         } else {
             #warning("need to update this with the app information")

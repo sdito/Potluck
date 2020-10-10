@@ -60,10 +60,11 @@ class PersonCell: UITableViewCell {
         outerStackView.distribution = .fill
         self.contentView.addSubview(outerStackView)
         
-        outerStackView.constrain(.leading, to: self.contentView, .leading, constant: 20.0)
-        outerStackView.constrain(.trailing, to: self.contentView, .trailing, constant: 20.0)
-        outerStackView.constrain(.top, to: self.contentView, .top, constant: 15.0)
-        outerStackView.constrain(.bottom, to: self.contentView, .bottom, constant: 15.0)
+        let priority = UILayoutPriority(999.0)
+        outerStackView.constrain(.leading, to: self.contentView, .leading, constant: 20.0, priority: priority)
+        outerStackView.constrain(.trailing, to: self.contentView, .trailing, constant: 20.0, priority: priority)
+        outerStackView.constrain(.top, to: self.contentView, .top, constant: 15.0, priority: priority)
+        outerStackView.constrain(.bottom, to: self.contentView, .bottom, constant: 15.0, priority: priority)
     }
     
     private func setUpPersonIcon() {
@@ -163,6 +164,7 @@ class PersonCell: UITableViewCell {
             addButton.setImage(UIImage.messageImage.withConfiguration(configuration), for: .normal)
             addButton.tintColor = .systemBlue
         }
+        setUpAllowInteraction(person: contact)
     }
     
     func setUpValuesPersonRequest(person: Person.PersonRequest, delegate: PersonCellDelegate) {
@@ -189,7 +191,7 @@ class PersonCell: UITableViewCell {
         self.personRequest = request
         let usePerson = request.toPerson
         primaryLabel.text = usePerson.username
-        secondaryLabel.text = request.message ?? request.dateAsked.dateString(style: .medium)
+        secondaryLabel.text = request.message ?? "Sent on \(request.dateAsked.dateString(style: .medium))"
         setUpProfileIcon(color: usePerson.color)
         addButton.tintColor = .systemRed
         addButton.setImage(UIImage.trashImage.withConfiguration(configuration), for: .normal)
@@ -221,6 +223,22 @@ class PersonCell: UITableViewCell {
     private func setUpProfileIcon(color: UIColor) {
         personImageView.backgroundColor = color
         personImageView.tintColor = color.lighter
+    }
+    
+    private func setUpAllowInteraction(person: Person) {
+        if person.alreadyInteracted {
+            addButton.alpha = 0.0
+            cancelButton.alpha = 0.0
+            
+            addButton.isUserInteractionEnabled = false
+            cancelButton.isUserInteractionEnabled = false
+        } else {
+            addButton.alpha = 1.0
+            cancelButton.alpha = 1.0
+            
+            addButton.isUserInteractionEnabled = true
+            cancelButton.isUserInteractionEnabled = true
+        }
     }
     
 }

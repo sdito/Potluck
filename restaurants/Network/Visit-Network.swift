@@ -41,6 +41,10 @@ extension Network {
         }
     }
     
+    enum FeedType: String {
+        case user
+        case friends
+    }
     
     
     private func reqVisit(params: Parameters?, visit: Visit?, requestType: VisitRequestType, mainImage: UIImage? = nil, otherImages: [UIImage]? = nil) -> DataRequest? {
@@ -189,13 +193,13 @@ extension Network {
         }
     }
     
-    // Get the user's own posts
-    func getUserFeed(completion: @escaping (Result<[Visit], Errors.VisitEstablishment>) -> Void) {
-        let req = reqVisit(params: nil, visit: nil, requestType: .userFeed)
-        guard let request = req else {
-            completion(Result.failure(.noAccount))
-            return
-        }
+    // Get the user's own posts or friends posts
+    func getVisitFeed(feedType: FeedType, completion: @escaping (Result<[Visit], Errors.VisitEstablishment>) -> Void) {
+        
+        let params: Parameters = ["type": feedType.rawValue]
+        
+        let req = reqVisit(params: params, visit: nil, requestType: .userFeed)
+        guard let request = req else { completion(Result.failure(.noAccount)); return}
         
         request.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
             guard let data = response.data, response.error == nil else {
@@ -207,7 +211,7 @@ extension Network {
                 completion(Result.success(vis))
             } catch {
                 print(error)
-//                fatalError()
+                
             }
         }
     }
@@ -226,12 +230,8 @@ extension Network {
                 return
             }
             
+            success(code == Network.okCode)
             
-            if code == Network.okCode {
-                success(true)
-            } else {
-                success(false)
-            }
         })
     }
     
