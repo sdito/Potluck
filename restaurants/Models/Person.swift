@@ -28,6 +28,12 @@ class Person: Decodable {
         self.actualName = actualName
     }
     
+    init(visit: Visit) {
+        self.id = visit.userId
+        self.username = visit.accountUsername
+        self.hex_color = visit.accountHexColor
+    }
+    
     struct FindRelated: Decodable {
         var contactsMatched: [Person]
         var friendRequests: [PersonRequest]

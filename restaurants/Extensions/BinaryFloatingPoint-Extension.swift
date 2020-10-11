@@ -37,4 +37,10 @@ extension BinaryFloatingPoint {
         
         return UIColor(red: redRatio, green: greenRatio, blue: 0.0, alpha: 1.0)
     }
+    
+    var colorValue: CGFloat {
+        let value = CGFloat(self)
+        let unrounded = 255.0 * value
+        return unrounded.rounded()
+    }
 }

@@ -13,6 +13,7 @@ class ColorPickerVC: UIViewController {
     private let headerView = HeaderView(leftButtonTitle: "Cancel", rightButtonTitle: "Choose", title: "Pick color")
     private let spacer = SpacerView(size: 2.0, orientation: .vertical)
     private let stackView = UIStackView()
+    private let selectedColorView = UIView()
     private var buttonColors: [UIButton] = []
     
     private let redSlider = UISlider()
@@ -30,7 +31,11 @@ class ColorPickerVC: UIViewController {
     private var greenValue: CGFloat = 255.0/2.0
     private var blueValue: CGFloat = 255.0/2.0
     
-    private var currentColor: UIColor?
+    private var currentColor: UIColor? {
+        didSet {
+            selectedColorView.backgroundColor = currentColor
+        }
+    }
     private var selectedColorForValueChangeButton: Color?
 
     override func viewDidLoad() {
@@ -38,10 +43,20 @@ class ColorPickerVC: UIViewController {
         self.view.backgroundColor = .systemBackground
         setUpHeaderAndSpacer()
         setUpStackView()
+        setUpSelectedColor()
         setUpSliders()
         updateSliderColors()
         setUpColorOptionsTitle()
         setUpColorOptionsGrid()
+    }
+    
+    init(startingColor: UIColor?) {
+        super.init(nibName: nil, bundle: nil)
+        self.currentColor = startingColor
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
     }
     
     private enum Color: Int, CaseIterable {
@@ -105,6 +120,7 @@ class ColorPickerVC: UIViewController {
         headerView.constrain(.top, to: self.view, .top, constant: 10.0)
         headerView.constrain(.trailing, to: self.view, .trailing)
         headerView.leftButton.addTarget(self, action: #selector(dismissChild), for: .touchUpInside)
+        headerView.rightButton.addTarget(self, action: #selector(chooseColorSelected), for: .touchUpInside)
         
         self.view.addSubview(spacer)
         spacer.constrain(.leading, to: self.view, .leading)
@@ -122,6 +138,15 @@ class ColorPickerVC: UIViewController {
         stackView.constrain(.top, to: spacer, .bottom, constant: 20.0)
         stackView.constrain(.trailing, to: self.view, .trailing, constant: 10.0)
         stackView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -50.0).isActive = true
+    }
+    
+    private func setUpSelectedColor() {
+        selectedColorView.translatesAutoresizingMaskIntoConstraints = false
+        selectedColorView.heightAnchor.constraint(equalToConstant: 30.0).isActive = true
+        selectedColorView.layer.cornerRadius = 10.0
+        selectedColorView.clipsToBounds = true
+        stackView.addArrangedSubview(selectedColorView)
+        selectedColorView.backgroundColor = currentColor
     }
     
     private func setUpSliders() {
@@ -145,13 +170,16 @@ class ColorPickerVC: UIViewController {
             stackView.addArrangedSubview(completeSliderStack)
         }
         stackView.layoutIfNeeded()
+        if let color = currentColor {
+            updateEverythingWithColor(uiColor: color)
+        }
     }
     
     private func setUpColorOptionsTitle() {
         let spacer = UIView()
         spacer.translatesAutoresizingMaskIntoConstraints = false
         spacer.backgroundColor = .clear
-        spacer.heightAnchor.constraint(equalToConstant: 20.0).isActive = true
+        spacer.heightAnchor.constraint(equalToConstant: 10.0).isActive = true
         stackView.addArrangedSubview(spacer)
         
         let titleLabel = UILabel()
@@ -179,15 +207,15 @@ class ColorPickerVC: UIViewController {
         gridHolderView.translatesAutoresizingMaskIntoConstraints = false
         stackView.addArrangedSubview(gridHolderView)
         stackView.layoutIfNeeded()
-        gridHolderView.backgroundColor = .systemPink
-        
         
         let gridHeight = gridHolderView.bounds.height
         let gridWidth = gridHolderView.bounds.width
         let gridSpacing: CGFloat = 3.0
         let itemsPerStack = 6
         let desiredItemSideSize = (gridWidth - CGFloat(itemsPerStack - 1)) / CGFloat(itemsPerStack)
-        let verticalStackViewCount = Int(gridHeight / (desiredItemSideSize + gridSpacing))
+        var verticalStackViewCount = Int(gridHeight / (desiredItemSideSize + gridSpacing)) - 1
+        // Don't want more than 5 stacks, else it looks to cluttered
+        verticalStackViewCount = min(5, verticalStackViewCount)
         
         let gridStackView = UIStackView()
         gridHolderView.addSubview(gridStackView)
@@ -197,9 +225,9 @@ class ColorPickerVC: UIViewController {
         gridStackView.alignment = .fill
         gridStackView.spacing = gridSpacing
         gridStackView.axis = .vertical
-        return;
         
-        // Use Colors.random to generate a bunch of random color buttons, ability to refresh
+        // make sure the range is valid
+        guard verticalStackViewCount >= 1 else { return}
         for _ in 1...verticalStackViewCount {
             let colorStackView = UIStackView()
             colorStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -211,9 +239,9 @@ class ColorPickerVC: UIViewController {
                 let random = Colors.random
                 let button = SizeChangeButton(sizeDifference: .inverse, restingColor: random, selectedColor: random)
                 button.translatesAutoresizingMaskIntoConstraints = false
-//                let height = button.heightAnchor.constraint(equalToConstant: desiredItemSideSize)
-//                height.isActive = true
-                
+                let height = button.heightAnchor.constraint(equalToConstant: desiredItemSideSize)
+                height.isActive = true
+                button.addTarget(self, action: #selector(colorButtonPressed(sender:)), for: .touchUpInside)
                 button.backgroundColor = random
                 button.layer.cornerRadius = 5.0
                 buttonColors.append(button)
@@ -221,6 +249,7 @@ class ColorPickerVC: UIViewController {
             }
             gridStackView.addArrangedSubview(colorStackView)
         }
+        stackView.addArrangedSubview(UIView())
         
     }
     
@@ -235,7 +264,6 @@ class ColorPickerVC: UIViewController {
         
         currentColor = UIColor(red: redValue/255.0, green: greenValue/255.0, blue: blueValue/255.0, alpha: 1.0)
         updateSliderColors()
-        
     }
     
     @objc private func valueButtonPressed(sender: UIButton) {
@@ -249,10 +277,43 @@ class ColorPickerVC: UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
     
+    @objc private func chooseColorSelected() {
+        // Need to get the hex color
+        guard let color = currentColor else { return }
+        let newColorHex = color.toHexString()
+        
+        Network.shared.account?.color = newColorHex
+        Network.shared.account?.writeToKeychain()
+        Network.shared.alterUserPhoneNumberOrColor(newNumber: nil, newColor: newColorHex, complete: { _ in return })
+        
+        NotificationCenter.default.post(name: .reloadSettings, object: nil)
+        
+        self.showMessage("Account color changed")
+        self.dismiss(animated: true, completion: nil)
+    }
+    
     @objc private func reloadButtonColors() {
         buttonColors.forEach { (b) in
             b.backgroundColor = Colors.random
         }
+    }
+    
+    @objc private func colorButtonPressed(sender: UIButton) {
+        guard let newColor = sender.backgroundColor else { return }
+        updateEverythingWithColor(uiColor: newColor)
+    }
+    
+    private func updateEverythingWithColor(uiColor: UIColor) {
+        self.currentColor = uiColor
+        let (red, green, blue) = uiColor.components
+        let combined = [(red, Color.red), (green, Color.green), (blue, Color.blue)]
+        for c in combined {
+            updateValue(color: c.1, value: c.0)
+            updateButton(color: c.1, string: "\(Int(c.0))")
+            let slider = getSlider(color: c.1)
+            slider.value = Float(c.0)
+        }
+        updateSliderColors()
     }
     
     private func updateSliderColors() {

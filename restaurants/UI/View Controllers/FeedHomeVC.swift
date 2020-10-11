@@ -68,7 +68,6 @@ class FeedHomeVC: UIViewController {
     }
 }
 
-
 // MARK: Table view
 extension FeedHomeVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -78,10 +77,30 @@ extension FeedHomeVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! VisitCell
         cell.setUpWith(visit: visits[indexPath.row], selectedPhotoIndex: nil)
+        cell.delegate = self
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
+}
+
+
+// MARK: VisitCellDelegate
+extension FeedHomeVC: VisitCellDelegate {
+    
+    func delete(visit: Visit?) { return }
+    func establishmentSelected(establishment: Establishment) { return }
+    func moreImageRequest(visit: Visit?, cell: VisitCell) { return }
+    func newPhotoIndexSelected(idx: Int, for visit: Visit?) { return }
+    func updatedVisit(visit: Visit) { return }
+    
+    func personSelected(for visit: Visit) {
+        let person = Person(visit: visit)
+        let userProfileVC = UserProfileVC(person: person)
+        self.navigationController?.pushViewController(userProfileVC, animated: true)
+    }
+    
+    
 }

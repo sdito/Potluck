@@ -16,7 +16,7 @@ struct Colors {
     static let baseSliderColor = UIColor.systemGray
     
     static var random: UIColor {
-        let range = CGFloat(0.2)...CGFloat(0.8)
+        let range = CGFloat(0.1)...CGFloat(0.9)
         return UIColor(
             red:   .random(in: range),
             green: .random(in: range),

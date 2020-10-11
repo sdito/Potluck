@@ -20,7 +20,7 @@ extension Network {
     enum LogInRequestType {
         case logIn
         case createAccount
-        case alterPhone
+        case alterUserPhoneNumberOrColor
         case searchForAccounts
         case refreshAccount
         
@@ -30,7 +30,7 @@ extension Network {
                 return "login"
             case .createAccount:
                 return "register"
-            case .alterPhone, .searchForAccounts:
+            case .alterUserPhoneNumberOrColor, .searchForAccounts:
                 return "account"
             case .refreshAccount:
                 return "refresh"
@@ -40,7 +40,7 @@ extension Network {
             switch self {
             case .logIn, .createAccount:
                 return .post
-            case .alterPhone:
+            case .alterUserPhoneNumberOrColor:
                 return .put
             case .searchForAccounts, .refreshAccount:
                 return .get
@@ -48,7 +48,7 @@ extension Network {
         }
         var headers: HTTPHeaders? {
             switch self {
-            case .alterPhone, .searchForAccounts, .refreshAccount:
+            case .alterUserPhoneNumberOrColor, .searchForAccounts, .refreshAccount:
                 guard let token = Network.shared.account?.token else { return nil }
                 return  ["Authorization": "Token \(token)"]
             case .logIn, .createAccount:
@@ -129,14 +129,19 @@ extension Network {
         }
     }
     
-    /// if newNumber is nil, then the phone number will be deleted
-    func alterUserPhoneNumber(newNumber: String?, complete: @escaping (Bool) -> Void) {
+    /// if newNumber is nil, then the phone number will be deleted, both can't be nil
+    func alterUserPhoneNumberOrColor(newNumber: String?, newColor: String?, complete: @escaping (Bool) -> Void) {
         var params: Parameters = [:]
+        
         if let number = newNumber {
             params["phone"] = number
         }
         
-        let req = reqAccount(params: params, requestType: .alterPhone)
+        if let color = newColor {
+            params["color"] = color
+        }
+        
+        let req = reqAccount(params: params, requestType: .alterUserPhoneNumberOrColor)
         req.responseJSON(queue: .global(qos: .background)) { (response) in
             if let response = response.response {
                 if response.statusCode == Network.okCode {
@@ -171,7 +176,6 @@ extension Network {
     }
     
     func refreshAccount() {
-        #warning("need to complete")
         guard let acc = Network.shared.account else { return }
         let req = reqAccount(params: nil, requestType: .refreshAccount)
         req.responseJSON { [unowned self] (response) in

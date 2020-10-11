@@ -373,6 +373,8 @@ extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
 
 // MARK: VisitCellDelegate
 extension ProfileHomeVC: VisitCellDelegate {
+    func personSelected(for visit: Visit) { return }
+    
     func updatedVisit(visit: Visit) {
         
         let indexToUpdate = self.visits.firstIndex { $0.djangoOwnID == visit.djangoOwnID }

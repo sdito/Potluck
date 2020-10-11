@@ -196,7 +196,7 @@ enum Setting: String, CaseIterable {
     
     private static func showColorPicker() {
         guard let vc = UIApplication.topMostViewController else { return }
-        let colorPickerVC = ColorPickerVC()
+        let colorPickerVC = ColorPickerVC(startingColor: UIColor(hex: Network.shared.account?.color))
         vc.present(colorPickerVC, animated: true, completion: nil)
     }
 }
@@ -208,9 +208,7 @@ fileprivate class Manager: EnterValueViewDelegate {
     
     func phoneFound(string: String?) {
         Network.shared.account?.updatePhone(newPhone: string)
-        Network.shared.alterUserPhoneNumber(newNumber: string) { (done) in
-            print("Alter users phone number succeeded: \(done)")
-        }
+        Network.shared.alterUserPhoneNumberOrColor(newNumber: string, newColor: nil) { _ in return }
         NotificationCenter.default.post(name: .reloadSettings, object: nil)
     }
     

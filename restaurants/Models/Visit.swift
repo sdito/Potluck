@@ -26,6 +26,7 @@ class Visit: Codable {
     
     private var serverDateVisited: Date
     private var serverDatePosted: Date
+    var accountHexColor: String?
     
     var longitude: Double?
     var latitude: Double?
@@ -36,6 +37,10 @@ class Visit: Codable {
             arr.append(photo.image)
         }
         return arr
+    }
+    
+    var accountColor: UIColor {
+        return UIColor(hex: accountHexColor) ?? Colors.random
     }
     
     var userDateVisited: String {
@@ -119,6 +124,7 @@ class Visit: Codable {
         case otherImages = "other_images"
         case rating
         case yelpID = "restaurant_yelp_id"
+        case accountHexColor = "account_hex_color"
     }
     
     

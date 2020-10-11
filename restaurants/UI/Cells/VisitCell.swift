@@ -17,6 +17,7 @@ protocol VisitCellDelegate: class {
     func moreImageRequest(visit: Visit?, cell: VisitCell)
     func newPhotoIndexSelected(idx: Int, for visit: Visit?)
     func updatedVisit(visit: Visit)
+    func personSelected(for visit: Visit)
 }
 
 
@@ -43,7 +44,7 @@ class VisitCell: UITableViewCell {
     private var dateAndButtonStackView: UIStackView!
     private let moreActionsButton = UIButton()
     private let mapButton = UIButton()
-    private let usernameButton = UIButton()
+    private let usernameButton = PersonTitleButton()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -82,18 +83,11 @@ class VisitCell: UITableViewCell {
     }
     
     private func setUpUserNameButton() {
-        #warning("need to implement and stuff")
-        usernameButton.translatesAutoresizingMaskIntoConstraints = false
         usernameButton.setTitle("Username here", for: .normal)
-        usernameButton.titleLabel?.font = .mediumBold
-        usernameButton.setTitleColor(Colors.main, for: .normal)
-        usernameButton.contentHorizontalAlignment = .left
-        
         base.addSubview(usernameButton)
         usernameButton.constrain(.top, to: base, .top, constant: 10.0)
         usernameButton.constrain(.leading, to: base, .leading, constant: 15.0)
-        usernameButton.constrain(.trailing, to: base, .trailing, constant: 15.0)
-        
+        usernameButton.addTarget(self, action: #selector(usernameSelected), for: .touchUpInside)
     }
     
     private func setUpUiElementsForDateAndButtons() {
@@ -234,10 +228,17 @@ class VisitCell: UITableViewCell {
         }
     }
     
+    @objc private func usernameSelected() {
+        guard let visit = visit else { return }
+        delegate?.personSelected(for: visit)
+    }
+    
     func setUpWith(visit: Visit, selectedPhotoIndex: Int?) {
         self.visit = visit
         self.requested = false
-        usernameButton.setTitle(visit.accountUsername, for: .normal)
+        
+        usernameButton.update(name: visit.accountUsername, color: visit.accountColor)
+        
         imageView?.image = nil
         setUpCommentText()
         restaurantNameButton.setTitle(visit.restaurantName, for: .normal)

@@ -381,7 +381,7 @@ extension AddFriendsVC: EnterValueViewDelegate {
         askForPhoneButton?.isHidden = true
         self.showMessage("Phone number added")
         Network.shared.account?.updatePhone(newPhone: string)
-        Network.shared.alterUserPhoneNumber(newNumber: string, complete: { _ in return })
+        Network.shared.alterUserPhoneNumberOrColor(newNumber: string, newColor: nil, complete: { _ in return })
         NotificationCenter.default.post(name: .reloadSettings, object: nil)
     }
 }

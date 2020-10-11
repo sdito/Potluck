@@ -66,6 +66,7 @@
 		E2574A2B24B67DCF006618D7 /* MapCutoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2A24B67DCF006618D7 /* MapCutoutView.swift */; };
 		E2574A2D24B6A537006618D7 /* TimeInterval-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */; };
 		E2574A3224B7D41D006618D7 /* ScrollingStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A3124B7D41D006618D7 /* ScrollingStackView.swift */; };
+		E25BA4B32533910E0063C944 /* PersonTitleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E25BA4B22533910E0063C944 /* PersonTitleButton.swift */; };
 		E263DE2224D0F8E700C0B584 /* SizeChangeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E263DE2124D0F8E700C0B584 /* SizeChangeButton.swift */; };
 		E26CD819251997B70082DBE0 /* ActionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26CD818251997B70082DBE0 /* ActionSheetView.swift */; };
 		E26CD824251BCF510082DBE0 /* SettingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26CD823251BCF510082DBE0 /* SettingCell.swift */; };
@@ -182,6 +183,7 @@
 		E2574A2A24B67DCF006618D7 /* MapCutoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCutoutView.swift; sourceTree = "<group>"; };
 		E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval-Extension.swift"; sourceTree = "<group>"; };
 		E2574A3124B7D41D006618D7 /* ScrollingStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollingStackView.swift; sourceTree = "<group>"; };
+		E25BA4B22533910E0063C944 /* PersonTitleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonTitleButton.swift; sourceTree = "<group>"; };
 		E263DE2124D0F8E700C0B584 /* SizeChangeButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeChangeButton.swift; sourceTree = "<group>"; };
 		E26CD818251997B70082DBE0 /* ActionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionSheetView.swift; sourceTree = "<group>"; };
 		E26CD823251BCF510082DBE0 /* SettingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingCell.swift; sourceTree = "<group>"; };
@@ -304,6 +306,7 @@
 		E2574A2F24B7D37E006618D7 /* Generic Views */ = {
 			isa = PBXGroup;
 			children = (
+				E25BA4B22533910E0063C944 /* PersonTitleButton.swift */,
 				E253A6BE25281ED200778500 /* LoadingView.swift */,
 				E287AB41252E6848008D8DBC /* NavigationTitleView.swift */,
 				E23AFA1024FF0E5C004542A2 /* ProgressView.swift */,
@@ -599,6 +602,7 @@
 				E2E6E09F250445100005A55B /* ProfileMapVC.swift in Sources */,
 				E26CD819251997B70082DBE0 /* ActionSheetView.swift in Sources */,
 				E27A757024A85AA100E446EE /* UIViewController-Extension.swift in Sources */,
+				E25BA4B32533910E0063C944 /* PersonTitleButton.swift in Sources */,
 				E26CD828251C0A550082DBE0 /* Setting.swift in Sources */,
 				E2768DF024B15340004CB475 /* Colors.swift in Sources */,
 				E2A0147324F617ED00379518 /* UITableView-Extension.swift in Sources */,
