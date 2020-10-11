@@ -31,12 +31,14 @@ class EnterValueView: UIView {
     private let doneButton = SizeChangeButton(sizeDifference: .inverse, restingColor: Colors.main, selectedColor: Colors.main)
     private var mode: Mode = .textField
     
+    private var maximumNumber = 0
     
-    init(text: String?, placeholder: String?, controller: ShowViewVC?, delegate: EnterValueViewDelegate?, mode: Mode) {
+    init(text: String?, placeholder: String?, controller: ShowViewVC?, delegate: EnterValueViewDelegate?, mode: Mode, maximumNumber: Int = 255) {
         super.init(frame: .zero)
         self.controller = controller
         self.delegate = delegate
         self.mode = mode
+        self.maximumNumber = maximumNumber
         setUp(text: text, placeholder: placeholder)
     }
     
@@ -49,10 +51,11 @@ class EnterValueView: UIView {
         case textView
         case rating
         case phone
+        case number
         
         var viewSize: CGFloat {
             switch self {
-            case .textField, .textView, .phone:
+            case .textField, .textView, .phone, .number:
                 return 0.7
             case .rating:
                 return 0.9
@@ -97,7 +100,7 @@ class EnterValueView: UIView {
         }
         
         switch mode {
-        case .textField:
+        case .textField, .number:
             textField = PaddingTextField()
             textField!.translatesAutoresizingMaskIntoConstraints = false
             textField!.addBlurEffect()
@@ -106,6 +109,9 @@ class EnterValueView: UIView {
             textField!.layer.cornerRadius = 8.0
             stackView.addArrangedSubview(textField!)
             textField?.delegate = self
+            if mode == .number {
+                textField?.keyboardType = .numberPad
+            }
         case .textView:
             textView = PlaceholderTextView(placeholder: placeholder ?? "", font: .smallerThanNormal)
             textView!.translatesAutoresizingMaskIntoConstraints = false
@@ -116,7 +122,7 @@ class EnterValueView: UIView {
             textView!.backgroundColor = .clear
             textView!.layer.borderWidth = 1.0
             textView!.layer.borderColor = UIColor.systemBackground.cgColor
-            textView?.delegate = self
+            textView!.delegate = self
         case .rating:
             ratingView = SliderRatingView()
             stackView.addArrangedSubview(ratingView!)
@@ -161,9 +167,9 @@ class EnterValueView: UIView {
     
     @objc private func doneAction() {
         
-        if mode == .textView || mode == .textField {
+        if mode == .textView || mode == .textField || mode == .number {
             var text: (String?, UIView) {
-                if mode == .textField {
+                if mode == .textField || mode == .number {
                     return (textField?.text, textField!)
                 } else if mode == .textView {
                     return (textView?.text, textView!)
@@ -199,7 +205,6 @@ class EnterValueView: UIView {
                 UIDevice.vibrateError()
                 phoneNumberTextField?.shakeView()
             }
-            
         }
     }
     
@@ -228,6 +233,26 @@ extension EnterValueView: UITextFieldDelegate {
         raiseViewForKeyboard()
         return true
     }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        guard mode == .number else { return true }
+        guard let textFieldString = textField.text else { return false }
+        
+        if textFieldString.count == 1 && textFieldString == "0" {
+            textField.text = string
+            return false
+        } else {
+            guard let integerValue = Int("\(textFieldString)\(string)") else { return false }
+            
+            if integerValue <= maximumNumber {
+                return true
+            } else {
+                controller?.showMessage("Needs to be less than \(maximumNumber)", lastsFor: 1.5, on: controller)
+            }
+            
+            return false
+        }
+    }
 }
 
 // MARK: Text view
@@ -236,4 +261,11 @@ extension EnterValueView: UITextViewDelegate {
         raiseViewForKeyboard()
         return true
     }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        if let placeholderTV = textView as? PlaceholderTextView {
+            placeholderTV.handleTextViewDelegate()
+        }
+    }
+    
 }

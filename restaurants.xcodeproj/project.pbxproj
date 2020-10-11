@@ -95,6 +95,7 @@
 		E287AB3F252C3F67008D8DBC /* TitleReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E287AB3E252C3F67008D8DBC /* TitleReusableView.swift */; };
 		E287AB42252E6849008D8DBC /* NavigationTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E287AB41252E6848008D8DBC /* NavigationTitleView.swift */; };
 		E287AB4D253186C7008D8DBC /* UIColor-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E287AB4C253186C7008D8DBC /* UIColor-Extension.swift */; };
+		E287AB5125326002008D8DBC /* ColorPickerVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E287AB5025326002008D8DBC /* ColorPickerVC.swift */; };
 		E288B12725192F1A004B2849 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E288B12625192F1A004B2849 /* AlertView.swift */; };
 		E2894EC92501B0D40012E8D8 /* VisitImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2894EC82501B0D40012E8D8 /* VisitImage.swift */; };
 		E2894ECB2502F2E50012E8D8 /* NotificationName.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2894ECA2502F2E50012E8D8 /* NotificationName.swift */; };
@@ -212,6 +213,7 @@
 		E287AB3E252C3F67008D8DBC /* TitleReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleReusableView.swift; sourceTree = "<group>"; };
 		E287AB41252E6848008D8DBC /* NavigationTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationTitleView.swift; sourceTree = "<group>"; };
 		E287AB4C253186C7008D8DBC /* UIColor-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor-Extension.swift"; sourceTree = "<group>"; };
+		E287AB5025326002008D8DBC /* ColorPickerVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerVC.swift; sourceTree = "<group>"; };
 		E288B12625192F1A004B2849 /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
 		E2894EC82501B0D40012E8D8 /* VisitImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitImage.swift; sourceTree = "<group>"; };
 		E2894ECA2502F2E50012E8D8 /* NotificationName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationName.swift; sourceTree = "<group>"; };
@@ -271,6 +273,7 @@
 			isa = PBXGroup;
 			children = (
 				E239841524EB632100F3828C /* TabVC.swift */,
+				E287AB5025326002008D8DBC /* ColorPickerVC.swift */,
 				E253A6C62529284B00778500 /* UserProfileVC.swift */,
 				E2F52702251FDBF600282997 /* FeedHomeVC.swift */,
 				E253A6A62521733900778500 /* AddFriendsVC.swift */,
@@ -422,6 +425,7 @@
 				E26CD831251D42BB0082DBE0 /* UIApplication-Extension.swift */,
 				E215534E24B2C16F00494E1A /* UIButton-Extension.swift */,
 				E2E6E0A42505B40F0005A55B /* UICollectionView-Extension.swift */,
+				E287AB4C253186C7008D8DBC /* UIColor-Extension.swift */,
 				E2E6E0A8250AC77A0005A55B /* UIDevice-Extension.swift */,
 				E233541724B1627200A85DA3 /* UIImage-Extension.swift */,
 				E2574A2224B53348006618D7 /* UIImageView-Extension.swift */,
@@ -431,7 +435,6 @@
 				E253A6C22528EBA100778500 /* UISearchBar-Extension.swift */,
 				E2A0147224F617ED00379518 /* UITableView-Extension.swift */,
 				E253A6CA2529313400778500 /* Array-Extension.swift */,
-				E287AB4C253186C7008D8DBC /* UIColor-Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -640,6 +643,7 @@
 				E20EA83024E4AE790064DB86 /* CheckBoxCell.swift in Sources */,
 				E27A755C24A8557E00E446EE /* SceneDelegate.swift in Sources */,
 				E23AFA0D24FCCC30004542A2 /* PlaceholderTextView.swift in Sources */,
+				E287AB5125326002008D8DBC /* ColorPickerVC.swift in Sources */,
 				E253A6B12523FBAF00778500 /* Person.swift in Sources */,
 				E26CD832251D42BB0082DBE0 /* UIApplication-Extension.swift in Sources */,
 				E253A6A72521733900778500 /* AddFriendsVC.swift in Sources */,

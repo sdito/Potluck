@@ -63,6 +63,8 @@ extension UIImage {
     static let trashImage = UIImage(systemName: "trash")!
     static let squaresImage = UIImage(systemName: "square.stack.fill")!
     static let arrowDownImage = UIImage(systemName: "chevron.down.square")!
+    static let circleImage = UIImage(systemName: "circle")!
+    static let reloadImage = UIImage(systemName: "arrow.counterclockwise")!
 }
 
 

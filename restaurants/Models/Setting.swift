@@ -21,7 +21,7 @@ enum Setting: String, CaseIterable {
         switch self {
         case .account:
             if Network.shared.loggedIn {
-                return [RV.logout.instance, RV.phoneNumber.instance, RV.friends.instance, RV.requestsSent.instance, RV.requestsReceived.instance]
+                return [RV.logout.instance, RV.phoneNumber.instance, RV.accountColor.instance, RV.friends.instance, RV.requestsSent.instance, RV.requestsReceived.instance]
             } else {
                 return [RV.logout.instance]
             }
@@ -42,10 +42,12 @@ enum Setting: String, CaseIterable {
         var switchAction: (() -> ())?
         var pressAction: (() -> ())?
         var switchValue: Bool?
+        var color: UIColor?
         
         enum Value {
             case logout
             case phoneNumber
+            case accountColor
             case friends
             case requestsSent
             case requestsReceived
@@ -70,6 +72,13 @@ enum Setting: String, CaseIterable {
                                mode: .arrowOpen,
                                subtitle: Network.shared.account?.phone ?? "None",
                                pressAction: { phoneNumberAction() })
+                case .accountColor:
+                    return Row(title: "Account color",
+                               description: "The account color will be showed when people search your account and by your name. You are randomly assigned one.",
+                               mode: .arrowOpen,
+                               subtitle: "Change",
+                               pressAction: { showColorPicker() },
+                               color: UIColor(hex: Network.shared.account?.color))
                 case .friends:
                     return Row(title: "Friend list",
                                description: "Friends allow you to see their posts and vice versa.",
@@ -185,6 +194,11 @@ enum Setting: String, CaseIterable {
         vc.pushViewController(tableVC, animated: true)
     }
     
+    private static func showColorPicker() {
+        guard let vc = UIApplication.topMostViewController else { return }
+        let colorPickerVC = ColorPickerVC()
+        vc.present(colorPickerVC, animated: true, completion: nil)
+    }
 }
 
 

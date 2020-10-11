@@ -360,7 +360,7 @@ class Network {
     func setUpInitialRun() {
         setCategoriesForYelpSearch()
         account = Account.readFromKeychain()
-        
+        refreshAccount()
     }
     
     private func setCategoriesForYelpSearch() {

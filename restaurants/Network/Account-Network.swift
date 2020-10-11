@@ -22,6 +22,7 @@ extension Network {
         case createAccount
         case alterPhone
         case searchForAccounts
+        case refreshAccount
         
         var url: String {
             switch self {
@@ -31,6 +32,8 @@ extension Network {
                 return "register"
             case .alterPhone, .searchForAccounts:
                 return "account"
+            case .refreshAccount:
+                return "refresh"
             }
         }
         var method: HTTPMethod {
@@ -39,13 +42,13 @@ extension Network {
                 return .post
             case .alterPhone:
                 return .put
-            case .searchForAccounts:
+            case .searchForAccounts, .refreshAccount:
                 return .get
             }
         }
         var headers: HTTPHeaders? {
             switch self {
-            case .alterPhone, .searchForAccounts:
+            case .alterPhone, .searchForAccounts, .refreshAccount:
                 guard let token = Network.shared.account?.token else { return nil }
                 return  ["Authorization": "Token \(token)"]
             case .logIn, .createAccount:
@@ -54,7 +57,7 @@ extension Network {
         }
     }
     
-    private func reqAccount(params: Parameters, requestType: LogInRequestType) -> DataRequest {
+    private func reqAccount(params: Parameters?, requestType: LogInRequestType) -> DataRequest {
         let request = AF.request(Network.djangoURL + requestType.url, method: requestType.method, parameters: params, headers: requestType.headers)
         return request
     }
@@ -164,6 +167,26 @@ extension Network {
                 accountsFound(Result.failure(.other))
             }
             
+        }
+    }
+    
+    func refreshAccount() {
+        #warning("need to complete")
+        guard let acc = Network.shared.account else { return }
+        let req = reqAccount(params: nil, requestType: .refreshAccount)
+        req.responseJSON { [unowned self] (response) in
+            //#error("need to implement in account and stuff on login/register also")
+            guard let data = response.data, response.error == nil else { return }
+            do {
+                let refresh = try self.decoder.decode(Account.Refresh.self, from: data)
+                acc.email = refresh.email
+                acc.phone = refresh.phone
+                acc.username = refresh.username
+                acc.color = refresh.hex_color
+                acc.writeToKeychain()
+            } catch {
+                print(error)
+            }
         }
     }
     

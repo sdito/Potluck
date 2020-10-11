@@ -42,17 +42,20 @@ class PlaceholderTextView: UITextView {
         super.init(coder: coder)
     }
     
-}
-
-
-extension PlaceholderTextView: UITextViewDelegate {
-    func textViewDidChange(_ textView: UITextView) {
-        guard let text = textView.text else { return }
+    func handleTextViewDelegate() {
+        guard let text = self.text else { return }
         if text == "" {
             label.isHidden = false
         } else {
             label.isHidden = true
         }
-        
+    }
+    
+}
+
+
+extension PlaceholderTextView: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        handleTextViewDelegate()
     }
 }

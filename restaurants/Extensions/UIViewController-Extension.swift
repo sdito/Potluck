@@ -58,6 +58,14 @@ extension UIViewController {
         self.present(showViewVC, animated: false, completion: nil)
     }
     
+    func getNumberFromUser(delegate: EnterValueViewDelegate) {
+        let enterValueView = EnterValueView(text: "Enter number", placeholder: nil, controller: nil, delegate: delegate, mode: .number)
+        let showViewVC = ShowViewVC(newView: enterValueView, mode: .middle)
+        enterValueView.controller = showViewVC
+        showViewVC.modalPresentationStyle = .overFullScreen
+        self.present(showViewVC, animated: false, completion: nil)
+    }
+    
     func showLoadingView() -> LoadingView {
         let loadingView = LoadingView()
         let showViewVC = ShowViewVC(newView: loadingView, mode: .top, allowScreenPressToDismiss: false)

@@ -171,6 +171,24 @@ extension UIView {
         self.layer.insertSublayer(gradientLayer, at: 0)
     }
     
+    func setGradientBackgroundHorizontal(colorLeft: UIColor, colorRight: UIColor) {
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [colorLeft.cgColor, colorRight.cgColor]
+        gradientLayer.startPoint = CGPoint(x: 0.0, y: 0.5)
+        gradientLayer.endPoint = CGPoint(x: 1.0, y: 0.5)
+        gradientLayer.locations = [NSNumber(floatLiteral: 0.0), NSNumber(floatLiteral: 1.0)]
+        gradientLayer.frame = self.bounds
+        gradientLayer.name = "gradientLayer"
+        
+        for layer in self.layer.sublayers ?? [] {
+            if layer.name == "gradientLayer" {
+                layer.removeFromSuperlayer()
+            }
+        }
+        
+        self.layer.insertSublayer(gradientLayer, at: 0)
+    }
+    
     func appStartSkeleton() {
         if !self.isSkeletonable {
             self.isSkeletonable = true

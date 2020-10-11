@@ -41,6 +41,7 @@ class SettingCell: UITableViewCell {
         case .arrowOpen:
             self.accessoryType = .disclosureIndicator
             self.detailTextLabel?.text = value.subtitle
+            self.detailTextLabel?.textColor = value.color ?? .secondaryLabel
         case .switchButton:
             self.accessoryView = switchControl
             switchAction = value.switchAction
@@ -57,6 +58,7 @@ class SettingCell: UITableViewCell {
         self.detailTextLabel?.text = nil
         self.textLabel?.text = nil
         self.switchAction = nil
+        self.detailTextLabel?.textColor = .secondaryLabel
     }
     
 

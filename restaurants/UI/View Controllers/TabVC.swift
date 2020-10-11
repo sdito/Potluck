@@ -52,7 +52,6 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
         self.setViewControllers([explore, feed, addRestaurant, home, settings], animated: false)
         self.tabBar.tintColor = Colors.main
         self.tabBar.barTintColor = Colors.navigationBarColor
-        
     }
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
