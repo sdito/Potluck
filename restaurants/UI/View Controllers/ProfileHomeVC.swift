@@ -9,32 +9,26 @@
 import UIKit
 
 class ProfileHomeVC: UIViewController {
+    
     private let showOnMapButton = OverlayButton()
-    private let tableView = UITableView()
-    private var allowHintToCreateRestaurant = false
-    private var visits: [Visit] = []
+    private var visitTableView: VisitTableView?
+    private var visits: [Visit] = [] {
+        didSet {
+            visitTableView?.visits = visits
+        }
+    }
     private weak var selectedVisit: Visit?
-    private let reuseIdentifier = "visitCellReuseIdentifier"
-    private let refreshControl = UIRefreshControl()
     private var preLoadedData = false
     private var otherUserUsername: String?
-    
-    private var imageCache: NSCache<NSString, UIImage>?
-    private let otherImageCache = NSCache<NSString, ImageRequest>()
-    private var photoIndexCache: [Int:Int] = [:]
     private var allowMapButton = true
-    
-    private class ImageRequest {
-        var requested: Bool = true
-        var image: UIImage?
-    }
 
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
         self.setNavigationBarColor()
         self.navigationController?.navigationBar.tintColor = Colors.main
-        self.tableView.separatorInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+        
         
         if let username = otherUserUsername {
             let navigationTitleView = NavigationTitleView(upperText: username, lowerText: "Visits")
@@ -49,21 +43,19 @@ class ProfileHomeVC: UIViewController {
         if !preLoadedData {
             getInitialUserVisits()
         } else {
-            tableView.reloadData()
+            visitTableView?.reloadData()
             if let elementId = selectedVisit?.djangoOwnID, let idx = visits.map({$0.djangoOwnID}).firstIndex(of: elementId) {
-                tableView.layoutIfNeeded()
+                visitTableView?.visits = visits
+                visitTableView?.layoutIfNeeded()
                 DispatchQueue.main.async {
-                    self.tableView.scrollToRow(at: IndexPath(row: idx, section: 0), at: .top, animated: false)
+                    self.visitTableView?.scrollToRow(at: IndexPath(row: idx, section: 0), at: .top, animated: false)
                 }
             }
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(establishmentDeleted(notification:)), name: .establishmentDeleted, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(establishmentUpdated(notification:)), name: .establishmentUpdated, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(visitUpdated(notification:)), name: .visitUpdated, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(visitDeleted(notification:)), name: .visitDeleted, object: nil)
+        
     }
     
     deinit {
@@ -73,11 +65,7 @@ class ProfileHomeVC: UIViewController {
     init(visits: [Visit]?, selectedVisit: Visit? = nil, prevImageCache: NSCache<NSString, UIImage>? = nil, otherUserUsername: String? = nil) {
         super.init(nibName: nil, bundle: nil)
         
-        if let cache = prevImageCache {
-            self.imageCache = cache
-        } else {
-            self.imageCache = NSCache<NSString, UIImage>()
-        }
+        visitTableView = VisitTableView(mode: .user, prevImageCache: prevImageCache, delegate: self)
         
         if let visits = visits {
             self.visits = visits
@@ -102,9 +90,11 @@ class ProfileHomeVC: UIViewController {
                     guard let self = self else { return }
                     switch result {
                     case .success(let visits):
-                        self.allowHintToCreateRestaurant = true
+                        self.visitTableView?.allowHintToCreateRestaurant = true
+                        self.visitTableView?.refreshControl?.endRefreshing()
+                        self.visitTableView?.clearCaches()
                         self.visits = visits
-                        self.tableView.reloadData()
+                        self.visitTableView?.reloadData()
                         self.setMapButton(hidden: visits.count < 1)
                     case .failure(let error):
                         print(error)
@@ -117,20 +107,10 @@ class ProfileHomeVC: UIViewController {
     }
     
     private func setUpTableView() {
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        self.view.addSubview(tableView)
-        tableView.constrainSides(to: self.view)
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.register(VisitCell.self, forCellReuseIdentifier: reuseIdentifier)
-        tableView.separatorStyle = .none
-        tableView.rowHeight = UITableView.automaticDimension
-        
-        refreshControl.addTarget(self, action: #selector(refreshControlSelector), for: .valueChanged)
-        tableView.refreshControl = refreshControl
-        
-        self.tableView.backgroundColor = .systemBackground
 
+        self.view.addSubview(visitTableView!)
+        visitTableView!.constrainSides(to: self.view)
+        
         showOnMapButton.setTitle("Show on map", for: .normal)
         showOnMapButton.addTarget(self, action: #selector(showOnMapButtonPressed), for: .touchUpInside)
         
@@ -143,10 +123,10 @@ class ProfileHomeVC: UIViewController {
     }
     
     private func noUserTableView() {
-        tableView.layoutIfNeeded()
-        self.allowHintToCreateRestaurant = false
-        let createAccountButton = self.tableView.setEmptyWithAction(message: "You need to create an account in order to make posts.", buttonTitle: "Create account", area: .center)
-        createAccountButton.addTarget(self, action: #selector(rightBarButtonItemSelector), for: .touchUpInside)
+        visitTableView?.layoutIfNeeded()
+        self.visitTableView?.allowHintToCreateRestaurant = false
+        let createAccountButton = self.visitTableView?.setEmptyWithAction(message: "You need to create an account in order to make posts.", buttonTitle: "Create account", area: .center)
+        createAccountButton?.addTarget(self, action: #selector(rightBarButtonItemSelector), for: .touchUpInside)
     }
     
     @objc private func rightBarButtonItemSelector() {
@@ -158,65 +138,20 @@ class ProfileHomeVC: UIViewController {
         }
     }
     
-    @objc private func addNewPostSelector() {
-        self.tabBarController?.presentAddRestaurantVC()
-    }
-    
     @objc private func userLoggedIn() {
-        clearCaches()
+        visitTableView?.clearCaches()
         DispatchQueue.main.async {
-            self.tableView.restore()
+            self.visitTableView?.restore()
         }
         
         getInitialUserVisits()
     }
     
     @objc private func userLoggedOut() {
-        clearCaches()
+        visitTableView?.clearCaches()
         visits = []
-        tableView.reloadData()
+        visitTableView?.reloadData()
         noUserTableView()
-    }
-    
-    private func clearCaches() {
-        photoIndexCache = [:]
-        imageCache?.removeAllObjects()
-        otherImageCache.removeAllObjects()
-        
-    }
-    
-    @objc private func establishmentDeleted(notification: Notification) {
-        if let establishment = notification.userInfo?["establishment"] as? Establishment {
-            changeEstablishment(establishment: establishment, delete: true)
-        }
-    }
-    
-    @objc private func establishmentUpdated(notification: Notification) {
-        if let establishment = notification.userInfo?["establishment"] as? Establishment {
-            changeEstablishment(establishment: establishment, delete: false)
-        }
-    }
-    
-    @objc private func visitUpdated(notification: Notification) {
-        if let dict = notification.userInfo as? [String:Any], let visit = dict["visit"] as? Visit {
-            if let index = visits.firstIndex(where: { $0.djangoOwnID == visit.djangoOwnID }) {
-                let previousVisit = visits[index]
-                previousVisit.comment = visit.comment
-                previousVisit.rating = visit.rating
-                let cell = tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? VisitCell
-                cell?.visit = previousVisit
-                cell?.update()
-            }
-        }
-    }
-    
-    @objc private func visitDeleted(notification: Notification) {
-        if let dict = notification.userInfo as? [String:Any], let visit = dict["visit"] as? Visit {
-            if let index = visits.firstIndex(where: { $0.djangoOwnID == visit.djangoOwnID }) {
-                visits.remove(at: index)
-                tableView.reloadData()
-            }
-        }
     }
     
     @objc private func showOnMapButtonPressed() {
@@ -224,12 +159,6 @@ class ProfileHomeVC: UIViewController {
         self.navigationController?.pushViewController(mapProfile, animated: true)
     }
     
-    @objc private func refreshControlSelector() {
-        #warning("need to complete, might be different if i cache")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.tableView.refreshControl?.endRefreshing()
-        }
-    }
     
     private func setMapButton(hidden: Bool) {
         if allowMapButton {
@@ -238,226 +167,12 @@ class ProfileHomeVC: UIViewController {
             }
         }
     }
-        
-    private func changeEstablishment(establishment: Establishment, delete: Bool) {
-        guard let establishmentID = establishment.djangoID else { return }
-        var indexesToChange: [Int] = []
-        var visitsToChange: [Visit] = []
-        for (idx, visit) in visits.enumerated() {
-            if visit.djangoRestaurantID == establishmentID {
-                indexesToChange.append(idx)
-                visitsToChange.append(visit)
-                
-                if !delete {
-                    visit.updateFromEstablishment(establishment: establishment)
-                }
-            }
-        }
-        let indexPaths = indexesToChange.map({IndexPath(row: $0, section: 0)})
-        if delete {
-            // remove from visits
-            for idx in indexesToChange.sorted().reversed() {
-                visits.remove(at: idx)
-            }
-            for vis in visitsToChange {
-                removeImagesFromCacheFor(visit: vis)
-            }
-            // remove from the table view
-            tableView.deleteRows(at: indexPaths, with: .automatic)
-        } else {
-            // just update...not in hierarchy so fine
-            tableView.reloadData()
-        }
-    }
 }
 
-// MARK: Table view
-extension ProfileHomeVC: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if allowHintToCreateRestaurant && visits.count == 0 {
-            let addPostButton = self.tableView.setEmptyWithAction(message: "You do not have any posts yet. Add a post every time you eat at a restaurant.", buttonTitle: "Add post", area: .center)
-            addPostButton.addTarget(self, action: #selector(addNewPostSelector), for: .touchUpInside)
-        }
-        return visits.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! VisitCell
-        let visit = visits[indexPath.row]
-        cell.setUpWith(visit: visit, selectedPhotoIndex: photoIndexCache[visit.djangoOwnID])
-        cell.delegate = self
-        let key = NSString(string: "\(visit.djangoOwnID)")
-        
-        // handle the main image
-        let cellImageView = cell.visitImageView
-        cellImageView.layoutIfNeeded()
-        
-        let ratio = CGFloat(visit.mainImageWidth) / CGFloat(visit.mainImageHeight)
-        
-        cell.visitImageViewHeightConstraint?.constant = cellImageView.bounds.width / ratio
-        
-        cellImageView.image = nil
-        if let image = imageCache?.object(forKey: key) {
-            cellImageView.image = image
-        } else {
-            cellImageView.appStartSkeleton()
-            Network.shared.getImage(url: visit.mainImage) { [weak self] (imageFound) in
-                cellImageView.appEndSkeleton()
-                guard let imageFound = imageFound, let self = self else { return }
-                DispatchQueue.global(qos: .background).async {
-                    let resized = imageFound.resizeToBeNoLargerThanScreenWidth()
-                    DispatchQueue.main.async { [weak self] in
-                        self?.imageCache?.setObject(resized, forKey: key)
-                        if let cell = self?.cellFrom(visit: visit) {
-                            cell.visitImageView.image = resized
-                        }
-                    }
-                }
-            }
-        }
-        
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let visitSelected = visits[indexPath.row]
-        
-        var images: [(String, UIImage?)] = visitSelected.listPhotos.map({($0, nil)})
-        // get the images from the selected visit and add them to what is being sent
-        let id = visitSelected.djangoOwnID
-        var counter = 0
-        while counter < images.count {
-            defer { counter += 1 }
-            if counter == 0 {
-                let key = NSString(string: "\(id)-main")
-                images[counter].1 = imageCache?.object(forKey: key)
-            } else {
-                let key = NSString(string: "\(id)-\(counter-1)")
-                images[counter].1 = otherImageCache.object(forKey: key)?.image
-            }
-        }
-        
-        
-        let photosVC = PhotosVC(images: images)
-        self.navigationController?.pushViewController(photosVC, animated: true)
-    }
-    
-    func cellFrom(visit: Visit) -> VisitCell? {
-        let cells = tableView.visibleCells
-        for cell in cells {
-            if let visitCell = cell as? VisitCell {
-                if let cellsVisit = visitCell.visit {
-                    if cellsVisit.djangoOwnID == visit.djangoOwnID {
-                        return visitCell
-                    }
-                }
-            }
-        }
-        return nil
-    }
-    
-    private func removeImagesFromCacheFor(visit: Visit) {
-        print("Remove images from cache: \(visit.djangoOwnID)")
-        let mainKey = NSString(string: "\(visit.djangoOwnID)")
-        imageCache?.removeObject(forKey: mainKey)
-        
-        for visIdx in 0..<visit.otherImages.count {
-            let otherKey = NSString(string: "\(visit.djangoOwnID)-\(visIdx)")
-            otherImageCache.removeObject(forKey: otherKey)
-        }
-    }
-    
-}
-
-
-// MARK: VisitCellDelegate
-extension ProfileHomeVC: VisitCellDelegate {
-    func personSelected(for visit: Visit) { return }
-    
-    func updatedVisit(visit: Visit) {
-        
-        let indexToUpdate = self.visits.firstIndex { $0.djangoOwnID == visit.djangoOwnID }
-        if let idx = indexToUpdate {
-            let indexPath = IndexPath(row: idx, section: 0)
-            let visitToUpdate = visits[idx]
-            visitToUpdate.rating = visit.rating
-            visitToUpdate.comment = visit.comment
-            guard let cellToUpdate = tableView.cellForRow(at: indexPath) as? VisitCell else { return }
-            cellToUpdate.visit = visit
-            
-            cellToUpdate.update()
-        }
-    }
-    
-    func newPhotoIndexSelected(idx: Int, for visit: Visit?) {
-        guard let visit = visit else { return }
-        photoIndexCache[visit.djangoOwnID] = idx
-    }
-    
-    func moreImageRequest(visit: Visit?, cell: VisitCell) {
-        
-        guard let visit = visit else { return }
-        
-        for (i, imageUrl) in visit.otherImages.map({$0.image}).enumerated() {
-            let imageRequestKey = NSString(string: "\(visit.djangoOwnID)-\(i)")
-            if let object = otherImageCache.object(forKey: imageRequestKey) {
-                print("Already requested: \(imageRequestKey)")
-                // already requested
-                // if the image exists, add it to the imageView
-                if let image = object.image {
-                    print("Image already found: \(imageRequestKey)")
-                    cell.otherImageViews[i].image = image
-                    print(cell.otherImageViews.count)
-                }
-            } else {
-                let newObject = ImageRequest()
-                otherImageCache.setObject(newObject, forKey: imageRequestKey)
-                Network.shared.getImage(url: imageUrl) { [weak self] (imageFound) in
-                    if let image = imageFound {
-                        DispatchQueue.global(qos: .background).async {
-                            let resized = image.resizeToBeNoLargerThanScreenWidth()
-                            DispatchQueue.main.async {
-                                print("Image gotten from request: \(imageRequestKey)")
-                                
-                                newObject.image = resized
-
-                                if let cell = self?.cellFrom(visit: visit) {
-                                    print("Image set from request: \(imageRequestKey)")
-                                    cell.otherImageViews[i].image = resized
-                                }
-                            }
-                        }
-                    } else {
-                        // remove the value from the cache
-                        print("Image not found for url: \(imageRequestKey)")
-                        self?.otherImageCache.removeObject(forKey: imageRequestKey)
-                    }
-                }
-            }
-        }
-    }
-    
-    func establishmentSelected(establishment: Establishment) {
-        self.navigationController?.pushViewController(EstablishmentDetailVC(establishment: establishment, delegate: nil, mode: .fullScreenBase), animated: true)
-    }
-    
-    func delete(visit: Visit?) {
-        guard let visit = visit else { return }
-        Network.shared.deleteVisit(visit: visit) { (success) in return }
-        
-        let indexToDelete = self.visits.firstIndex { (v) -> Bool in
-            v.djangoOwnID == visit.djangoOwnID
-        }
-        
-        if let idx = indexToDelete {
-            guard let cellToDelete = self.tableView.cellForRow(at: IndexPath(row: idx, section: 0)) as? VisitCell else { return }
-        
-            if cellToDelete.visit?.djangoOwnID == visit.djangoOwnID {
-                self.visits.remove(at: idx)
-                self.tableView.deleteRows(at: [IndexPath(row: idx, section: 0)], with: .automatic)
-            }
-        }
+// MARK: VisitTableViewDelegate
+extension ProfileHomeVC: VisitTableViewDelegate {
+    func refreshControlSelected() {
+        #warning("need to complete, image size might be different size")
+        getInitialUserVisits()
     }
 }
-

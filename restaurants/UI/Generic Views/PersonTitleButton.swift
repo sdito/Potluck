@@ -16,8 +16,6 @@ class PersonTitleButton: UIButton {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.titleLabel?.font = .mediumBold
         self.contentHorizontalAlignment = .left
-        self.setTitleColor(.label, for: .normal)
-        
     }
     
     required init?(coder: NSCoder) {
@@ -26,12 +24,9 @@ class PersonTitleButton: UIButton {
     
     func update(name: String, color: UIColor) {
         self.setTitle(" \(name)", for: .normal)
-        let image = UIImage.personCircleImage
+        let image = UIImage.personCircleImage.withConfiguration(UIImage.SymbolConfiguration(scale: .large))
         self.setTitleColor(color, for: .normal)
         self.tintColor = color
-//        personImageView.backgroundColor = color
-//        personImageView.tintColor = color.lighter
-        
         self.setImage(image, for: .normal)
     }
     

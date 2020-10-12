@@ -67,6 +67,7 @@
 		E2574A2D24B6A537006618D7 /* TimeInterval-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */; };
 		E2574A3224B7D41D006618D7 /* ScrollingStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A3124B7D41D006618D7 /* ScrollingStackView.swift */; };
 		E25BA4B32533910E0063C944 /* PersonTitleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E25BA4B22533910E0063C944 /* PersonTitleButton.swift */; };
+		E25BA4B72533B0160063C944 /* VisitTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E25BA4B62533B0160063C944 /* VisitTableView.swift */; };
 		E263DE2224D0F8E700C0B584 /* SizeChangeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E263DE2124D0F8E700C0B584 /* SizeChangeButton.swift */; };
 		E26CD819251997B70082DBE0 /* ActionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26CD818251997B70082DBE0 /* ActionSheetView.swift */; };
 		E26CD824251BCF510082DBE0 /* SettingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26CD823251BCF510082DBE0 /* SettingCell.swift */; };
@@ -184,6 +185,7 @@
 		E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval-Extension.swift"; sourceTree = "<group>"; };
 		E2574A3124B7D41D006618D7 /* ScrollingStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollingStackView.swift; sourceTree = "<group>"; };
 		E25BA4B22533910E0063C944 /* PersonTitleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonTitleButton.swift; sourceTree = "<group>"; };
+		E25BA4B62533B0160063C944 /* VisitTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitTableView.swift; sourceTree = "<group>"; };
 		E263DE2124D0F8E700C0B584 /* SizeChangeButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeChangeButton.swift; sourceTree = "<group>"; };
 		E26CD818251997B70082DBE0 /* ActionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionSheetView.swift; sourceTree = "<group>"; };
 		E26CD823251BCF510082DBE0 /* SettingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingCell.swift; sourceTree = "<group>"; };
@@ -330,6 +332,7 @@
 		E2574A3024B7D397006618D7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E25BA4B62533B0160063C944 /* VisitTableView.swift */,
 				E288B12625192F1A004B2849 /* AlertView.swift */,
 				E26CD818251997B70082DBE0 /* ActionSheetView.swift */,
 				E21255302512A3CB0049E9FD /* SliderRatingView.swift */,
@@ -622,6 +625,7 @@
 				E2574A2524B58D14006618D7 /* TwoLevelButton.swift in Sources */,
 				E2C8E88F24C378AE003DC824 /* RestaurantListVC.swift in Sources */,
 				E29AF2F924E08A53004C60FC /* RestaurantSearchBar.swift in Sources */,
+				E25BA4B72533B0160063C944 /* VisitTableView.swift in Sources */,
 				E23AFA0724F978DC004542A2 /* SearchHelperVC.swift in Sources */,
 				E239841A24EC6C7500F3828C /* SubmitRestaurantVC.swift in Sources */,
 				E288B12725192F1A004B2849 /* AlertView.swift in Sources */,

@@ -11,8 +11,12 @@ import UIKit
 
 class FeedHomeVC: UIViewController {
     
-    private var visits: [Visit] = []
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private var visits: [Visit] = [] {
+        didSet {
+            visitTableView?.visits = visits
+        }
+    }
+    private var visitTableView: VisitTableView?
     private let reuseIdentifier = "visitCellReuseIdentifier"
 
     override func viewDidLoad() {
@@ -33,14 +37,9 @@ class FeedHomeVC: UIViewController {
     }
     
     private func setUpTableView() {
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        self.view.addSubview(tableView)
-        tableView.constrainSides(to: self.view)
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.separatorStyle = .none
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.register(VisitCell.self, forCellReuseIdentifier: reuseIdentifier)
+        visitTableView = VisitTableView(mode: .friends, prevImageCache: nil, delegate: self)
+        self.view.addSubview(visitTableView!)
+        visitTableView!.constrainSides(to: self.view)
     }
     
     private func getUserFeed() {
@@ -50,7 +49,9 @@ class FeedHomeVC: UIViewController {
             case .success(let visits):
                 self.visits = visits
                 DispatchQueue.main.async {
-                    self.tableView.reloadData()
+                    self.visitTableView?.clearCaches()
+                    self.visitTableView?.reloadData()
+                    self.visitTableView?.refreshControl?.endRefreshing()
                 }
             case .failure(_):
                 print("Failure getting friends visit feed")
@@ -68,39 +69,11 @@ class FeedHomeVC: UIViewController {
     }
 }
 
-// MARK: Table view
-extension FeedHomeVC: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return visits.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! VisitCell
-        cell.setUpWith(visit: visits[indexPath.row], selectedPhotoIndex: nil)
-        cell.delegate = self
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-    }
-}
 
-
-// MARK: VisitCellDelegate
-extension FeedHomeVC: VisitCellDelegate {
-    
-    func delete(visit: Visit?) { return }
-    func establishmentSelected(establishment: Establishment) { return }
-    func moreImageRequest(visit: Visit?, cell: VisitCell) { return }
-    func newPhotoIndexSelected(idx: Int, for visit: Visit?) { return }
-    func updatedVisit(visit: Visit) { return }
-    
-    func personSelected(for visit: Visit) {
-        let person = Person(visit: visit)
-        let userProfileVC = UserProfileVC(person: person)
-        self.navigationController?.pushViewController(userProfileVC, animated: true)
+// MARK: VisitTableViewDelegate
+extension FeedHomeVC: VisitTableViewDelegate {
+    func refreshControlSelected() {
+        #warning("need to complete, image gets different size for some reason")
+        self.getUserFeed()
     }
-    
-    
 }

@@ -33,7 +33,7 @@ class VisitCell: UITableViewCell {
     }
     
     weak var delegate: VisitCellDelegate?
-    private let base = UIView()
+    let base = UIView()
     private let baseHeight: CGFloat = 250.0
     private let scrollingStackView = ScrollingStackView(subViews: [], showPlaceholder: true)
     private let restaurantNameButton = SizeChangeButton(sizeDifference: .inverse, restingColor: .label, selectedColor: Colors.main)
@@ -45,6 +45,7 @@ class VisitCell: UITableViewCell {
     private let moreActionsButton = UIButton()
     private let mapButton = UIButton()
     private let usernameButton = PersonTitleButton()
+    private let headerStackView = UIStackView()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -57,7 +58,9 @@ class VisitCell: UITableViewCell {
     
     private func setUpUiElements() {
         self.backgroundColor = .clear
+        
         setUpBase()
+        setUpHeaderStackView()
         setUpUserNameButton()
         setUpUiElementsForDateAndButtons()
         setUpScrollingStack()
@@ -70,7 +73,6 @@ class VisitCell: UITableViewCell {
         setUpCommentLabel()
         lowerStackView.addArrangedSubview(commentLabel)
         
-        
     }
     
     private func setUpBase() {
@@ -82,11 +84,22 @@ class VisitCell: UITableViewCell {
         base.clipsToBounds = true
     }
     
+    private func setUpHeaderStackView() {
+        headerStackView.translatesAutoresizingMaskIntoConstraints = false
+        headerStackView.axis = .vertical
+        headerStackView.spacing = 5.0
+        headerStackView.alignment = .fill
+        headerStackView.distribution = .fill
+        base.addSubview(headerStackView)
+        headerStackView.constrain(.leading, to: base, .leading, constant: 15.0)
+        headerStackView.constrain(.trailing, to: base, .trailing, constant: 15.0)
+        headerStackView.constrain(.top, to: base, .top, constant: 10.0)
+    }
+    
     private func setUpUserNameButton() {
         usernameButton.setTitle("Username here", for: .normal)
         base.addSubview(usernameButton)
-        usernameButton.constrain(.top, to: base, .top, constant: 10.0)
-        usernameButton.constrain(.leading, to: base, .leading, constant: 15.0)
+        headerStackView.addArrangedSubview(usernameButton)
         usernameButton.addTarget(self, action: #selector(usernameSelected), for: .touchUpInside)
     }
     
@@ -122,17 +135,13 @@ class VisitCell: UITableViewCell {
         mapButton.tintColor = Colors.main
         mapButton.addTarget(self, action: #selector(mapAction), for: .touchUpInside)
         dateAndButtonStackView.addArrangedSubview(mapButton)
-        
-        base.addSubview(dateAndButtonStackView)
-        dateAndButtonStackView.constrain(.top, to: usernameButton, .bottom, constant: 5.0)
-        dateAndButtonStackView.constrain(.leading, to: base, .leading, constant: 10.0)
-        dateAndButtonStackView.constrain(.trailing, to: base, .trailing, constant: 10.0)
-        
+
+        headerStackView.addArrangedSubview(dateAndButtonStackView)
     }
     
     private func setUpScrollingStack() {
         base.addSubview(scrollingStackView)
-        scrollingStackView.constrain(.top, to: dateAndButtonStackView, .bottom, constant: 10.0)
+        scrollingStackView.constrain(.top, to: headerStackView, .bottom, constant: 5.0)
         scrollingStackView.constrain(.leading, to: base, .leading)
         scrollingStackView.constrain(.trailing, to: base, .trailing)
         
@@ -151,6 +160,7 @@ class VisitCell: UITableViewCell {
         visitImageViewHeightConstraint = visitImageView.heightAnchor.constraint(equalToConstant: baseHeight)
         visitImageViewHeightConstraint?.isActive = true
         visitImageView.contentMode = .scaleAspectFill
+        
     }
     
     private func setUpLowerStack() -> UIStackView {
@@ -233,18 +243,25 @@ class VisitCell: UITableViewCell {
         delegate?.personSelected(for: visit)
     }
     
-    func setUpWith(visit: Visit, selectedPhotoIndex: Int?) {
+    func setUpWith(visit: Visit, selectedPhotoIndex: Int?, forOwnUser: Bool) {
         self.visit = visit
         self.requested = false
         
-        usernameButton.update(name: visit.accountUsername, color: visit.accountColor)
+        if forOwnUser {
+            usernameButton.isHidden = true
+        } else {
+            usernameButton.update(name: visit.accountUsername, color: visit.accountColor)
+            usernameButton.isHidden = false
+        }
+        
         
         imageView?.image = nil
         setUpCommentText()
+        
         restaurantNameButton.setTitle(visit.restaurantName, for: .normal)
         
         dateLabel.text = visit.userDateVisited
-        ratingLabel.attributedText = visit.ratingString
+        setUpRatingLabelText()
         
         moreActionsButton.isHidden = !visit.isCurrentUsersVisit
         
@@ -287,7 +304,7 @@ class VisitCell: UITableViewCell {
     
     func update() {
         setUpCommentText()
-        ratingLabel.attributedText = visit?.ratingString
+        setUpRatingLabelText()
     }
     
     private func setUpCommentText() {
@@ -298,6 +315,17 @@ class VisitCell: UITableViewCell {
             commentLabel.text = ""
             commentLabel.isHidden = true
         }
+    }
+    
+    private func setUpRatingLabelText() {
+        if let text = visit?.ratingString {
+            ratingLabel.attributedText = text
+            ratingLabel.isHidden = false
+        } else {
+            ratingLabel.attributedText = nil
+            ratingLabel.isHidden = true
+        }
+        
     }
 
 }
