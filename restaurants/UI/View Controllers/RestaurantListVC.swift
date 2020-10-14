@@ -99,7 +99,7 @@ class RestaurantListVC: UIViewController {
         topShowSlideView.layer.cornerRadius = 2.0
         
         
-        filterButton.setImage(.filterButton, for: .normal)
+        filterButton.setImage(.filterImage, for: .normal)
         filterButton.translatesAutoresizingMaskIntoConstraints = false
         filterButton.heightAnchor.constraint(equalTo: filterButton.widthAnchor).isActive = true
         filterButton.backgroundColor = restaurantSearchBar.backgroundColor

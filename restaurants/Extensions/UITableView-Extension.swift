@@ -38,6 +38,7 @@ extension UITableView {
     
     @discardableResult
     func setEmptyWithAction(message: String, buttonTitle: String, area: BackgroundViewArea) -> UIButton {
+        
         let container = UIView()
         
         let stack = UIStackView()
@@ -60,8 +61,7 @@ extension UITableView {
         stack.addArrangedSubview(label)
         stack.addArrangedSubview(button)
         
-        self.backgroundView = container
-        self.separatorStyle = .none
+        
         
         NSLayoutConstraint.activate([
             stack.centerXAnchor.constraint(equalTo: container.centerXAnchor),
@@ -77,7 +77,14 @@ extension UITableView {
             stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -(stack.bounds.height + UIScreen.main.bounds.height * 0.3)).isActive = true
         }
         
+        self.backgroundView = container
+        self.separatorStyle = .none
         
+        print(stack.bounds)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            print(stack.bounds)
+            
+        }
         return button
 
     }
@@ -87,6 +94,10 @@ extension UITableView {
             self.backgroundView = nil
             self.separatorStyle = .singleLine
         }
+    }
+    
+    func transitionReload() {
+        UIView.transition(with: self, duration: 0.4, options: .transitionCrossDissolve, animations: { self.reloadData()} , completion: nil)
     }
     
     func simulateSwipingOnFirstCell(infoBackgroundColor: UIColor) -> UIView? {

@@ -195,7 +195,7 @@ class AddRestaurantVC: UIViewController {
     
     
     @objc private func segmentedControlChanged() {
-        UIView.transition(with: tableView, duration: 0.4, options: .transitionCrossDissolve, animations: { self.tableView.reloadData()} , completion: nil)
+        tableView.transitionReload()
         tableView.layoutIfNeeded()
         
         switch currentSelectedSegment {
@@ -253,7 +253,7 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         tableView.restore()
-        
+                
         switch currentSelectedSegment {
         case .search:
             
@@ -263,8 +263,8 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
                 return searchResults.count
             }
         case .myPlaces:
+            #error("no count thing is not working")
             let count = myPlaces.count
-            
             if count == 0 {
                 if initialLoadingDone {
                     let addPlaceButton = tableView.setEmptyWithAction(message: "No places added yet.", buttonTitle: "Add place", area: .bottom)
@@ -272,13 +272,14 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
                 } else {
                     tableView.showLoadingOnTableView()
                 }
+                tableView.layoutIfNeeded()
                 return 0
             } else {
                 return count
             }
             
         case .previous:
-            
+            #error("no count thing is not working")
             let count = previousRestaurants.count
             if count == 0 {
                 if initialLoadingDone {
@@ -287,6 +288,7 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
                 } else {
                     tableView.showLoadingOnTableView()
                 }
+                tableView.layoutIfNeeded()
                 return 0
             } else {
                 return count

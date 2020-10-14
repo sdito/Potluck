@@ -52,10 +52,8 @@ class ProfileHomeVC: UIViewController {
                 }
             }
         }
-        
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
-        
     }
     
     deinit {
@@ -172,7 +170,6 @@ class ProfileHomeVC: UIViewController {
 // MARK: VisitTableViewDelegate
 extension ProfileHomeVC: VisitTableViewDelegate {
     func refreshControlSelected() {
-        #warning("need to complete, image size might be different size")
         getInitialUserVisits()
     }
 }

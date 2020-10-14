@@ -10,6 +10,7 @@ import UIKit
 
 class ProfileCell: UICollectionViewCell {
     
+    var visit: Visit?
     private let stackView = UIStackView()
     private let labelStackView = UIStackView()
     let imageView = UIImageView()
@@ -80,6 +81,7 @@ class ProfileCell: UICollectionViewCell {
     
     
     func setUp(with visit: Visit) {
+        self.visit = visit
         placeLabel.text = visit.restaurantName
         if visit.listPhotos.count > 1 {
             multipleImagesView.isHidden = false

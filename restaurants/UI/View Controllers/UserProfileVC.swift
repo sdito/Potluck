@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 
 class UserProfileVC: UIViewController {
-    #warning("show something when the user does not have any visits, and no establishments (map)")
+    #warning("list where it lists the user's previous establishments")
     var text = "Do any additional setup after loading the view, typically from a nib."
     private var person: Person?
     private var profile: Person.Profile?
@@ -28,9 +28,15 @@ class UserProfileVC: UIViewController {
     private let imageCache = NSCache<NSString, UIImage>()
     private let refreshControl = UIRefreshControl()
     private var threeDotsBarButtonItem: UIBarButtonItem?
+    private var overlayForNoEstablishments: OverlayButton? { didSet { self.overlayForNoEstablishments?.isUserInteractionEnabled = false } }
+    
+    private let establishmentListButton = OverlayButton()
+    private let reCenterMapButton = OverlayButton()
+    private let overlayConfiguration = UIImage.SymbolConfiguration(scale: .large)
     
     private var previousScrollOffset: CGFloat = 0.0
     private var allowChanges = true
+    private let mapOverlayButtonPadding: CGFloat = 5.0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,6 +45,8 @@ class UserProfileVC: UIViewController {
         getPersonData()
         setUpMap()
         setUpCollectionView()
+        setUpEstablishmentListButton()
+        setUpReCenterButton()
     }
     
     init(person: Person) {
@@ -57,8 +65,6 @@ class UserProfileVC: UIViewController {
         } else {
             self.navigationItem.title = "Profile"
         }
-        
-        #warning("need to actually implement -- if friends, option to remove friend, if not friends, option to add friend")
         threeDotsBarButtonItem = UIBarButtonItem(image: .threeDotsImage, style: .plain, target: self, action: #selector(profileInfoPressed))
         self.navigationItem.rightBarButtonItem = threeDotsBarButtonItem
     }
@@ -74,6 +80,28 @@ class UserProfileVC: UIViewController {
         mapView.delegate = self
         mapView.layoutIfNeeded()
     }
+    
+    private func setUpEstablishmentListButton() {
+        establishmentListButton.tintColor = Colors.main
+        establishmentListButton.setImage(UIImage.listImage.withConfiguration(overlayConfiguration), for: .normal)
+        self.view.addSubview(establishmentListButton)
+        establishmentListButton.constrain(.bottom, to: collectionView!, .top, constant: mapOverlayButtonPadding)
+        establishmentListButton.constrain(.trailing, to: self.view, .trailing, constant: mapOverlayButtonPadding)
+        establishmentListButton.addTarget(self, action: #selector(establishmentListAction), for: .touchUpInside)
+    }
+    
+    private func setUpReCenterButton() {
+        reCenterMapButton.tintColor = Colors.locationColor
+        reCenterMapButton.setImage(UIImage.locationImage.withConfiguration(overlayConfiguration), for: .normal)
+        self.view.addSubview(reCenterMapButton)
+        reCenterMapButton.constrain(.bottom, to: collectionView!, .top, constant: mapOverlayButtonPadding)
+        reCenterMapButton.constrain(.trailing, to: establishmentListButton, .leading, constant: mapOverlayButtonPadding)
+        reCenterMapButton.addTarget(self, action: #selector(reCenterMapAction), for: .touchUpInside)
+        reCenterMapButton.isHidden = true
+        reCenterMapButton.heightAnchor.constraint(equalTo: establishmentListButton.heightAnchor).isActive = true
+        reCenterMapButton.widthAnchor.constraint(equalTo: establishmentListButton.widthAnchor).isActive = true
+    }
+    
     
     private func setUpCollectionView() {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -103,9 +131,6 @@ class UserProfileVC: UIViewController {
         collectionView!.alwaysBounceVertical = true
         collectionView!.register(ProfileCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView!.register(TitleReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
-        
-        // set up the refresh control
-        #warning("need to do and implement")
         
         refreshControl.addTarget(self, action: #selector(refreshControlSelected), for: .valueChanged)
         collectionView?.refreshControl = refreshControl
@@ -145,6 +170,7 @@ class UserProfileVC: UIViewController {
             }
             
             self.collectionView?.reloadData()
+            self.showOnMapIfThereAreNoEstablishments(establishments: profile.establishments)
         }
     }
     
@@ -166,6 +192,22 @@ class UserProfileVC: UIViewController {
     
     @objc private func refreshControlSelected() {
         getPersonData()
+    }
+    
+    @objc private func reCenterMapAction() {
+        headerButtonAction()
+        mapView.trueFitAllAnnotations(annotations: mapView.annotations, animated: true)
+    }
+    
+    @objc private func establishmentListAction() {
+        let userName = profile?.account.username ?? "User"
+        guard profile != nil else {
+            self.showMessage("\(userName) has no places yet")
+            return
+        }
+        
+        self.navigationController?.pushViewController(EstablishmentListVC(profile: profile), animated: true)
+        
     }
     
     @objc private func profileInfoPressed() {
@@ -232,6 +274,46 @@ class UserProfileVC: UIViewController {
         threeDotsBarButtonItem?.image = nil
     }
     
+    private func showOnMapIfThereAreNoEstablishments(establishments: [Establishment]?) {
+        if establishments == nil || establishments?.count == 0 {
+            print("Show on map that there are none")
+            overlayForNoEstablishments = OverlayButton()
+            mapView.addSubview(overlayForNoEstablishments!)
+            overlayForNoEstablishments!.centerXAnchor.constraint(equalTo: mapView.centerXAnchor).isActive = true
+            overlayForNoEstablishments!.constrain(.bottom, to: mapView, .bottom, constant: 10.0)
+            overlayForNoEstablishments!.setTitle("User has no places yet", for: .normal)
+            overlayForNoEstablishments!.setTitleColor(.label, for: .normal)
+            establishmentListButton.isHidden = true
+            reCenterMapButton.isHidden = true
+        } else {
+            print("Remove potential stuff from map")
+            overlayForNoEstablishments?.removeFromSuperview()
+            overlayForNoEstablishments = nil
+            establishmentListButton.isHidden = false
+            //reCenterMapButton.isHidden = false
+        }
+    }
+    
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        //reCenterMapButton.appIsHiddenAnimated(isHidden: true)
+        
+        let totalCount = mapView.annotations.count
+        let visibleCount = mapView.annotations(in: mapView.visibleMapRect).count
+        
+        if totalCount == visibleCount {
+            // make sure reCenterMapButton is hidden, if it is NOT hidden
+            if !reCenterMapButton.isHidden {
+                reCenterMapButton.appIsHiddenAnimated(isHidden: true)
+            }
+        } else {
+            // make sure reCenterMapButton is visible, if it IS hidden
+            if reCenterMapButton.isHidden {
+                reCenterMapButton.appIsHiddenAnimated(isHidden: false)
+            }
+        }
+        
+    }
+    
 }
 
 // MARK: Map view
@@ -257,6 +339,7 @@ extension UserProfileVC: MKMapViewDelegate {
         let establishmentDetail = EstablishmentDetailVC(establishment: establishment, delegate: nil, mode: .fullScreenBase)
         self.navigationController?.pushViewController(establishmentDetail, animated: true)
     }
+    
 }
 
 // MARK: Collection view
@@ -292,7 +375,10 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
                     DispatchQueue.global(qos: .background).async {
                         let resized = image.resizeImageToSizeButKeepAspectRatio(targetSize: size)
                         DispatchQueue.main.async {
-                            cell.imageView.image = resized
+                            #warning("issue with images not laying out in the correct cells, see if this fixed this")
+                            if cell.visit?.djangoOwnID == visit.djangoOwnID {
+                                cell.imageView.image = resized
+                            }
                             self?.imageCache.setObject(resized, forKey: key)
                         }
                     }
@@ -320,15 +406,18 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
         if allowChanges {
             allowChanges = false
             
             if mapViewHeight == nil {
-                mapViewHeight = mapView.frame.height
+                let topSafeArea = establishmentListButton.bounds.height + (mapOverlayButtonPadding * 2)
+                mapViewHeight = mapView.frame.height - topSafeArea
             }
             
             guard let mapViewHeight = mapViewHeight, let collectionViewTop = collectionViewTop else { return }
             if scrollView == collectionView {
+                
                 let offset = scrollView.contentOffset.y
                 let difference = previousScrollOffset - offset
                 let potentialNewTop = collectionViewTop.constant + difference

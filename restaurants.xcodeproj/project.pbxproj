@@ -68,6 +68,8 @@
 		E2574A3224B7D41D006618D7 /* ScrollingStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A3124B7D41D006618D7 /* ScrollingStackView.swift */; };
 		E25BA4B32533910E0063C944 /* PersonTitleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E25BA4B22533910E0063C944 /* PersonTitleButton.swift */; };
 		E25BA4B72533B0160063C944 /* VisitTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E25BA4B62533B0160063C944 /* VisitTableView.swift */; };
+		E25BA4CB253679630063C944 /* EstablishmentListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E25BA4CA253679630063C944 /* EstablishmentListVC.swift */; };
+		E25BA4CF25368AEC0063C944 /* EstablishmentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E25BA4CE25368AEC0063C944 /* EstablishmentCell.swift */; };
 		E263DE2224D0F8E700C0B584 /* SizeChangeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E263DE2124D0F8E700C0B584 /* SizeChangeButton.swift */; };
 		E26CD819251997B70082DBE0 /* ActionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26CD818251997B70082DBE0 /* ActionSheetView.swift */; };
 		E26CD824251BCF510082DBE0 /* SettingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26CD823251BCF510082DBE0 /* SettingCell.swift */; };
@@ -186,6 +188,8 @@
 		E2574A3124B7D41D006618D7 /* ScrollingStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollingStackView.swift; sourceTree = "<group>"; };
 		E25BA4B22533910E0063C944 /* PersonTitleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonTitleButton.swift; sourceTree = "<group>"; };
 		E25BA4B62533B0160063C944 /* VisitTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitTableView.swift; sourceTree = "<group>"; };
+		E25BA4CA253679630063C944 /* EstablishmentListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstablishmentListVC.swift; sourceTree = "<group>"; };
+		E25BA4CE25368AEC0063C944 /* EstablishmentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstablishmentCell.swift; sourceTree = "<group>"; };
 		E263DE2124D0F8E700C0B584 /* SizeChangeButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeChangeButton.swift; sourceTree = "<group>"; };
 		E26CD818251997B70082DBE0 /* ActionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionSheetView.swift; sourceTree = "<group>"; };
 		E26CD823251BCF510082DBE0 /* SettingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingCell.swift; sourceTree = "<group>"; };
@@ -277,6 +281,7 @@
 			isa = PBXGroup;
 			children = (
 				E239841524EB632100F3828C /* TabVC.swift */,
+				E25BA4CA253679630063C944 /* EstablishmentListVC.swift */,
 				E287AB5025326002008D8DBC /* ColorPickerVC.swift */,
 				E253A6C62529284B00778500 /* UserProfileVC.swift */,
 				E2F52702251FDBF600282997 /* FeedHomeVC.swift */,
@@ -366,6 +371,7 @@
 		E2778DE624BBA5B600151F29 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				E25BA4CE25368AEC0063C944 /* EstablishmentCell.swift */,
 				E253A6A92521872C00778500 /* PersonCell.swift */,
 				E26CD823251BCF510082DBE0 /* SettingCell.swift */,
 				E23AF9FA24F62075004542A2 /* VisitCell.swift */,
@@ -611,6 +617,7 @@
 				E2A0147324F617ED00379518 /* UITableView-Extension.swift in Sources */,
 				E23AF9FB24F62075004542A2 /* VisitCell.swift in Sources */,
 				E2DC2F3E24EFAE7F002C6A07 /* PHAsset-Extension.swift in Sources */,
+				E25BA4CF25368AEC0063C944 /* EstablishmentCell.swift in Sources */,
 				E27A756E24A855EC00E446EE /* FindRestaurantVC.swift in Sources */,
 				E239841224EA03B200F3828C /* SettingsVC.swift in Sources */,
 				E239840A24E8FEA700F3828C /* Account-Network.swift in Sources */,
@@ -674,6 +681,7 @@
 				E253A6CE252BCB8A00778500 /* ProfileCell.swift in Sources */,
 				E29AF2F724D690F5004C60FC /* SearchRestaurantsVC.swift in Sources */,
 				E253A6BF25281ED200778500 /* LoadingView.swift in Sources */,
+				E25BA4CB253679630063C944 /* EstablishmentListVC.swift in Sources */,
 				E2574A3224B7D41D006618D7 /* ScrollingStackView.swift in Sources */,
 				E23AFA0124F89D31004542A2 /* TwoLevelCell.swift in Sources */,
 				E253A6AA2521872C00778500 /* PersonCell.swift in Sources */,

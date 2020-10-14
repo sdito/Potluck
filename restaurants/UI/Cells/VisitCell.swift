@@ -28,13 +28,20 @@ class VisitCell: UITableViewCell {
     var otherImagesFound = false
     var otherImageViews: [UIImageView] = []
     var requested = false
+    private var allowScrollViewDelegate = true
+    
+    var standardImageWidth: CGFloat {
+        // probably not the best, used to calculate visitImageView height since it is based on width
+        return UIScreen.main.bounds.width - (baseConstraintConstant * 2)
+    }
     var commentText: String? {
         return visit?.comment
     }
     
     weak var delegate: VisitCellDelegate?
-    let base = UIView()
+    private let base = UIView()
     private let baseHeight: CGFloat = 250.0
+    private let baseConstraintConstant: CGFloat = 7.5
     private let scrollingStackView = ScrollingStackView(subViews: [], showPlaceholder: true)
     private let restaurantNameButton = SizeChangeButton(sizeDifference: .inverse, restingColor: .label, selectedColor: Colors.main)
     private let commentLabel = UILabel()
@@ -72,14 +79,13 @@ class VisitCell: UITableViewCell {
         
         setUpCommentLabel()
         lowerStackView.addArrangedSubview(commentLabel)
-        
     }
     
     private func setUpBase() {
         base.translatesAutoresizingMaskIntoConstraints = false
         base.backgroundColor = .secondarySystemBackground
         contentView.addSubview(base)
-        base.constrainSides(to: contentView, distance: 7.5)
+        base.constrainSides(to: contentView, distance: baseConstraintConstant)
         base.layer.cornerRadius = 10.0
         base.clipsToBounds = true
     }
@@ -203,13 +209,7 @@ class VisitCell: UITableViewCell {
         guard let parent = self.findViewController() else { return }
         
         if let coordinate = visit?.coordinate {
-            let mapLocationView = MapLocationView(locationTitle: visit?.restaurantName ?? "Location", coordinate: coordinate, address: nil)
-            mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
-            mapLocationView.layer.cornerRadius = 25.0
-            mapLocationView.clipsToBounds = true
-            let newVc = ShowViewVC(newView: mapLocationView, mode: .middle)
-            newVc.modalPresentationStyle = .overFullScreen
-            parent.present(newVc, animated: false, completion: nil)
+            parent.showMapDetail(locationTitle: visit?.restaurantName ?? "Location", coordinate: coordinate, address: nil)
         } else {
             parent.showMessage("No location found", on: parent)
         }
@@ -247,13 +247,15 @@ class VisitCell: UITableViewCell {
         self.visit = visit
         self.requested = false
         
+        allowScrollViewDelegate = false
+        defer { allowScrollViewDelegate = true }
+        
         if forOwnUser {
             usernameButton.isHidden = true
         } else {
             usernameButton.update(name: visit.accountUsername, color: visit.accountColor)
             usernameButton.isHidden = false
         }
-        
         
         imageView?.image = nil
         setUpCommentText()
@@ -287,7 +289,6 @@ class VisitCell: UITableViewCell {
             let checkIdx = selectedPhotoIndex - 1
             if checkIdx >= 0 {
                 let scrollingToRect = otherImageViews[selectedPhotoIndex - 1].frame
-                
                 scrollingStackView.scrollView.scrollRectToVisible(scrollingToRect, animated: false)
                 scrollingStackView.resetElements(selectedIndex: selectedPhotoIndex)
             } else {
@@ -338,11 +339,11 @@ extension VisitCell: ScrollingStackViewDelegate {
     }
     
     func scrollViewScrolled() {
-        if !requested {
+        if !requested && allowScrollViewDelegate {
+            print("More image request activated from scroll")
             requested = true
             delegate?.moreImageRequest(visit: visit, cell: self)
         }
-        
     }
 }
 

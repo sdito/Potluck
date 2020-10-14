@@ -55,9 +55,10 @@ class ActionSheetView: UIView {
         stackView.spacing = 2.0
     }
     
+    
     private func setUpButtons() {
         
-        for (i, buttonData) in buttons.enumerated()/* + [(cancel, nil)]*/ {
+        for (i, buttonData) in buttons.enumerated() {
             let button = SizeChangeButton(sizeDifference: .inverse, restingColor: Colors.main, selectedColor: Colors.main)
             button.translatesAutoresizingMaskIntoConstraints = false
             button.setTitle(buttonData.title, for: .normal)
@@ -85,6 +86,7 @@ class ActionSheetView: UIView {
             button.addTarget(self, action: #selector(buttonSelector(sender:)), for: .touchUpInside)
             stackView.addArrangedSubview(button)
         }
+        
     }
     
     private func setUpCancelButton() {

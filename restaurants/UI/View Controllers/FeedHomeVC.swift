@@ -10,7 +10,7 @@ import UIKit
 
 
 class FeedHomeVC: UIViewController {
-    
+    #warning("handle case for user logged out")
     private var visits: [Visit] = [] {
         didSet {
             visitTableView?.visits = visits
@@ -73,7 +73,6 @@ class FeedHomeVC: UIViewController {
 // MARK: VisitTableViewDelegate
 extension FeedHomeVC: VisitTableViewDelegate {
     func refreshControlSelected() {
-        #warning("need to complete, image gets different size for some reason")
         self.getUserFeed()
     }
 }

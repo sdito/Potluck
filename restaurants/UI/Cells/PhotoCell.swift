@@ -53,7 +53,6 @@ class PhotoCell: UICollectionViewCell {
     
     func updateForShowingSelection(selected: Bool, animated: Bool) {
         selectedImage.appIsHiddenAnimated(isHidden: !selected, animated: animated)
-        
     }
     
     

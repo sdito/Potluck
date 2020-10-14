@@ -10,6 +10,7 @@ import UIKit
 import CoreLocation
 import Photos
 import Contacts
+import StoreKit
 
 extension UIDevice {
     
@@ -17,11 +18,13 @@ extension UIDevice {
     static let notEnabled = "Not enabled"
     static let notDetermined = "Not determined"
     
+    static let numberOfTimesRan = "numberOfTimesRan"
     static let hapticFeedbackEnabled = "hapticFeedbackEnabled"
     static let systemDarkModeKey = "systemDarkModeKey"
     static let system = "System"
     static let overrideDark = "Dark"
     static let overrideLight = "Light"
+    static let runCountToAskForRequest = 5
     
     static func getSystemAppearanceOverrideValue() -> String {
         let value = UserDefaults.standard.value(forKey: systemDarkModeKey) as? String
@@ -200,6 +203,21 @@ extension UIDevice {
         guard let reviewUrl = URL(string: "itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=1493046325&onlyLatestVersion=true&pageNumber=0&sortOrdering=1&type=Purple+Software") else { return }
         if UIApplication.shared.canOpenURL(reviewUrl) {
             UIApplication.shared.open(reviewUrl, completionHandler: { _ in return })
+        }
+    }
+    
+    static func incrementNumberOfTimesApplicationRan() {
+        let numberOfTimesRan = UserDefaults.standard.value(forKey: UIDevice.numberOfTimesRan) as? Int ?? 0
+        let incremented = numberOfTimesRan + 1
+        UserDefaults.standard.setValue(incremented, forKey: UIDevice.numberOfTimesRan)
+    }
+    
+    static func checkAndAskForAppStoreReviewIfApplicable() {
+        guard let numberOfTimesRan = UserDefaults.standard.value(forKey: UIDevice.numberOfTimesRan) as? Int else { return }
+        if numberOfTimesRan == UIDevice.runCountToAskForRequest {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                SKStoreReviewController.requestReview()
+            }
         }
     }
     

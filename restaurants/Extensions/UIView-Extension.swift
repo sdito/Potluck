@@ -63,7 +63,7 @@ extension UIView {
                 self.isHidden = false
                 self.transform = smallTransform
                 UIView.animate(withDuration: 0.3, animations: {
-                    self.transform = CGAffineTransform(scaleX: 1.75, y: 1.75)
+                    self.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
                 }) { (complete) in
                     if complete {
                         UIView.animate(withDuration: 0.2) {

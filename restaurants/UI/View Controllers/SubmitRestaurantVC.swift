@@ -319,16 +319,10 @@ class SubmitRestaurantVC: UIViewController {
     }
     
     @objc private func showMapOnPopUp() {
-        let mapLocationView = MapLocationView(locationTitle: nameRawValue ?? restaurant?.name ?? establishment?.name ?? "Restaurant",
-                                              coordinate: restaurant?.coordinate ?? establishment?.coordinate ?? nil,
-                                              address: addressRawValue ?? restaurant?.address.displayAddress?.joined(separator: ", ") ?? establishment?.displayAddress)
-        mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
-        mapLocationView.layer.cornerRadius = 25.0
-        mapLocationView.clipsToBounds = true
-        
-        let newVc = ShowViewVC(newView: mapLocationView, mode: .middle)
-        newVc.modalPresentationStyle = .overFullScreen
-        self.navigationController?.present(newVc, animated: false, completion: nil)
+        let locationTitle = nameRawValue ?? restaurant?.name ?? establishment?.name ?? "Restaurant"
+        let coordinate = restaurant?.coordinate ?? establishment?.coordinate ?? nil
+        let address = addressRawValue ?? restaurant?.address.displayAddress?.joined(separator: ", ") ?? establishment?.displayAddress
+        self.navigationController?.showMapDetail(locationTitle: locationTitle, coordinate: coordinate, address: address)
     }
     
     private func findAssociatedRestaurant() {

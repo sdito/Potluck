@@ -13,6 +13,17 @@ import SafariServices
 
 extension UIViewController {
     
+    func showMapDetail(locationTitle: String, coordinate: CLLocationCoordinate2D?, address: String?) {
+        let mapLocationView = MapLocationView(locationTitle: locationTitle, coordinate: coordinate, address: address)
+        mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
+        mapLocationView.layer.cornerRadius = 25.0
+        mapLocationView.clipsToBounds = true
+        
+        let newVc = ShowViewVC(newView: mapLocationView, mode: .middle)
+        newVc.modalPresentationStyle = .overFullScreen
+        self.present(newVc, animated: false, completion: nil)
+    }
+    
     func openLink(url: String) {
         guard let link = URL(string: url) else { return }
         let config = SFSafariViewController.Configuration()

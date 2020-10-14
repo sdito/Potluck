@@ -38,7 +38,6 @@ extension UIImage {
     static let bookImage = UIImage(systemName: "book")!
     static let magnifyingGlassImage = UIImage(systemName: "magnifyingglass")!
     static let personImage = UIImage(systemName: "person")!
-    static let filterButton = UIImage(systemName: "line.horizontal.3.decrease.circle")!
     static let unchecked = UIImage(systemName: "square", withConfiguration: UIImage.SymbolConfiguration(scale: .large))!
     static let checked = UIImage(systemName: "checkmark.square", withConfiguration: UIImage.SymbolConfiguration(scale: .large))!
     static let settingsImage = UIImage(systemName: "gear")!
@@ -65,6 +64,9 @@ extension UIImage {
     static let arrowDownImage = UIImage(systemName: "chevron.down.square")!
     static let circleImage = UIImage(systemName: "circle")!
     static let reloadImage = UIImage(systemName: "arrow.counterclockwise")!
+    static let listImage = UIImage(systemName: "list.bullet")!
+    static let filterImage = UIImage(systemName: "line.horizontal.3.decrease.circle")!
+    static let filterNoCircleImage = UIImage(systemName: "line.horizontal.3.decrease")!
 }
 
 

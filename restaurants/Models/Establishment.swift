@@ -160,4 +160,9 @@ extension Array where Element == Establishment {
             one.name < two.name
         }
     }
+    mutating func sortByFirstVisited() {
+        self.sort { (one, two) -> Bool in
+            one.firstVisited ?? Date() > two.firstVisited ?? Date()
+        }
+    }
 }

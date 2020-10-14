@@ -9,14 +9,13 @@
 import UIKit
 
 class TabVC: UITabBarController, UITabBarControllerDelegate {
+    #warning("*****map clustering only on profile maps (userProfileVC, profileMapVC)")
     #warning("pagination on django")
-    #warning("place for other images, maybe make all images into just images")
     
     #warning("need to make sure errors are correct on VisitView in django")
     #warning("maybe have a widget -> one that has a map based on the last area you searched, that has buttons for search shortcuts, one that lets you add a visit maybe")
     #warning("add tags to visits")
     #warning("image url can expire before it is seen")
-    #warning("setting to override dark mode in app")
     #warning("skStore thing to pop up to review the app")
     #warning("unique together the reverse way too")
     #warning("unique together i.e. do not allow the reverse of friends to be true")
@@ -24,8 +23,6 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("profile image icon")
     
     #warning("start with profile for other users")
-    #warning("visit detail (rather than just a photos view)")
-    #warning("map clustering only on profile maps (userProfileVC, profileMapVC)")
     
     private let home = UINavigationController(rootViewController: ProfileHomeVC(visits: nil, prevImageCache: nil))
     private let feed = UINavigationController(rootViewController: FeedHomeVC())

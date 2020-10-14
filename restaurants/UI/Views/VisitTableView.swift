@@ -175,8 +175,15 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! VisitCell
         let visit = visits[indexPath.row]
-        cell.setUpWith(visit: visit, selectedPhotoIndex: photoIndexCache[visit.djangoOwnID], forOwnUser: mode == .user)
+        let selectedIndex = photoIndexCache[visit.djangoOwnID]
+        cell.setUpWith(visit: visit, selectedPhotoIndex: selectedIndex, forOwnUser: mode == .user)
         cell.delegate = self
+        
+        if selectedIndex != nil {
+            #warning("triggering multiple requests some how")
+            print("More image request from cellForRow")
+            cell.delegate?.moreImageRequest(visit: visit, cell: cell)
+        }
         
         let key = NSString(string: "\(visit.djangoOwnID)")
         
@@ -184,7 +191,7 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         let cellImageView = cell.visitImageView
         
         let ratio = CGFloat(visit.mainImageWidth) / CGFloat(visit.mainImageHeight)
-        cell.visitImageViewHeightConstraint?.constant = cellImageView.bounds.width / ratio
+        cell.visitImageViewHeightConstraint?.constant = cell.standardImageWidth / ratio
         
         cellImageView.image = nil
         if let image = imageCache?.object(forKey: key) {
@@ -249,17 +256,6 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         imageCache?.removeAllObjects()
         otherImageCache.removeAllObjects()
     }
-    
-//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        guard let visitCell = cell as? VisitCell else { return }
-//        visitCell.base.layoutIfNeeded()
-//        let visit = visits[indexPath.row]
-//        let cellImageView = visitCell.visitImageView
-//        let ratio = CGFloat(visit.mainImageWidth) / CGFloat(visit.mainImageHeight)
-//        print(cellImageView.bounds.width)
-//        visitCell.visitImageViewHeightConstraint?.constant = cellImageView.bounds.width / ratio
-//    }
-    
 }
 
 // MARK: VisitCellDelegate
@@ -298,13 +294,11 @@ extension VisitTableView: VisitCellDelegate {
         for (i, imageUrl) in visit.otherImages.map({$0.image}).enumerated() {
             let imageRequestKey = NSString(string: "\(visit.djangoOwnID)-\(i)")
             if let object = otherImageCache.object(forKey: imageRequestKey) {
-                print("Already requested: \(imageRequestKey)")
                 // already requested
                 // if the image exists, add it to the imageView
                 if let image = object.image {
-                    print("Image already found: \(imageRequestKey)")
+                    print("Image already exists")
                     cell.otherImageViews[i].image = image
-                    print(cell.otherImageViews.count)
                 }
             } else {
                 let newObject = ImageRequest()
@@ -314,12 +308,8 @@ extension VisitTableView: VisitCellDelegate {
                         DispatchQueue.global(qos: .background).async {
                             let resized = image.resizeToBeNoLargerThanScreenWidth()
                             DispatchQueue.main.async {
-                                print("Image gotten from request: \(imageRequestKey)")
-                                
                                 newObject.image = resized
-
                                 if let cell = self?.cellFrom(visit: visit) {
-                                    print("Image set from request: \(imageRequestKey)")
                                     cell.otherImageViews[i].image = resized
                                 }
                             }
@@ -355,5 +345,4 @@ extension VisitTableView: VisitCellDelegate {
             }
         }
     }
-    
 }
