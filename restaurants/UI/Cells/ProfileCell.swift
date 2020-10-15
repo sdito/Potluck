@@ -9,16 +9,18 @@
 import UIKit
 
 class ProfileCell: UICollectionViewCell {
-    
+    #warning("need to show loading and stuff")
     var visit: Visit?
     private let stackView = UIStackView()
     private let labelStackView = UIStackView()
     let imageView = UIImageView()
     private let multipleImagesView = UIImageView(image: .squaresImage)
     private let placeLabel = UILabel()
+    private var widthConstraint: NSLayoutConstraint?
+    private let base = UIView()
     
     override init(frame: CGRect) {
-        super.init(frame: frame)
+        super.init(frame: .zero)
         setUpUiElements()
     }
     
@@ -36,14 +38,18 @@ class ProfileCell: UICollectionViewCell {
     
     private func setUpView() {
         self.contentView.backgroundColor = .secondarySystemBackground
+        base.translatesAutoresizingMaskIntoConstraints = false
+        self.contentView.addSubview(base)
+        base.constrainSides(to: contentView, with: UILayoutPriority(999.0))
+        widthConstraint = base.widthAnchor.constraint(equalToConstant: 100.0)
     }
     
     private func setUpStackView() {
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        self.contentView.addSubview(stackView)
-        stackView.constrainSides(to: self.contentView, distance: 5.0)
+        self.base.addSubview(stackView)
+        stackView.constrainSides(to: self.base, distance: 7.5)
         stackView.axis = .vertical
-        stackView.spacing = 5.0
+        stackView.spacing = 10.0
         stackView.distribution = .fill
         stackView.alignment = .fill
     }
@@ -75,19 +81,41 @@ class ProfileCell: UICollectionViewCell {
         placeLabel.translatesAutoresizingMaskIntoConstraints = false
         placeLabel.textColor = .label
         placeLabel.font = .mediumBold
+        placeLabel.numberOfLines = 1
         labelStackView.addArrangedSubview(placeLabel)
     }
     
     
     
-    func setUp(with visit: Visit) {
+    func setUp(with visit: Visit?, width: CGFloat) {
         self.visit = visit
+        widthConstraint?.constant = width
+        widthConstraint?.isActive = true
+        guard let visit = visit else {
+            hideCell()
+            return
+        }
+        showCell()
+        
         placeLabel.text = visit.restaurantName
         if visit.listPhotos.count > 1 {
             multipleImagesView.isHidden = false
         } else {
             multipleImagesView.isHidden = true
         }
+    }
+    
+    private func hideCell() {
+        print("Hiding the cell")
+        self.isUserInteractionEnabled = false
+        self.alpha = 0.0
+        self.contentView.alpha = 0.0
+    }
+    
+    private func showCell() {
+        self.isUserInteractionEnabled = true
+        self.alpha = 1.0
+        self.contentView.alpha = 1.0
     }
     
 }

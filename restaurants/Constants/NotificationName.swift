@@ -18,7 +18,6 @@ extension Notification.Name {
     static let visitDeleted = Notification.Name("com.stevendito.visitDeleted")
     static let reloadSettings = Notification.Name("com.stevendito.reloadSettings")
     
-    #warning("make sure following are used")
     static let friendshipIdRemoved = Notification.Name("com.stevendito.friendshipIdRemoved")
     static let friendshipRequestIdCompleted = Notification.Name("com.stevendito.friendshipRequestIdCompleted")
     

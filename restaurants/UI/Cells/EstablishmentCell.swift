@@ -59,10 +59,10 @@ class EstablishmentCell: UITableViewCell {
         stackView.distribution = .fill
         stackView.alignment = .leading
         self.contentView.addSubview(stackView)
-        //stackView.constrainSides(to: self.contentView, distance: 20.0)
+        
         stackView.constrain(.leading, to: self.contentView, .leading, constant: 20.0)
-        stackView.constrain(.top, to: self.contentView, .top, constant: 20.0)
-        stackView.constrain(.bottom, to: self.contentView, .bottom, constant: 20.0)
+        stackView.constrain(.top, to: self.contentView, .top, constant: 12.5)
+        stackView.constrain(.bottom, to: self.contentView, .bottom, constant: 12.5)
     }
     
     private func setUpMainLabel() {

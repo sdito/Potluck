@@ -27,7 +27,9 @@ class VisitTableView: UITableView {
     private let reuseIdentifier = "visitCellReuseIdentifier"
     private weak var visitTableViewDelegate: VisitTableViewDelegate?
     private var mode: Mode = .user
+    
     var allowHintToCreateRestaurant = false
+    var allowHintForFriendsFeed = false
     
     enum Mode {
         case friends
@@ -160,16 +162,31 @@ class VisitTableView: UITableView {
         }
     }
     
+    @objc private func goToCreateAccount() {
+        self.findViewController()?.navigationController?.pushViewController(CreateAccountVC(), animated: true)
+    }
+    
 }
 
 // MARK: Table view
 extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if allowHintToCreateRestaurant && visits.count == 0 {
+        let count = visits.count
+        if allowHintToCreateRestaurant && count == 0 {
             let addPostButton = self.setEmptyWithAction(message: "You do not have any posts yet. Add a post every time you eat at a restaurant.", buttonTitle: "Add post", area: .center)
             addPostButton.addTarget(self, action: #selector(addNewPostSelector), for: .touchUpInside)
         }
-        return visits.count
+        if allowHintForFriendsFeed && count == 0 {
+            if Network.shared.loggedIn {
+                // Say there are no visits... and no button
+                self.setEmptyWithAction(message: "Your friends have not posted anything yet", buttonTitle: "", area: .center)
+            } else {
+                // Tell the user to log in
+                let createAccountButton = self.setEmptyWithAction(message: "You need to create an account in order to see your friends posts", buttonTitle: "Create account", area: .center)
+                createAccountButton.addTarget(self, action: #selector(goToCreateAccount), for: .touchUpInside)
+            }
+        }
+        return count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -180,8 +197,6 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         cell.delegate = self
         
         if selectedIndex != nil {
-            #warning("triggering multiple requests some how")
-            print("More image request from cellForRow")
             cell.delegate?.moreImageRequest(visit: visit, cell: cell)
         }
         

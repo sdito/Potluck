@@ -48,7 +48,6 @@ extension UIView {
         if animated {
             let smallTransform = CGAffineTransform(scaleX: 0.1, y: 0.1)
             if isHidden {
-                print("Need to animate shrinking")
                 UIView.animate(withDuration: 0.3, animations: {
                     self.transform = smallTransform
                 }) { (complete) in

@@ -11,7 +11,6 @@ import UIKit
 extension UIImage {
     
     func resizeImageToSizeButKeepAspectRatio(targetSize: CGSize) -> UIImage {
-        #warning("need to run on background thread, slow on i.e. restaurantListVC")
         // i.e. resize to 200 / 200, with original size of 1000 / 400
         // new size would be 500 / 200, i.e. go to the minimum size
         let selfSize = self.size

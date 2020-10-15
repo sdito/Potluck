@@ -25,6 +25,9 @@ class FeedHomeVC: UIViewController {
         setUpNavigationBar()
         setUpTableView()
         getUserFeed()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
     }
     
     private func setUpNavigationBar() {
@@ -44,19 +47,29 @@ class FeedHomeVC: UIViewController {
     
     private func getUserFeed() {
         Network.shared.getVisitFeed(feedType: .friends) { [weak self] (result) in
-            guard let self = self else { return }
-            switch result {
-            case .success(let visits):
-                self.visits = visits
-                DispatchQueue.main.async {
-                    self.visitTableView?.clearCaches()
-                    self.visitTableView?.reloadData()
-                    self.visitTableView?.refreshControl?.endRefreshing()
+            DispatchQueue.main.async {
+                self?.visitTableView?.allowHintForFriendsFeed = true
+                self?.visitTableView?.refreshControl?.endRefreshing()
+                guard let self = self else { return }
+                switch result {
+                case .success(let visits):
+                    self.visits = visits
+                    
+                case .failure(_):
+                    print("Failure getting friends visit feed")
+                    self.visits = []
                 }
-            case .failure(_):
-                print("Failure getting friends visit feed")
+                
+                self.handleReloadingVisitTableView()
+                
             }
         }
+    }
+    
+    private func handleReloadingVisitTableView() {
+        self.visitTableView?.clearCaches()
+        self.visitTableView?.reloadData()
+        self.visitTableView?.refreshControl?.endRefreshing()
     }
     
     @objc private func addPersonAction() {
@@ -67,12 +80,31 @@ class FeedHomeVC: UIViewController {
             self.userNotLoggedInAlert(tabVC: tabVC)
         }
     }
+    
+    @objc private func userLoggedIn() {
+        getUserFeed()
+    }
+    
+    @objc private func userLoggedOut() {
+        visits = []
+        self.visitTableView?.clearCaches()
+        self.visitTableView?.reloadData()
+    }
 }
 
 
 // MARK: VisitTableViewDelegate
 extension FeedHomeVC: VisitTableViewDelegate {
     func refreshControlSelected() {
-        self.getUserFeed()
+        
+        if Network.shared.loggedIn {
+            self.getUserFeed()
+        } else {
+            visits = []
+            handleReloadingVisitTableView()
+            self.showMessage("Log in to see your friends visits")
+        }
+        
+        
     }
 }

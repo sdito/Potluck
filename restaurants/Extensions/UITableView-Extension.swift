@@ -80,11 +80,6 @@ extension UITableView {
         self.backgroundView = container
         self.separatorStyle = .none
         
-        print(stack.bounds)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            print(stack.bounds)
-            
-        }
         return button
 
     }

@@ -112,6 +112,14 @@ class TwoLevelCell: UITableViewCell {
             detailButton()
         }
         
+        if establishment.djangoID != nil {
+            // show the button
+            actionButton.isHidden = false
+        } else {
+            // hide the button
+            actionButton.isHidden = true
+        }
+        
     }
     
     func setUpWith(restaurant: Restaurant) {

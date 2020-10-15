@@ -119,6 +119,21 @@ extension UIView {
         ])
     }
     
+    func constrainSides(to view: UIView, distance: CGFloat = 0.0, with priority: UILayoutPriority) {
+        let leading = self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: distance)
+        let trailing = self.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -distance)
+        let top = self.topAnchor.constraint(equalTo: view.topAnchor, constant: distance)
+        let bottom = self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -distance)
+        
+        [leading, trailing, top, bottom].forEach { (constraint) in
+            constraint.priority = priority
+        }
+        
+        NSLayoutConstraint.activate([
+            leading, trailing, top, bottom
+        ])
+    }
+    
     func constrainSidesUnique(to view: UIView, top: CGFloat, leading: CGFloat, bottom: CGFloat, trailing: CGFloat) {
         NSLayoutConstraint.activate([
             self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leading),

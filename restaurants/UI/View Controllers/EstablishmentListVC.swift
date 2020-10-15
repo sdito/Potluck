@@ -78,7 +78,16 @@ class EstablishmentListVC: UIViewController {
 extension EstablishmentListVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         #warning("have screen for when there are no establishments")
-        return profile?.establishments?.count ?? 0
+        let count = profile?.establishments?.count ?? 0
+        
+        if count > 0 {
+            tableView.restore()
+        } else {
+            let button = tableView.setEmptyWithAction(message: "This user does not have any places yet", buttonTitle: "", area: .center)
+            button.isHidden = true
+        }
+        
+        return count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

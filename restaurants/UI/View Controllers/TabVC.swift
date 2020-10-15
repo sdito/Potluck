@@ -24,6 +24,8 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     
     #warning("start with profile for other users")
     
+    #warning("in general for image caches, have a cache for processing requests maybe")
+    
     private let home = UINavigationController(rootViewController: ProfileHomeVC(visits: nil, prevImageCache: nil))
     private let feed = UINavigationController(rootViewController: FeedHomeVC())
     private let addRestaurant = AddRestaurantVC()

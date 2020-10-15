@@ -145,6 +145,13 @@ class AddRestaurantVC: UIViewController {
         tableView.constrain(.trailing, to: self.view, .trailing)
         tableView.constrain(.bottom, to: self.view, .bottom)
         tableView.register(TwoLevelCell.self, forCellReuseIdentifier: reuseIdentifier)
+        
+        
+//        let foot = UIView()
+//        foot.translatesAutoresizingMaskIntoConstraints = false
+//        foot.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
+//        foot.backgroundColor = .red
+//        tableView.tableFooterView = UIView()
     }
     
     private func setUpRequest() {
@@ -250,20 +257,18 @@ class AddRestaurantVC: UIViewController {
 
 // MARK: Table view
 extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        tableView.restore()
-                
         switch currentSelectedSegment {
         case .search:
-            
+            tableView.restore()
             if previousRestaurantsOnSearch {
                 return previousSearchedRestaurants.count
             } else {
                 return searchResults.count
             }
         case .myPlaces:
-            #error("no count thing is not working")
             let count = myPlaces.count
             if count == 0 {
                 if initialLoadingDone {
@@ -272,14 +277,13 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
                 } else {
                     tableView.showLoadingOnTableView()
                 }
-                tableView.layoutIfNeeded()
                 return 0
             } else {
+                tableView.restore()
                 return count
             }
             
         case .previous:
-            #error("no count thing is not working")
             let count = previousRestaurants.count
             if count == 0 {
                 if initialLoadingDone {
@@ -288,9 +292,9 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
                 } else {
                     tableView.showLoadingOnTableView()
                 }
-                tableView.layoutIfNeeded()
                 return 0
             } else {
+                tableView.restore()
                 return count
             }
         }

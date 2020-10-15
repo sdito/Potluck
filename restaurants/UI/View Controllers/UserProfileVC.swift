@@ -9,6 +9,8 @@
 import UIKit
 import MapKit
 
+
+
 class UserProfileVC: UIViewController {
     #warning("list where it lists the user's previous establishments")
     var text = "Do any additional setup after loading the view, typically from a nib."
@@ -42,7 +44,9 @@ class UserProfileVC: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
         setUpNavigationBar()
-        getPersonData()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            self.getPersonData()
+        }
         setUpMap()
         setUpCollectionView()
         setUpEstablishmentListButton()
@@ -108,12 +112,11 @@ class UserProfileVC: UIViewController {
         
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = padding
-        let size = (self.view.frame.width / 2) - padding/2
-        
-        layout.itemSize = CGSize(width: size, height: size + 30.0)
-        
-        //layout.estimatedItemSize.height = UICollectionViewFlowLayout.automaticSize.height
+        layout.itemSize = UICollectionViewFlowLayout.automaticSize
+        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         layout.minimumInteritemSpacing = 0.0
+        
+        #warning("need to set the alignment for when there is one cell (i.e. on user pasta)")
         
         layout.headerReferenceSize = CGSize(width: UIScreen.main.bounds.width, height: 40.0)
         layout.sectionHeadersPinToVisibleBounds = true
@@ -276,7 +279,6 @@ class UserProfileVC: UIViewController {
     
     private func showOnMapIfThereAreNoEstablishments(establishments: [Establishment]?) {
         if establishments == nil || establishments?.count == 0 {
-            print("Show on map that there are none")
             overlayForNoEstablishments = OverlayButton()
             mapView.addSubview(overlayForNoEstablishments!)
             overlayForNoEstablishments!.centerXAnchor.constraint(equalTo: mapView.centerXAnchor).isActive = true
@@ -286,11 +288,9 @@ class UserProfileVC: UIViewController {
             establishmentListButton.isHidden = true
             reCenterMapButton.isHidden = true
         } else {
-            print("Remove potential stuff from map")
             overlayForNoEstablishments?.removeFromSuperview()
             overlayForNoEstablishments = nil
             establishmentListButton.isHidden = false
-            //reCenterMapButton.isHidden = false
         }
     }
     
@@ -353,13 +353,29 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
             collectionView.restore()
         }
         
-        return count
+        if count == 1 {
+            // So, if only one cell is laid out then there will be only one centered column which looks weird
+            // Easy way to fix the issue is to lay out another dummy cell (and hide it), so that the first and only actual cell is in the left aligned column
+            // see appAtIndex calculation in cellForItem, cell blanked out with cell.setUp(with: nil, width: width)
+            return 2
+        } else {
+            // Otherwise just layout the correct number of cells
+            return count
+        }
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! ProfileCell
-        guard let visit = profile?.visits?[indexPath.row] else { return cell }
-        cell.setUp(with: visit)
+        let width = (self.view.frame.width / 2) - padding/2
+        guard let visit = profile?.visits?.appAtIndex(indexPath.row) else {
+            // Will be called when there is only one visit, this will just blank out the cell to ensure that the columns lay out correctly, else it will lay out in the center
+            // See numberOfItemsInSection for when there are two cells when technically there should be one
+            print(indexPath.row)
+            cell.setUp(with: nil, width: width)
+            return cell
+        }
+        cell.setUp(with: visit, width: width)
         cell.imageView.image = nil
         
         let key = NSString(string: "\(visit.djangoOwnID)")
@@ -375,7 +391,6 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
                     DispatchQueue.global(qos: .background).async {
                         let resized = image.resizeImageToSizeButKeepAspectRatio(targetSize: size)
                         DispatchQueue.main.async {
-                            #warning("issue with images not laying out in the correct cells, see if this fixed this")
                             if cell.visit?.djangoOwnID == visit.djangoOwnID {
                                 cell.imageView.image = resized
                             }
