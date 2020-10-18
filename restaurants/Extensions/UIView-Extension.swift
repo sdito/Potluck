@@ -11,6 +11,14 @@ import SkeletonView
 
 extension UIView {
     
+    static func getSpacerView() -> UIView {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
+        view.setContentCompressionResistancePriority(.fittingSizeLevel, for: .vertical)
+        return view
+    }
+    
     var appTraitCollection: UITraitCollection {
         return self.findViewController()?.traitCollection ?? self.traitCollection
     }
@@ -44,7 +52,6 @@ extension UIView {
     }
     
     func appIsHiddenAnimated(isHidden: Bool, animated: Bool = true) {
-        
         if animated {
             let smallTransform = CGAffineTransform(scaleX: 0.1, y: 0.1)
             if isHidden {

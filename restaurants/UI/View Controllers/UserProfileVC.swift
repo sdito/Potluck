@@ -12,8 +12,6 @@ import MapKit
 
 
 class UserProfileVC: UIViewController {
-    #warning("list where it lists the user's previous establishments")
-    var text = "Do any additional setup after loading the view, typically from a nib."
     private var person: Person?
     private var profile: Person.Profile?
     
@@ -31,6 +29,7 @@ class UserProfileVC: UIViewController {
     private let refreshControl = UIRefreshControl()
     private var threeDotsBarButtonItem: UIBarButtonItem?
     private var overlayForNoEstablishments: OverlayButton? { didSet { self.overlayForNoEstablishments?.isUserInteractionEnabled = false } }
+    private var initialDataReceived = false
     
     private let establishmentListButton = OverlayButton()
     private let reCenterMapButton = OverlayButton()
@@ -44,9 +43,7 @@ class UserProfileVC: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
         setUpNavigationBar()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.getPersonData()
-        }
+        getPersonData()
         setUpMap()
         setUpCollectionView()
         setUpEstablishmentListButton()
@@ -92,6 +89,7 @@ class UserProfileVC: UIViewController {
         establishmentListButton.constrain(.bottom, to: collectionView!, .top, constant: mapOverlayButtonPadding)
         establishmentListButton.constrain(.trailing, to: self.view, .trailing, constant: mapOverlayButtonPadding)
         establishmentListButton.addTarget(self, action: #selector(establishmentListAction), for: .touchUpInside)
+        establishmentListButton.isHidden = true
     }
     
     private func setUpReCenterButton() {
@@ -101,10 +99,11 @@ class UserProfileVC: UIViewController {
         reCenterMapButton.constrain(.bottom, to: collectionView!, .top, constant: mapOverlayButtonPadding)
         reCenterMapButton.constrain(.trailing, to: establishmentListButton, .leading, constant: mapOverlayButtonPadding)
         reCenterMapButton.addTarget(self, action: #selector(reCenterMapAction), for: .touchUpInside)
-        reCenterMapButton.isHidden = true
         reCenterMapButton.heightAnchor.constraint(equalTo: establishmentListButton.heightAnchor).isActive = true
         reCenterMapButton.widthAnchor.constraint(equalTo: establishmentListButton.widthAnchor).isActive = true
+        reCenterMapButton.isHidden = true
     }
+    
     
     
     private func setUpCollectionView() {
@@ -115,9 +114,6 @@ class UserProfileVC: UIViewController {
         layout.itemSize = UICollectionViewFlowLayout.automaticSize
         layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         layout.minimumInteritemSpacing = 0.0
-        
-        #warning("need to set the alignment for when there is one cell (i.e. on user pasta)")
-        
         layout.headerReferenceSize = CGSize(width: UIScreen.main.bounds.width, height: 40.0)
         layout.sectionHeadersPinToVisibleBounds = true
         
@@ -143,7 +139,7 @@ class UserProfileVC: UIViewController {
     private func getPersonData() {
         Network.shared.getPersonProfile(person: person) { [weak self] (response) in
             guard let self = self else { return }
-            
+            self.initialDataReceived = true
             DispatchQueue.main.async {
                 self.collectionView?.refreshControl?.endRefreshing()
             }
@@ -348,7 +344,11 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
         let count = profile?.visits?.count ?? 0
         
         if count == 0 {
-            collectionView.setEmptyWithAction(message: "\(person?.username ?? "This user") does not have any visits yet", buttonTitle: "")
+            if initialDataReceived {
+                collectionView.setEmptyWithAction(message: "\(person?.username ?? "This user") does not have any visits yet", buttonTitle: "")
+            } else {
+                collectionView.showLoadingOnCollectionView()
+            }
         } else {
             collectionView.restore()
         }

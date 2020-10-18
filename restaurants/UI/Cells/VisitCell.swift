@@ -48,7 +48,7 @@ class VisitCell: UITableViewCell {
     var visitImageViewHeightConstraint: NSLayoutConstraint?
     private let dateLabel = UILabel()
     private let ratingLabel = UILabel()
-    private var dateAndButtonStackView: UIStackView!
+    private var dateAndButtonStackView = UIStackView()
     private let moreActionsButton = UIButton()
     private let mapButton = UIButton()
     private let usernameButton = PersonTitleButton()
@@ -110,11 +110,9 @@ class VisitCell: UITableViewCell {
     }
     
     private func setUpUiElementsForDateAndButtons() {
-        dateAndButtonStackView = UIStackView()
-        
         dateAndButtonStackView.translatesAutoresizingMaskIntoConstraints = false
         dateAndButtonStackView.axis = .horizontal
-        dateAndButtonStackView.spacing = 5.0
+        dateAndButtonStackView.spacing = 15.0
         dateAndButtonStackView.distribution = .fill
         
         ratingLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -126,9 +124,7 @@ class VisitCell: UITableViewCell {
         dateAndButtonStackView.addArrangedSubview(dateLabel)
         
         // to take up the space in the middle, as a spacer
-        let spacer = UIView()
-        spacer.translatesAutoresizingMaskIntoConstraints = false
-        dateAndButtonStackView.addArrangedSubview(spacer)
+        dateAndButtonStackView.addArrangedSubview(UIView.getSpacerView())
         
         moreActionsButton.translatesAutoresizingMaskIntoConstraints = false
         moreActionsButton.setImage(.threeDotsImage, for: .normal)
@@ -201,7 +197,7 @@ class VisitCell: UITableViewCell {
         commentLabel.text = "This is the text for the comment"
         commentLabel.textColor = .secondaryLabel
         commentLabel.font = .smallerThanNormal
-        commentLabel.numberOfLines = 0
+        commentLabel.numberOfLines = 3
     }
     
     @objc private func mapAction() {

@@ -11,6 +11,8 @@ import UIKit
 
 extension UIButton {
     
+    private static let activityIndicatorTag = 919
+    
     override open var intrinsicContentSize: CGSize {
         let intrinsicContentSize = super.intrinsicContentSize
 
@@ -24,6 +26,7 @@ extension UIButton {
         self.isUserInteractionEnabled = false
         let activityIndicator = UIActivityIndicatorView()
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.tag = UIButton.activityIndicatorTag
         self.setTitleColor(.clear, for: .normal)
         self.addSubview(activityIndicator)
         NSLayoutConstraint.activate([
@@ -32,6 +35,16 @@ extension UIButton {
         ])
         activityIndicator.startAnimating()
 
+    }
+    
+    func endLoadingOnButton(titleColor: UIColor) {
+        self.isUserInteractionEnabled = true
+        self.setTitleColor(titleColor, for: .normal)
+        for view in self.subviews {
+            if view.tag == UIButton.activityIndicatorTag {
+                view.removeFromSuperview()
+            }
+        }
     }
 
 }

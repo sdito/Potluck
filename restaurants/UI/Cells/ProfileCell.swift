@@ -9,13 +9,15 @@
 import UIKit
 
 class ProfileCell: UICollectionViewCell {
-    #warning("need to show loading and stuff")
+
     var visit: Visit?
+    
+    let imageView = UIImageView()
     private let stackView = UIStackView()
     private let labelStackView = UIStackView()
-    let imageView = UIImageView()
     private let multipleImagesView = UIImageView(image: .squaresImage)
     private let placeLabel = UILabel()
+    private let ratingLabel = UILabel()
     private var widthConstraint: NSLayoutConstraint?
     private let base = UIView()
     
@@ -34,6 +36,7 @@ class ProfileCell: UICollectionViewCell {
         setUpImageView()
         setUpLabelStackView()
         setUpNameLabel()
+        setUpRatingLabel()
     }
     
     private func setUpView() {
@@ -73,7 +76,7 @@ class ProfileCell: UICollectionViewCell {
     private func setUpLabelStackView() {
         labelStackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.addArrangedSubview(labelStackView)
-        labelStackView.axis = .horizontal
+        labelStackView.axis = .vertical
         labelStackView.distribution = .fill
     }
     
@@ -85,7 +88,11 @@ class ProfileCell: UICollectionViewCell {
         labelStackView.addArrangedSubview(placeLabel)
     }
     
-    
+    private func setUpRatingLabel() {
+        ratingLabel.translatesAutoresizingMaskIntoConstraints = false
+        ratingLabel.numberOfLines = 1
+        labelStackView.addArrangedSubview(ratingLabel)
+    }
     
     func setUp(with visit: Visit?, width: CGFloat) {
         self.visit = visit
@@ -98,6 +105,9 @@ class ProfileCell: UICollectionViewCell {
         showCell()
         
         placeLabel.text = visit.restaurantName
+        
+        ratingLabel.attributedText = visit.ratingString
+        
         if visit.listPhotos.count > 1 {
             multipleImagesView.isHidden = false
         } else {

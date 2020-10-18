@@ -17,6 +17,7 @@ class CreateAccountVC: UIViewController {
     private let passwordLogInField = LogInField(style: .password)
     private let stackView = UIStackView()
     private let logInAndCreateToggleButton = SizeChangeButton(sizeDifference: .medium, restingColor: .secondaryLabel, selectedColor: .label)
+    private let resetPasswordButton = SizeChangeButton(sizeDifference: .medium, restingColor: .secondaryLabel, selectedColor: .label)
     private var mode: Mode! {
         didSet {
             handleModeSwitch()
@@ -37,13 +38,13 @@ class CreateAccountVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
-        self.navigationItem.title = "Account"
         setUpStackView()
-        setUpInfoLabel()
         setUpTextFields()
         setUpDoneButton()
         setUpAlterBetweenLogInAndCreate()
+        setUpResetPasswordButton()
         setUpDummyView()
+        mode = .createAccount
         self.edgesForExtendedLayout = [.left, .right, .bottom]
     }
     
@@ -58,19 +59,6 @@ class CreateAccountVC: UIViewController {
         stackView.constrain(.trailing, to: view, .trailing, constant: 15.0)
         stackView.axis = .vertical
         stackView.alignment = .center
-        
-    }
-    
-    private func setUpInfoLabel() {
-        let infoLabel = PaddingLabel(top: 5.0, bottom: 5.0, left: 10.0, right: 10.0)
-        infoLabel.font = .mediumBold
-        infoLabel.numberOfLines = 0
-        infoLabel.text = "This should tell the user why it will be the best idea for them to create an account, like this app is the best ever so create an account."
-        infoLabel.textAlignment = .center
-        infoLabel.layer.cornerRadius = 5.0
-        infoLabel.backgroundColor = .secondarySystemBackground
-        infoLabel.clipsToBounds = true
-        stackView.addArrangedSubview(infoLabel)
     }
     
     private func setUpTextFields() {
@@ -91,12 +79,19 @@ class CreateAccountVC: UIViewController {
         doneButton.addTarget(self, action: #selector(executeCreateOrLogIn), for: .touchUpInside)
     }
     
+    private func setUpResetPasswordButton() {
+        resetPasswordButton.translatesAutoresizingMaskIntoConstraints = false
+        resetPasswordButton.titleLabel?.font = .mediumBold
+        stackView.addArrangedSubview(resetPasswordButton)
+        resetPasswordButton.setTitle("Forgot password?", for: .normal)
+        resetPasswordButton.addTarget(self, action: #selector(forgotPasswordPressed), for: .touchUpInside)
+    }
+    
     private func setUpAlterBetweenLogInAndCreate() {
         logInAndCreateToggleButton.translatesAutoresizingMaskIntoConstraints = false
         logInAndCreateToggleButton.addTarget(self, action: #selector(logInAndCreateToggleButtonSelector), for: .touchUpInside)
         logInAndCreateToggleButton.titleLabel?.font = .mediumBold
         stackView.addArrangedSubview(logInAndCreateToggleButton)
-        mode = .createAccount
     }
     
     private func setUpDummyView() {
@@ -110,6 +105,10 @@ class CreateAccountVC: UIViewController {
         } else {
             mode = .createAccount
         }
+    }
+    
+    @objc private func forgotPasswordPressed() {
+        self.navigationController?.pushViewController(ForgotPasswordVC(), animated: true)
     }
     
     private func handleRegisterUserRequest(email: String, username: String, password: String) {
@@ -190,13 +189,15 @@ class CreateAccountVC: UIViewController {
             if stackView.subviews.contains(dummyView) { dummyView.removeFromSuperview() }
             usernameLogInField.isHidden = false
             combo.forEach({$0.hideButton = false})
+            self.navigationItem.title = "Create account"
         case .logIn:
             logInAndCreateToggleButton.setTitle(createAccountString, for: .normal)
             doneButton.setTitle("Log in", for: .normal)
-            stackView.insertArrangedSubview(dummyView, at: 1)
+            stackView.insertArrangedSubview(dummyView, at: 0)
             dummyView.heightAnchor.constraint(equalToConstant: usernameLogInField.bounds.height).isActive = true
             usernameLogInField.isHidden = true
             combo.forEach({$0.hideButton = true})
+            self.navigationItem.title = "Log in"
         }
     }
     

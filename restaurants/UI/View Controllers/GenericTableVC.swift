@@ -210,7 +210,7 @@ class GenericTableVC: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
         
         var person: Person?
-        #warning("need to do")
+        // extract the person from the current mode of the table view
         if let element = friends?.appAtIndex(indexPath.row) {
             person = element.friend
         } else if let element = requests?.appAtIndex(indexPath.row) {

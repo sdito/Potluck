@@ -23,6 +23,7 @@ extension Network {
         case alterUserPhoneNumberOrColor
         case searchForAccounts
         case refreshAccount
+        case initiatePasswordReset
         
         var url: String {
             switch self {
@@ -34,11 +35,13 @@ extension Network {
                 return "account"
             case .refreshAccount:
                 return "refresh"
+            case .initiatePasswordReset:
+                return "resetpassword"
             }
         }
         var method: HTTPMethod {
             switch self {
-            case .logIn, .createAccount:
+            case .logIn, .createAccount, .initiatePasswordReset:
                 return .post
             case .alterUserPhoneNumberOrColor:
                 return .put
@@ -51,7 +54,7 @@ extension Network {
             case .alterUserPhoneNumberOrColor, .searchForAccounts, .refreshAccount:
                 guard let token = Network.shared.account?.token else { return nil }
                 return  ["Authorization": "Token \(token)"]
-            case .logIn, .createAccount:
+            case .logIn, .createAccount, .initiatePasswordReset:
                 return nil
             }
         }
@@ -175,10 +178,31 @@ extension Network {
         }
     }
     
+    func initiatePasswordReset(usernameOrEmail: String, passwordResetRequest: @escaping (Account.PasswordResetRequest?) -> Void) {
+        let params: Parameters = ["identifier":usernameOrEmail]
+        let req = reqAccount(params: params, requestType: .initiatePasswordReset)
+        req.responseJSON(queue: .global(qos: .userInteractive)) { [unowned self] (response) in
+            guard let data = response.data, response.error == nil else {
+                passwordResetRequest(nil)
+                return
+            }
+            
+            do {
+                let value = try self.decoder.decode(Account.PasswordResetRequest.self, from: data)
+                passwordResetRequest(value)
+            } catch {
+                print("Decoding error for Account.PasswordResetRequest")
+                print(error)
+                passwordResetRequest(nil)
+            }
+            
+        }
+    }
+    
     func refreshAccount() {
         guard let acc = Network.shared.account else { return }
         let req = reqAccount(params: nil, requestType: .refreshAccount)
-        req.responseJSON { [unowned self] (response) in
+        req.responseJSON(queue: .global(qos: .background)) { [unowned self] (response) in
             //#error("need to implement in account and stuff on login/register also")
             guard let data = response.data, response.error == nil else { return }
             do {

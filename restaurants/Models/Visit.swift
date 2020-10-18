@@ -67,15 +67,19 @@ class Visit: Codable {
     var ratingString: NSAttributedString? {
         
         if let rating = rating {
+            let color = rating.getColorFromZeroToTen()
             let mutableString = NSMutableAttributedString()
             
-            let ratingPortion = NSAttributedString(string: "\(rating) ", attributes: [NSAttributedString.Key.font: UIFont.mediumBold, NSAttributedString.Key.baselineOffset: 1.8])
-            let image = UIImage.starCircleImage.withConfiguration(UIImage.SymbolConfiguration(scale: .small)).withTintColor(rating.getColorFromZeroToTen())
+            let ratingPortion = NSAttributedString(string: " \(rating)", attributes: [NSAttributedString.Key.font: UIFont.mediumBold,
+                                                                                      NSAttributedString.Key.baselineOffset: 1.8,
+                                                                                      NSAttributedString.Key.foregroundColor: color])
+            
+            let image = UIImage.starCircleImage.withConfiguration(UIImage.SymbolConfiguration(scale: .small)).withTintColor(color)
             let imageAttachment = NSTextAttachment(image: image)
             let imageString = NSAttributedString(attachment: imageAttachment)
             
-            mutableString.append(ratingPortion)
             mutableString.append(imageString)
+            mutableString.append(ratingPortion)
             
             return mutableString
         } else {

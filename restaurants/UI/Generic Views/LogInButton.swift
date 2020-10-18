@@ -8,18 +8,21 @@
 
 import UIKit
 
-class LogInButton: UIButton {
+class LogInButton: SizeChangeButton {
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    static let titleColor = UIColor.systemBackground
+    
+    init() {
+        super.init(sizeDifference: .inverse, restingColor: LogInButton.titleColor, selectedColor: LogInButton.titleColor)
         self.translatesAutoresizingMaskIntoConstraints = false
         self.layer.cornerRadius = 5.0
         self.titleEdgeInsets = UIEdgeInsets(top: 5.0, left: 10.0, bottom: 5.0, right: 10.0)
-        self.setTitleColor(.systemBackground, for: .normal)
+        self.setTitleColor(LogInButton.titleColor, for: .normal)
         self.backgroundColor = Colors.main
         self.titleLabel?.font = .largerBold
         self.layer.cornerRadius = 5.0
         self.clipsToBounds = true
+        
     }
     
     required init?(coder: NSCoder) {

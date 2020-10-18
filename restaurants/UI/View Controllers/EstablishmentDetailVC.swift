@@ -162,7 +162,7 @@ class EstablishmentDetailVC: UIViewController {
                 
                 // edit visit
                 let editEstablishmentBarButtonItem = UIBarButtonItem(image: .threeDotsImage, style: .plain, target: self, action: #selector(editEstablishmentPressed))
-                editEstablishmentBarButtonItem.imageInsets = UIEdgeInsets(top: 0, left: 40.0, bottom: 0, right: 0)
+//                editEstablishmentBarButtonItem.imageInsets = UIEdgeInsets(top: 0, left: 40.0, bottom: 0, right: 0)
                 barButtonItems.append(editEstablishmentBarButtonItem)
                 #warning("need to make the spacing tighter")
             }

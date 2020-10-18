@@ -203,6 +203,7 @@ extension Network {
         
         request.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
             guard let data = response.data, response.error == nil else {
+                print(response.error as Any)
                 fatalError()
             }
             do {

@@ -70,22 +70,6 @@ class AddRestaurantVC: UIViewController {
         self.navigationController?.setNavigationBarHidden(true, animated: animated)
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        if self.isBeingDismissed || self.navigationController?.isBeingDismissed ?? false {
-            // View disappearing..check for any establishments without a django ID"
-            // also need to check the stuff about creating a visit then adding a django id to the establishment
-            #warning("need to actually use, maybe")
-            let nonAddedEstablishments = myPlaces.filter({$0.djangoID == nil})
-            print()
-            for nonAdded in nonAddedEstablishments {
-                print("Need to save: \(nonAdded.name)")
-            }
-            print()
-        }
-    }
-    
     private func setUpHeaderPortionWithCancel() {
         self.view.addSubview(headerView)
         headerView.constrain(.top, to: self.view, .top, constant: 50.0)
@@ -393,7 +377,6 @@ extension AddRestaurantVC: MKLocalSearchCompleterDelegate {
 // MARK: SelectLocationDelegate
 extension AddRestaurantVC: SelectLocationDelegate {
     func locationSelected(coordinate: CLLocationCoordinate2D, fullAddress: String) {
-        #warning("the establishment is not saved yet, if user exits from this screen then save it to db, otherwise wait for user to create a post with the establishment and save then")
         guard let searchBarText = searchBar.text else { return }
         let newEstablishment = Establishment(name: searchBarText, isRestaurant: false)
         newEstablishment.updatePropertiesWithFullAddress(address: fullAddress, coordinate: coordinate)

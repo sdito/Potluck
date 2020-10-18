@@ -60,6 +60,16 @@ class Account: Decodable {
         var hex_color: String?
     }
     
+    struct PasswordResetRequest: Decodable {
+        var id: Int
+        var expiresAt: Date
+        
+        enum CodingKeys: String, CodingKey {
+            case id
+            case expiresAt = "date_expires"
+        }
+    }
+    
     func writeToKeychain() {
         let keyChain = Network.shared.keychain
         keyChain.set(self.username, forKey: Account.usernameKey)

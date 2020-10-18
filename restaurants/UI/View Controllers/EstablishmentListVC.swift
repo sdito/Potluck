@@ -77,7 +77,6 @@ class EstablishmentListVC: UIViewController {
 // MARK: Table view
 extension EstablishmentListVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        #warning("have screen for when there are no establishments")
         let count = profile?.establishments?.count ?? 0
         
         if count > 0 {
