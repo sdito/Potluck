@@ -17,12 +17,15 @@ class ForgotPasswordVC: UIViewController {
     private let actionButton = LogInButton()
     private let detailLabel = UILabel()
     private let codeTimeLabel = UILabel()
+    private let passwordField = LogInField(style: .password)
     
     private var passwordResetRequest: Account.PasswordResetRequest?
+    private var codeResponse: Account.CodeResponse?
     
     enum Stage {
         case enterUsernameOrPassword
         case enterCode
+        case enterPassword
     }
 
     override func viewDidLoad() {
@@ -74,7 +77,7 @@ class ForgotPasswordVC: UIViewController {
     private func setUpActionButton() {
         actionButton.setTitle("Get code", for: .normal)
         stackView.addArrangedSubview(actionButton)
-        actionButton.widthAnchor.constraint(equalTo: stackView.widthAnchor, multiplier: 0.5).isActive = true
+        actionButton.widthAnchor.constraint(equalTo: stackView.widthAnchor, multiplier: 0.7).isActive = true
         actionButton.addTarget(self, action: #selector(actionButtonPressed), for: .touchUpInside)
     }
     
@@ -95,39 +98,101 @@ class ForgotPasswordVC: UIViewController {
         // Add label to tell the user to check email and stuff
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            self.textField.placeholder = "Enter code from email"
-            self.textField.text = ""
-            self.actionButton.setTitle("Verify code", for: .normal)
-            self.textField.keyboardType = .numberPad
-            
-            if let txt = self.passwordResetRequest?.expiresAt.getTimeOfDay() {
-                self.codeTimeLabel.text = "Code expires at \(txt)"
-            }
-            
-            UIView.animate(withDuration: 0.3) { [weak self] in
-                self?.detailLabel.isHidden = false
-                self?.codeTimeLabel.isHidden = false
+            if let response = self.passwordResetRequest {
+                self.stage = .enterCode
+                self.textField.placeholder = "Enter code from email"
+                self.textField.text = ""
+                self.actionButton.setTitle("Verify code", for: .normal)
+                self.textField.keyboardType = .numberPad
+                self.codeTimeLabel.text = "Code expires at \(response.expiresAt.getTimeOfDay())"
+                
+                UIView.animate(withDuration: 0.3) { [weak self] in
+                    self?.detailLabel.isHidden = false
+                    self?.codeTimeLabel.isHidden = false
+                }
+            } else {
+                UIDevice.vibrateError()
+                self.textField.shakeView()
+                self.showMessage("No account found")
             }
         }
-        
+    }
+    
+    private func setUpToEnterPassword() {
+        // at this point the code is verified, so the user just needs to enter in a new password now, if codeResponse is not nil
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if let codeResponse = self.codeResponse, codeResponse.success {
+                self.actionButton.setTitle("Submit password", for: .normal)
+                
+                self.passwordField.setPlaceholder("New password")
+                self.stackView.insertArrangedSubview(self.passwordField, at: 0)
+                self.passwordField.widthAnchor.constraint(equalTo: self.stackView.widthAnchor).isActive = true
+                self.textField.isHidden = true
+                
+                UIView.animate(withDuration: 0.3) {
+                    self.detailLabel.isHidden = true
+                    self.codeTimeLabel.isHidden = true
+                    
+                }
+                
+                self.stage = .enterPassword
+            } else {
+                UIDevice.vibrateError()
+                self.textField.shakeView()
+                let errorMessage = self.codeResponse?.error ?? "Code was incorrect or expired"
+                self.showMessage(errorMessage)
+            }
+        }
     }
     
     private func initiateRequest() {
-        textField.resignFirstResponder()
-        disableActivity()
         guard let text = textField.text, text.count > 0 else { UIDevice.vibrateError(); return }
-        
-        #warning("remove dispatch queue stuff")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            Network.shared.initiatePasswordReset(usernameOrEmail: text) { [weak self] (passwordRequest) in
-                guard let self = self else { return }
-                self.enableActivity()
-                self.passwordResetRequest = passwordRequest
-                self.stage = .enterCode
-                self.setUpToReceiveCode()
-            }
+        disableActivity()
+        Network.shared.initiatePasswordReset(usernameOrEmail: text) { [weak self] (passwordRequest) in
+            guard let self = self else { return }
+            self.enableActivity()
+            self.passwordResetRequest = passwordRequest
+            self.setUpToReceiveCode()
         }
+    }
+    
+    private func checkCode() {
+        guard let text = textField.text?.turnIntoUsernameOrEmailIdentifier(), text.count > 0 else { UIDevice.vibrateError(); return }
         
+        disableActivity()
+        Network.shared.checkPasswordResetCode(code: text, passwordReset: self.passwordResetRequest) { [weak self] (codeResponse) in
+            guard let self = self else { return }
+            self.enableActivity()
+            self.codeResponse = codeResponse
+            self.setUpToEnterPassword()
+        }
+    }
+    
+    private func setNewPassword() {
+        guard passwordField.text?.count ?? 0 > 0 else { UIDevice.vibrateError(); passwordField.shakeView(); return }
+        let (isValid, message) = passwordField.isValid
+        if isValid {
+            guard let token = codeResponse?.token, let newPassword = passwordField.text else { return }
+            disableActivity()
+            Network.shared.setNewPassword(token: token, newPassword: newPassword) { [weak self] (success) in
+                DispatchQueue.main.async {
+                    self?.enableActivity()
+                    switch success {
+                    case true:
+                        self?.navigationController?.popViewController(animated: true)
+                    case false:
+                        self?.showMessage("Unable to set password")
+                    }
+                }
+            }
+        } else {
+            passwordField.shakeView()
+            UIDevice.vibrateError()
+            self.appAlert(title: "Invalid password", message: message ?? "Please enter another password", buttons: [
+                ("Ok", nil)
+            ])
+        }
     }
     
     @objc private func actionButtonPressed() {
@@ -135,13 +200,15 @@ class ForgotPasswordVC: UIViewController {
         case .enterUsernameOrPassword:
             initiateRequest()
         case .enterCode:
-            #warning("actually do network stuff here and etc..")
-            print("Need to verify the code")
+            checkCode()
+        case .enterPassword:
+            setNewPassword()
         }
     }
     
     private func disableActivity() {
         DispatchQueue.main.async {
+            self.textField.resignFirstResponder()
             self.textField.isUserInteractionEnabled = false
             self.actionButton.isUserInteractionEnabled = false
             self.actionButton.showLoadingOnButton()

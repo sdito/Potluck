@@ -312,4 +312,16 @@ extension UIView {
         return view
     }
     
+    func hideWithAlphaAnimated() {
+        UIView.animate(withDuration: 0.3) {
+            self.alpha = 0.0
+        }
+    }
+    
+    func showWithAlphaAnimated() {
+        UIView.animate(withDuration: 0.3) {
+            self.alpha = 1.0
+        }
+    }
+    
 }

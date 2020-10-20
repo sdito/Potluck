@@ -24,6 +24,8 @@ extension Network {
         case searchForAccounts
         case refreshAccount
         case initiatePasswordReset
+        case checkPasswordResetCode
+        case setNewPassword
         
         var url: String {
             switch self {
@@ -35,15 +37,17 @@ extension Network {
                 return "account"
             case .refreshAccount:
                 return "refresh"
-            case .initiatePasswordReset:
+            case .initiatePasswordReset, .setNewPassword:
                 return "resetpassword"
+            case .checkPasswordResetCode:
+                return "verifypasswordreset"
             }
         }
         var method: HTTPMethod {
             switch self {
-            case .logIn, .createAccount, .initiatePasswordReset:
+            case .logIn, .createAccount, .initiatePasswordReset, .checkPasswordResetCode:
                 return .post
-            case .alterUserPhoneNumberOrColor:
+            case .alterUserPhoneNumberOrColor, .setNewPassword:
                 return .put
             case .searchForAccounts, .refreshAccount:
                 return .get
@@ -54,7 +58,7 @@ extension Network {
             case .alterUserPhoneNumberOrColor, .searchForAccounts, .refreshAccount:
                 guard let token = Network.shared.account?.token else { return nil }
                 return  ["Authorization": "Token \(token)"]
-            case .logIn, .createAccount, .initiatePasswordReset:
+            case .logIn, .createAccount, .initiatePasswordReset, .checkPasswordResetCode, .setNewPassword:
                 return nil
             }
         }
@@ -65,9 +69,9 @@ extension Network {
         return request
     }
     
-    func retrieveToken(email: String, password: String, result: @escaping (Result<Bool, Errors.LogIn>) -> Void) {
+    func retrieveToken(identifier: String, password: String, result: @escaping (Result<Bool, Errors.LogIn>) -> Void) {
         let params: Parameters = [
-            "username": email,
+            "identifier": identifier,
             "password": password
         ]
         
@@ -196,6 +200,42 @@ extension Network {
                 passwordResetRequest(nil)
             }
             
+        }
+    }
+    
+    func checkPasswordResetCode(code: String, passwordReset: Account.PasswordResetRequest?, complete: @escaping (Account.CodeResponse?) -> Void) {
+        let params: Parameters = [
+            "id": passwordReset?.id ?? -1, // the server will recognizer 1 as a dummy, reason is to not let user know their username or email were not valid
+            "reset_code": code
+        ]
+        let req = reqAccount(params: params, requestType: .checkPasswordResetCode)
+        req.responseJSON(queue: .global(qos: .userInteractive)) { [unowned self] (response) in
+            guard let data = response.data, response.error == nil else {
+                complete(nil)
+                return
+            }
+            
+            do {
+                let codeResponse = try self.decoder.decode(Account.CodeResponse.self, from: data)
+                complete(codeResponse)
+            } catch {
+                print("Error decoding Account.CodeResponse")
+                print(error)
+                complete(nil)
+            }
+        }
+    }
+    
+    func setNewPassword(token: String, newPassword: String, success: @escaping (Bool) -> Void) {
+        
+        let params: Parameters = [
+            "token": token,
+            "new_password": newPassword
+        ]
+        let req = reqAccount(params: params, requestType: .setNewPassword)
+        req.response(queue: .global(qos: .userInteractive)) { (response) in
+            guard let statusCode = response.response?.statusCode else { success(false); return }
+            success(statusCode == Network.okCode)
         }
     }
     

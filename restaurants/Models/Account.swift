@@ -70,6 +70,13 @@ class Account: Decodable {
         }
     }
     
+    struct CodeResponse: Decodable {
+        var success: Bool
+        var token: String?
+        var account: Int?
+        var error: String?
+    }
+    
     func writeToKeychain() {
         let keyChain = Network.shared.keychain
         keyChain.set(self.username, forKey: Account.usernameKey)

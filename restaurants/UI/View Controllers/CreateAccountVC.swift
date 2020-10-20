@@ -10,14 +10,13 @@ import UIKit
 
 class CreateAccountVC: UIViewController {
     
-    private let dummyView = UIView()
     private let doneButton = LogInButton()
     private let emailLogInField = LogInField(style: .email)
     private let usernameLogInField = LogInField(style: .username)
     private let passwordLogInField = LogInField(style: .password)
     private let stackView = UIStackView()
-    private let logInAndCreateToggleButton = SizeChangeButton(sizeDifference: .medium, restingColor: .secondaryLabel, selectedColor: .label)
-    private let resetPasswordButton = SizeChangeButton(sizeDifference: .medium, restingColor: .secondaryLabel, selectedColor: .label)
+    private let logInAndCreateToggleButton = SizeChangeButton(sizeDifference: .inverse, restingColor: .secondaryLabel, selectedColor: .label)
+    private let resetPasswordButton = SizeChangeButton(sizeDifference: .inverse, restingColor: .secondaryLabel, selectedColor: .label)
     private var mode: Mode! {
         didSet {
             handleModeSwitch()
@@ -43,7 +42,6 @@ class CreateAccountVC: UIViewController {
         setUpDoneButton()
         setUpAlterBetweenLogInAndCreate()
         setUpResetPasswordButton()
-        setUpDummyView()
         mode = .createAccount
         self.edgesForExtendedLayout = [.left, .right, .bottom]
     }
@@ -70,6 +68,9 @@ class CreateAccountVC: UIViewController {
         
         stackView.addArrangedSubview(passwordLogInField)
         passwordLogInField.widthAnchor.constraint(equalTo: stackView.widthAnchor).isActive = true
+        
+        emailLogInField.heightAnchor.constraint(equalTo: usernameLogInField.heightAnchor).isActive = true
+        usernameLogInField.heightAnchor.constraint(equalTo: passwordLogInField.heightAnchor).isActive = true
     }
     
     private func setUpDoneButton() {
@@ -85,6 +86,7 @@ class CreateAccountVC: UIViewController {
         stackView.addArrangedSubview(resetPasswordButton)
         resetPasswordButton.setTitle("Forgot password?", for: .normal)
         resetPasswordButton.addTarget(self, action: #selector(forgotPasswordPressed), for: .touchUpInside)
+        resetPasswordButton.alpha = 0.0
     }
     
     private func setUpAlterBetweenLogInAndCreate() {
@@ -92,11 +94,6 @@ class CreateAccountVC: UIViewController {
         logInAndCreateToggleButton.addTarget(self, action: #selector(logInAndCreateToggleButtonSelector), for: .touchUpInside)
         logInAndCreateToggleButton.titleLabel?.font = .mediumBold
         stackView.addArrangedSubview(logInAndCreateToggleButton)
-    }
-    
-    private func setUpDummyView() {
-        dummyView.translatesAutoresizingMaskIntoConstraints = false
-        dummyView.backgroundColor = .clear
     }
     
     @objc private func logInAndCreateToggleButtonSelector() {
@@ -128,8 +125,8 @@ class CreateAccountVC: UIViewController {
         }
     }
     
-    private func handleLogInUserRequest(email: String, password: String) {
-        Network.shared.retrieveToken(email: email, password: password) { [weak self] (result) in
+    private func handleLogInUserRequest(identifier: String, password: String) {
+        Network.shared.retrieveToken(identifier: identifier, password: password) { [weak self] (result) in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 switch result {
@@ -169,14 +166,14 @@ class CreateAccountVC: UIViewController {
                 UIDevice.vibrateError()
             }
         case .logIn:
-            emailLogInField.shakeIfNeeded()
+            usernameLogInField.shakeIfNeeded()
             passwordLogInField.shakeIfNeeded()
-            guard let email = emailText, let password = passwordLogInField.text, email.count > 0 && password.count > 0 else {
-                self.appAlert(title: "Unable to log in", message: "Please enter a valid email and password to log in.", buttons: [("Ok", nil)])
+            
+            guard let identifier = usernameLogInField.text?.turnIntoUsernameOrEmailIdentifier(), let password = passwordLogInField.text, identifier.count > 0 && password.count > 0 else {
                 UIDevice.vibrateError()
                 return
             }
-            handleLogInUserRequest(email: email, password: password)
+            handleLogInUserRequest(identifier: identifier, password: password)
         }
     }
     
@@ -186,20 +183,27 @@ class CreateAccountVC: UIViewController {
         case .createAccount:
             logInAndCreateToggleButton.setTitle(logInString, for: .normal)
             doneButton.setTitle("Create account", for: .normal)
-            if stackView.subviews.contains(dummyView) { dummyView.removeFromSuperview() }
-            usernameLogInField.isHidden = false
+            emailLogInField.showWithAlphaAnimated()
             combo.forEach({$0.hideButton = false})
             self.navigationItem.title = "Create account"
+            usernameLogInField.setPlaceholder(emailLogInField.usernamePlaceholder)
+            resetPasswordButton.hideWithAlphaAnimated()
+            removeTextFromProperTextFields()
         case .logIn:
             logInAndCreateToggleButton.setTitle(createAccountString, for: .normal)
             doneButton.setTitle("Log in", for: .normal)
-            stackView.insertArrangedSubview(dummyView, at: 0)
-            dummyView.heightAnchor.constraint(equalToConstant: usernameLogInField.bounds.height).isActive = true
-            usernameLogInField.isHidden = true
+            emailLogInField.hideWithAlphaAnimated()
             combo.forEach({$0.hideButton = true})
             self.navigationItem.title = "Log in"
+            usernameLogInField.setPlaceholder("Username or email address")
+            resetPasswordButton.showWithAlphaAnimated()
+            removeTextFromProperTextFields()
         }
     }
     
+    private func removeTextFromProperTextFields() {
+        usernameLogInField.setTextFieldText("")
+        emailLogInField.setTextFieldText("")
+    }
 
 }

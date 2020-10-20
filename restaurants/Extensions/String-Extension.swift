@@ -11,6 +11,15 @@ import UIKit
 
 extension String {
     
+    /// If string contains @ (is email), then lowercase, else return self
+    func turnIntoUsernameOrEmailIdentifier() -> String {
+        if self.contains("@") {
+            return self.lowercased()
+        } else {
+            return self
+        }
+    }
+    
     static func randomString(_ length: Int) -> String {
         let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         return String((0..<length).map{ _ in letters.randomElement()! })

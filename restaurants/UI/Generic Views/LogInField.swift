@@ -10,14 +10,18 @@ import UIKit
 
 class LogInField: UIView {
     
+    let emailPlaceholder = "Email address"
+    let usernamePlaceholder = "Username"
+    let passwordPlaceholder = "Password"
+    
     private let minUsernameLength = 3
     var hideButton = false {
         didSet {
             if style != .password {
                 if hideButton {
-                    viewButton.isHidden = true
+                    viewButton.hideWithAlphaAnimated()
                 } else {
-                    viewButton.isHidden = false
+                    viewButton.showWithAlphaAnimated()
                 }
             }
         }
@@ -64,6 +68,10 @@ class LogInField: UIView {
         }
     }
     
+    func setTextFieldText(_ str: String) {
+        textField.text = str
+    }
+    
     private let viewButton = UIButton()
     private let textField = PaddingTextField()
     private var isValidText: Bool?
@@ -106,6 +114,10 @@ class LogInField: UIView {
         _ = textField.becomeFirstResponder()
     }
     
+    func setPlaceholder(_ str: String) {
+        self.textField.placeholder = str
+    }
+    
     private func setUp() {
         self.translatesAutoresizingMaskIntoConstraints = false
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -120,7 +132,6 @@ class LogInField: UIView {
         textField.autocorrectionType = .no
         textField.autocapitalizationType = .none
 
-        
         self.addSubview(viewButton)
         viewButton.equalSides()
         
@@ -129,18 +140,22 @@ class LogInField: UIView {
         viewButton.constrain(.bottom, to: self, .bottom)
         viewButton.constrain(.trailing, to: self, .trailing)
         
+        setUpSpecificAttributesForStyle()
+    }
+    
+    private func setUpSpecificAttributesForStyle() {
         switch style {
         case .email:
             textField.keyboardType = .emailAddress
             textField.textContentType = .emailAddress
-            self.textField.placeholder = "Email address"
+            self.textField.placeholder = emailPlaceholder
             self.textField.addTarget(self, action: #selector(textFieldTextChangedEmail(sender:)), for: .editingChanged)
             viewButton.isUserInteractionEnabled = false
             textFieldTextChangedEmail(sender: textField)
         case .password:
             self.textField.isSecureTextEntry = true
-            self.textField.textContentType = .newPassword
-            self.textField.placeholder = "Password"
+            self.textField.textContentType = .password
+            self.textField.placeholder = passwordPlaceholder
             viewButton.setImage(.eyeImage, for: .normal)
             viewButton.setImage(.eyeSlashImage, for: .selected)
             viewButton.addTarget(self, action: #selector(handleEyePassword), for: .touchUpInside)
@@ -149,14 +164,13 @@ class LogInField: UIView {
             self.textField.autocapitalizationType = .none
             self.textField.textContentType = .username
 
-            self.textField.placeholder = "Username"
+            self.textField.placeholder = usernamePlaceholder
             self.textField.addTarget(self, action: #selector(textFieldTextChangedUsername(sender:)), for: .editingChanged)
             viewButton.isUserInteractionEnabled = false
             textFieldTextChangedUsername(sender: textField)
         case .none:
             break
         }
-        
     }
     
     @objc private func handleEyePassword() {

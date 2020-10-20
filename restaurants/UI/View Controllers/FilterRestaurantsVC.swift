@@ -209,11 +209,10 @@ class FilterRestaurantsVC: UIViewController {
     private func setUpExecuteButton() {
         executeButton.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(executeButton)
-        executeButton.constrain(.top, to: tableView, .bottom, constant: 10)
-        executeButton.constrain(.leading, to: view, .leading, constant: 15)
-        executeButton.constrain(.trailing, to: view, .trailing, constant: 15)
-        executeButton.constrain(.bottom, to: view, .bottom, constant: 10)
-        executeButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        executeButton.constrain(.top, to: tableView, .bottom, constant: 20.0)
+        executeButton.constrain(.leading, to: view, .leading, constant: 20.0)
+        executeButton.constrain(.trailing, to: view, .trailing, constant: 20.0)
+        executeButton.constrain(.bottom, to: view, .bottom, constant: 20.0)
         executeButton.setTitle("Go", for: .normal)
         executeButton.layer.cornerRadius = 8.0
         executeButton.titleLabel?.font = .createdTitle

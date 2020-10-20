@@ -43,12 +43,15 @@ class RestaurantSelectedView: UIView {
         super.init(frame: .zero)
         self.delegate = vc as? RestaurantSelectedViewDelegate
         setUp(restaurant: restaurant, isFirst: isFirst, isLast: isLast)
+        
+        #warning("fix spacing issue i.e. when selecting new restaurant")
+        #warning("add swipe up to remove the view")
     }
     
     init(dummy restaurant: Restaurant) {
         super.init(frame: .zero)
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.backgroundColor = .secondarySystemBackground
+        self.backgroundColor = .red
         
         setUpWholeStackView()
         setUpBackAndNextButtons(isFirst: true, isLast: true)
@@ -60,7 +63,6 @@ class RestaurantSelectedView: UIView {
         
         self.layoutIfNeeded()
         self.shadowAndRounded(cornerRadius: 10.0)
-        
         
     }
     
