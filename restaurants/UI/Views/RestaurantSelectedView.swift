@@ -21,17 +21,23 @@ class RestaurantSelectedView: UIView {
     
     private var restaurant: Restaurant!
     private weak var delegate: RestaurantSelectedViewDelegate!
-    private var wholeStackView = UIStackView()
-    private var outerStackView = UIStackView()
-    private var innerTopStackView = UIStackView()
-    private var topRightStackView = UIStackView()
-    var imageView = UIImageView()
+    private var innerStackView = UIStackView()
+    let imageView = UIImageView()
     private var titleLabel = UILabel()
     private var starRatingView: StarRatingView!
     private var moneyAndTypeLabel = UILabel()
     private let backButtonTag = 11
     private let forwardButtonTag = 12
     private var backAndForwardButtons: [UIButton] = []
+    private var backButton: UIButton?
+    private var forwardButton: UIButton?
+    private let padding: CGFloat = 5.0
+    private let cornerRadius: CGFloat = 10.0
+    private var dummyView: RestaurantSelectedView?
+    
+    private var imageForNextView: (rest: Restaurant, image: UIImage?)?
+    private var animationInProgress = false
+    
     
     enum UpdateStyle {
         case back
@@ -51,19 +57,15 @@ class RestaurantSelectedView: UIView {
     init(dummy restaurant: Restaurant) {
         super.init(frame: .zero)
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.backgroundColor = .red
-        
-        setUpWholeStackView()
-        setUpBackAndNextButtons(isFirst: true, isLast: true)
-        setUpOuterStackView()
-        setUpInnerTopStackView()
+        self.backgroundColor = .secondarySystemBackground
+        setUpBackAndNextButtons(isFirst: false, isLast: false)
         setUpImageView(restaurant: restaurant, isDummy: true)
-        setUpTopRightStackView()
+        setUpInnerStackView()
         setUpTopRightContents(restaurant: restaurant)
         
         self.layoutIfNeeded()
-        self.shadowAndRounded(cornerRadius: 10.0)
-        
+        self.layer.cornerRadius = cornerRadius
+        self.clipsToBounds = true
     }
     
     
@@ -85,53 +87,74 @@ class RestaurantSelectedView: UIView {
         
         // ** example for coming from the left
         if let parent = self.findViewController() {
-            let dummyView = RestaurantSelectedView(dummy: restaurant)
-            dummyView.translatesAutoresizingMaskIntoConstraints = false
+            dummyView = RestaurantSelectedView(dummy: restaurant)
+            dummyView!.translatesAutoresizingMaskIntoConstraints = false
             
-            parent.view.addSubview(dummyView)
+            parent.view.addSubview(dummyView!)
             
             NSLayoutConstraint.activate([
-                dummyView.widthAnchor.constraint(equalToConstant: dummyWidth),
-                dummyView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+                dummyView!.widthAnchor.constraint(equalToConstant: dummyWidth),
+                dummyView!.centerYAnchor.constraint(equalTo: self.centerYAnchor),
                 
             ])
             
             var transformation: CGAffineTransform {
                 switch updateStyle {
                 case .back:
-                    dummyView.trailingAnchor.constraint(equalTo: parent.view.leadingAnchor).isActive = true
+                    dummyView!.trailingAnchor.constraint(equalTo: parent.view.leadingAnchor).isActive = true
                     return CGAffineTransform(translationX: dummyWidth + extraWidth, y: 0)
                 case .forward:
-                    dummyView.leadingAnchor.constraint(equalTo: parent.view.trailingAnchor).isActive = true
+                    dummyView!.leadingAnchor.constraint(equalTo: parent.view.trailingAnchor).isActive = true
                     return CGAffineTransform(translationX: -(dummyWidth + extraWidth), y: 0)
                 case .none:
                     return CGAffineTransform.identity
                 }
             }
             
-            
             UIView.animate(withDuration: 0.5, animations: {
-                dummyView.transform = transformation
+                self.dummyView!.transform = transformation
             }) { (complete) in
-                dummyView.removeFromSuperview()
+                self.dummyView!.removeFromSuperview()
+                self.dummyView = nil
                 animationDone(true)
             }
         }
     }
     
     func updateWithNewRestaurant(restaurant: Restaurant, isFirst: Bool, isLast: Bool, updateStyle: UpdateStyle) {
+        imageForNextView = nil
         
+        Network.shared.getImage(url: restaurant.imageURL) { (image) in
+            guard let image = image else { return }
+            DispatchQueue.global(qos: .userInteractive).async {
+                let resized = image.resizeToBeNoLargerThanScreenWidth()
+                DispatchQueue.main.async {
+                    self.imageForNextView = (restaurant, resized)
+                    self.dummyView?.imageView.image = resized
+                    if !self.animationInProgress {
+                        self.imageView.image = resized
+                    }
+                }
+            }
+        }
+        
+        animationInProgress = true
         performUpdateAnimation(restaurant: restaurant, isFirst: isFirst, isLast: isLast, updateStyle: updateStyle) { [weak self] (complete) in
+            defer { self?.animationInProgress = false }
+            self?.imageView.image = nil
             guard let self = self else { return }
-            self.imageView.image = nil
             if self.restaurant.id != restaurant.id {
                 self.restaurant = restaurant
                 self.titleLabel.text = restaurant.name
                 self.starRatingView.updateNumberOfStarsAndReviews(stars: restaurant.rating ?? 0.0, numReviews: restaurant.reviewCount ?? 0)
-                self.imageView.addImageFromUrl(restaurant.imageURL, autoResize: true, skeleton: true)
                 self.setMoneyAndTypeLabelText(restaurant)
                 
-                for potentialView in self.wholeStackView.subviews {
+                // make sure it is setting for the right restaurant
+                if self.imageForNextView?.rest.id == restaurant.id {
+                    self.imageView.image = self.imageForNextView?.image
+                }
+                
+                for potentialView in self.backAndForwardButtons {
                     if potentialView.tag == self.backButtonTag {
                         if isFirst {
                             potentialView.isUserInteractionEnabled = false
@@ -159,28 +182,15 @@ class RestaurantSelectedView: UIView {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.backgroundColor = .secondarySystemBackground
         
-        setUpWholeStackView()
         setUpBackAndNextButtons(isFirst: isFirst, isLast: isLast)
-        setUpOuterStackView()
-        setUpInnerTopStackView()
         setUpImageView(restaurant: restaurant)
-        setUpTopRightStackView()
+        setUpInnerStackView()
         setUpTopRightContents(restaurant: restaurant)
         
         self.layoutIfNeeded()
-        self.shadowAndRounded(cornerRadius: 10.0)
+        self.shadowAndRounded(cornerRadius: cornerRadius)
         
         layerButtonForTouchEvents()
-    }
-    
-    private func setUpWholeStackView() {
-        wholeStackView.translatesAutoresizingMaskIntoConstraints = false
-        wholeStackView.spacing = 5.0
-        wholeStackView.distribution = .fill
-        wholeStackView.alignment = .fill
-        wholeStackView.axis = .horizontal
-        self.addSubview(wholeStackView)
-        wholeStackView.constrainSides(to: self, distance: 10.0)
     }
     
     private func setUpBackAndNextButtons(isFirst: Bool, isLast: Bool) {
@@ -188,13 +198,24 @@ class RestaurantSelectedView: UIView {
         for data in buttonData {
             let newButton = SizeChangeButton(sizeDifference: .large, restingColor: Colors.secondary, selectedColor: Colors.main)
             newButton.translatesAutoresizingMaskIntoConstraints = false
-            wholeStackView.addArrangedSubview(newButton)
             newButton.setTitle(data.1, for: .normal)
             newButton.tag = data.0
             newButton.setTitleColor(Colors.main, for: .normal)
             newButton.titleLabel?.font = .createdTitle
             newButton.widthAnchor.constraint(equalToConstant: 30.0).isActive = true
             newButton.addTarget(self, action: #selector(backOrForwardPressed), for: .touchUpInside)
+            
+            self.addSubview(newButton)
+            newButton.constrain(.top, to: self, .top, constant: padding)
+            newButton.constrain(.bottom, to: self, .bottom, constant: padding)
+            
+            if data.0 == backButtonTag {
+                backButton = newButton
+                newButton.constrain(.leading, to: self, .leading, constant: padding)
+            } else if data.0 == forwardButtonTag {
+                forwardButton = newButton
+                newButton.constrain(.trailing, to: self, .trailing, constant: padding)
+            }
             
             backAndForwardButtons.append(newButton)
             
@@ -204,28 +225,9 @@ class RestaurantSelectedView: UIView {
             }
         }
     }
-    
-    private func setUpOuterStackView() {
-        outerStackView.translatesAutoresizingMaskIntoConstraints = false
-        outerStackView.axis = .vertical
-        outerStackView.spacing = 5.0
-        outerStackView.distribution = .fill
-        outerStackView.alignment = .fill
-        wholeStackView.insertArrangedSubview(outerStackView, at: 1)
-    }
-    
-    private func setUpInnerTopStackView() {
-        // Image view on left
-        // Title, stars, etc in a stack view vertically on the right
-        innerTopStackView.translatesAutoresizingMaskIntoConstraints = false
-        innerTopStackView.axis = .horizontal
-        innerTopStackView.spacing = 5.0
-        innerTopStackView.distribution = .fill
-        innerTopStackView.alignment = .fill
-        outerStackView.addArrangedSubview(innerTopStackView)
-    }
-    
+
     private func setUpImageView(restaurant: Restaurant, isDummy: Bool = false) {
+        guard let backButton = backButton else { return }
         // left side of innerTopStackView
         imageView.translatesAutoresizingMaskIntoConstraints = false
         let imageViewWidth = UIScreen.main.bounds.width / 4.0
@@ -234,10 +236,12 @@ class RestaurantSelectedView: UIView {
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         
-        innerTopStackView.addArrangedSubview(imageView)
+        self.addSubview(imageView)
+        imageView.equalSides(size: imageViewWidth)
         
-        imageView.heightAnchor.constraint(equalToConstant: imageViewWidth).isActive = true
-        imageView.widthAnchor.constraint(equalToConstant: imageViewWidth).isActive = true
+        imageView.constrain(.leading, to: backButton, .trailing, constant: padding)
+        imageView.constrain(.top, to: self, .top, constant: padding)
+        imageView.constrain(.bottom, to: self, .bottom, constant: padding)
         
         if !isDummy {
             imageView.addImageFromUrl(restaurant.imageURL, autoResize: true, skeleton: true)
@@ -245,60 +249,66 @@ class RestaurantSelectedView: UIView {
         
     }
     
-    private func setUpTopRightStackView() {
-        topRightStackView.translatesAutoresizingMaskIntoConstraints = false
-        topRightStackView.axis = .vertical
-        topRightStackView.spacing = 5.0
-        topRightStackView.distribution = .fill
-        topRightStackView.alignment = .leading
-        innerTopStackView.addArrangedSubview(topRightStackView)
+    private func setUpInnerStackView() {
+        // Contains the title, star rating, and categories
+        // Issues with continual laying out
+        guard let forwardButton = forwardButton else { return }
+        innerStackView.translatesAutoresizingMaskIntoConstraints = false
+        innerStackView.axis = .vertical
+        innerStackView.spacing = 2.0
+        innerStackView.distribution = .fill
+        innerStackView.alignment = .leading
+        
+        self.addSubview(innerStackView)
+        innerStackView.constrain(.leading, to: imageView, .trailing, constant: padding)
+        innerStackView.constrain(.top, to: imageView, .top, constant: padding)
+        innerStackView.constrain(.bottom, to: imageView, .bottom, constant: padding)
+        innerStackView.constrain(.trailing, to: forwardButton, .leading)
     }
     
     private func setUpTopRightContents(restaurant: Restaurant) {
         // Label with title
-        // Star view
         // Dollar sign and food type
+        // Star view
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = restaurant.name
         titleLabel.font = .largerBold
         titleLabel.numberOfLines = 2
-        topRightStackView.addArrangedSubview(titleLabel)
-        
-        starRatingView = StarRatingView(stars: restaurant.rating ?? 0.0, numReviews: restaurant.reviewCount ?? 0, forceWhite: false, noBackgroundColor: true)
-        topRightStackView.addArrangedSubview(starRatingView)
+        innerStackView.addArrangedSubview(titleLabel)
+        titleLabel.widthAnchor.constraint(equalTo: innerStackView.widthAnchor).isActive = true
+        titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         
         moneyAndTypeLabel.translatesAutoresizingMaskIntoConstraints = false
         setMoneyAndTypeLabelText(restaurant)
         moneyAndTypeLabel.textColor = .secondaryLabel
-        moneyAndTypeLabel.font = .mediumBold
+        moneyAndTypeLabel.font = .smallerThanNormal
         moneyAndTypeLabel.numberOfLines = 2
-        topRightStackView.addArrangedSubview(moneyAndTypeLabel)
+        innerStackView.addArrangedSubview(moneyAndTypeLabel)
+        moneyAndTypeLabel.widthAnchor.constraint(equalTo: innerStackView.widthAnchor).isActive = true
+        moneyAndTypeLabel.setContentHuggingPriority(.required, for: .vertical)
         
+        starRatingView = StarRatingView(stars: restaurant.rating ?? 0.0, numReviews: restaurant.reviewCount ?? 0, forceWhite: false, noBackgroundColor: true)
+        innerStackView.addArrangedSubview(starRatingView)
+        starRatingView.setContentHuggingPriority(.required, for: .vertical)
     }
     
     private func setMoneyAndTypeLabelText(_ rest: Restaurant) {
-        
+        var text = "\(rest.price ?? "$$")"
         if let categories = rest.categories {
-            moneyAndTypeLabel.text = "\(rest.price ?? "$$") · \(categories.joined(separator: ", "))"
-        } else {
-            moneyAndTypeLabel.text = "\(rest.price ?? "$$")"
+            text.append(" · \(categories.joined(separator: ", "))")
         }
-        
-        
+        moneyAndTypeLabel.text = text
     }
     
-    
     private func layerButtonForTouchEvents() {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        outerStackView.addSubview(button)
-        
-        button.constrainSides(to: outerStackView)
-        
-        button.addTarget(self, action: #selector(touchDownSel), for: [.touchDown, .touchDragEnter])
-        button.addTarget(self, action: #selector(touchUpSel), for: [.touchDragExit, .touchUpInside])
-        button.addTarget(self, action: #selector(buttonSelected), for: .touchUpInside)
-        
+        #warning("need to fix, probably use a gesture recognizer now, make sure button presses do not go through from the arrows")
+//        let button = UIButton()
+//        button.translatesAutoresizingMaskIntoConstraints = false
+//        self.addSubview(button)
+//
+//        button.constrainSides(to: self)
+//
+//        button.addTarget(self, action: #selector(buttonSelected), for: .touchUpInside)
         
     }
 
@@ -309,22 +319,6 @@ class RestaurantSelectedView: UIView {
         self.imageView.hero.id = .restaurantHomeToDetailImageView
         self.starRatingView.hero.id = .restaurantHomeToDetailStarRatingView
     }
-    
-    
-    @objc private func touchDownSel() {
-        // Transform the view to show it is being selected
-        UIView.animate(withDuration: 0.2, animations: {
-            self.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
-        })
-    }
-
-    @objc private func touchUpSel() {
-        // Transform the view back to normal
-        UIView.animate(withDuration: 0.2, animations: {
-            self.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
-        })
-    }
-    
     
     @objc private func buttonSelected() {
         delegate.restaurantSelected(rest: restaurant)

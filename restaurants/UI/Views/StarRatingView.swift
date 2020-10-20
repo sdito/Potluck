@@ -45,7 +45,7 @@ class StarRatingView: UIView {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
         
         stackView.axis = .horizontal
         stackView.spacing = 4.0

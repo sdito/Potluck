@@ -464,8 +464,10 @@ extension FindRestaurantVC: MKMapViewDelegate {
         }
         
         if let coord = view.annotation?.coordinate {
-            
-            mapView.handleMapZooming(distanceFromTop: restaurantSelectedView?.bounds.height ?? 0.0, distanceFromBottom: bottomDistance, pointToCheck: coord, aboveExactCenter: childPosition == .middle)
+            mapView.handleMapZooming(distanceFromTop: restaurantSelectedView?.bounds.height ?? 0.0,
+                                     distanceFromBottom: bottomDistance,
+                                     pointToCheck: coord,
+                                     aboveExactCenter: childPosition == .middle)
         }
     }
 
@@ -545,7 +547,7 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
         if let index = indexOfCurrRestaurant {
             let numToFind = index + indexDifference
             for annotation in allAnnotations {
-                if let restAnnotation = annotation as? RestaurantAnnotation {
+                if let restAnnotation = annotation as? RestaurantAnnotation, restAnnotation.place == numToFind {
                     
                     if indexDifference == previousIndex {
                         selectedViewTransitionStyle = .back
@@ -555,9 +557,8 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
                         selectedViewTransitionStyle = .none
                     }
                     
-                    if restAnnotation.place == numToFind {
-                        mapView.selectAnnotation(restAnnotation, animated: true)
-                    }
+                    mapView.selectAnnotation(restAnnotation, animated: true)
+                    break
                 }
             }
         }
