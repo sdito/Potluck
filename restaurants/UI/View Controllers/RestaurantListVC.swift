@@ -196,9 +196,16 @@ class RestaurantListVC: UIViewController {
             }
         }
         
+        #warning("convert this to modal presentation with HeaderView")
         restaurantSearchBar.beginHeroAnimation()
         let searchInfo = owner.restaurantSearch
-        self.navigationController?.pushViewController(SearchRestaurantsVC(searchType: searchInfo.yelpCategory, searchLocation: searchInfo.location ?? "Current location", control: owner, startWithLocation: searchOption == .location), animated: true)
+        self.navigationController?.isHeroEnabled = true
+        let vc = SearchRestaurantsVC(searchType: searchInfo.yelpCategory,
+                                     searchLocation: searchInfo.location ?? "Current location",
+                                     control: owner,
+                                     startWithLocation: searchOption == .location)
+        
+        self.navigationController?.pushViewController(vc, animated: true)
     }
     
     private func baseSearch() {
@@ -264,8 +271,6 @@ class RestaurantListVC: UIViewController {
         UIView.animate(withDuration: 0.3) {
             self.tableView.contentInset.bottom = contentOffset
         }
-        
-        
     }
 }
 

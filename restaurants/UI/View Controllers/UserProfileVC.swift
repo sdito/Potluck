@@ -200,7 +200,7 @@ class UserProfileVC: UIViewController {
     
     @objc private func establishmentListAction() {
         let userName = profile?.account.username ?? "User"
-        guard profile != nil else {
+        guard let profile = profile else {
             self.showMessage("\(userName) has no places yet")
             return
         }
@@ -415,7 +415,7 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let visits = profile?.visits, let visit = visits.appAtIndex(indexPath.item) {
-            let profileVC = ProfileHomeVC(visits: visits, selectedVisit: visit, prevImageCache: imageCache, otherUserUsername: person?.username)
+            let profileVC = ProfileHomeVC(isOwnUsersProfile: false, visits: visits, selectedVisit: visit, prevImageCache: imageCache, otherUserUsername: person?.username)
             self.navigationController?.pushViewController(profileVC, animated: true)
         }
     }

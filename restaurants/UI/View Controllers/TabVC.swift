@@ -16,7 +16,6 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("maybe have a widget -> one that has a map based on the last area you searched, that has buttons for search shortcuts, one that lets you add a visit maybe")
     #warning("add tags to visits")
     #warning("image url can expire before it is seen")
-    #warning("skStore thing to pop up to review the app")
     #warning("unique together the reverse way too")
     #warning("unique together i.e. do not allow the reverse of friends to be true")
     
@@ -26,7 +25,9 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     
     #warning("in general for image caches, have a cache for processing requests maybe")
     
-    private let home = UINavigationController(rootViewController: ProfileHomeVC(visits: nil, prevImageCache: nil))
+    #warning("still some issues with restaurantList image cache")
+    
+    private let home = UINavigationController(rootViewController: ProfileHomeVC(isOwnUsersProfile: true, visits: nil, prevImageCache: nil))
     private let feed = UINavigationController(rootViewController: FeedHomeVC())
     private let addRestaurant = AddRestaurantVC()
     private let explore = UINavigationController(rootViewController: FindRestaurantVC())

@@ -42,6 +42,7 @@ class MapCutoutView: UIView {
         self.translatesAutoresizingMaskIntoConstraints = false
         setUpImageView()
         handlePressingMap()
+        
         handleDirections(currentLocation: userLocation, destination: userDestination)
     }
     
@@ -59,39 +60,52 @@ class MapCutoutView: UIView {
         let request = MKDirections.Request()
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: currentLocation))
         request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
-                
+        self.options.traitCollection = self.traitCollection
         let directions = MKDirections(request: request)
+        
         directions.calculate { [weak self] response, error in
+            guard let self = self else { return }
             guard let response = response else {
-                self?.imageView.appEndSkeleton()
+                self.imageView.appEndSkeleton()
                 return
             }
-            self?.stepImagesFromDirectionsResponse(response: response) { [weak self] stepImage in
+            
+            
+            self.stepImagesFromDirectionsResponse(response: response) { [weak self] (stepImage, timeInterval) in
                 self?.imageView.appEndSkeleton()
                 self?.imageView.image = stepImage
+                self?.addTimeLabel(time: timeInterval)
             }
         }
+        
     }
     
-    func stepImagesFromDirectionsResponse(response: MKDirections.Response, completionHandler: @escaping (UIImage?) -> Void) {
+    func stepImagesFromDirectionsResponse(response: MKDirections.Response, completionHandler: @escaping (_ image: UIImage?, _ timeInterval: TimeInterval?) -> Void) {
         
         guard let route = response.routes.first else {
-            completionHandler(nil)
+            completionHandler(nil, nil)
             return
         }
-        
     
         var boundingRect = route.polyline.boundingMapRect
         boundingRect = boundingRect.insetBy(dx: -boundingRect.width * 0.2, dy: -boundingRect.height * 0.2)
         
         options.region = MKCoordinateRegion(boundingRect)
         options.size = CGSize(width: UIScreen.main.bounds.width, height: height)
-        options.traitCollection = self.traitCollection
+        // trait collection is set before
         options.scale = UIScreen.main.scale
         options.pointOfInterestFilter = .init(excluding: [.restaurant, .cafe])
         
-        
         let snapshotter = MKMapSnapshotter(options: options)
+        
+        
+        
+        
+        
+        
+        
+        
+        #warning("need to run this the background thread") // everything before is fine
         
         snapshotter.start { snapshot, error in
             
@@ -144,9 +158,16 @@ class MapCutoutView: UIView {
 
             let stepImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
-            self.addTimeLabel(time: route.expectedTravelTime)
-            completionHandler(stepImage)
+            completionHandler(stepImage, route.expectedTravelTime)
         }
+        
+        
+        
+        
+        
+        
+        
+        
     }
     
     private func handlePressingMap() {
@@ -159,7 +180,8 @@ class MapCutoutView: UIView {
         button.addTarget(self, action: #selector(mapButtonPressed), for: .touchUpInside)
     }
     
-    private func addTimeLabel(time: TimeInterval) {
+    private func addTimeLabel(time: TimeInterval?) {
+        guard let time = time else { return }
         let label = PaddingLabel(top: 2.0, bottom: 2.0, left: 5.0, right: 5.0)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = time.displayForSmallerTimes()

@@ -10,6 +10,7 @@ import UIKit
 
 class ProfileHomeVC: UIViewController {
     
+    private var isOwnUsersProfile = false
     private let showOnMapButton = OverlayButton()
     private var visitTableView: VisitTableView?
     private var visits: [Visit] = [] {
@@ -26,9 +27,7 @@ class ProfileHomeVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
-        self.setNavigationBarColor()
-        self.navigationController?.navigationBar.tintColor = Colors.main
-        
+        setUpNavigationBar()
         
         if let username = otherUserUsername {
             let navigationTitleView = NavigationTitleView(upperText: username, lowerText: "Visits")
@@ -56,13 +55,20 @@ class ProfileHomeVC: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
     }
     
+    private func setUpNavigationBar() {
+        self.setNavigationBarColor()
+        self.navigationController?.navigationBar.tintColor = Colors.main
+        let rightNavigationButton = UIBarButtonItem(image: .listImage, style: .plain, target: self, action: #selector(establishmentListPressed))
+        self.navigationItem.rightBarButtonItem = rightNavigationButton
+    }
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
     
-    init(visits: [Visit]?, selectedVisit: Visit? = nil, prevImageCache: NSCache<NSString, UIImage>? = nil, otherUserUsername: String? = nil) {
+    init(isOwnUsersProfile: Bool, visits: [Visit]?, selectedVisit: Visit? = nil, prevImageCache: NSCache<NSString, UIImage>? = nil, otherUserUsername: String? = nil) {
         super.init(nibName: nil, bundle: nil)
-        
+        self.isOwnUsersProfile = isOwnUsersProfile
         visitTableView = VisitTableView(mode: .user, prevImageCache: prevImageCache, delegate: self)
         
         if let visits = visits {
@@ -71,7 +77,6 @@ class ProfileHomeVC: UIViewController {
             self.otherUserUsername = otherUserUsername
             self.preLoadedData = true
             self.allowMapButton = false
-            #warning("use otherUserUsername")
         }
     }
     
@@ -157,6 +162,24 @@ class ProfileHomeVC: UIViewController {
         self.navigationController?.pushViewController(mapProfile, animated: true)
     }
     
+    @objc private func establishmentListPressed() {
+        var person: Person? {
+            if isOwnUsersProfile {
+                guard let account = Network.shared.account else { return nil }
+                return Person(account: account)
+            } else {
+                guard let visit = selectedVisit ?? visits.first else { return nil }
+                return Person(visit: visit)
+            }
+        }
+        if let person = person {
+            let vc = EstablishmentListVC(person: person)
+            self.navigationController?.pushViewController(vc, animated: true)
+        } else {
+            self.showMessage("Not able to show places")
+        }
+        
+    }
     
     private func setMapButton(hidden: Bool) {
         if allowMapButton {

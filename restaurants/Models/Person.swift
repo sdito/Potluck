@@ -34,6 +34,13 @@ class Person: Decodable {
         self.hex_color = visit.accountHexColor
     }
     
+    init(account: Account) {
+        self.id = account.id
+        self.username = account.username
+        self.phone = account.phone
+        self.hex_color = account.color
+    }
+    
     struct FindRelated: Decodable {
         var contactsMatched: [Person]
         var friendRequests: [PersonRequest]

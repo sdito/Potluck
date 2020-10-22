@@ -65,6 +65,7 @@ class FindRestaurantVC: UIViewController {
         }
     }
     private var restaurantSelectedView: RestaurantSelectedView?
+    private var isRestSelectedViewSwipeDismissed = false
     private var userMovedMapView = false
     private var locationAllowed = true {
         didSet {
@@ -90,7 +91,7 @@ class FindRestaurantVC: UIViewController {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         addChildViewController()
         setUpMapViewPanGestureRecognizer()
-        setUp()
+        setUpGettingData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -102,7 +103,7 @@ class FindRestaurantVC: UIViewController {
         super.viewWillDisappear(animated)
     }
 
-    private func setUp () {
+    private func setUpGettingData () {
         self.navigationItem.title = "Explore"
         if UIDevice.locationServicesEnabled() {
             let (authorized, needToRequest) = UIDevice.handleAuthorization()
@@ -241,7 +242,6 @@ class FindRestaurantVC: UIViewController {
                     scrollChildToBottom(allowedDistance: allowedDistance)
                 }
             }
-            
         default:
             break
         }
@@ -259,14 +259,8 @@ class FindRestaurantVC: UIViewController {
     }
 
     @objc private func didDragMap(_ sender: UIGestureRecognizer) {
-        /*
-        mapView.deselectAllAnnotations()
-        
-        restaurantSelectedView?.animateRemovingWithCompletion(complete: { (finished) in
-            self.doneWithRestaurantSelectedView()
-        })
-        */
-        
+        #warning("replace with something that tracks when the annotations does not match the data source like the location button")
+        #warning("add center location view when at least one restaurant is not visible")
         if sender.state == .ended {
             if !userMovedMapView {
                 userMovedMapView = true
@@ -294,21 +288,17 @@ class FindRestaurantVC: UIViewController {
         if let constant = middleConstraintConstantForChild {
             childPosition = .middle
             handleShowingOrHidingSelectedView()
-            
             if !self.userMovedMapView {
                 self.mapView.updateAllAnnotationZoom(topHalf: true)
             }
-            
             UIView.animate(withDuration: 0.4) {
                 self.childTopAnchor.constant = constant
                 self.view.layoutIfNeeded()
             }
-            
         }
     }
     
     private func scrollChildToBottom(allowedDistance: CGFloat) {
-        
         // See if a restaurant is currently selected, if it is, create the restaurantSelectedView for it
         childPosition = .bottom
         handleShowingOrHidingSelectedView()
@@ -390,11 +380,9 @@ class FindRestaurantVC: UIViewController {
     
     
     private func getRestaurantsFromPreSetRestaurantSearch(initial: Bool) {
-        
         if !initial {
             moreRestaurantsButton?.showLoadingOnButton()
         }
-        
         Network.shared.getRestaurants(restaurantSearch: restaurantSearch, filters: searchFilters) { [weak self] (response) in
             DispatchQueue.main.async {
                 guard let self = self else { return }
@@ -425,10 +413,7 @@ class FindRestaurantVC: UIViewController {
             scrollChildToBottom(allowedDistance: allowedDistance)
         }
     }
-    
 }
-
-
 
 // MARK: CLLocationManagerDelegate
 extension FindRestaurantVC: CLLocationManagerDelegate {
@@ -437,7 +422,7 @@ extension FindRestaurantVC: CLLocationManagerDelegate {
         print("probably need to complete")
     }
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        setUp()
+        setUpGettingData()
     }
 }
 
@@ -475,13 +460,25 @@ extension FindRestaurantVC: MKMapViewDelegate {
         // Deselect runs before select when one is switched, so need to look in the future and see if there are any selected
         // If none are selected, animate the view gone
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            if mapView.selectedAnnotations.count == 0 {
-                self.restaurantSelectedView?.animateRemovingWithCompletion(complete: { (finished) in
-                    self.doneWithRestaurantSelectedView()
-                })
+        if isRestSelectedViewSwipeDismissed {
+            isRestSelectedViewSwipeDismissed = false
+            UIView.animate(withDuration: 0.2) {
+                self.restaurantSelectedView?.frame.origin.y = -(50.0 + (self.restaurantSelectedView?.frame.height ?? 0.0))
+            } completion: { _ in
+                self.doneWithRestaurantSelectedView()
+            }
+
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                if mapView.selectedAnnotations.count == 0 {
+                    self.restaurantSelectedView?.animateRemovingWithCompletion(complete: { (finished) in
+                        self.doneWithRestaurantSelectedView()
+                    })
+                }
             }
         }
+        
+        
     }
     
     
@@ -523,6 +520,7 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
             restSelectedView.setUpForHero()
             imageFound = restSelectedView.imageView.image
         }
+        
         self.navigationController?.isHeroEnabled = true
         self.navigationController?.pushViewController(RestaurantDetailVC(restaurant: rest, fromCell: nil, imageAlreadyFound: imageFound, allowVisit: true), animated: true)
     }
@@ -563,6 +561,12 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
             }
         }
     }
+    
+    func dismissView() {
+        // Need to do a separate remove animation in mapView didDeselect
+        isRestSelectedViewSwipeDismissed = true
+        mapView.deselectAllAnnotations()
+    }
 }
 
 // MARK: SearchRestaurantsVCDelegate
@@ -585,7 +589,5 @@ extension FindRestaurantVC: SearchCompleteDelegate {
         
         restaurantSearch = tempSearch
         getRestaurantsFromPreSetRestaurantSearch(initial: false)
-        
-        
     }
 }

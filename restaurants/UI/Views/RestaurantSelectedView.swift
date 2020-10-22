@@ -14,6 +14,7 @@ protocol RestaurantSelectedViewDelegate: class {
     func nextButtonSelected(rest: Restaurant)
     func previousButtonSelected(rest: Restaurant)
     func restaurantSelected(rest: Restaurant)
+    func dismissView()
 }
 
 
@@ -34,10 +35,11 @@ class RestaurantSelectedView: UIView {
     private let padding: CGFloat = 5.0
     private let cornerRadius: CGFloat = 10.0
     private var dummyView: RestaurantSelectedView?
+    private var initialFrameY: CGFloat?
     
     private var imageForNextView: (rest: Restaurant, image: UIImage?)?
     private var animationInProgress = false
-    
+    private var initialTouchPointY: CGFloat?
     
     enum UpdateStyle {
         case back
@@ -190,7 +192,7 @@ class RestaurantSelectedView: UIView {
         self.layoutIfNeeded()
         self.shadowAndRounded(cornerRadius: cornerRadius)
         
-        layerButtonForTouchEvents()
+        addGestureRecognizers()
     }
     
     private func setUpBackAndNextButtons(isFirst: Bool, isLast: Bool) {
@@ -276,7 +278,7 @@ class RestaurantSelectedView: UIView {
         titleLabel.numberOfLines = 2
         innerStackView.addArrangedSubview(titleLabel)
         titleLabel.widthAnchor.constraint(equalTo: innerStackView.widthAnchor).isActive = true
-        titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        titleLabel.setContentCompressionResistancePriority(.required, for: .vertical) // a
         
         moneyAndTypeLabel.translatesAutoresizingMaskIntoConstraints = false
         setMoneyAndTypeLabelText(restaurant)
@@ -285,11 +287,13 @@ class RestaurantSelectedView: UIView {
         moneyAndTypeLabel.numberOfLines = 2
         innerStackView.addArrangedSubview(moneyAndTypeLabel)
         moneyAndTypeLabel.widthAnchor.constraint(equalTo: innerStackView.widthAnchor).isActive = true
-        moneyAndTypeLabel.setContentHuggingPriority(.required, for: .vertical)
+        moneyAndTypeLabel.setContentHuggingPriority(.required, for: .vertical) // b
         
         starRatingView = StarRatingView(stars: restaurant.rating ?? 0.0, numReviews: restaurant.reviewCount ?? 0, forceWhite: false, noBackgroundColor: true)
         innerStackView.addArrangedSubview(starRatingView)
-        starRatingView.setContentHuggingPriority(.required, for: .vertical)
+        starRatingView.setContentHuggingPriority(.required, for: .vertical) // c
+        
+        // (a), (b), and (c) to force the titleLabel to fill up the most possible space
     }
     
     private func setMoneyAndTypeLabelText(_ rest: Restaurant) {
@@ -300,28 +304,60 @@ class RestaurantSelectedView: UIView {
         moneyAndTypeLabel.text = text
     }
     
-    private func layerButtonForTouchEvents() {
-        #warning("need to fix, probably use a gesture recognizer now, make sure button presses do not go through from the arrows")
-//        let button = UIButton()
-//        button.translatesAutoresizingMaskIntoConstraints = false
-//        self.addSubview(button)
-//
-//        button.constrainSides(to: self)
-//
-//        button.addTarget(self, action: #selector(buttonSelected), for: .touchUpInside)
+    private func addGestureRecognizers() {
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(gestureRecognizerSelector(sender:)))
+        self.addGestureRecognizer(tapGestureRecognizer)
         
+        let swipeGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(swipeGestureRecognizerSelector(sender:)))
+        self.addGestureRecognizer(swipeGestureRecognizer)
     }
 
+    @objc private func gestureRecognizerSelector(sender: UITapGestureRecognizer) {
+        delegate.restaurantSelected(rest: restaurant)
+    }
+    
+    @objc private func swipeGestureRecognizerSelector(sender: UIPanGestureRecognizer) {
+        let touchPointY = sender.translation(in: self).y
+        switch sender.state {
+        case .began:
+            self.initialTouchPointY = touchPointY
+            self.initialFrameY = self.frame.origin.y
+            
+        case .changed:
+            guard let initialTouchPointY = self.initialTouchPointY else { return }
+            var difference = touchPointY - initialTouchPointY
+            if difference > 0 {
+                // means scrolling down, don't want to let the user scroll the view way down, so use square root on the difference
+                difference = CGFloat(sqrt(difference))
+            }
+            let newOriginY = difference + (initialFrameY ?? 0.0)
+            self.frame.origin.y = newOriginY
+            
+            // Square root for bottom
+        case .ended:
+            guard let initialTouchPointY = self.initialTouchPointY else { return }
+            let difference = touchPointY - initialTouchPointY
+            self.initialTouchPointY = nil
+ 
+            if difference > 0 {
+                // is belowInitial, just scroll back
+                UIView.animate(withDuration: 0.3) {
+                    self.frame.origin.y = (self.initialFrameY ?? 0.0)
+                }
+            } else {
+                self.delegate.dismissView()
+            }
+            
+        default:
+            break
+        }
+        
+    }
     
     func setUpForHero() {
         self.isHeroEnabled = true
-        self.titleLabel.hero.id = .restaurantHomeToDetailTitle
         self.imageView.hero.id = .restaurantHomeToDetailImageView
         self.starRatingView.hero.id = .restaurantHomeToDetailStarRatingView
-    }
-    
-    @objc private func buttonSelected() {
-        delegate.restaurantSelected(rest: restaurant)
     }
     
     @objc private func backOrForwardPressed(sender: UIButton) {

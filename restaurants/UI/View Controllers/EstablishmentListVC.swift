@@ -10,16 +10,28 @@ import UIKit
 
 class EstablishmentListVC: UIViewController {
     
-    var profile: Person.Profile?
+    #warning("initialize with just a person also ** need to finish and actaully do")
+    #warning("need to hide rightBarButton item when there are no establishments")
     
+    var person: Person?
+    var profile: Person.Profile?
+    var initialDataFound = false
     private let tableView = UITableView(frame: .zero, style: .plain)
+    private let listBarButtonItem = UIBarButtonItem(image: .filterNoCircleImage, style: .plain, target: self, action: #selector(filterPressed))
     private let reuseIdentifier = "establishmentCellReuseIdentifier"
     
-    init(profile: Person.Profile?) {
+    init(profile: Person.Profile) {
         super.init(nibName: nil, bundle: nil)
+        self.initialDataFound = true
         self.profile = profile
-        setUpNavigationBar()
-        setUpTableView()
+        setUpElements()
+    }
+    
+    init(person: Person) {
+        super.init(nibName: nil, bundle: nil)
+        self.person = person
+        setUpElements()
+        handleGettingDataForPerson()
     }
     
     required init?(coder: NSCoder) {
@@ -28,6 +40,11 @@ class EstablishmentListVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
+    
+    private func setUpElements() {
+        setUpNavigationBar()
+        setUpTableView()
     }
     
     private func setUpNavigationBar() {
@@ -41,8 +58,7 @@ class EstablishmentListVC: UIViewController {
         }
         
         // Right bar button item
-        let barButtonItem = UIBarButtonItem(image: .filterNoCircleImage, style: .plain, target: self, action: #selector(filterPressed))
-        self.navigationItem.rightBarButtonItem = barButtonItem
+        handleShowingOrHidingBarButtonItem()
     }
     
     private func setUpTableView() {
@@ -72,6 +88,34 @@ class EstablishmentListVC: UIViewController {
         tableView.transitionReload()
     }
     
+    private func handleGettingDataForPerson() {
+        Network.shared.getPersonProfile(person: person) { [weak self] (result) in
+            self?.initialDataFound = true
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let profile):
+                    self.profile = profile
+                    self.tableView.reloadData()
+                    self.handleShowingOrHidingBarButtonItem()
+                case .failure(_):
+                    self.tableView.reloadData()
+                    self.handleShowingOrHidingBarButtonItem()
+                    print("Unable to get profile for person")
+                }
+            }
+        }
+    }
+    
+    private func handleShowingOrHidingBarButtonItem() {
+        let countGreaterThanZero = (profile?.establishments?.count ?? 0) > 0
+        if countGreaterThanZero {
+            self.navigationItem.rightBarButtonItem = listBarButtonItem
+        } else {
+            self.navigationItem.rightBarButtonItem = nil
+        }
+    }
+    
 }
 
 // MARK: Table view
@@ -81,9 +125,12 @@ extension EstablishmentListVC: UITableViewDelegate, UITableViewDataSource {
         
         if count > 0 {
             tableView.restore()
-        } else {
+        } else if initialDataFound {
+            // received data from server, just is empty
             let button = tableView.setEmptyWithAction(message: "This user does not have any places yet", buttonTitle: "", area: .center)
             button.isHidden = true
+        } else {
+            tableView.showLoadingOnTableView()
         }
         
         return count

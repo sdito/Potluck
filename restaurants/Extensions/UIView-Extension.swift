@@ -146,7 +146,7 @@ extension UIView {
     @objc private func touchDown() {
         // Transform the view to show it is being selected
         UIView.animate(withDuration: 0.2, animations: {
-            self.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+            self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
         })
     }
 

@@ -122,7 +122,6 @@ class MapLocationView: UIView {
     }
     
     func updateLocation(coordinate: CLLocationCoordinate2D) {
-        #warning("would need to do")
         self.coordinate = coordinate
         imageView.appStartSkeleton()
         setUpLocation()

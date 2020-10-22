@@ -170,7 +170,6 @@ class RestaurantCell: UITableViewCell {
     }
     
     func setUpForHero() {
-        self.titleLabel.hero.id = .restaurantHomeToDetailTitle
         self.restaurantImageView.hero.id = .restaurantHomeToDetailImageView
         self.starRatingView.hero.id = .restaurantHomeToDetailStarRatingView
     }

@@ -68,10 +68,8 @@ class SearchRestaurantsVC: UIViewController {
         self.navigationItem.title = "Search"
         self.navigationController?.navigationBar.tintColor = Colors.main
         setUpTopSearchBars()
-        
         setUpTableView()
-        
-        setUpOverlaySearchButton()
+        setUpExecuteSearch()
         setUpSearchCompleter()
         previousLocationSearches = UIDevice.readRecentLocationSearchesFromUserDefaults()
         locationResults = deviceCurrentAndMapLocations + previousLocationSearches
@@ -144,8 +142,6 @@ class SearchRestaurantsVC: UIViewController {
         } else {
             searchTypeSearchBar.becomeFirstResponder()
         }
-        
-        
     }
     
     private func setUpTableView() {
@@ -172,17 +168,10 @@ class SearchRestaurantsVC: UIViewController {
         ])
     }
     
-    private func setUpOverlaySearchButton() {
-        let overlayButton = OverlayButton()
-        overlayButton.setTitle("Find restaurants", for: .normal)
-        self.view.addSubview(overlayButton)
-        
-        NSLayoutConstraint.activate([
-            overlayButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            overlayButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -30.0)
-        ])
-        
-        overlayButton.addTarget(self, action: #selector(executeSearch), for: .touchUpInside)
+    private func setUpExecuteSearch() {
+        // lets see how a bar button item is instead
+        let rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(executeSearch))
+        navigationItem.rightBarButtonItem = rightBarButtonItem
     }
     
     

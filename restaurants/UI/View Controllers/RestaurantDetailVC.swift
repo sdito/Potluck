@@ -76,7 +76,6 @@ class RestaurantDetailVC: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         if self.isMovingFromParent {
             // cleans up the animation for these two views
-            titleLabel.toClearBackground()
             starRatingView.toClearBackground()
         }
     }
@@ -197,7 +196,6 @@ class RestaurantDetailVC: UIViewController {
     }
 
     private func setUpHero() {
-        titleLabel.hero.id = .restaurantHomeToDetailTitle
         imageView.hero.id = .restaurantHomeToDetailImageView
         starRatingView.hero.id = .restaurantHomeToDetailStarRatingView
     }
