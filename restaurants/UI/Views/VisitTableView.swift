@@ -251,7 +251,7 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         }
         
         
-        let photosVC = PhotosVC(images: images)
+        let photosVC = PhotosVC(upperNavigationTitle: "Visit", images: images)
         self.findViewController()?.navigationController?.pushViewController(photosVC, animated: true)
     }
     

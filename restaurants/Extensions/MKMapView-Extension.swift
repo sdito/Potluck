@@ -35,7 +35,18 @@ extension MKMapView {
         self.setRegion(region, animated: animated)
     }
     
-    func handleMapZooming(distanceFromTop: CGFloat, distanceFromBottom: CGFloat, pointToCheck: CLLocationCoordinate2D, aboveExactCenter: Bool) {
+    func getVisibleMapRectForObstructedMapView(distanceFromTop: CGFloat, distanceFromBottom: CGFloat) -> MKMapRect {
+        let span = self.getMapCoordinateRegionForObstructedMapView(distanceFromTop: distanceFromTop, distanceFromBottom: distanceFromBottom)
+        let topLeft = CLLocationCoordinate2D(latitude: span.center.latitude + (span.span.latitudeDelta/2), longitude: span.center.longitude - (span.span.longitudeDelta/2))
+        let bottomRight = CLLocationCoordinate2D(latitude: span.center.latitude - (span.span.latitudeDelta/2), longitude: span.center.longitude + (span.span.longitudeDelta/2))
+
+        let a = MKMapPoint(topLeft)
+        let b = MKMapPoint(bottomRight)
+
+        return MKMapRect(origin: MKMapPoint(x:min(a.x,b.x), y:min(a.y,b.y)), size: MKMapSize(width: abs(a.x-b.x), height: abs(a.y-b.y)))
+    }
+    
+    private func getMapCoordinateRegionForObstructedMapView(distanceFromTop: CGFloat, distanceFromBottom: CGFloat, paddingPercent: CGFloat = 1.0) -> MKCoordinateRegion {
         let mapRect = self.region
         
         let spanHeight = CGFloat(mapRect.span.latitudeDelta)
@@ -59,20 +70,14 @@ extension MKMapView {
         
         let newCenterCoordinate = CLLocationCoordinate2D(latitude: originalCoordinateLatitude, longitude: center.longitude)
         
-        let paddingPercent: CGFloat = 0.8
         let newSpan = MKCoordinateRegion(center: newCenterCoordinate, span: MKCoordinateSpan(latitudeDelta: CLLocationDegrees(newMapHeight * paddingPercent),
                                                                                              longitudeDelta: CLLocationDegrees(spanWidth * paddingPercent)))
-        /*
-        print("\n")
-        print("Top ratio: \(topToRemoveRatio), Bottom ratio: \(bottomToRemoveRatio)")
-        print("Top to remove: \(topSpanToRemove), Bottom to remove: \(bottomSpanToRemove)")
-        print("Span height: \(spanHeight)")
-        print("Centers: new: \(newSpan.center.latitude), old: \(mapRect.center.latitude)")
-        print("Height: new: \(newSpan.span.latitudeDelta), old: \(mapRect.span.latitudeDelta)")
-        print("Coordinates: \(pointToCheck.latitude), \(pointToCheck.longitude)")
-        */
+        return newSpan
+    }
+    
+    func handleMapZooming(distanceFromTop: CGFloat, distanceFromBottom: CGFloat, pointToCheck: CLLocationCoordinate2D, aboveExactCenter: Bool) {
         
-        // Span should  be good here, now need to figure out if the new point is in the span
+        let newSpan = self.getMapCoordinateRegionForObstructedMapView(distanceFromTop: distanceFromTop, distanceFromBottom: distanceFromBottom, paddingPercent: 0.8)
         
         // Horizontal
         let minimumLongitude = newSpan.center.longitude - newSpan.span.longitudeDelta / 2.0

@@ -12,6 +12,9 @@ import MapKit
 
 
 class UserProfileVC: UIViewController {
+    
+    #warning("potentially use person's account color somewhere here")
+    
     private var person: Person?
     private var profile: Person.Profile?
     
@@ -290,26 +293,6 @@ class UserProfileVC: UIViewController {
         }
     }
     
-    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        //reCenterMapButton.appIsHiddenAnimated(isHidden: true)
-        
-        let totalCount = mapView.annotations.count
-        let visibleCount = mapView.annotations(in: mapView.visibleMapRect).count
-        
-        if totalCount == visibleCount {
-            // make sure reCenterMapButton is hidden, if it is NOT hidden
-            if !reCenterMapButton.isHidden {
-                reCenterMapButton.appIsHiddenAnimated(isHidden: true)
-            }
-        } else {
-            // make sure reCenterMapButton is visible, if it IS hidden
-            if reCenterMapButton.isHidden {
-                reCenterMapButton.appIsHiddenAnimated(isHidden: false)
-            }
-        }
-        
-    }
-    
 }
 
 // MARK: Map view
@@ -334,6 +317,26 @@ extension UserProfileVC: MKMapViewDelegate {
         guard let restaurantView = view as? RestaurantAnnotationView, let establishment = restaurantView.establishment else { return }
         let establishmentDetail = EstablishmentDetailVC(establishment: establishment, delegate: nil, mode: .fullScreenBase)
         self.navigationController?.pushViewController(establishmentDetail, animated: true)
+    }
+    
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        //reCenterMapButton.appIsHiddenAnimated(isHidden: true)
+        
+        let totalCount = mapView.annotations.count
+        let visibleCount = mapView.annotations(in: mapView.visibleMapRect).count
+        
+        if totalCount == visibleCount {
+            // make sure reCenterMapButton is hidden, if it is NOT hidden
+            if !reCenterMapButton.isHidden {
+                reCenterMapButton.appIsHiddenAnimated(isHidden: true)
+            }
+        } else {
+            // make sure reCenterMapButton is visible, if it IS hidden
+            if reCenterMapButton.isHidden {
+                reCenterMapButton.appIsHiddenAnimated(isHidden: false)
+            }
+        }
+        
     }
     
 }
@@ -406,7 +409,7 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerIdentifier, for: indexPath) as! TitleReusableView
-        header.setTitle("User's visits")
+        header.setTitle("Visits")
         headerButton = header.button
         headerButton!.isHidden = true
         headerButton!.addTarget(self, action: #selector(headerButtonAction), for: .touchUpInside)

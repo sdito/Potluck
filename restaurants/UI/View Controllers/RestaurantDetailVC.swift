@@ -419,6 +419,6 @@ extension RestaurantDetailVC: HeaderDetailViewDelegate {
 // MARK: Selectors
 extension RestaurantDetailVC {
     @objc private func openPhotosController() {
-        self.navigationController?.pushViewController(PhotosVC(photos: restaurant.additionalInfo?.photos ?? []), animated: true)
+        self.navigationController?.pushViewController(PhotosVC(upperNavigationTitle: restaurant.name, photos: restaurant.additionalInfo?.photos ?? []), animated: true)
     }
 }

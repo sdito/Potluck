@@ -58,6 +58,7 @@ class FindRestaurantVC: UIViewController {
     private var middleConstraintConstantForChild: CGFloat?
     let locationManager = CLLocationManager()
     var mapView = MKMapView()
+    private let reCenterMapButton = OverlayButton()
     private var moreRestaurantsButton: OverlayButton?
     private var childPosition: ChildPosition = .middle {
         didSet {
@@ -91,6 +92,7 @@ class FindRestaurantVC: UIViewController {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         addChildViewController()
         setUpMapViewPanGestureRecognizer()
+        addReCenterMapButton()
         setUpGettingData()
     }
     
@@ -172,6 +174,20 @@ class FindRestaurantVC: UIViewController {
 
         self.view.layoutIfNeeded()
         trueMidPoint = restaurantListVC.view.convert(restaurantListVC.view.frame.origin, to: self.view).y - CGFloat.heightDistanceBetweenChildOverParent
+    }
+    
+    private func addReCenterMapButton() {
+        #warning("left off here if i didn't finish this")
+        #warning("need to hide when the child position is at the top")
+        #warning("create extension to hide with alpha, disable, and animate the change and vice versa")
+        print("Recenter map button is being added to the view")
+        reCenterMapButton.setImage(.locationImage, for: .normal)
+        reCenterMapButton.tintColor = Colors.locationColor
+        mapView.addSubview(reCenterMapButton)
+        reCenterMapButton.constrain(.bottom, to: containerView, .top, constant: 10.0)
+        reCenterMapButton.constrain(.trailing, to: mapView, .trailing, constant: 10.0)
+        reCenterMapButton.addTarget(self, action: #selector(reCenterMapPressed), for: .touchUpInside)
+        reCenterMapButton.appIsHiddenAnimated(isHidden: true, animated: false)
     }
     
     @objc private func handleFullScreenPanningSelector(sender: UIPanGestureRecognizer) {
@@ -275,6 +291,7 @@ class FindRestaurantVC: UIViewController {
     }
     
     private func scrollChildToTop() {
+        handleShowingReCenterMapButtonFromMapChange(forceHide: true)
         childPosition = .top
         handleShowingOrHidingSelectedView()
         UIView.animate(withDuration: 0.4) {
@@ -292,9 +309,16 @@ class FindRestaurantVC: UIViewController {
                 self.mapView.updateAllAnnotationZoom(topHalf: true)
             }
             UIView.animate(withDuration: 0.4) {
+                
+            }
+            
+            UIView.animate(withDuration: 0.4) {
                 self.childTopAnchor.constant = constant
                 self.view.layoutIfNeeded()
+            } completion: { _ in
+                self.handleShowingReCenterMapButtonFromMapChange()
             }
+
         }
     }
     
@@ -310,8 +334,10 @@ class FindRestaurantVC: UIViewController {
         UIView.animate(withDuration: 0.4) {
             self.childTopAnchor.constant = self.view.frame.height - allowedDistance
             self.view.layoutIfNeeded()
+        } completion: { _ in
+            self.handleShowingReCenterMapButtonFromMapChange()
         }
-        
+
     }
     
     private func createSelectedRestaurantView(annotationRestaurant: Restaurant) {
@@ -378,6 +404,9 @@ class FindRestaurantVC: UIViewController {
         getRestaurantsFromPreSetRestaurantSearch(initial: false)
     }
     
+    @objc private func reCenterMapPressed() {
+        mapView.updateAllAnnotationZoom(topHalf: childPosition == .middle)
+    }
     
     private func getRestaurantsFromPreSetRestaurantSearch(initial: Bool) {
         if !initial {
@@ -411,6 +440,28 @@ class FindRestaurantVC: UIViewController {
             scrollChildToMiddle()
         } else if childPosition == .middle {
             scrollChildToBottom(allowedDistance: allowedDistance)
+        }
+    }
+    
+    private func handleShowingReCenterMapButtonFromMapChange(forceHide: Bool = false) {
+        
+        guard !forceHide else {
+            reCenterMapButton.appIsHiddenAnimated(isHidden: true, animated: false)
+            return
+        }
+        
+        let restaurantsCount = mapView.annotations.count
+        //let bottomDistance = containerView.bounds.height - childTopAnchor.constant
+        let bottomDistance = mapView.bounds.height - childTopAnchor.constant
+        let visibleMapRect = mapView.getVisibleMapRectForObstructedMapView(distanceFromTop: 0.0, distanceFromBottom: bottomDistance)
+        let visibleAnnotationsCount = mapView.annotations(in: visibleMapRect).count
+        
+        #warning("need to handle for more restaurants button now the same way")
+        
+        if visibleAnnotationsCount < restaurantsCount {
+            reCenterMapButton.appIsHiddenAnimated(isHidden: false)
+        } else {
+            reCenterMapButton.appIsHiddenAnimated(isHidden: true)
         }
     }
 }
@@ -494,6 +545,10 @@ extension FindRestaurantVC: MKMapViewDelegate {
             annotationView!.annotation = annotation
         }
         return annotationView
+    }
+    
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        handleShowingReCenterMapButtonFromMapChange()
     }
 
 }

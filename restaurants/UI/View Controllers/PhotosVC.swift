@@ -21,14 +21,15 @@ class PhotosVC: UIViewController {
     private let imageCache = NSCache<NSString, UIImage>()
     private let padding: CGFloat = 2.0
     private let reuseIdentifier = "photoCellReuseIdentifier"
+    private var upperNavigationTitle: String?
     
-    init(photos: [String]) {
+    init(upperNavigationTitle: String, photos: [String]) {
         super.init(nibName: nil, bundle: nil)
         self.photos = photos
-        setUpCollectionView()
+        self.upperNavigationTitle = upperNavigationTitle
     }
     
-    init(images: [(String, UIImage?)]) {
+    init(upperNavigationTitle: String, images: [(String, UIImage?)]) {
         super.init(nibName: nil, bundle: nil)
         for (i, image) in images.enumerated() {
             if let image = image.1 {
@@ -36,16 +37,20 @@ class PhotosVC: UIViewController {
             }
         }
         self.photos = images.map({$0.0})
-        setUpCollectionView()
+        self.upperNavigationTitle = upperNavigationTitle
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        
+        setUpCollectionView()
+        setUpNavigationItem()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.backgroundColor = .systemBackground
+        setUpCollectionView()
+        setUpNavigationItem()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -54,9 +59,6 @@ class PhotosVC: UIViewController {
     }
 
     private func setUpCollectionView() {
-        self.navigationItem.title = "Photos"
-        self.view.backgroundColor = .systemBackground
-        
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 2.0
         let cellSizeSize = self.view.frame.width / 2
@@ -74,6 +76,15 @@ class PhotosVC: UIViewController {
         self.view.addSubview(collectionView)
         collectionView.constrainSides(to: self.view)
     }
+    
+    private func setUpNavigationItem() {
+        self.navigationItem.title = "Photos"
+        if let upperTitle = upperNavigationTitle {
+            let navigationView = NavigationTitleView(upperText: upperTitle, lowerText: "Photos")
+            self.navigationItem.titleView = navigationView
+        }
+    }
+    
 }
 
 

@@ -62,6 +62,7 @@ class SearchRestaurantsVC: UIViewController {
         super.init(coder: coder)
     }
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
@@ -75,7 +76,7 @@ class SearchRestaurantsVC: UIViewController {
         locationResults = deviceCurrentAndMapLocations + previousLocationSearches
         
         self.navigationController?.navigationBar.isTranslucent = false
-        self.edgesForExtendedLayout = []
+        self.edgesForExtendedLayout = [.bottom]
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -86,14 +87,22 @@ class SearchRestaurantsVC: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         self.tabBarController?.tabBar.isHidden = false
+        locationSearchBar.resignFirstResponder()
+        searchTypeSearchBar.resignFirstResponder()
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        
         super.viewDidAppear(animated)
         if !tableViewConstraintsLaidOut {
             tableViewConstraintsLaidOut = true
             setUpTableViewConstraints()
+        }
+        
+        // if set up before viewDidAppear then it make the presenting extremely slow
+        if startWithLocation {
+            locationSearchBar.becomeFirstResponder()
+        } else {
+            searchTypeSearchBar.becomeFirstResponder()
         }
     }
     
@@ -137,11 +146,6 @@ class SearchRestaurantsVC: UIViewController {
         
         self.view.hero.id = .searchBarTransitionType
         
-        if startWithLocation {
-            locationSearchBar.becomeFirstResponder()
-        } else {
-            searchTypeSearchBar.becomeFirstResponder()
-        }
     }
     
     private func setUpTableView() {

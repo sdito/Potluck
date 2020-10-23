@@ -10,9 +10,6 @@ import UIKit
 
 class EstablishmentListVC: UIViewController {
     
-    #warning("initialize with just a person also ** need to finish and actaully do")
-    #warning("need to hide rightBarButton item when there are no establishments")
-    
     var person: Person?
     var profile: Person.Profile?
     var initialDataFound = false

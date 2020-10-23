@@ -52,6 +52,10 @@ extension UIView {
     }
     
     func appIsHiddenAnimated(isHidden: Bool, animated: Bool = true) {
+        
+        // don't need to animate if it is already at the goal end state
+        guard isHidden != self.isHidden else { return }
+        
         if animated {
             let smallTransform = CGAffineTransform(scaleX: 0.1, y: 0.1)
             if isHidden {
@@ -64,7 +68,6 @@ extension UIView {
                     }
                 }
             } else {
-                self.isHidden = isHidden
                 // Showing from hidden, start small, bounce it to be bigger, then go to standard size
                 self.isHidden = false
                 self.transform = smallTransform
@@ -323,5 +326,7 @@ extension UIView {
             self.alpha = 1.0
         }
     }
+    
+    
     
 }
