@@ -133,14 +133,40 @@ extension MKMapView {
         self.fitAllAnnotations(newAnnotations: newAnnotations, fitInTopHalf: fitInTopHalf)
     }
     
+    private func getZoomRectForMapViewAnnotations(annotations: [MKAnnotation]) -> MKMapRect {
+        var zoomRect = MKMapRect.null
+        for annotation in annotations {
+            
+            let annotationPoint = MKMapPoint(annotation.coordinate)
+            let pointRect = MKMapRect(x: annotationPoint.x, y: annotationPoint.y, width: 0.1, height: 0.1);
+            zoomRect = zoomRect.union(pointRect);
+        }
+        return zoomRect
+    }
+    
+    func getAnnotationBoundsFarthestDistance() -> CLLocationDistance {
+        #warning("need to remove the annotation from the user's location")
+        let zoomRect = getZoomRectForMapViewAnnotations(annotations: self.annotations)
+        let mapRegion = MKCoordinateRegion(zoomRect)
+        
+        let span = mapRegion.span
+        let center = mapRegion.center
+            
+        let loc1 = CLLocation(latitude: center.latitude - span.latitudeDelta * 0.5, longitude: center.longitude)
+        let loc2 = CLLocation(latitude: center.latitude + span.latitudeDelta * 0.5, longitude: center.longitude)
+        let loc3 = CLLocation(latitude: center.latitude, longitude: center.longitude - span.longitudeDelta * 0.5)
+        let loc4 = CLLocation(latitude: center.latitude, longitude: center.longitude + span.longitudeDelta * 0.5)
+            
+        let mLatitude = loc1.distance(from: loc2)
+        let mLongitude = loc3.distance(from: loc4)
+        
+        let length = sqrt((mLatitude * mLatitude) + (mLongitude * mLongitude))
+        return CLLocationDistance(length)
+    }
+    
     func fitAllAnnotations(newAnnotations: [MKAnnotation], fitInTopHalf: Bool, animated: Bool = true) {
         if newAnnotations.count > 0 {
-            var zoomRect = MKMapRect.null
-            for annotation in newAnnotations {
-                let annotationPoint = MKMapPoint(annotation.coordinate)
-                let pointRect = MKMapRect(x: annotationPoint.x, y: annotationPoint.y, width: 0.1, height: 0.1);
-                zoomRect = zoomRect.union(pointRect);
-            }
+            var zoomRect = self.getZoomRectForMapViewAnnotations(annotations: newAnnotations)
             if fitInTopHalf {
                 zoomRect.size.height = zoomRect.size.height * 2
                 self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 20, left: 50, bottom: 100, right: 50), animated: animated)
@@ -163,8 +189,13 @@ extension MKMapView {
     }
     
     func updateAllAnnotationZoom(topHalf: Bool) {
-        let annotations = self.annotations.filter({$0 !== self.userLocation}) // need to remove userLocation else zooming will include it when not desired
-        fitAllAnnotations(newAnnotations: annotations, fitInTopHalf: topHalf)
+        // need to remove userLocation else zooming will include it when not desired
+        // test in the future if self.nonUserAnnotations actually works as expected
+        fitAllAnnotations(newAnnotations: self.nonUserAnnotations, fitInTopHalf: topHalf)
     }
     
+    
+    var nonUserAnnotations: [MKAnnotation] {
+        return self.annotations.filter({$0 !== self.userLocation})
+    }
 }

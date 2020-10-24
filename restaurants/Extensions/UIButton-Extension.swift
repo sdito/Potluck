@@ -22,6 +22,7 @@ extension UIButton {
         return CGSize(width: adjustedWidth, height: adjustedHeight)
     }
     
+    
     func showLoadingOnButton() {
         self.isUserInteractionEnabled = false
         let activityIndicator = UIActivityIndicatorView()

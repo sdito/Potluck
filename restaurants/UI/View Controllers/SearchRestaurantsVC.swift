@@ -30,9 +30,10 @@ class SearchRestaurantsVC: UIViewController {
     private let cellReuseIdentifier: String = "reuseIdentifierSR"
     private let searchBarHeight: CGFloat = 50.0
     
+    private let bottomSearchButton = UIButton()
     private var searchTypeSearchBar = UISearchBar()
     private var locationSearchBar = UISearchBar()
-    private var tableView: UITableView?
+    private var tableView = UITableView()
     private var request = MKLocalSearchCompleter()
     private var startWithLocation = false
     private var tableViewConstraintsLaidOut = false
@@ -69,6 +70,7 @@ class SearchRestaurantsVC: UIViewController {
         self.navigationItem.title = "Search"
         self.navigationController?.navigationBar.tintColor = Colors.main
         setUpTopSearchBars()
+        setUpBottomExecuteSearchButton()
         setUpTableView()
         setUpExecuteSearch()
         setUpSearchCompleter()
@@ -145,31 +147,37 @@ class SearchRestaurantsVC: UIViewController {
         
         
         self.view.hero.id = .searchBarTransitionType
-        
+    }
+    
+    private func setUpBottomExecuteSearchButton() {
+        // for having another button on the bottom to actually complete the search
+        bottomSearchButton.translatesAutoresizingMaskIntoConstraints = false
+        bottomSearchButton.setTitle("Apply search", for: .normal)
+        bottomSearchButton.backgroundColor = .secondarySystemBackground
+        bottomSearchButton.titleLabel?.font = .secondaryTitle
+        bottomSearchButton.titleEdgeInsets = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
+        bottomSearchButton.setTitleColor(Colors.main, for: .normal)
+        self.view.addSubview(bottomSearchButton)
+        bottomSearchButton.constrain(.leading, to: self.view, .leading)
+        bottomSearchButton.constrain(.trailing, to: self.view, .trailing)
+        bottomSearchButton.constrain(.bottom, to: self.view, .bottom)
+        bottomSearchButton.addTarget(self, action: #selector(executeSearch), for: .touchUpInside)
     }
     
     private func setUpTableView() {
-        
-        tableView = UITableView()
-        tableView!.translatesAutoresizingMaskIntoConstraints = false
-        tableView!.delegate = self
-        tableView!.dataSource = self
-        
-        tableView!.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
-        tableView!.tableFooterView = UIView()
-        
-        self.view.addSubview(tableView!)
-        
-        
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
+        tableView.tableFooterView = UIView()
+        self.view.addSubview(tableView)
     }
     
     private func setUpTableViewConstraints() {
-        NSLayoutConstraint.activate([
-            tableView!.topAnchor.constraint(equalTo: locationSearchBar.bottomAnchor),
-            tableView!.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-            tableView!.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-            tableView!.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
-        ])
+        tableView.constrain(.top, to: locationSearchBar, .bottom)
+        tableView.constrain(.leading, to: self.view, .leading)
+        tableView.constrain(.trailing, to: self.view, .trailing)
+        tableView.constrain(.bottom, to: bottomSearchButton, .top)
     }
     
     private func setUpExecuteSearch() {
@@ -180,40 +188,32 @@ class SearchRestaurantsVC: UIViewController {
     
     
     private func setUpSearchCompleter() {
-        
         request.resultTypes = .query
-        /*
-         possibilities
-         
-           .airport, .amusementPark, .aquarium, .atm, .bakery, .bank, .beach, .brewery, .cafe, .campground, .carRental, .evCharger, .fireStation,
-           .fitnessCenter, .foodMarket, .gasStation, .hospital, .hotel, .laundry, .library, .marina, .movieTheater, .museum, .nationalPark,
-           .nightlife, .park, .parking, .pharmacy, .police, .postOffice, .publicTransport, .restaurant, .restroom, .school, .stadium, .store,
-           .theater, .university, .winery, .zoo
-         */
-    
         request.pointOfInterestFilter = .init(including: [.airport, .beach, .campground, .publicTransport])
         request.delegate = self
     }
-    
     
     @objc private func executeSearch() {
         self.navigationController?.popViewController(animated: true)
         
         if searchLocation != .currentLocation && searchLocation != .mapLocation {
             if !previousLocationSearches.contains(searchLocation) {
-                if previousLocationSearches.count > 10 {
+                // New item, add it to the front, and if there are more than 15 recent searches than remove the last
+                if previousLocationSearches.count > 15 {
                     previousLocationSearches.removeLast()
                 }
                 UserDefaults.standard.set([searchLocation] + previousLocationSearches, forKey: .recentLocationSearchesKey)
+            } else {
+                // It contains the item already, so should move it to the front of the list instead
+                let moveToFrontItemIndex = previousLocationSearches.firstIndex(of: searchLocation)
+                if let index = moveToFrontItemIndex {
+                    let removedItem = previousLocationSearches.remove(at: index)
+                    UserDefaults.standard.set([removedItem] + previousLocationSearches, forKey: .recentLocationSearchesKey)
+                }
             }
-            
         }
-        
         delegate.newSearchCompleted(searchType: searchType, locationText: searchLocation)
     }
-    
-    
-    
 }
 
 // MARK: Table view
@@ -294,7 +294,7 @@ extension SearchRestaurantsVC: MKLocalSearchCompleterDelegate {
         }
         
         if tableViewDisplay == .location {
-            tableView?.reloadData()
+            tableView.reloadData()
         }
     }
 }
@@ -313,7 +313,7 @@ extension SearchRestaurantsVC: UISearchBarDelegate {
             tableViewDisplay = .none
         }
         
-        tableView?.reloadData()
+        tableView.reloadData()
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
@@ -348,7 +348,6 @@ extension SearchRestaurantsVC: UISearchBarDelegate {
                 }
                 // if contains, set to with the alias, else set with alias as nil, always with title to searchType
                 
-                
             } else {
                 searchTypeResults = Network.commonSearches
             }
@@ -366,7 +365,7 @@ extension SearchRestaurantsVC: UISearchBarDelegate {
         case .none:
             break
         }
-        tableView?.reloadData()
+        tableView.reloadData()
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {

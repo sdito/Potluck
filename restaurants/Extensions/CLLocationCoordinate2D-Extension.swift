@@ -36,4 +36,10 @@ extension CLLocationCoordinate2D {
         return longest ?? 0.0
     }
     
+    func distance(to coordinate: CLLocationCoordinate2D) -> CLLocationDistance {
+        let point1 = CLLocation(latitude: self.latitude, longitude: self.longitude)
+        let point2 = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        return point1.distance(from: point2)
+    }
+    
 }

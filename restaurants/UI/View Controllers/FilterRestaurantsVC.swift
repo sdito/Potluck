@@ -14,7 +14,7 @@ class FilterRestaurantsVC: UIViewController {
     private var previousFilters: [String:Any]!
     private var indexPathsToSelect: Set<IndexPath> = []
     private let checkBoxCellReuse = "checkBoxCellReuse"
-    private let executeButton = SizeChangeButton(sizeDifference: .inverse, restingColor: .systemBackground, selectedColor: .systemBackground)
+    private let executeButton = UIButton()
     private let headerLabel = UILabel()
     private let tableView = UITableView(frame: .zero, style: .grouped)
     private let spacer = SpacerView(size: 1, orientation: .vertical)
@@ -209,14 +209,16 @@ class FilterRestaurantsVC: UIViewController {
     private func setUpExecuteButton() {
         executeButton.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(executeButton)
-        executeButton.constrain(.top, to: tableView, .bottom, constant: 20.0)
-        executeButton.constrain(.leading, to: view, .leading, constant: 20.0)
-        executeButton.constrain(.trailing, to: view, .trailing, constant: 20.0)
-        executeButton.constrain(.bottom, to: view, .bottom, constant: 20.0)
-        executeButton.setTitle("Go", for: .normal)
-        executeButton.layer.cornerRadius = 8.0
-        executeButton.titleLabel?.font = .createdTitle
-        executeButton.backgroundColor = Colors.main
+        executeButton.constrain(.top, to: tableView, .bottom)
+        executeButton.constrain(.leading, to: view, .leading)
+        executeButton.constrain(.trailing, to: view, .trailing)
+        executeButton.constrain(.bottom, to: view, .bottom)
+        executeButton.titleLabel?.translatesAutoresizingMaskIntoConstraints = false
+        executeButton.setTitle("Apply filter", for: .normal)
+        executeButton.titleLabel?.font = .secondaryTitle
+        executeButton.backgroundColor = .secondarySystemBackground
+        executeButton.setTitleColor(Colors.main, for: .normal)
+        executeButton.titleEdgeInsets = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
         executeButton.addTarget(self, action: #selector(executeFilterPressed), for: .touchUpInside)
     }
     
@@ -233,7 +235,7 @@ class FilterRestaurantsVC: UIViewController {
             self.dismiss(animated: true, completion: nil)
         } else {
             UIDevice.vibrateSelectionChanged()
-            executeButton.removeNotificationStyleText()
+            executeButton.titleLabel?.removeNotificationStyleText()
             
             indexPathsToSelect.forEach { (ip) in
                 tableView.deselectRow(at: ip, animated: true)
@@ -278,9 +280,9 @@ extension FilterRestaurantsVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     private func handleShowingNotificationLabel() {
-        executeButton.removeNotificationStyleText()
+        executeButton.titleLabel?.removeNotificationStyleText()
         if let count = tableView.indexPathsForSelectedRows?.count {
-            executeButton.showNotificationStyleText(str: "\(count)")
+            executeButton.titleLabel?.showNotificationStyleText(str: "\(count)")
         }
     }
     

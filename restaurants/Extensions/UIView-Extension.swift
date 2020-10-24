@@ -236,6 +236,8 @@ extension UIView {
             self.alpha = 1.0
         }
         
+        
+        
     }
     
     func hideFromScreenSwipe(removeAtEnd: Bool = true) {

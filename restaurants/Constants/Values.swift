@@ -19,7 +19,6 @@ extension CGFloat {
 
 extension String {
     static let photosToSinglePhotoID = "PhotoVC-SinglePhotoVC"
-//    static let restaurantHomeToDetailTitle = "restaurantHomeToDetailTitle"
     static let restaurantHomeToDetailImageView = "restaurantHomeToDetailImageView"
     static let restaurantHomeToDetailStarRatingView = "restaurantHomeToDetailStarRatingView"
     static let restaurantAnnotationIdentifier = "restaurantAnnotationIdentifier"
