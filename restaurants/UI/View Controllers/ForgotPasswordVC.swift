@@ -17,7 +17,9 @@ class ForgotPasswordVC: UIViewController {
     private let actionButton = LogInButton()
     private let detailLabel = UILabel()
     private let codeTimeLabel = UILabel()
-    private let passwordField = LogInField(style: .password)
+    
+    #warning("need to implement returnKeyType")
+    private let passwordField = LogInField(style: .password, returnKeyType: .go, logInFieldDelegate: nil)
     
     private var passwordResetRequest: Account.PasswordResetRequest?
     private var codeResponse: Account.CodeResponse?

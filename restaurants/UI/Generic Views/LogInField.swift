@@ -8,11 +8,19 @@
 
 import UIKit
 
+
+protocol LogInFieldDelegate: class {
+    func returnPressed(from view: LogInField)
+}
+
+
 class LogInField: UIView {
-    
+    #warning("need to use return button")
     let emailPlaceholder = "Email address"
     let usernamePlaceholder = "Username"
     let passwordPlaceholder = "Password"
+    
+    private weak var logInFieldDelegate: LogInFieldDelegate?
     
     private let minUsernameLength = 3
     var hideButton = false {
@@ -25,6 +33,19 @@ class LogInField: UIView {
                 }
             }
         }
+    }
+    
+    init(style: Style, returnKeyType: UIReturnKeyType, logInFieldDelegate: LogInFieldDelegate?) {
+        self.style = style
+        self.logInFieldDelegate = logInFieldDelegate
+        super.init(frame: .zero)
+        setUp()
+        textField.returnKeyType = returnKeyType
+    }
+    
+    required init?(coder: NSCoder) {
+        self.style = .none
+        super.init(coder: coder)
     }
     
     var text: String? {
@@ -98,20 +119,14 @@ class LogInField: UIView {
         case none
     }
     
-    
-    init(style: Style) {
-        self.style = style
-        super.init(frame: .zero)
-        setUp()
-    }
-    
-    required init?(coder: NSCoder) {
-        self.style = .none
-        super.init(coder: coder)
-    }
-    
     func activate() {
         _ = textField.becomeFirstResponder()
+    }
+    
+    func deactivate() {
+        if textField.isFirstResponder {
+            textField.resignFirstResponder()
+        }
     }
     
     func setPlaceholder(_ str: String) {
@@ -131,6 +146,7 @@ class LogInField: UIView {
         textField.constrain(.bottom, to: self, .bottom)
         textField.autocorrectionType = .no
         textField.autocapitalizationType = .none
+        textField.delegate = self
 
         self.addSubview(viewButton)
         viewButton.equalSides()
@@ -209,3 +225,10 @@ class LogInField: UIView {
     }
 }
 
+
+extension LogInField: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        logInFieldDelegate?.returnPressed(from: self)
+        return true
+    }
+}

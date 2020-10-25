@@ -22,11 +22,16 @@ class VisitTableView: UITableView {
     private let otherImageCache = NSCache<NSString, ImageRequest>()
     private var photoIndexCache: [Int:Int] = [:]
     
-    var visits: [Visit] = []
+    var visits: [Visit] = [] {
+        didSet {
+            self.initialDataFound = true
+        }
+    }
     private let refreshControlView = UIRefreshControl()
     private let reuseIdentifier = "visitCellReuseIdentifier"
     private weak var visitTableViewDelegate: VisitTableViewDelegate?
     private var mode: Mode = .user
+    private var initialDataFound = false
     
     var allowHintToCreateRestaurant = false
     var allowHintForFriendsFeed = false
@@ -170,7 +175,14 @@ class VisitTableView: UITableView {
 
 // MARK: Table view
 extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        guard initialDataFound else {
+            tableView.showLoadingOnTableView(middle: true)
+            return 0
+        }
+        
         let count = visits.count
         if allowHintToCreateRestaurant && count == 0 {
             let addPostButton = self.setEmptyWithAction(message: "You do not have any posts yet. Add a post every time you eat at a restaurant.", buttonTitle: "Add post", area: .center)
@@ -186,6 +198,13 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
                 createAccountButton.addTarget(self, action: #selector(goToCreateAccount), for: .touchUpInside)
             }
         }
+        
+        
+        
+        if count != 0 {
+            tableView.restore(separatorStyle: .none)
+        }
+        
         return count
     }
     

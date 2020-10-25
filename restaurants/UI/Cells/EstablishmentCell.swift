@@ -11,8 +11,6 @@ import CoreLocation
 
 class EstablishmentCell: UITableViewCell {
     
-    #warning("ability to filter items")
-    
     var establishment: Establishment?
     
     private let stackView = UIStackView()

@@ -177,6 +177,7 @@ extension MKMapView {
     }
     
     func trueFitAllAnnotations(annotations: [MKAnnotation], animated: Bool) {
+        #warning("need to have a minimum zoom, so when there is only one annotation is is not zoomed in too much")
         if annotations.count > 0 {
             var zoomRect = MKMapRect.null
             for annotation in annotations {

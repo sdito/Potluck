@@ -81,7 +81,7 @@ extension Network {
     
     func answerFriendRequest(request: Person.PersonRequest?, id: Int? = nil, accept: Bool, complete: @escaping (Bool) -> Void) {
         guard let friendRequestId = request?.id ?? id else { return }
-        
+        NotificationCenter.default.post(name: .friendRequestPendingCountDecreased, object: nil, userInfo: nil)
         let params: [String:Any] = ["accept_request": accept]
         guard let req = reqPerson(params: params, requestType: .answerFriendRequest, id: friendRequestId) else { complete(false); return }
         req.responseJSON(queue: .global(qos: .background)) { (response) in

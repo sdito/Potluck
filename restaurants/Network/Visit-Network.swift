@@ -194,7 +194,7 @@ extension Network {
     }
     
     // Get the user's own posts or friends posts
-    func getVisitFeed(feedType: FeedType, completion: @escaping (Result<[Visit], Errors.VisitEstablishment>) -> Void) {
+    func getVisitFeed(feedType: FeedType, completion: @escaping (Result<[Visit], Errors.VisitEstablishment>) -> Void, numberRequests: @escaping (Int?) -> Void) {
         
         let params: Parameters = ["type": feedType.rawValue]
         
@@ -208,8 +208,16 @@ extension Network {
             }
             do {
                 let visits = try self.decoder.decode(Visit.VisitDecoder.self, from: data)
+                
+                
+                #warning("need to use count for friends feed")
+                let count = visits.pending_request_count
+                
+                
                 guard let vis = visits.visits else { return }
                 completion(Result.success(vis))
+                numberRequests(count)
+                
             } catch {
                 print(error)
                 

@@ -11,9 +11,11 @@ import UIKit
 class CreateAccountVC: UIViewController {
     
     private let doneButton = LogInButton()
-    private let emailLogInField = LogInField(style: .email)
-    private let usernameLogInField = LogInField(style: .username)
-    private let passwordLogInField = LogInField(style: .password)
+    
+    private lazy var emailLogInField = LogInField(style: .email, returnKeyType: .next, logInFieldDelegate: self)
+    private lazy var usernameLogInField = LogInField(style: .username, returnKeyType: .next, logInFieldDelegate: self)
+    private lazy var passwordLogInField = LogInField(style: .password, returnKeyType: .go, logInFieldDelegate: self)
+    
     private let stackView = UIStackView()
     private let logInAndCreateToggleButton = SizeChangeButton(sizeDifference: .inverse, restingColor: .secondaryLabel, selectedColor: .label)
     private let resetPasswordButton = SizeChangeButton(sizeDifference: .inverse, restingColor: .secondaryLabel, selectedColor: .label)
@@ -206,4 +208,20 @@ class CreateAccountVC: UIViewController {
         emailLogInField.setTextFieldText("")
     }
 
+}
+
+extension CreateAccountVC: LogInFieldDelegate {
+    func returnPressed(from view: LogInField) {
+        
+        if view == emailLogInField {
+            emailLogInField.deactivate()
+            usernameLogInField.activate()
+        } else if view == usernameLogInField {
+            usernameLogInField.deactivate()
+            passwordLogInField.activate()
+        } else if view == passwordLogInField {
+            executeCreateOrLogIn()
+        }
+    }
+    
 }

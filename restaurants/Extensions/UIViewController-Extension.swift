@@ -231,6 +231,11 @@ extension UIViewController {
         }
         self.appAlert(title: "Not logged in", message: "In order to add a visit, you either need to log in to an existing account or create a new account.", buttons: buttons)
     }
+    
+    func getRightBarButtonView() -> UIView? {
+        return self.navigationItem.rightBarButtonItem?.value(forKey: "view") as? UIView
+    }
+    
 }
 
 

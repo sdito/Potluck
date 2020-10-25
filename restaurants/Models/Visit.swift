@@ -134,6 +134,7 @@ class Visit: Codable {
     
     class VisitDecoder: Decodable {
         var visits: [Visit]?
+        var pending_request_count: Int?
     }
     
     

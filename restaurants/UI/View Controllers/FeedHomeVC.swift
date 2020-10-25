@@ -10,7 +10,7 @@ import UIKit
 
 
 class FeedHomeVC: UIViewController {
-    #warning("handle case for user logged out")
+    #warning("need to show loading on table view")
     private var visits: [Visit] = [] {
         didSet {
             visitTableView?.visits = visits
@@ -28,6 +28,13 @@ class FeedHomeVC: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(friendshipRequestCountDecreased), name: .friendRequestPendingCountDecreased, object: nil)
+    }
+    
+    @objc private func friendshipRequestCountDecreased() {
+        print("Notification is being called...")
+        let rightView = self.getRightBarButtonView()
+        rightView?.changeValueOfNotificationText(valueAlteration: { $0 - 1 })
     }
     
     private func setUpNavigationBar() {
@@ -46,6 +53,7 @@ class FeedHomeVC: UIViewController {
     }
     
     private func getUserFeed() {
+        
         Network.shared.getVisitFeed(feedType: .friends) { [weak self] (result) in
             DispatchQueue.main.async {
                 self?.visitTableView?.allowHintForFriendsFeed = true
@@ -62,6 +70,23 @@ class FeedHomeVC: UIViewController {
                 
                 self.handleReloadingVisitTableView()
                 
+            }
+        } numberRequests: { [weak self] (reqNumber) in
+            DispatchQueue.main.async {
+                let numberOfRequests = reqNumber ?? 0
+                self?.handleNotificationTextFor(numberOfRequests: numberOfRequests)
+                
+            }
+        }
+    }
+    
+    private func handleNotificationTextFor(numberOfRequests: Int) {
+        if let subView = self.getRightBarButtonView() {
+            if numberOfRequests > 0 {
+                subView.removeNotificationStyleText()
+                subView.showNotificationStyleText(str: "\(numberOfRequests)", inner: true)
+            } else {
+                subView.removeNotificationStyleText()
             }
         }
     }
@@ -89,6 +114,7 @@ class FeedHomeVC: UIViewController {
         visits = []
         self.visitTableView?.clearCaches()
         self.visitTableView?.reloadData()
+        self.handleNotificationTextFor(numberOfRequests: 0)
     }
 }
 

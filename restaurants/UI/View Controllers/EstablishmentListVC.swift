@@ -14,7 +14,6 @@ class EstablishmentListVC: UIViewController {
     var profile: Person.Profile?
     var initialDataFound = false
     private let tableView = UITableView(frame: .zero, style: .plain)
-    private let listBarButtonItem = UIBarButtonItem(image: .filterNoCircleImage, style: .plain, target: self, action: #selector(filterPressed))
     private let reuseIdentifier = "establishmentCellReuseIdentifier"
     
     init(profile: Person.Profile) {
@@ -69,6 +68,7 @@ class EstablishmentListVC: UIViewController {
     }
     
     @objc private func filterPressed() {
+        print("Filter pressed is being called")
         self.appActionSheet(buttons: [
             AppAction(title: "Sort by date", action: { [weak self] in self?.completeFilteringByDate() }),
             AppAction(title: "Sort by name", action: { [weak self] in self?.completeFilteringByName() })
@@ -107,6 +107,8 @@ class EstablishmentListVC: UIViewController {
     private func handleShowingOrHidingBarButtonItem() {
         let countGreaterThanZero = (profile?.establishments?.count ?? 0) > 0
         if countGreaterThanZero {
+            print("Adding the list bar button item ")
+            let listBarButtonItem = UIBarButtonItem(image: .filterNoCircleImage, style: .plain, target: self, action: #selector(filterPressed))
             self.navigationItem.rightBarButtonItem = listBarButtonItem
         } else {
             self.navigationItem.rightBarButtonItem = nil

@@ -61,10 +61,11 @@ enum Setting: String, CaseIterable {
             var instance: Row {
                 switch self {
                 case .logout:
-                    return Row(title: "Logout",
+                    let title = Network.shared.loggedIn ? "Logout" : "Log in or create account"
+                    return Row(title: title,
                                description: "If you don't use an account, there will be only limited features for you to use.",
                                mode: .arrowOpen,
-                               subtitle: Network.shared.account?.username ?? "Log in",
+                               subtitle: Network.shared.account?.username ?? "Go",
                                pressAction: { logoutAction() } )
                 case .phoneNumber:
                     return Row(title: "Phone number",

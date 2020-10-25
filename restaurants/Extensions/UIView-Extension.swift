@@ -103,9 +103,9 @@ extension UIView {
         layer.add(animation, forKey: "shake")
     }
     
-    static let notificationLabelTag = 7
+    static let notificationLabelTag = 7001
     
-    func showNotificationStyleText(str: String) {
+    func showNotificationStyleText(str: String, inner: Bool = false) {
         self.appTraitCollection.performAsCurrent {
             let label = UILabel()
             label.translatesAutoresizingMaskIntoConstraints = false
@@ -117,9 +117,15 @@ extension UIView {
             self.addSubview(label)
             label.equalSides()
             label.layoutIfNeeded()
+            
+            var constant = label.bounds.height / 3.0
+            if inner {
+                constant = -constant
+            }
+            
             NSLayoutConstraint.activate([
-                label.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: label.bounds.height / 3.0),
-                label.topAnchor.constraint(equalTo: self.topAnchor, constant: -(label.bounds.height / 3.0))
+                label.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: constant),
+                label.topAnchor.constraint(equalTo: self.topAnchor, constant: -constant)
             ])
             label.clipsToBounds = true
             label.layer.cornerRadius = label.bounds.height / 2.0
@@ -131,6 +137,23 @@ extension UIView {
         self.subviews.forEach { (subview) in
             if subview.tag == UIView.notificationLabelTag {
                 subview.removeFromSuperview()
+            }
+        }
+    }
+    
+    func changeValueOfNotificationText(valueAlteration: (Int) -> Int) {
+        // first need to find the notification label
+        let subviews = self.subviews
+        for subview in subviews {
+            if subview.tag == UIView.notificationLabelTag {
+                guard let label = subview as? UILabel, let strValue = label.text, var intValue = Int(strValue) else { break }
+                intValue = valueAlteration(intValue)
+                if intValue <= 0 {
+                    label.removeFromSuperview()
+                } else {
+                    label.text = "\(intValue)"
+                }
+                break
             }
         }
     }

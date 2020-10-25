@@ -20,6 +20,7 @@ extension Notification.Name {
     
     static let friendshipIdRemoved = Notification.Name("com.stevendito.friendshipIdRemoved")
     static let friendshipRequestIdCompleted = Notification.Name("com.stevendito.friendshipRequestIdCompleted")
+    static let friendRequestPendingCountDecreased = Notification.Name("com.stevendito.friendRequestPendingCountDecreased")
     
-    static let personIdUsed = Notification.Name("com.stevendito.persondIdUsed")
+    static let personIdUsed = Notification.Name("com.stevendito.personIdUsed")
 }

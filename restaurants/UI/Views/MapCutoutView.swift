@@ -43,6 +43,8 @@ class MapCutoutView: UIView {
         setUpImageView()
         handlePressingMap()
         
+        
+        
         handleDirections(currentLocation: userLocation, destination: userDestination)
     }
     
@@ -63,6 +65,8 @@ class MapCutoutView: UIView {
         self.options.traitCollection = self.traitCollection
         let directions = MKDirections(request: request)
         
+        
+        
         directions.calculate { [weak self] response, error in
             guard let self = self else { return }
             guard let response = response else {
@@ -70,11 +74,12 @@ class MapCutoutView: UIView {
                 return
             }
             
-            
             self.stepImagesFromDirectionsResponse(response: response) { [weak self] (stepImage, timeInterval) in
-                self?.imageView.appEndSkeleton()
-                self?.imageView.image = stepImage
-                self?.addTimeLabel(time: timeInterval)
+                DispatchQueue.main.async {
+                    self?.imageView.appEndSkeleton()
+                    self?.imageView.image = stepImage
+                    self?.addTimeLabel(time: timeInterval)
+                }
             }
         }
         
@@ -107,7 +112,8 @@ class MapCutoutView: UIView {
         
         #warning("need to run this the background thread") // everything before is fine
         
-        snapshotter.start { snapshot, error in
+        
+        snapshotter.start(with: .global(qos: .userInteractive)) { snapshot, error in
             
             guard let snapshot = snapshot else {
                 return

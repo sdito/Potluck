@@ -179,10 +179,6 @@ class FindRestaurantVC: UIViewController {
     }
     
     private func addReCenterMapButton() {
-        #warning("left off here if i didn't finish this")
-        #warning("need to hide when the child position is at the top")
-        #warning("create extension to hide with alpha, disable, and animate the change and vice versa")
-        print("Recenter map button is being added to the view")
         reCenterMapButton.setImage(.locationImage, for: .normal)
         reCenterMapButton.tintColor = Colors.locationColor
         mapView.addSubview(reCenterMapButton)

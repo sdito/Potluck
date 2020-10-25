@@ -11,6 +11,7 @@ import UIKit
 extension UITableView {
     
     func showLoadingOnTableView(middle: Bool = true) {
+        
         let containerView = UIView()
         let loadingView = UIActivityIndicatorView(style: .large)
         loadingView.translatesAutoresizingMaskIntoConstraints = false
@@ -84,10 +85,10 @@ extension UITableView {
 
     }
 
-    func restore() {
+    func restore(separatorStyle: UITableViewCell.SeparatorStyle = .singleLine) {
         DispatchQueue.main.async {
             self.backgroundView = nil
-            self.separatorStyle = .singleLine
+            self.separatorStyle = separatorStyle
         }
     }
     
