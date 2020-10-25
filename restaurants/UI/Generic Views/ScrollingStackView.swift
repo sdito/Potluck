@@ -30,6 +30,7 @@ class ScrollingStackView: UIView {
     private let selectedColor = UIColor.systemYellow
     private let notSelectedColor = UIColor.white
     weak var delegate: ScrollingStackViewDelegate?
+    private let topRightPlaceLabel = PaddingLabel(top: 1.0, bottom: 1.0, left: 3.0, right: 3.0)
     private var previousIndex = -1
     
     func removePlaceholderView() {
@@ -159,12 +160,15 @@ class ScrollingStackView: UIView {
     }
     
     private func setUpPaginationPlacer() {
+        
+        let fadedBackground = UIColor.black.withAlphaComponent(0.3)
+        
         spotView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(spotView)
         spotView.constrain(.bottom, to: self, .bottom, constant: selectedSideSize / 2.0)
         spotView.backgroundColor = .red
         spotView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-        spotView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        spotView.backgroundColor = fadedBackground
         spotView.layer.cornerRadius = 3.0
         
         paginationStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -175,14 +179,31 @@ class ScrollingStackView: UIView {
         paginationStackView.spacing = selectedSideSize / 2.0
         paginationStackView.widthAnchor.constraint(equalTo: spotView.widthAnchor, constant: -(selectedSideSize / 1.5)).isActive = true
         
+        
+        // set up label in the top right to test how that looks, like in instagram
+        topRightPlaceLabel.translatesAutoresizingMaskIntoConstraints = false
+        topRightPlaceLabel.backgroundColor = fadedBackground
+        topRightPlaceLabel.text = "1/3"
+        topRightPlaceLabel.font = .smallerThanNormal
+        topRightPlaceLabel.textColor = .white
+        self.addSubview(topRightPlaceLabel)
+        topRightPlaceLabel.constrain(.top, to: self, .top, constant: 5.0)
+        topRightPlaceLabel.constrain(.trailing, to: self, .trailing, constant: 5.0)
+        topRightPlaceLabel.layer.cornerRadius = 3.0
+        topRightPlaceLabel.clipsToBounds = true
     }
     
     func resetElements(selectedIndex: Int = 0) {
         let newAmount = self.stackView.arrangedSubviews.count
         if newAmount < 2 {
             spotView.isHidden = true
+            topRightPlaceLabel.isHidden = true
         } else {
+            topRightPlaceLabel.isHidden = false
             spotView.isHidden = false
+            
+            topRightPlaceLabel.text = "\(selectedIndex + 1)/\(newAmount)"
+            
             paginationStackView.arrangedSubviews.forEach { (v) in
                 v.removeFromSuperview()
             }
@@ -198,7 +219,6 @@ class ScrollingStackView: UIView {
             }
             
             highlightViewAt(selectedIndex)
-            
         }
     }
     
@@ -210,6 +230,9 @@ class ScrollingStackView: UIView {
                 view.backgroundColor = notSelectedColor
             }
         }
+        
+        let newAmount = self.stackView.arrangedSubviews.count
+        topRightPlaceLabel.text = "\(index + 1)/\(newAmount)"
     }
 }
 

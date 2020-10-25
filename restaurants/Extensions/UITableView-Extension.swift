@@ -9,7 +9,7 @@
 import UIKit
 
 extension UITableView {
-    
+    #warning("Lottie?")
     func showLoadingOnTableView(middle: Bool = true) {
         
         let containerView = UIView()
