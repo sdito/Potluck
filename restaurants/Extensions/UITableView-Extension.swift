@@ -9,23 +9,25 @@
 import UIKit
 
 extension UITableView {
-    #warning("Lottie?")
+    
     func showLoadingOnTableView(middle: Bool = true) {
         
         let containerView = UIView()
-        let loadingView = UIActivityIndicatorView(style: .large)
-        loadingView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(loadingView)
+//        let loadingView = UIActivityIndicatorView(style: .large)
+        let animationView = LoaderView(style: .large)
         
-        loadingView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+        containerView.addSubview(animationView)
+        
+        animationView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
         
         if middle {
-            loadingView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+            animationView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
         } else {
-            loadingView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: UIScreen.main.bounds.height * 0.05).isActive = true
+            animationView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: UIScreen.main.bounds.height * 0.05).isActive = true
         }
         
-        loadingView.startAnimating()
+        
+        
         self.backgroundView = containerView
         self.separatorStyle = .none
         

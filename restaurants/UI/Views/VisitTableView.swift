@@ -177,7 +177,6 @@ class VisitTableView: UITableView {
 extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         guard initialDataFound else {
             tableView.showLoadingOnTableView(middle: true)
             return 0

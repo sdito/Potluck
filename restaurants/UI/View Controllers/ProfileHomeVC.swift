@@ -88,6 +88,9 @@ class ProfileHomeVC: UIViewController {
     private func getInitialUserVisits() {
         setMapButton(hidden: true)
         
+        visitTableView?.reloadData()
+        return;
+        
         if Network.shared.loggedIn {    
             Network.shared.getVisitFeed(feedType: .user, completion: { [weak self] (result) in
                 DispatchQueue.main.async {

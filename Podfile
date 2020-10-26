@@ -11,4 +11,6 @@ pod 'SkeletonView'
 pod 'Hero'
 pod 'KeychainSwift', '~> 19.0'
 pod 'PhoneNumberKit', '~> 3.3'
+pod 'lottie-ios' 
+
 end

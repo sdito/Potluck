@@ -8,6 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		90009F3B1EF4D15FF2B4CA19 /* Pods_restaurants.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B89F6FBA7BC1CC1A76E4E2 /* Pods_restaurants.framework */; };
+		E20E697C2546587200537D0F /* pizza_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = E20E697B2546587200537D0F /* pizza_loader.json */; };
+		E20E698A25466BFD00537D0F /* ice_cream_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = E20E698925466BFD00537D0F /* ice_cream_loader.json */; };
+		E20E698D25466E6500537D0F /* fries_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = E20E698C25466E6500537D0F /* fries_loader.json */; };
+		E20E699025468D1500537D0F /* wine_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = E20E698F25468D1500537D0F /* wine_loader.json */; };
+		E20E69932546949B00537D0F /* coffee_cup_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = E20E69922546949B00537D0F /* coffee_cup_loader.json */; };
+		E20E6996254695F900537D0F /* burger_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = E20E6995254695F900537D0F /* burger_loader.json */; };
+		E20E69992546976600537D0F /* mug_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = E20E69982546976600537D0F /* mug_loader.json */; };
+		E20E699C2546987000537D0F /* cupcake_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = E20E699B2546987000537D0F /* cupcake_loader.json */; };
+		E20E69A325469AEF00537D0F /* fork_and_spoon_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = E20E69A225469AEF00537D0F /* fork_and_spoon_loader.json */; };
 		E20EA82824E27BDD0064DB86 /* FilterRestaurantsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82724E27BDD0064DB86 /* FilterRestaurantsVC.swift */; };
 		E20EA82A24E282980064DB86 /* SpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82924E282980064DB86 /* SpacerView.swift */; };
 		E20EA82C24E30CBF0064DB86 /* Constraints-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */; };
@@ -60,6 +69,7 @@
 		E253A6C72529284B00778500 /* UserProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6C62529284B00778500 /* UserProfileVC.swift */; };
 		E253A6CB2529313400778500 /* Array-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6CA2529313400778500 /* Array-Extension.swift */; };
 		E253A6CE252BCB8A00778500 /* ProfileCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6CD252BCB8A00778500 /* ProfileCell.swift */; };
+		E2564CB32546015200304B5B /* LoaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2564CB22546015200304B5B /* LoaderView.swift */; };
 		E2574A2324B53348006618D7 /* UIImageView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2224B53348006618D7 /* UIImageView-Extension.swift */; };
 		E2574A2524B58D14006618D7 /* TwoLevelButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2424B58D14006618D7 /* TwoLevelButton.swift */; };
 		E2574A2724B65069006618D7 /* PriceLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2624B65069006618D7 /* PriceLabel.swift */; };
@@ -129,6 +139,15 @@
 /* Begin PBXFileReference section */
 		5B641319D9AB372932E7808D /* Pods-restaurants.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-restaurants.release.xcconfig"; path = "Target Support Files/Pods-restaurants/Pods-restaurants.release.xcconfig"; sourceTree = "<group>"; };
 		D109427AE016A8C91568644A /* Pods-restaurants.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-restaurants.debug.xcconfig"; path = "Target Support Files/Pods-restaurants/Pods-restaurants.debug.xcconfig"; sourceTree = "<group>"; };
+		E20E697B2546587200537D0F /* pizza_loader.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = pizza_loader.json; sourceTree = "<group>"; };
+		E20E698925466BFD00537D0F /* ice_cream_loader.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ice_cream_loader.json; sourceTree = "<group>"; };
+		E20E698C25466E6500537D0F /* fries_loader.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = fries_loader.json; sourceTree = "<group>"; };
+		E20E698F25468D1500537D0F /* wine_loader.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = wine_loader.json; sourceTree = "<group>"; };
+		E20E69922546949B00537D0F /* coffee_cup_loader.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = coffee_cup_loader.json; sourceTree = "<group>"; };
+		E20E6995254695F900537D0F /* burger_loader.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = burger_loader.json; sourceTree = "<group>"; };
+		E20E69982546976600537D0F /* mug_loader.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = mug_loader.json; sourceTree = "<group>"; };
+		E20E699B2546987000537D0F /* cupcake_loader.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cupcake_loader.json; sourceTree = "<group>"; };
+		E20E69A225469AEF00537D0F /* fork_and_spoon_loader.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = fork_and_spoon_loader.json; sourceTree = "<group>"; };
 		E20EA82724E27BDD0064DB86 /* FilterRestaurantsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterRestaurantsVC.swift; sourceTree = "<group>"; };
 		E20EA82924E282980064DB86 /* SpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacerView.swift; sourceTree = "<group>"; };
 		E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Constraints-Extension.swift"; sourceTree = "<group>"; };
@@ -181,6 +200,7 @@
 		E253A6C62529284B00778500 /* UserProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileVC.swift; sourceTree = "<group>"; };
 		E253A6CA2529313400778500 /* Array-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array-Extension.swift"; sourceTree = "<group>"; };
 		E253A6CD252BCB8A00778500 /* ProfileCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCell.swift; sourceTree = "<group>"; };
+		E2564CB22546015200304B5B /* LoaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoaderView.swift; sourceTree = "<group>"; };
 		E2574A2224B53348006618D7 /* UIImageView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView-Extension.swift"; sourceTree = "<group>"; };
 		E2574A2424B58D14006618D7 /* TwoLevelButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoLevelButton.swift; sourceTree = "<group>"; };
 		E2574A2624B65069006618D7 /* PriceLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceLabel.swift; sourceTree = "<group>"; };
@@ -279,6 +299,22 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		E20E6987254663F500537D0F /* Animations */ = {
+			isa = PBXGroup;
+			children = (
+				E20E69A225469AEF00537D0F /* fork_and_spoon_loader.json */,
+				E20E699B2546987000537D0F /* cupcake_loader.json */,
+				E20E69982546976600537D0F /* mug_loader.json */,
+				E20E6995254695F900537D0F /* burger_loader.json */,
+				E20E69922546949B00537D0F /* coffee_cup_loader.json */,
+				E20E698F25468D1500537D0F /* wine_loader.json */,
+				E20E698C25466E6500537D0F /* fries_loader.json */,
+				E20E698925466BFD00537D0F /* ice_cream_loader.json */,
+				E20E697B2546587200537D0F /* pizza_loader.json */,
+			);
+			path = Animations;
+			sourceTree = "<group>";
+		};
 		E2574A2E24B7D370006618D7 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -316,6 +352,7 @@
 		E2574A2F24B7D37E006618D7 /* Generic Views */ = {
 			isa = PBXGroup;
 			children = (
+				E2564CB22546015200304B5B /* LoaderView.swift */,
 				E25BA4B22533910E0063C944 /* PersonTitleButton.swift */,
 				E253A6BE25281ED200778500 /* LoadingView.swift */,
 				E287AB41252E6848008D8DBC /* NavigationTitleView.swift */,
@@ -417,6 +454,7 @@
 				E27A757924AFC77400E446EE /* Network */,
 				E27A757724AFC75B00E446EE /* Extensions */,
 				E2768DF124B15343004CB475 /* Constants */,
+				E20E6987254663F500537D0F /* Animations */,
 				E27A756224A8558000E446EE /* Assets.xcassets */,
 				E27A756424A8558000E446EE /* LaunchScreen.storyboard */,
 				E27A756724A8558000E446EE /* Info.plist */,
@@ -554,7 +592,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				E27A756624A8558000E446EE /* LaunchScreen.storyboard in Resources */,
+				E20E69932546949B00537D0F /* coffee_cup_loader.json in Resources */,
+				E20E69A325469AEF00537D0F /* fork_and_spoon_loader.json in Resources */,
+				E20E698D25466E6500537D0F /* fries_loader.json in Resources */,
+				E20E699C2546987000537D0F /* cupcake_loader.json in Resources */,
 				E27A756324A8558000E446EE /* Assets.xcassets in Resources */,
+				E20E699025468D1500537D0F /* wine_loader.json in Resources */,
+				E20E697C2546587200537D0F /* pizza_loader.json in Resources */,
+				E20E69992546976600537D0F /* mug_loader.json in Resources */,
+				E20E698A25466BFD00537D0F /* ice_cream_loader.json in Resources */,
+				E20E6996254695F900537D0F /* burger_loader.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -609,6 +656,7 @@
 			files = (
 				E23AFA0524F8DBB4004542A2 /* SelectLocationVC.swift in Sources */,
 				E2574A2324B53348006618D7 /* UIImageView-Extension.swift in Sources */,
+				E2564CB32546015200304B5B /* LoaderView.swift in Sources */,
 				E2DC2F2724EDCED0002C6A07 /* ImageXView.swift in Sources */,
 				E253A6C32528EBA100778500 /* UISearchBar-Extension.swift in Sources */,
 				E2E6E09F250445100005A55B /* ProfileMapVC.swift in Sources */,
