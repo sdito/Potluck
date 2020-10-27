@@ -27,6 +27,8 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     
     #warning("still some issues with restaurantList image cache")
     
+    #warning("dont do both animations on load up on restaurantListVC on initial load")
+    
     private let home = UINavigationController(rootViewController: ProfileHomeVC(isOwnUsersProfile: true, visits: nil, prevImageCache: nil))
     private let feed = UINavigationController(rootViewController: FeedHomeVC())
     private let addRestaurant = AddRestaurantVC()

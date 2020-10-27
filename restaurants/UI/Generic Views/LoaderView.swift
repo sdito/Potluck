@@ -12,8 +12,8 @@ import Lottie
 class LoaderView: UIView {
     #warning("use this for all activity indicators AND for refresh controls")
     private let label = UILabel()
-    private var animation: Animation?// = Animation.named("fork_and_spoon_loader")
-    private var animationView = AnimationView()//(animation: animation)
+    private var animation: Animation?
+    private var animationView = AnimationView()
     private let allAnimationNames = ["cupcake_loader", "mug_loader", "burger_loader", "coffee_cup_loader", "wine_loader", "fries_loader", "ice_cream_loader", "pizza_loader"]
     
     enum Style {
@@ -24,7 +24,6 @@ class LoaderView: UIView {
     init(style: Style) {
         super.init(frame: .zero)
         setUpAnimation(style: style)
-        
     }
     
     override func didMoveToWindow() {

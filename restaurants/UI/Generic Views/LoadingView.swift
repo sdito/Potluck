@@ -10,8 +10,7 @@ import UIKit
 
 class LoadingView: UIView {
     #warning("actually use when deployed")
-    private let activityView = UIActivityIndicatorView(style: .large)
-    private let label = UILabel()
+    private let loaderView = LoaderView(style: .large)
     private let button = UIButton()
     private let stackView = UIStackView()
     var controller: ShowViewVC?
@@ -20,11 +19,8 @@ class LoadingView: UIView {
         super.init(frame: .zero)
         setUpBase()
         setUpStackView()
-        setUpActivityView()
-        setUpLabel()
         setUpButton()
         setUpToAllowCancelling()
-        
     }
     
     required init?(coder: NSCoder) {
@@ -43,35 +39,29 @@ class LoadingView: UIView {
         stackView.distribution = .fill
         stackView.alignment = .center
         stackView.spacing = 10.0
-        stackView.addArrangedSubview(activityView)
-        stackView.addArrangedSubview(label)
+        stackView.addArrangedSubview(loaderView)
         stackView.addArrangedSubview(button)
         self.addSubview(stackView)
         stackView.constrainSides(to: self, distance: 20.0)
     }
     
-    private func setUpActivityView() {
-        activityView.startAnimating()
-    }
-    
-    private func setUpLabel() {
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "LOADING"
-        label.font = .mediumBold
-    }
     
     private func setUpButton() {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(.systemRed, for: .normal)
         button.setTitle("Cancel", for: .normal)
         button.titleLabel?.font = .smallBold
+        button.layoutIfNeeded()
         button.isHidden = true
     }
     
     private func setUpToAllowCancelling() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+        button.isHidden = true
+        stackView.addArrangedSubview(button)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
             UIView.animate(withDuration: 0.4) { [weak self] in
                 self?.button.isHidden = false
+                self?.stackView.layoutIfNeeded()
             }
         }
     }

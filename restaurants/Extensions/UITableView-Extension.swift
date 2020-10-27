@@ -13,7 +13,6 @@ extension UITableView {
     func showLoadingOnTableView(middle: Bool = true) {
         
         let containerView = UIView()
-//        let loadingView = UIActivityIndicatorView(style: .large)
         let animationView = LoaderView(style: .large)
         
         containerView.addSubview(animationView)
@@ -25,7 +24,6 @@ extension UITableView {
         } else {
             animationView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: UIScreen.main.bounds.height * 0.05).isActive = true
         }
-        
         
         
         self.backgroundView = containerView

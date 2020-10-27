@@ -9,7 +9,7 @@
 import UIKit
 
 class ProfileHomeVC: UIViewController {
-    #warning("need to show loading on table view")
+    
     private var isOwnUsersProfile = false
     private let showOnMapButton = OverlayButton()
     private var visitTableView: VisitTableView?
@@ -53,6 +53,7 @@ class ProfileHomeVC: UIViewController {
         }
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
+        
     }
     
     private func setUpNavigationBar() {
@@ -88,9 +89,6 @@ class ProfileHomeVC: UIViewController {
     private func getInitialUserVisits() {
         setMapButton(hidden: true)
         
-        visitTableView?.reloadData()
-        return;
-        
         if Network.shared.loggedIn {    
             Network.shared.getVisitFeed(feedType: .user, completion: { [weak self] (result) in
                 DispatchQueue.main.async {
@@ -110,6 +108,7 @@ class ProfileHomeVC: UIViewController {
             }, numberRequests: { _ in return })
             
         } else {
+            self.visits = []
             noUserTableView()
         }
     }

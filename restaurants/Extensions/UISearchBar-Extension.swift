@@ -13,14 +13,13 @@ extension UISearchBar {
     private static let activityIndicatorTagNumber = 134
     
     func showLoadingOnSearchBar() {
+        print("Show loading on search bar is being called")
         guard let leftView = self.searchTextField.leftView else { return }
-        let activityIndicator = UIActivityIndicatorView(style: .medium)
-        leftView.addSubview(activityIndicator)
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicator.tag = UISearchBar.activityIndicatorTagNumber
-        activityIndicator.backgroundColor = .secondarySystemBackground
-        activityIndicator.constrainSides(to: leftView)
-        activityIndicator.startAnimating()
+        let loaderView = LoaderView(style: .small)
+        leftView.addSubview(loaderView)
+        loaderView.tag = UISearchBar.activityIndicatorTagNumber
+        loaderView.backgroundColor = .secondarySystemBackground
+        loaderView.constrainSides(to: leftView)
     }
     
     func endLoadingOnSearchBar() {

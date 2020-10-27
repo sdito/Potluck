@@ -15,7 +15,7 @@ class RestaurantSearchBar: UIView {
     private var searchTypeLabel = UILabel()
     private var locationLabel = UILabel()
     private var searchImage = UIImageView(image: .magnifyingGlassImage)
-    private var activityView: UIActivityIndicatorView?
+    private var loaderView: LoaderView?
     
     enum SearchOption {
         case type
@@ -44,21 +44,20 @@ class RestaurantSearchBar: UIView {
             locationLabel.text = "Current location"
         }
         
-        if activityView != nil {
-            activityView?.removeFromSuperview()
+        if loaderView != nil {
+            loaderView?.removeFromSuperview()
         }
         
         showActivityIndicator()
     }
     
     func showActivityIndicator() {
-        activityView = searchImage.placeActivityIndicatorOnTop()
-        activityView!.backgroundColor = self.backgroundColor
+        loaderView = searchImage.placeLoaderViewOnTop()
+        loaderView!.backgroundColor = self.backgroundColor
     }
     
     func doneWithRestaurantSearch() {
-        self.activityView?.stopAnimating()
-        self.activityView?.removeFromSuperview()
+        self.loaderView?.removeFromSuperview()
     }
     
     func beginHeroAnimation() {

@@ -66,7 +66,7 @@ class SettingsVC: UIViewController {
     }
 }
 
-
+// MARK: Table view
 extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -96,7 +96,6 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
-    
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let action = UIContextualAction(style: .normal, title: "Info", handler: { (ac: UIContextualAction, view: UIView, success: (Bool) -> Void) in
@@ -112,10 +111,9 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
         return UISwipeActionsConfiguration(actions: [action])
     }
     
-    
-    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if scrollView == tableView {
+            
             let value = scrollView.contentOffset.y
             if let contentOffset = contentOffset {
                 let difference = value - contentOffset

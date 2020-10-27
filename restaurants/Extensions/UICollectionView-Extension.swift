@@ -37,7 +37,6 @@ extension UICollectionView {
         
         self.backgroundView = container
         
-        
         NSLayoutConstraint.activate([
             stack.centerXAnchor.constraint(equalTo: container.centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
@@ -55,8 +54,13 @@ extension UICollectionView {
     }
     
     func showLoadingOnCollectionView() {
-        let loadingView = UIActivityIndicatorView(style: .large)
-        loadingView.startAnimating()
-        self.backgroundView = loadingView
+        let containerView = UIView()
+        let animationView = LoaderView(style: .large)
+        
+        containerView.addSubview(animationView)
+        animationView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+        animationView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        
+        self.backgroundView = containerView
     }
 }

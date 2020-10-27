@@ -126,7 +126,8 @@ extension EstablishmentListVC: UITableViewDelegate, UITableViewDataSource {
             tableView.restore()
         } else if initialDataFound {
             // received data from server, just is empty
-            let button = tableView.setEmptyWithAction(message: "This user does not have any places yet", buttonTitle: "", area: .center)
+            
+            let button = tableView.setEmptyWithAction(message: "No places yet", buttonTitle: "", area: .center)
             button.isHidden = true
         } else {
             tableView.showLoadingOnTableView()

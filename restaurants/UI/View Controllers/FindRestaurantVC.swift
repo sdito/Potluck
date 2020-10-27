@@ -426,7 +426,6 @@ class FindRestaurantVC: UIViewController {
     @objc private func findRestaurantsAgain() {
         userMovedMapView = false
         beginningCenter = nil
-        moreRestaurantsButton!.showLoadingOnButton()
         let location = mapView.region.center
         restaurantSearch.coordinate = location
         restaurantSearch.location = .mapLocation
@@ -441,7 +440,7 @@ class FindRestaurantVC: UIViewController {
     
     private func getRestaurantsFromPreSetRestaurantSearch(initial: Bool) {
         if !initial {
-            moreRestaurantsButton?.showLoadingOnButton()
+            moreRestaurantsButton?.showLoadingOnButton(withLoaderView: false)
         }
         Network.shared.getRestaurants(restaurantSearch: restaurantSearch, filters: searchFilters) { [weak self] (response) in
             DispatchQueue.main.async {

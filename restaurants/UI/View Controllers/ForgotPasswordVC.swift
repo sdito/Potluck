@@ -213,7 +213,7 @@ class ForgotPasswordVC: UIViewController {
             self.textField.resignFirstResponder()
             self.textField.isUserInteractionEnabled = false
             self.actionButton.isUserInteractionEnabled = false
-            self.actionButton.showLoadingOnButton()
+            self.actionButton.showLoadingOnButton(withLoaderView: true)
         }
     }
     

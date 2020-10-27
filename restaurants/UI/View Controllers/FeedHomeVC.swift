@@ -10,7 +10,7 @@ import UIKit
 
 
 class FeedHomeVC: UIViewController {
-    #warning("need to show loading on table view")
+    
     private var visits: [Visit] = [] {
         didSet {
             visitTableView?.visits = visits

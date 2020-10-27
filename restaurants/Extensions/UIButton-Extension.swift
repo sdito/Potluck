@@ -11,7 +11,7 @@ import UIKit
 
 extension UIButton {
     
-    private static let activityIndicatorTag = 919
+    private static let loaderViewTag = 919
     
     override open var intrinsicContentSize: CGSize {
         let intrinsicContentSize = super.intrinsicContentSize
@@ -23,26 +23,29 @@ extension UIButton {
     }
     
     
-    func showLoadingOnButton() {
+    func showLoadingOnButton(withLoaderView: Bool) {
         self.isUserInteractionEnabled = false
-        let activityIndicator = UIActivityIndicatorView()
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicator.tag = UIButton.activityIndicatorTag
-        self.setTitleColor(.clear, for: .normal)
-        self.addSubview(activityIndicator)
-        NSLayoutConstraint.activate([
-            activityIndicator.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            activityIndicator.centerXAnchor.constraint(equalTo: self.centerXAnchor)
-        ])
-        activityIndicator.startAnimating()
-
+        
+        if withLoaderView {
+            self.setTitleColor(.clear, for: .normal)
+            
+            let loaderView = LoaderView(style: .small)
+            loaderView.tag = UIButton.loaderViewTag
+            self.addSubview(loaderView)
+            loaderView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+            loaderView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+        } else {
+            self.setTitleColor(.systemGray, for: .normal)
+        }
+        
     }
     
     func endLoadingOnButton(titleColor: UIColor) {
         self.isUserInteractionEnabled = true
         self.setTitleColor(titleColor, for: .normal)
+        
         for view in self.subviews {
-            if view.tag == UIButton.activityIndicatorTag {
+            if view.tag == UIButton.loaderViewTag {
                 view.removeFromSuperview()
             }
         }

@@ -177,7 +177,6 @@ extension MKMapView {
     }
     
     func trueFitAllAnnotations(annotations: [MKAnnotation], animated: Bool) {
-        #warning("need to have a minimum zoom, so when there is only one annotation is is not zoomed in too much")
         if annotations.count > 0 {
             var zoomRect = MKMapRect.null
             for annotation in annotations {
@@ -185,7 +184,22 @@ extension MKMapView {
                 let pointRect = MKMapRect(x: annotationPoint.x, y: annotationPoint.y, width: 0.1, height: 0.1);
                 zoomRect = zoomRect.union(pointRect);
             }
-            self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50), animated: animated)
+            
+            // i.e. if there is only one or two annotations close together, this will enable it to not be zoomed in too much
+            let minimumSize: Double = 5000.0
+            
+            if zoomRect.width <= minimumSize && zoomRect.height <= minimumSize {
+                // need to calculate my own origin
+                print("width: \(zoomRect.width), height: \(zoomRect.height)")
+                let oldOrigin = zoomRect.origin
+                let newOrigin = MKMapPoint(x: oldOrigin.x - ((minimumSize - zoomRect.width)/2.0), y: oldOrigin.y - ((minimumSize - zoomRect.height)/2.0))
+                
+                let largerMapRect = MKMapRect(origin: newOrigin, size: MKMapSize(width: minimumSize, height: minimumSize))
+                self.setVisibleMapRect(largerMapRect, edgePadding: UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50), animated: animated)
+                
+            } else {
+                self.setVisibleMapRect(zoomRect, edgePadding: UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50), animated: animated)
+            }
         }
     }
     

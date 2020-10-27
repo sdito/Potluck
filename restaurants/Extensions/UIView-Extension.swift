@@ -38,17 +38,15 @@ extension UIView {
     }
     
     @discardableResult
-    func placeActivityIndicatorOnTop() -> UIActivityIndicatorView {
-        let activityView = UIActivityIndicatorView()
-        activityView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(activityView)
+    func placeLoaderViewOnTop() -> LoaderView {
+        let loaderView = LoaderView(style: .small)
+        loaderView.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(loaderView)
         
-        activityView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
-        activityView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+        loaderView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+        loaderView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
         
-        activityView.startAnimating()
-        
-        return activityView
+        return loaderView
     }
     
     func appIsHiddenAnimated(isHidden: Bool, animated: Bool = true) {

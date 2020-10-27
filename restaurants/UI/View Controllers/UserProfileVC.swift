@@ -29,10 +29,11 @@ class UserProfileVC: UIViewController {
     private var mapViewHeight: CGFloat?
     private var headerButton: UIButton?
     private let imageCache = NSCache<NSString, UIImage>()
-    private let refreshControl = UIRefreshControl()
+    private let animatedRefreshControl = AnimatedRefreshControl()
     private var threeDotsBarButtonItem: UIBarButtonItem?
     private var overlayForNoEstablishments: OverlayButton? { didSet { self.overlayForNoEstablishments?.isUserInteractionEnabled = false } }
     private var initialDataReceived = false
+    private var refreshControlSetUp = false
     
     private let establishmentListButton = OverlayButton()
     private let reCenterMapButton = OverlayButton()
@@ -133,15 +134,23 @@ class UserProfileVC: UIViewController {
         collectionView!.alwaysBounceVertical = true
         collectionView!.register(ProfileCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView!.register(TitleReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
-        
-        refreshControl.addTarget(self, action: #selector(refreshControlSelected), for: .valueChanged)
-        collectionView?.refreshControl = refreshControl
-        
+    }
+    
+    private func setUpRefreshControl() {
+        if !refreshControlSetUp {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.refreshControlSetUp = true
+                self.animatedRefreshControl.addTarget(self, action: #selector(self.refreshControlSelected), for: .valueChanged)
+                self.collectionView?.refreshControl = self.animatedRefreshControl
+            }
+        }
     }
     
     private func getPersonData() {
         Network.shared.getPersonProfile(person: person) { [weak self] (response) in
             guard let self = self else { return }
+            self.setUpRefreshControl()
             self.initialDataReceived = true
             DispatchQueue.main.async {
                 self.collectionView?.refreshControl?.endRefreshing()
@@ -424,7 +433,7 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        
+        animatedRefreshControl.updateProgress(with: scrollView.contentOffset.y)
         if allowChanges {
             allowChanges = false
             

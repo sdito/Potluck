@@ -17,6 +17,7 @@
 		E20E69992546976600537D0F /* mug_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = E20E69982546976600537D0F /* mug_loader.json */; };
 		E20E699C2546987000537D0F /* cupcake_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = E20E699B2546987000537D0F /* cupcake_loader.json */; };
 		E20E69A325469AEF00537D0F /* fork_and_spoon_loader.json in Resources */ = {isa = PBXBuildFile; fileRef = E20E69A225469AEF00537D0F /* fork_and_spoon_loader.json */; };
+		E20E69A62547C2BF00537D0F /* AnimatedRefreshControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20E69A52547C2BF00537D0F /* AnimatedRefreshControl.swift */; };
 		E20EA82824E27BDD0064DB86 /* FilterRestaurantsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82724E27BDD0064DB86 /* FilterRestaurantsVC.swift */; };
 		E20EA82A24E282980064DB86 /* SpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82924E282980064DB86 /* SpacerView.swift */; };
 		E20EA82C24E30CBF0064DB86 /* Constraints-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */; };
@@ -148,6 +149,7 @@
 		E20E69982546976600537D0F /* mug_loader.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = mug_loader.json; sourceTree = "<group>"; };
 		E20E699B2546987000537D0F /* cupcake_loader.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cupcake_loader.json; sourceTree = "<group>"; };
 		E20E69A225469AEF00537D0F /* fork_and_spoon_loader.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = fork_and_spoon_loader.json; sourceTree = "<group>"; };
+		E20E69A52547C2BF00537D0F /* AnimatedRefreshControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedRefreshControl.swift; sourceTree = "<group>"; };
 		E20EA82724E27BDD0064DB86 /* FilterRestaurantsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterRestaurantsVC.swift; sourceTree = "<group>"; };
 		E20EA82924E282980064DB86 /* SpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacerView.swift; sourceTree = "<group>"; };
 		E20EA82B24E30CBF0064DB86 /* Constraints-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Constraints-Extension.swift"; sourceTree = "<group>"; };
@@ -370,6 +372,7 @@
 				E20EA83924E870E00064DB86 /* PaddingTextField.swift */,
 				E23AFA0C24FCCC30004542A2 /* PlaceholderTextView.swift */,
 				E253A6AD2522AD0200778500 /* PhoneTextField.swift */,
+				E20E69A52547C2BF00537D0F /* AnimatedRefreshControl.swift */,
 			);
 			path = "Generic Views";
 			sourceTree = "<group>";
@@ -696,6 +699,7 @@
 				E21255312512A3CB0049E9FD /* SliderRatingView.swift in Sources */,
 				E215534D24B2A20E00494E1A /* UIView-Extension.swift in Sources */,
 				E20EA83424E7A98D0064DB86 /* CreateAccountVC.swift in Sources */,
+				E20E69A62547C2BF00537D0F /* AnimatedRefreshControl.swift in Sources */,
 				E2E6E0A52505B40F0005A55B /* UICollectionView-Extension.swift in Sources */,
 				E2894ECB2502F2E50012E8D8 /* NotificationName.swift in Sources */,
 				E27A755A24A8557E00E446EE /* AppDelegate.swift in Sources */,

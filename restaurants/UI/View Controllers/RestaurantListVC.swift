@@ -215,7 +215,9 @@ class RestaurantListVC: UIViewController {
     @objc private func baseSearchSelector(sender: UIButton) {
         baseSearch()
         sender.setTitleColor(.clear, for: .normal)
-        sender.placeActivityIndicatorOnTop()
+        
+        #warning("need to actually test")
+        sender.placeLoaderViewOnTop()
     }
     
     private func setUpTableView() {
