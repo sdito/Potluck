@@ -196,7 +196,6 @@ class RestaurantListVC: UIViewController {
             }
         }
         
-        #warning("convert this to modal presentation with HeaderView")
         restaurantSearchBar.beginHeroAnimation()
         let searchInfo = owner.restaurantSearch
         self.navigationController?.isHeroEnabled = true
@@ -214,9 +213,9 @@ class RestaurantListVC: UIViewController {
     
     @objc private func baseSearchSelector(sender: UIButton) {
         baseSearch()
-        sender.setTitleColor(.clear, for: .normal)
-        
-        #warning("need to actually test")
+//        sender.setTitleColor(.clear, for: .normal)
+        sender.isUserInteractionEnabled = false
+        sender.setTitleColor(sender.titleColor(for: .normal)?.withAlphaComponent(0.3), for: .normal)
         sender.placeLoaderViewOnTop()
     }
     

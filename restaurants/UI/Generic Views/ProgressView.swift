@@ -83,7 +83,7 @@ class ProgressView: UIView {
         
         if let vc = self.findViewController() as? ShowViewVC {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                vc.removeAnimatedSelectorDone()
+                vc.animateSelectorWithCompletion(completion: { _ in return })
             }
         } else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {

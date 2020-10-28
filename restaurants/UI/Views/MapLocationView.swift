@@ -17,24 +17,18 @@ class MapLocationView: UIView {
     private var address: String?
     private var wantedDistance = 4000
     
-    
     var mapAlpha: CGFloat {
         return imageView.alpha
     }
     
-    init(locationTitle: String, coordinate: CLLocationCoordinate2D?, address: String?) {
+    init(estimatedSize: CGSize, locationTitle: String, coordinate: CLLocationCoordinate2D?, address: String?) {
         super.init(frame: .zero)
         self.coordinate = coordinate
         self.address = address
         self.locationTitle = locationTitle
         setUpMap()
-        
-        
-        
-        #warning("this is really bad")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            self.setUpLocation()
-        }
+        self.setUpLocation(size: estimatedSize)
+
     }
     
     required init?(coder: NSCoder) {
@@ -56,10 +50,10 @@ class MapLocationView: UIView {
         self.imageView.alpha = value
     }
     
-    private func setUpLocation() {
+    private func setUpLocation(size: CGSize) {
         
         if let coordinate = coordinate {
-            setUpSnapshot(with: coordinate)
+            setUpSnapshot(with: coordinate, size: size)
         } else if let address = address {
             let geoCoder = CLGeocoder()
             geoCoder.geocodeAddressString(address) { [weak self] (placeMarks, error) in
@@ -73,7 +67,7 @@ class MapLocationView: UIView {
                     print("Not able to get coordinate from location")
                     return
                 }
-                self.setUpSnapshot(with: location)
+                self.setUpSnapshot(with: location, size: size)
             }
         } else {
             fatalError("Need to have either a coordinate or an address")
@@ -81,11 +75,10 @@ class MapLocationView: UIView {
         
     }
     
-    func setUpSnapshot(with coordinate: CLLocationCoordinate2D) {
-        
+    func setUpSnapshot(with coordinate: CLLocationCoordinate2D, size: CGSize) {
         let options = MKMapSnapshotter.Options()
         options.region = MKCoordinateRegion(center: coordinate, latitudinalMeters: CLLocationDistance(wantedDistance), longitudinalMeters: CLLocationDistance(wantedDistance))
-        options.size = imageView.frame.size
+        options.size = size
         options.scale = UIScreen.main.scale
         options.pointOfInterestFilter = .init(excluding: [.restaurant, .cafe])
         options.traitCollection = self.traitCollection
@@ -124,7 +117,7 @@ class MapLocationView: UIView {
     func updateLocation(coordinate: CLLocationCoordinate2D) {
         self.coordinate = coordinate
         imageView.appStartSkeleton()
-        setUpLocation()
+        setUpLocation(size: self.bounds.size)
     }
     
     

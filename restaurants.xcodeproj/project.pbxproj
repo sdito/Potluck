@@ -65,7 +65,7 @@
 		E253A6B12523FBAF00778500 /* Person.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6B02523FBAF00778500 /* Person.swift */; };
 		E253A6B52523FCDA00778500 /* Person-Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6B42523FCDA00778500 /* Person-Network.swift */; };
 		E253A6B8252501BE00778500 /* GenericTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6B7252501BE00778500 /* GenericTableVC.swift */; };
-		E253A6BF25281ED200778500 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6BE25281ED200778500 /* LoadingView.swift */; };
+		E253A6BF25281ED200778500 /* WaitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6BE25281ED200778500 /* WaitView.swift */; };
 		E253A6C32528EBA100778500 /* UISearchBar-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6C22528EBA100778500 /* UISearchBar-Extension.swift */; };
 		E253A6C72529284B00778500 /* UserProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6C62529284B00778500 /* UserProfileVC.swift */; };
 		E253A6CB2529313400778500 /* Array-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E253A6CA2529313400778500 /* Array-Extension.swift */; };
@@ -197,7 +197,7 @@
 		E253A6B02523FBAF00778500 /* Person.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Person.swift; sourceTree = "<group>"; };
 		E253A6B42523FCDA00778500 /* Person-Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Person-Network.swift"; sourceTree = "<group>"; };
 		E253A6B7252501BE00778500 /* GenericTableVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericTableVC.swift; sourceTree = "<group>"; };
-		E253A6BE25281ED200778500 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		E253A6BE25281ED200778500 /* WaitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitView.swift; sourceTree = "<group>"; };
 		E253A6C22528EBA100778500 /* UISearchBar-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UISearchBar-Extension.swift"; sourceTree = "<group>"; };
 		E253A6C62529284B00778500 /* UserProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileVC.swift; sourceTree = "<group>"; };
 		E253A6CA2529313400778500 /* Array-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array-Extension.swift"; sourceTree = "<group>"; };
@@ -356,7 +356,7 @@
 			children = (
 				E2564CB22546015200304B5B /* LoaderView.swift */,
 				E25BA4B22533910E0063C944 /* PersonTitleButton.swift */,
-				E253A6BE25281ED200778500 /* LoadingView.swift */,
+				E253A6BE25281ED200778500 /* WaitView.swift */,
 				E287AB41252E6848008D8DBC /* NavigationTitleView.swift */,
 				E23AFA1024FF0E5C004542A2 /* ProgressView.swift */,
 				E23AFA0824F9C7E7004542A2 /* HeaderView.swift */,
@@ -736,7 +736,7 @@
 				E253A6C72529284B00778500 /* UserProfileVC.swift in Sources */,
 				E253A6CE252BCB8A00778500 /* ProfileCell.swift in Sources */,
 				E29AF2F724D690F5004C60FC /* SearchRestaurantsVC.swift in Sources */,
-				E253A6BF25281ED200778500 /* LoadingView.swift in Sources */,
+				E253A6BF25281ED200778500 /* WaitView.swift in Sources */,
 				E25BA4CB253679630063C944 /* EstablishmentListVC.swift in Sources */,
 				E2574A3224B7D41D006618D7 /* ScrollingStackView.swift in Sources */,
 				E23AFA0124F89D31004542A2 /* TwoLevelCell.swift in Sources */,

@@ -108,7 +108,7 @@ class ActionSheetView: UIView {
     }
     
     @objc private func cancelSelector() {
-        self.showViewVC?.removeAnimatedSelectorDone()
+        self.showViewVC?.animateSelectorWithCompletion(completion: { _ in return })
     }
     
     @objc private func buttonSelector(sender: UIButton) {

@@ -209,9 +209,12 @@ class EstablishmentDetailVC: UIViewController {
         // Set up the Map
         if mode == .fullScreenBase || mode == .fullScreenHeaderAndMap {
             if let coordinate = establishment.coordinate {
-                mapLocationView = MapLocationView(locationTitle: establishment.name, coordinate: coordinate, address: establishment.displayAddress)
+                
+                let mapLocationHeight = UIScreen.main.bounds.height * 0.2
+            
+                mapLocationView = MapLocationView(estimatedSize: CGSize(width: self.view.bounds.width, height: mapLocationHeight), locationTitle: establishment.name, coordinate: coordinate, address: establishment.displayAddress)
                 self.view.addSubview(mapLocationView!)
-                mapLocationView?.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height * 0.2).isActive = true
+                mapLocationView?.heightAnchor.constraint(equalToConstant: mapLocationHeight).isActive = true
                 mapLocationView!.constrain(.leading, to: self.view, .leading)
                 
                 if let header = headerView {

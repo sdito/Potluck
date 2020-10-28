@@ -10,7 +10,7 @@ import UIKit
 import Lottie
 
 class LoaderView: UIView {
-    #warning("use this for all activity indicators AND for refresh controls")
+    
     private let label = UILabel()
     private var animation: Animation?
     private var animationView = AnimationView()

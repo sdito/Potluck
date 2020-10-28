@@ -136,28 +136,35 @@ class ShowViewVC: UIViewController {
     }
     
     
-    @objc func removeAnimatedSelectorDone() {
+    @objc private func removeAnimatedSelectorDone() {
+        animateSelectorWithCompletion(completion: { _ in return })
+    }
+    
+    func animateSelectorWithCompletion(completion: @escaping (Bool) -> Void) {
         switch mode {
         case .top:
             UIView.animate(withDuration: 0.3, animations: {
                 self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
                 self.newView.transform = CGAffineTransform(translationX: 0, y: -(self.fromTopConstant + self.newView.frame.height))
-            }) { (true) in
+            }) { (done) in
                 self.dismiss(animated: false, completion: nil)
+                completion(true)
             }
         case .middle:
             UIView.animate(withDuration: 0.3, animations: {
                 self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
                 self.newView.transform = CGAffineTransform(translationX: 0, y: self.travelDistance)
-            }) { (true) in
+            }) { (done) in
                 self.dismiss(animated: false, completion: nil)
+                completion(true)
             }
         case .bottom:
             UIView.animate(withDuration: 0.3, animations: {
                 self.view.backgroundColor = UIColor.black.withAlphaComponent(0.0)
                 self.newView.transform = CGAffineTransform(translationX: 0, y: self.fromBottomDistance + self.newView.frame.height)
-            }) { (true) in
+            }) { (done) in
                 self.dismiss(animated: false, completion: nil)
+                completion(true)
             }
         }
     }

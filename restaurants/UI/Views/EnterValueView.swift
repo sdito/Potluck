@@ -162,7 +162,7 @@ class EnterValueView: UIView {
     }
     
     @objc private func cancelAction() {
-        controller?.removeAnimatedSelectorDone()
+        controller?.animateSelectorWithCompletion(completion: { _ in return })
     }
     
     @objc private func doneAction() {
@@ -182,7 +182,7 @@ class EnterValueView: UIView {
             
             if string.count > 0 {
                 delegate?.textFound(string: string)
-                controller?.removeAnimatedSelectorDone()
+                controller?.animateSelectorWithCompletion(completion: { _ in return })
             } else {
                 UIDevice.vibrateError()
                 text.1.shakeView()
@@ -200,7 +200,7 @@ class EnterValueView: UIView {
         } else if mode == .phone {
             if let number = phoneNumberTextField?.phoneNumberValue {
                 delegate?.phoneFound(string: number)
-                controller?.removeAnimatedSelectorDone()
+                controller?.animateSelectorWithCompletion(completion: { _ in return })
             } else {
                 UIDevice.vibrateError()
                 phoneNumberTextField?.shakeView()
@@ -210,7 +210,7 @@ class EnterValueView: UIView {
     
     private func executeForRating(rating: Float?) {
         delegate?.ratingFound(float: rating)
-        controller?.removeAnimatedSelectorDone()
+        controller?.animateSelectorWithCompletion(completion: { _ in return })
     }
     
     private func raiseViewForKeyboard() {

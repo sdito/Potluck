@@ -163,10 +163,9 @@ class SubmitRestaurantVC: UIViewController {
             coordinate = restaurant.coordinate
         }
         
-        map = MapLocationView(locationTitle: name, coordinate: coordinate, address: address)
+        map = MapLocationView(estimatedSize: CGSize(width: self.view.bounds.width, height: self.view.bounds.height / 2.0), locationTitle: name, coordinate: coordinate, address: address)
         headerStackView.addArrangedSubview(map!)
         map?.widthAnchor.constraint(equalTo: headerStackView.widthAnchor).isActive = true
-        //map!.heightAnchor.constraint(equalToConstant: 150.0).isActive = true
         map?.layer.cornerRadius = 10.0
         map?.clipsToBounds = true
         

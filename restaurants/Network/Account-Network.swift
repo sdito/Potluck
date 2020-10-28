@@ -123,7 +123,7 @@ extension Network {
                         } else if res.email != nil {
                             return .emailInUse
                         } else if res.username != nil {
-                            return .emailInUse
+                            return .usernameInUse
                         } else {
                             return .unableToLogIn
                         }

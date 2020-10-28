@@ -1,5 +1,5 @@
 //
-//  LoadingView.swift
+//  WaitView.swift
 //  restaurants
 //
 //  Created by Steven Dito on 10/2/20.
@@ -8,8 +8,8 @@
 
 import UIKit
 
-class LoadingView: UIView {
-    #warning("actually use when deployed")
+class WaitView: UIView {
+    
     private let loaderView = LoaderView(style: .large)
     private let button = UIButton()
     private let stackView = UIStackView()
@@ -55,10 +55,11 @@ class LoadingView: UIView {
         button.isHidden = true
     }
     
+    #warning("need to actually implement this throughout the app")
     private func setUpToAllowCancelling() {
         button.isHidden = true
         stackView.addArrangedSubview(button)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
             UIView.animate(withDuration: 0.4) { [weak self] in
                 self?.button.isHidden = false
                 self?.stackView.layoutIfNeeded()
@@ -66,8 +67,11 @@ class LoadingView: UIView {
         }
     }
     
-    func doneLoading() {
-        controller?.removeAnimatedSelectorDone()
+    func doneLoading(complete: @escaping (Bool) -> Void) {
+        //controller?.animateSelectorWithCompletion()
+        controller?.animateSelectorWithCompletion(completion: { (done) in
+            complete(done)
+        })
     }
 
 }

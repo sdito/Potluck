@@ -15,7 +15,6 @@ protocol LogInFieldDelegate: class {
 
 
 class LogInField: UIView {
-    #warning("need to use return button")
     let emailPlaceholder = "Email address"
     let usernamePlaceholder = "Username"
     let passwordPlaceholder = "Password"

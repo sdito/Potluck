@@ -208,12 +208,7 @@ extension Network {
             }
             do {
                 let visits = try self.decoder.decode(Visit.VisitDecoder.self, from: data)
-                
-                
-                #warning("need to use count for friends feed")
                 let count = visits.pending_request_count
-                
-                
                 guard let vis = visits.visits else { return }
                 completion(Result.success(vis))
                 numberRequests(count)

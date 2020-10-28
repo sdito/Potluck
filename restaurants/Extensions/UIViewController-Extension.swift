@@ -14,8 +14,10 @@ import SafariServices
 extension UIViewController {
     
     func showMapDetail(locationTitle: String, coordinate: CLLocationCoordinate2D?, address: String?) {
-        let mapLocationView = MapLocationView(locationTitle: locationTitle, coordinate: coordinate, address: address)
-        mapLocationView.equalSides(size: UIScreen.main.bounds.width * 0.8)
+        let sideSize = UIScreen.main.bounds.width * 0.8
+        let size = CGSize(width: sideSize, height: sideSize)
+        let mapLocationView = MapLocationView(estimatedSize: size, locationTitle: locationTitle, coordinate: coordinate, address: address)
+        mapLocationView.equalSides(size: sideSize)
         mapLocationView.layer.cornerRadius = 25.0
         mapLocationView.clipsToBounds = true
         
@@ -77,8 +79,8 @@ extension UIViewController {
         self.present(showViewVC, animated: false, completion: nil)
     }
     
-    func showLoadingView() -> LoadingView {
-        let loadingView = LoadingView()
+    func showLoadingView() -> WaitView {
+        let loadingView = WaitView()
         let showViewVC = ShowViewVC(newView: loadingView, mode: .top, allowScreenPressToDismiss: false)
         loadingView.controller = showViewVC
         showViewVC.modalPresentationStyle = .overFullScreen

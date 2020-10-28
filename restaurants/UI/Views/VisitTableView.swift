@@ -27,7 +27,7 @@ class VisitTableView: UITableView {
             self.initialDataFound = true
         }
     }
-    private let refreshControlView = AnimatedRefreshControl()
+    private let animatedRefreshControl = AnimatedRefreshControl()
     private let reuseIdentifier = "visitCellReuseIdentifier"
     private weak var visitTableViewDelegate: VisitTableViewDelegate?
     private var mode: Mode = .user
@@ -58,8 +58,8 @@ class VisitTableView: UITableView {
         self.rowHeight = UITableView.automaticDimension
         self.separatorInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         
-        refreshControlView.addTarget(self, action: #selector(refreshControlSelector), for: .valueChanged)
-        self.refreshControl = refreshControlView
+        animatedRefreshControl.addTarget(self, action: #selector(refreshControlSelector), for: .valueChanged)
+        self.refreshControl = animatedRefreshControl
         
         self.backgroundColor = .systemBackground
         
@@ -286,7 +286,7 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        refreshControlView.updateProgress(with: scrollView.contentOffset.y)
+        animatedRefreshControl.updateProgress(with: scrollView.contentOffset.y)
     }
     
     func clearCaches() {

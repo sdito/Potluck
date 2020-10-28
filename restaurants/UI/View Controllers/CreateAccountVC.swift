@@ -111,36 +111,42 @@ class CreateAccountVC: UIViewController {
     }
     
     private func handleRegisterUserRequest(email: String, username: String, password: String) {
+        let loadingView = self.showLoadingView()
         Network.shared.registerUser(email: email, username: username, password: password) { [weak self] (result) in
             DispatchQueue.main.async {
-                guard let self = self else { return }
-                switch result {
-                case .success(let success):
-                    if success {
-                        self.showMessage("Created new account as \(Network.shared.account!.username)")
-                        self.navigationController?.popViewController(animated: true)
+                loadingView.doneLoading { _ in
+                    guard let self = self else { return }
+                    switch result {
+                    case .success(let success):
+                        if success {
+                            self.showMessage("Created new account as \(Network.shared.account!.username)")
+                            self.navigationController?.popViewController(animated: true)
+                        }
+                    case .failure(let error):
+                        self.appAlert(title: "Error", message: error.message, buttons: [("Ok", nil)])
                     }
-                case .failure(let error):
-                    self.appAlert(title: "Error", message: error.message, buttons: [("Ok", nil)])
                 }
             }
         }
     }
     
     private func handleLogInUserRequest(identifier: String, password: String) {
+        let loadingView = self.showLoadingView()
         Network.shared.retrieveToken(identifier: identifier, password: password) { [weak self] (result) in
             DispatchQueue.main.async {
-                guard let self = self else { return }
-                switch result {
-                case .success(let success):
-                    if success {
-                        self.showMessage("Logged into \(Network.shared.account?.username ?? "account")")
-                        self.navigationController?.popViewController(animated: true)
+                loadingView.doneLoading { (done) in
+                    guard let self = self else { return }
+                    switch result {
+                    case .success(let success):
+                        if success {
+                            self.showMessage("Logged into \(Network.shared.account?.username ?? "account")")
+                            self.navigationController?.popViewController(animated: true)
+                        }
+                    case .failure(let error):
+                        self.appAlert(title: "Error", message: error.message, buttons: [("Ok", nil)])
+                        UIDevice.vibrateError()
+                        break
                     }
-                case .failure(let error):
-                    self.appAlert(title: "Error", message: error.message, buttons: [("Ok", nil)])
-                    UIDevice.vibrateError()
-                    break
                 }
             }
         }

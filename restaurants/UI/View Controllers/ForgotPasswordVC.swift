@@ -214,6 +214,7 @@ class ForgotPasswordVC: UIViewController {
             self.textField.isUserInteractionEnabled = false
             self.actionButton.isUserInteractionEnabled = false
             self.actionButton.showLoadingOnButton(withLoaderView: true)
+            self.actionButton.backgroundColor = .secondarySystemBackground
         }
     }
     
@@ -222,6 +223,7 @@ class ForgotPasswordVC: UIViewController {
             self.textField.isUserInteractionEnabled = true
             self.actionButton.isUserInteractionEnabled = true
             self.actionButton.endLoadingOnButton(titleColor: LogInButton.titleColor)
+            self.actionButton.backgroundColor = LogInButton.backgroundColor
         }
     }
     
