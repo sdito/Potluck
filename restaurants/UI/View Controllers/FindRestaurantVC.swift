@@ -15,7 +15,7 @@ import CoreLocation
 protocol SearchUpdatedFromMasterDelegate: class {
     func newSearch(search: Network.RestaurantSearch)
 }
-
+#warning("location button is shown sometimes when it shoudlnt be")
 
 class FindRestaurantVC: UIViewController {
     
@@ -523,6 +523,8 @@ extension FindRestaurantVC: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         // Scroll to the correct cell
+        restaurantListVC.mapViewAnnotationWasDeselectedOrSelected()
+        
         if let restaurantAnnotation = view as? RestaurantAnnotationView, let annotationRestaurant = restaurantAnnotation.restaurant {
             createSelectedRestaurantView(annotationRestaurant: annotationRestaurant)
         }
@@ -545,6 +547,8 @@ extension FindRestaurantVC: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
         // Deselect runs before select when one is switched, so need to look in the future and see if there are any selected
         // If none are selected, animate the view gone
+        
+        restaurantListVC.mapViewAnnotationWasDeselectedOrSelected()
         
         if isRestSelectedViewSwipeDismissed {
             isRestSelectedViewSwipeDismissed = false

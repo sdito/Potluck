@@ -103,14 +103,7 @@ class MapCutoutView: UIView {
         
         let snapshotter = MKMapSnapshotter(options: options)
         
-        
-        
-        
-        
-        
-        
-        
-        #warning("need to run this the background thread") // everything before is fine
+        #warning("somewhere some UI thing is running on the background thread") // everything before is fine
         
         
         snapshotter.start(with: .global(qos: .userInteractive)) { snapshot, error in
@@ -166,14 +159,6 @@ class MapCutoutView: UIView {
             UIGraphicsEndImageContext()
             completionHandler(stepImage, route.expectedTravelTime)
         }
-        
-        
-        
-        
-        
-        
-        
-        
     }
     
     private func handlePressingMap() {

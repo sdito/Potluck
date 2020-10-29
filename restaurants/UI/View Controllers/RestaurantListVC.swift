@@ -15,7 +15,7 @@ class RestaurantListVC: UIViewController {
     var locationAllowed = true
     var atMiddle = true {
         didSet {
-            self.handleSettingFooterSize()
+            self.updateTableViewInset()
         }
     }
     private var searchUpdatedFromHere = false
@@ -28,6 +28,12 @@ class RestaurantListVC: UIViewController {
     private var scrollingStackViewForSearchButtons: ScrollingStackView!
     private let topViewPadding: CGFloat = 7.0
     private var allowMasterToChangePosition = true
+    private var lastRowSize: CGFloat = 0.0
+    private var scrolledToOffset: CGFloat?
+    private var isUserScrolling = false
+    private var tableViewInset: CGFloat {
+        return self.tableView.frame.height - self.lastRowSize
+    }
     
     let filterButton = SizeChangeButton(sizeDifference: .medium, restingColor: .secondaryLabel, selectedColor: .secondaryLabel)
     
@@ -36,6 +42,7 @@ class RestaurantListVC: UIViewController {
             imageCache.removeAllObjects()
             tableView.reloadData()
             if tableView.numberOfRows(inSection: 0) > 0 {
+                mapViewAnnotationWasDeselectedOrSelected()
                 tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
             }
         }
@@ -213,10 +220,8 @@ class RestaurantListVC: UIViewController {
     
     @objc private func baseSearchSelector(sender: UIButton) {
         baseSearch()
-//        sender.setTitleColor(.clear, for: .normal)
         sender.isUserInteractionEnabled = false
-        sender.setTitleColor(sender.titleColor(for: .normal)?.withAlphaComponent(0.3), for: .normal)
-        sender.placeLoaderViewOnTop()
+        sender.setTitleColor(sender.titleColor(for: .normal)?.withAlphaComponent(0.25), for: .normal)
     }
     
     private func setUpTableView() {
@@ -234,9 +239,11 @@ class RestaurantListVC: UIViewController {
         tableView.dataSource = self
         tableView.rowHeight = UITableView.automaticDimension
         tableView.showsVerticalScrollIndicator = false
-        // could use by knowing if in medium or full mode, if medium have it as tall as the diff between cell and total, else none
         
-        handleSettingFooterSize()
+        // default, to allow the table view to scroll to the bottom view
+        tableView.layoutIfNeeded()
+        tableView.contentInset.bottom = tableView.frame.height
+
     }
     
     @objc private func showFilterController() {
@@ -246,35 +253,43 @@ class RestaurantListVC: UIViewController {
     
     func scrollTableViewToTop() {
         guard tableView != nil && tableView.numberOfRows(inSection: 0) > 0 else { return }
+        mapViewAnnotationWasDeselectedOrSelected()
         tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
     }
     
     func scrollToRestaurant(_ restaurant: Restaurant) {
-        
         let indexToScrollTo = restaurants?.firstIndex { (rest) -> Bool in rest.id == restaurant.id }
         guard let index = indexToScrollTo else { return }
-        
+        mapViewAnnotationWasDeselectedOrSelected()
         tableView.scrollToRow(at: IndexPath(row: index, section: 0), at: .top, animated: true)
     }
     
-    private func handleSettingFooterSize() {
+    private func updateTableViewInset() {
         
-        var contentOffset: CGFloat {
-            if self.atMiddle, let restaurants = self.restaurants, restaurants.count > 0 {
-                let lastRow = tableView.visibleCells.first?.bounds.height ?? 0.0//self.tableView.cellForRow(at: IndexPath(row: restaurants.count - 1, section: 0))
-                return self.tableView.bounds.height - lastRow
-            } else {
-                return 0.0
-            }
-        }
-        
-        #warning("working, but need to call when the last cell is actually laid out")
+        let inset = atMiddle ? tableViewInset : 0.0
         UIView.animate(withDuration: 0.3) {
-            self.tableView.contentInset.bottom = contentOffset
+            self.tableView.contentInset.bottom = inset
         }
     }
+    
+    
+    func mapViewAnnotationWasDeselectedOrSelected() {
+        scrolledToOffset = nil
+    }
+    
+    private func handleDeselectingRowIfNeeded(forceTest: Bool = false) {
+        if let scrolledToOffset = scrolledToOffset, isUserScrolling || forceTest {
+            guard let maximumAllowedScrollingAwayDistance = self.tableView.visibleCells.first?.bounds.height else { return }
+            let difference = abs(scrolledToOffset - tableView.contentOffset.y)
+            print(difference, scrolledToOffset)
+            if difference > maximumAllowedScrollingAwayDistance {
+                owner.mapView.deselectAllAnnotations()
+                self.scrolledToOffset = nil
+            }
+        }
+    }
+    
 }
-
 
 
 // MARK: TableView
@@ -333,6 +348,7 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.tableView.deselectRow(at: indexPath, animated: true)
         let restaurant = restaurants![indexPath.row]
         //print(restaurant.name)
         let cell = tableView.cellForRow(at: indexPath) as! RestaurantCell
@@ -347,14 +363,23 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
             }
         }
         self.parent?.navigationController?.pushViewController(RestaurantDetailVC(restaurant: restaurant, fromCell: cell, imageAlreadyFound: imageToSend, allowVisit: true), animated: true)
-        self.tableView.cellForRow(at: indexPath)?.isSelected = false
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard let count = restaurants?.count else { return }
+        if indexPath.row == count - 1 {
+            lastRowSize = cell.bounds.height
+            updateTableViewInset()
+            
+        }
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if scrollView == tableView {
+            // to handle position change
             let offset = scrollView.contentOffset.y
             if offset < -30.0 {
-                
+                // To reset the user interaction pan gesture
                 scrollView.isScrollEnabled = false
                 scrollView.isScrollEnabled = true
                 
@@ -362,8 +387,34 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: { self.allowMasterToChangePosition = true })
                 owner.lowerChildPosition()
             }
+            
+            // to handle deselecting the annotation from the mapView if was scrolled too far
+            // need to update the scrolledToOffset with the different bottom inset if that changes anything
+            // also need to wrap that in a boolean allow clause
+            handleDeselectingRowIfNeeded()
+            
         }
     }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        isUserScrolling = true
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        isUserScrolling = false
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        handleDeselectingRowIfNeeded(forceTest: true)
+    }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        print("Did end scrolling animation")
+        if scrollView == tableView {
+            scrolledToOffset = scrollView.contentOffset.y
+        }
+    }
+    
 }
 
 
