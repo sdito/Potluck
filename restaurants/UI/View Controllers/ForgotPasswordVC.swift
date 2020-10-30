@@ -17,12 +17,11 @@ class ForgotPasswordVC: UIViewController {
     private let actionButton = LogInButton()
     private let detailLabel = UILabel()
     private let codeTimeLabel = UILabel()
-    
-    #warning("need to implement returnKeyType")
-    private let passwordField = LogInField(style: .password, returnKeyType: .go, logInFieldDelegate: nil)
+    private lazy var passwordField = LogInField(style: .password, returnKeyType: .go, logInFieldDelegate: self)
     
     private var passwordResetRequest: Account.PasswordResetRequest?
     private var codeResponse: Account.CodeResponse?
+    private var allowMessageForTextBeingIncorrect = true
     
     enum Stage {
         case enterUsernameOrPassword
@@ -39,6 +38,11 @@ class ForgotPasswordVC: UIViewController {
         setUpActionButton()
         setUpDetailLabel()
         setUpCodeTimeLabel()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        textField.becomeFirstResponder()
     }
     
     private func setUpStackView() {
@@ -62,6 +66,9 @@ class ForgotPasswordVC: UIViewController {
         textField.placeholder = "Enter email or username"
         stackView.addArrangedSubview(textField)
         textField.widthAnchor.constraint(equalTo: stackView.widthAnchor).isActive = true
+        textField.returnKeyType = .go
+        textField.delegate = self
+        textField.keyboardType = .emailAddress
     }
     
     private func setUpDetailLabel() {
@@ -107,6 +114,7 @@ class ForgotPasswordVC: UIViewController {
                 self.actionButton.setTitle("Verify code", for: .normal)
                 self.textField.keyboardType = .numberPad
                 self.codeTimeLabel.text = "Code expires at \(response.expiresAt.getTimeOfDay())"
+                self.textField.becomeFirstResponder()
                 
                 UIView.animate(withDuration: 0.3) { [weak self] in
                     self?.detailLabel.isHidden = false
@@ -135,9 +143,8 @@ class ForgotPasswordVC: UIViewController {
                 UIView.animate(withDuration: 0.3) {
                     self.detailLabel.isHidden = true
                     self.codeTimeLabel.isHidden = true
-                    
                 }
-                
+                self.passwordField.activate()
                 self.stage = .enterPassword
             } else {
                 UIDevice.vibrateError()
@@ -149,7 +156,7 @@ class ForgotPasswordVC: UIViewController {
     }
     
     private func initiateRequest() {
-        guard let text = textField.text, text.count > 0 else { UIDevice.vibrateError(); return }
+        guard let text = textField.text, text.count > 0 else { UIDevice.vibrateError(); textField.shakeView(); return }
         disableActivity()
         Network.shared.initiatePasswordReset(usernameOrEmail: text) { [weak self] (passwordRequest) in
             guard let self = self else { return }
@@ -160,7 +167,7 @@ class ForgotPasswordVC: UIViewController {
     }
     
     private func checkCode() {
-        guard let text = textField.text?.turnIntoUsernameOrEmailIdentifier(), text.count > 0 else { UIDevice.vibrateError(); return }
+        guard let text = textField.text?.turnIntoUsernameOrEmailIdentifier(), text.count > 0 else { UIDevice.vibrateError(); textField.shakeView(); return }
         
         disableActivity()
         Network.shared.checkPasswordResetCode(code: text, passwordReset: self.passwordResetRequest) { [weak self] (codeResponse) in
@@ -183,6 +190,7 @@ class ForgotPasswordVC: UIViewController {
                     switch success {
                     case true:
                         self?.navigationController?.popViewController(animated: true)
+                        self?.navigationController?.showMessage("New password set")
                     case false:
                         self?.showMessage("Unable to set password")
                     }
@@ -227,4 +235,60 @@ class ForgotPasswordVC: UIViewController {
         }
     }
     
+    private func textFieldError() {
+        self.textField.shakeView()
+        UIDevice.vibrateError()
+    }
+    
+    private func handleErrorMessage(_ str: String) {
+        if allowMessageForTextBeingIncorrect {
+            allowMessageForTextBeingIncorrect = false
+            textFieldError()
+            // dont want to potentially spam the user with this
+            self.showMessage(str, lastsFor: 1.5)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                self.allowMessageForTextBeingIncorrect = true
+            }
+        }
+    }
+    
+}
+
+// MARK: Text field
+extension ForgotPasswordVC: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        actionButtonPressed()
+        return true
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        guard stage == .enterCode else { return true }
+        
+        // to only allow maximum 6 digits and only numbers when the user is entering the code
+        let codeLength = 6
+        guard string.isNumber || string.count == 0 else {
+            handleErrorMessage("Code is only numbers")
+            return false
+        }
+        
+        let currCount = textField.text?.count ?? 0
+        let netChange = string.count - range.length
+        
+        if currCount + netChange > codeLength {
+            handleErrorMessage("Code is only 6 digits")
+            return false
+        } else {
+            return true
+        }
+    }
+    
+}
+
+extension ForgotPasswordVC: LogInFieldDelegate {
+    func returnPressed(from view: LogInField) {
+        if stage == .enterPassword {
+            setNewPassword()
+        }
+    }
 }

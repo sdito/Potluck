@@ -431,8 +431,7 @@ extension SubmitRestaurantVC: ProgressViewDelegate {
             self.presentedViewController?.dismiss(animated: false, completion: nil)
             self.navigationController?.popViewController(animated: true)
         }
-        
-        
     }
+    
 }
 

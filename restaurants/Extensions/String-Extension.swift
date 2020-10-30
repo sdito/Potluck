@@ -11,6 +11,10 @@ import UIKit
 
 extension String {
     
+    var isNumber: Bool {
+        return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil
+    }
+    
     /// If string contains @ (is email), then lowercase, else return self
     func turnIntoUsernameOrEmailIdentifier() -> String {
         if self.contains("@") {

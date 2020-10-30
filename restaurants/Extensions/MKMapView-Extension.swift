@@ -145,7 +145,6 @@ extension MKMapView {
     }
     
     func getAnnotationBoundsFarthestDistance() -> CLLocationDistance {
-        #warning("need to remove the annotation from the user's location")
         let zoomRect = getZoomRectForMapViewAnnotations(annotations: self.annotations)
         let mapRegion = MKCoordinateRegion(zoomRect)
         
@@ -209,7 +208,7 @@ extension MKMapView {
         fitAllAnnotations(newAnnotations: self.nonUserAnnotations, fitInTopHalf: topHalf)
     }
     
-    
+    /// all the annotations on the map besides the user's current location annotation thing
     var nonUserAnnotations: [MKAnnotation] {
         return self.annotations.filter({$0 !== self.userLocation})
     }

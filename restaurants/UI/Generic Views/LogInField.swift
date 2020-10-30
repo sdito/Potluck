@@ -119,7 +119,7 @@ class LogInField: UIView {
     }
     
     func activate() {
-        _ = textField.becomeFirstResponder()
+        textField.becomeFirstResponder()
     }
     
     func deactivate() {

@@ -24,8 +24,8 @@ class PaddingTextField: UITextField {
         }
     }
 
+    @discardableResult
     override func becomeFirstResponder() -> Bool {
-
         let success = super.becomeFirstResponder()
         if isSecureTextEntry, let text = self.text {
             self.text?.removeAll()

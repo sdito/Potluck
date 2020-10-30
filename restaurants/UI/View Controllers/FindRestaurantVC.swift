@@ -15,8 +15,7 @@ import CoreLocation
 protocol SearchUpdatedFromMasterDelegate: class {
     func newSearch(search: Network.RestaurantSearch)
 }
-#warning("location button is shown sometimes when it shoudlnt be")
-
+#warning("dont do both animations on load up on restaurantListVC on initial load")
 class FindRestaurantVC: UIViewController {
     
     weak var delegate: SearchUpdatedFromMasterDelegate?
@@ -40,6 +39,7 @@ class FindRestaurantVC: UIViewController {
             delegate = self.restaurantListVC
         }
     }
+    private var hasDraggedMap = false
     private var moreRestaurantsButtonShown = false
     private var selectedViewTransitionStyle: RestaurantSelectedView.UpdateStyle = .none
     private var restaurants: [Restaurant] = [] {
@@ -272,9 +272,8 @@ class FindRestaurantVC: UIViewController {
         mapView.addGestureRecognizer(panGesture)
     }
     
-    
-    
     @objc private func didDragMap(_ sender: UIGestureRecognizer) {
+        hasDraggedMap = true
         guard beginningCenter != nil else {
             beginningCenter = mapView.region.center
             return
@@ -323,6 +322,7 @@ class FindRestaurantVC: UIViewController {
     }
     
     private func scrollChildToTop() {
+        hasDraggedMap = false
         handleShowingReCenterMapButtonFromMapChange(forceHide: true)
         childPosition = .top
         handleShowingOrHidingSelectedView()
@@ -334,6 +334,7 @@ class FindRestaurantVC: UIViewController {
     
     private func scrollChildToMiddle() {
         // If an annotation is currently selected, scroll to that row in the table view
+        hasDraggedMap = false
         if let constant = middleConstraintConstantForChild {
             childPosition = .middle
             handleShowingOrHidingSelectedView()
@@ -347,12 +348,12 @@ class FindRestaurantVC: UIViewController {
                 self.childTopAnchor.constant = constant
                 self.view.layoutIfNeeded()
             }
-
         }
     }
     
     private func scrollChildToBottom(allowedDistance: CGFloat) {
         // See if a restaurant is currently selected, if it is, create the restaurantSelectedView for it
+        hasDraggedMap = false
         childPosition = .bottom
         handleShowingOrHidingSelectedView()
         
@@ -480,18 +481,15 @@ class FindRestaurantVC: UIViewController {
     }
     
     private func handleShowingReCenterMapButtonFromMapChange(forceHide: Bool = false) {
-        
         guard !forceHide else {
             reCenterMapButton.appIsHiddenAnimated(isHidden: true, animated: false)
             return
         }
         
         let restaurantsCount = mapView.nonUserAnnotations.count
-        //let bottomDistance = containerView.bounds.height - childTopAnchor.constant
         let bottomDistance = mapView.bounds.height - childTopAnchor.constant
         let visibleMapRect = mapView.getVisibleMapRectForObstructedMapView(distanceFromTop: 0.0, distanceFromBottom: bottomDistance)
         let visibleAnnotationsCount = mapView.annotations(in: visibleMapRect).count
-        
         
         if visibleAnnotationsCount < restaurantsCount {
             reCenterMapButton.appIsHiddenAnimated(isHidden: false)
@@ -522,12 +520,17 @@ extension FindRestaurantVC: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        // get rest first
+        guard let restaurantAnnotation = view as? RestaurantAnnotationView, let annotationRestaurant = restaurantAnnotation.restaurant else { return }
+        // if at top, nothing else needs to be done besides show a map view
+        guard childPosition != .top else {
+            self.showMapDetail(locationTitle: annotationRestaurant.name, coordinate: annotationRestaurant.coordinate, address: nil)
+            return
+        }
         // Scroll to the correct cell
         restaurantListVC.mapViewAnnotationWasDeselectedOrSelected()
         
-        if let restaurantAnnotation = view as? RestaurantAnnotationView, let annotationRestaurant = restaurantAnnotation.restaurant {
-            createSelectedRestaurantView(annotationRestaurant: annotationRestaurant)
-        }
+        createSelectedRestaurantView(annotationRestaurant: annotationRestaurant)
         
         var bottomDistance = containerView.bounds.height - childTopAnchor.constant
         
@@ -567,8 +570,6 @@ extension FindRestaurantVC: MKMapViewDelegate {
                 }
             }
         }
-        
-        
     }
     
     
@@ -587,18 +588,19 @@ extension FindRestaurantVC: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        handleShowingReCenterMapButtonFromMapChange()
-        handleAddingReDoSearchButtonIfNeeded()
+        if hasDraggedMap {
+            handleShowingReCenterMapButtonFromMapChange()
+            handleAddingReDoSearchButtonIfNeeded()
+        }
     }
 
 }
-
+// MARK: RestaurantCellDelegate
 extension FindRestaurantVC: RestaurantCellDelegate {
     func mapButtonPressed(restaurant: Restaurant) {
         selectRestaurantAnnotation(rest: restaurant)
     }
 }
-
 
 // MARK: UIGestureRecognizerDelegate
 extension FindRestaurantVC: UIGestureRecognizerDelegate {

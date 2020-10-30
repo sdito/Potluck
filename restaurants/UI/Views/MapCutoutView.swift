@@ -42,9 +42,6 @@ class MapCutoutView: UIView {
         self.translatesAutoresizingMaskIntoConstraints = false
         setUpImageView()
         handlePressingMap()
-        
-        
-        
         handleDirections(currentLocation: userLocation, destination: userDestination)
     }
     
@@ -62,10 +59,8 @@ class MapCutoutView: UIView {
         let request = MKDirections.Request()
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: currentLocation))
         request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
-        self.options.traitCollection = self.traitCollection
+        
         let directions = MKDirections(request: request)
-        
-        
         
         directions.calculate { [weak self] response, error in
             guard let self = self else { return }
@@ -97,15 +92,11 @@ class MapCutoutView: UIView {
         
         options.region = MKCoordinateRegion(boundingRect)
         options.size = CGSize(width: UIScreen.main.bounds.width, height: height)
-        // trait collection is set before
+        options.traitCollection = self.traitCollection
         options.scale = UIScreen.main.scale
         options.pointOfInterestFilter = .init(excluding: [.restaurant, .cafe])
         
         let snapshotter = MKMapSnapshotter(options: options)
-        
-        #warning("somewhere some UI thing is running on the background thread") // everything before is fine
-        
-        
         snapshotter.start(with: .global(qos: .userInteractive)) { snapshot, error in
             
             guard let snapshot = snapshot else {
@@ -140,21 +131,30 @@ class MapCutoutView: UIView {
                 }
             }
             c.strokePath()
-
+            
             let visibleRect = CGRect(origin: CGPoint.zero, size: image.size)
-
+            
             for mapItem in [response.source, response.destination]
                 where mapItem.placemark.location != nil {
                 var point = snapshot.point(for: mapItem.placemark.location!.coordinate)
                 if visibleRect.contains(point) {
-                    let pin = MKPinAnnotationView(annotation: nil, reuseIdentifier: nil)
-                    pin.pinTintColor = mapItem.isEqual(response.source) ? MKPinAnnotationView.greenPinColor() : MKPinAnnotationView.redPinColor()
-                    point.x = point.x + pin.centerOffset.x - (pin.bounds.size.width / 2)
-                    point.y = point.y + pin.centerOffset.y - (pin.bounds.size.height / 2)
-                    pin.image?.draw(at: point)
+                    let isDestination = mapItem.isEqual(response.source)
+                    
+                    var img: UIImage {
+                        if isDestination {
+                            return UIImage.mapPinImage.withTintColor(Colors.main)
+                        } else {
+                            return UIImage.mapPinLocationImage.withTintColor(Colors.main)
+                        }
+                    }
+                    
+                    point.x = point.x - (img.size.width / 2)
+                    point.y = point.y - (img.size.height / 2)
+                    img.draw(at: point)
+                    
                 }
             }
-
+            
             let stepImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
             completionHandler(stepImage, route.expectedTravelTime)

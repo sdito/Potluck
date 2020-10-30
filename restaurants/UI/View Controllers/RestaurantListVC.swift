@@ -265,13 +265,11 @@ class RestaurantListVC: UIViewController {
     }
     
     private func updateTableViewInset() {
-        
         let inset = atMiddle ? tableViewInset : 0.0
         UIView.animate(withDuration: 0.3) {
             self.tableView.contentInset.bottom = inset
         }
     }
-    
     
     func mapViewAnnotationWasDeselectedOrSelected() {
         scrolledToOffset = nil
@@ -281,14 +279,12 @@ class RestaurantListVC: UIViewController {
         if let scrolledToOffset = scrolledToOffset, isUserScrolling || forceTest {
             guard let maximumAllowedScrollingAwayDistance = self.tableView.visibleCells.first?.bounds.height else { return }
             let difference = abs(scrolledToOffset - tableView.contentOffset.y)
-            print(difference, scrolledToOffset)
             if difference > maximumAllowedScrollingAwayDistance {
                 owner.mapView.deselectAllAnnotations()
                 self.scrolledToOffset = nil
             }
         }
     }
-    
 }
 
 
@@ -392,12 +388,14 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
             // need to update the scrolledToOffset with the different bottom inset if that changes anything
             // also need to wrap that in a boolean allow clause
             handleDeselectingRowIfNeeded()
-            
         }
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         isUserScrolling = true
+        if scrolledToOffset == nil {
+            scrolledToOffset = scrollView.contentOffset.y
+        }
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
@@ -408,15 +406,7 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
         handleDeselectingRowIfNeeded(forceTest: true)
     }
     
-    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        print("Did end scrolling animation")
-        if scrollView == tableView {
-            scrolledToOffset = scrollView.contentOffset.y
-        }
-    }
-    
 }
-
 
 // MARK: SearchUpdatedFromMasterDelegate
 extension RestaurantListVC: SearchUpdatedFromMasterDelegate {

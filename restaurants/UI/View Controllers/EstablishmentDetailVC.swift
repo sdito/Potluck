@@ -169,7 +169,6 @@ class EstablishmentDetailVC: UIViewController {
     }
     
     private func setUpHeader(establishment: Establishment) {
-        #warning("handle not being user's establishemnt for header here")
         if mode == .halfScreenBase || mode == .fullScreenHeaderAndMap {
             headerView = HeaderView(leftButtonTitle: "Done", rightButtonTitle: "", title: establishment.name)
             headerView!.headerLabel.font = .secondaryTitle
