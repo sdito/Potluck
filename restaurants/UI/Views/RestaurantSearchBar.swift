@@ -16,6 +16,7 @@ class RestaurantSearchBar: UIView {
     private var locationLabel = UILabel()
     private var searchImage = UIImageView(image: .magnifyingGlassImage)
     private var loaderView: LoaderView?
+    private var hasLoadedData = false
     
     enum SearchOption {
         case type
@@ -48,7 +49,11 @@ class RestaurantSearchBar: UIView {
             loaderView?.removeFromSuperview()
         }
         
-        showActivityIndicator()
+        if hasLoadedData {
+            showActivityIndicator()
+        }
+        
+        hasLoadedData = true
     }
     
     func showActivityIndicator() {
