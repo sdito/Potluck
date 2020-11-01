@@ -38,6 +38,8 @@
 		E215535B24B4343500494E1A /* PaddingLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535A24B4343500494E1A /* PaddingLabel.swift */; };
 		E215535D24B5007500494E1A /* UIScrollView-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535C24B5007500494E1A /* UIScrollView-Extension.swift */; };
 		E215535F24B5220500494E1A /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535E24B5220500494E1A /* ReviewView.swift */; };
+		E223BE37254BE4CA00AFFADF /* VisitTagsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E223BE36254BE4CA00AFFADF /* VisitTagsVC.swift */; };
+		E223BE3B254CF73A00AFFADF /* AlphabetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E223BE3A254CF73A00AFFADF /* AlphabetView.swift */; };
 		E233541624B15F8C00A85DA3 /* Values.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541524B15F8C00A85DA3 /* Values.swift */; };
 		E233541824B1627200A85DA3 /* UIImage-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541724B1627200A85DA3 /* UIImage-Extension.swift */; };
 		E239840A24E8FEA700F3828C /* Account-Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239840924E8FEA700F3828C /* Account-Network.swift */; };
@@ -170,6 +172,8 @@
 		E215535A24B4343500494E1A /* PaddingLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddingLabel.swift; sourceTree = "<group>"; };
 		E215535C24B5007500494E1A /* UIScrollView-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIScrollView-Extension.swift"; sourceTree = "<group>"; };
 		E215535E24B5220500494E1A /* ReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewView.swift; sourceTree = "<group>"; };
+		E223BE36254BE4CA00AFFADF /* VisitTagsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitTagsVC.swift; sourceTree = "<group>"; };
+		E223BE3A254CF73A00AFFADF /* AlphabetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphabetView.swift; sourceTree = "<group>"; };
 		E233541524B15F8C00A85DA3 /* Values.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Values.swift; sourceTree = "<group>"; };
 		E233541724B1627200A85DA3 /* UIImage-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage-Extension.swift"; sourceTree = "<group>"; };
 		E239840924E8FEA700F3828C /* Account-Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Account-Network.swift"; sourceTree = "<group>"; };
@@ -320,6 +324,7 @@
 		E2574A2E24B7D370006618D7 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				E223BE36254BE4CA00AFFADF /* VisitTagsVC.swift */,
 				E25BA4EE253C0AA80063C944 /* ForgotPasswordVC.swift */,
 				E239841524EB632100F3828C /* TabVC.swift */,
 				E25BA4CA253679630063C944 /* EstablishmentListVC.swift */,
@@ -380,19 +385,20 @@
 		E2574A3024B7D397006618D7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E223BE3A254CF73A00AFFADF /* AlphabetView.swift */,
 				E25BA4B62533B0160063C944 /* VisitTableView.swift */,
 				E288B12625192F1A004B2849 /* AlertView.swift */,
 				E26CD818251997B70082DBE0 /* ActionSheetView.swift */,
 				E21255302512A3CB0049E9FD /* SliderRatingView.swift */,
 				E298816E251095CC009FCC81 /* EnterValueView.swift */,
 				E2DC2F3B24EF3CD7002C6A07 /* MapLocationView.swift */,
+				E2574A2A24B67DCF006618D7 /* MapCutoutView.swift */,
 				E2DC2F2624EDCED0002C6A07 /* ImageXView.swift */,
 				E29AF2F824E08A53004C60FC /* RestaurantSearchBar.swift */,
 				E271233D24CFD40400A1CC2B /* RestaurantSelectedView.swift */,
 				E215535624B3F83E00494E1A /* StarRatingView.swift */,
 				E215535E24B5220500494E1A /* ReviewView.swift */,
 				E2778DDA24B832A100151F29 /* RestaurantCategoriesView.swift */,
-				E2574A2A24B67DCF006618D7 /* MapCutoutView.swift */,
 				E2768DED24B15284004CB475 /* RestaurantAnnotationView.swift */,
 				E2768DE724B1020F004CB475 /* RestaurantAnnotation.swift */,
 				E2778DE024BB8C0F00151F29 /* HeaderDetailView.swift */,
@@ -662,8 +668,10 @@
 				E2564CB32546015200304B5B /* LoaderView.swift in Sources */,
 				E2DC2F2724EDCED0002C6A07 /* ImageXView.swift in Sources */,
 				E253A6C32528EBA100778500 /* UISearchBar-Extension.swift in Sources */,
+				E223BE3B254CF73A00AFFADF /* AlphabetView.swift in Sources */,
 				E2E6E09F250445100005A55B /* ProfileMapVC.swift in Sources */,
 				E26CD819251997B70082DBE0 /* ActionSheetView.swift in Sources */,
+				E223BE37254BE4CA00AFFADF /* VisitTagsVC.swift in Sources */,
 				E27A757024A85AA100E446EE /* UIViewController-Extension.swift in Sources */,
 				E25BA4B32533910E0063C944 /* PersonTitleButton.swift in Sources */,
 				E26CD828251C0A550082DBE0 /* Setting.swift in Sources */,

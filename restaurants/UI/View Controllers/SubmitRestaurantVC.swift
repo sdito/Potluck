@@ -226,7 +226,12 @@ class SubmitRestaurantVC: UIViewController {
     }
     
     @objc private func submitPressed() {
+
+        let vc = VisitTagsVC(tags: restaurant?.categories)
+        self.navigationController?.present(vc, animated: true, completion: nil)
+        return;
         
+        #warning("need to refractor and clean following code")
         guard let mode = mode else {
             fatalError()
         }

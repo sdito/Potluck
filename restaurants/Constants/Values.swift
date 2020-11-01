@@ -30,6 +30,7 @@ extension String {
     static let recentLocationSearchesKey = "recentLocationSearchesKey"
 }
 
+
 extension UIImage {
     static let locationImage = UIImage(systemName: "location.fill")!.withTintColor(Colors.locationColor)
     static let mapImage = UIImage(systemName: "map")!.withTintColor(Colors.locationColor)
@@ -71,3 +72,6 @@ extension UIImage {
 
 
 
+extension UIImage.Configuration {
+    static let small = UIImage.SymbolConfiguration(scale: .small)
+}

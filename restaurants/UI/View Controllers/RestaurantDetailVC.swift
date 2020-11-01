@@ -56,10 +56,6 @@ class RestaurantDetailVC: UIViewController {
         edgesForExtendedLayout = [.left, .top, .right]
     }
     
-    deinit {
-        print("Is being deinitialized")
-    }
-    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         allowNavigationBarChange = false

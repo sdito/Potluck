@@ -221,7 +221,7 @@ class ShowViewVC: UIViewController {
             nextView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -fromBottomDistance).isActive = true
             nextView.transform = CGAffineTransform(translationX: UIScreen.main.bounds.width, y: 0)
         default:
-            fatalError(); #warning("would need to complete")
+            break
         }
         
         UIView.animate(withDuration: 0.4) {

@@ -122,7 +122,7 @@ extension MKMapView {
     }
     
     
-    func showRestaurants(_ newRestaurants: [Restaurant], fitInTopHalf: Bool) {
+    func showRestaurants(_ newRestaurants: [Restaurant], fitInTopHalf: Bool, reCenterMap: Bool) {
         var newAnnotations: [MKAnnotation] = []
         for (index, restaurant) in newRestaurants.enumerated() {
             let newAnnotation = RestaurantAnnotation(restaurant: restaurant, place: index + 1)
@@ -130,7 +130,10 @@ extension MKMapView {
         }
         
         self.addAnnotations(newAnnotations)
-        self.fitAllAnnotations(newAnnotations: newAnnotations, fitInTopHalf: fitInTopHalf)
+        if reCenterMap {
+            self.fitAllAnnotations(newAnnotations: newAnnotations, fitInTopHalf: fitInTopHalf)
+        }
+        
     }
     
     private func getZoomRectForMapViewAnnotations(annotations: [MKAnnotation]) -> MKMapRect {

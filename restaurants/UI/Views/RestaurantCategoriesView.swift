@@ -28,7 +28,6 @@ class RestaurantCategoriesView: UIView {
     }
     
     private func setUp(restaurant: Restaurant) {
-        print("Being set up")
         self.translatesAutoresizingMaskIntoConstraints = false
         self.backgroundColor = .systemBackground
         setUpLabels(restaurant: restaurant)

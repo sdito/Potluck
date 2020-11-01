@@ -92,18 +92,16 @@ class MapLocationView: UIView {
             }
             
             DispatchQueue.main.async {
-                let pin = MKPinAnnotationView(annotation: nil, reuseIdentifier: nil)
                 let image = snapshot.image
                 
                 UIGraphicsBeginImageContextWithOptions(image.size, true, image.scale)
                 image.draw(at: CGPoint.zero)
 
                 var point = snapshot.point(for: coordinate)
-                
-                point.x = point.x + pin.centerOffset.x - (pin.bounds.size.width / 2)
-                point.y = point.y + pin.centerOffset.y - (pin.bounds.size.height / 2)
-                
-                pin.image?.draw(at: point)
+                let img = UIImage.mapPinImage.withTintColor(Colors.main).withConfiguration(UIImage.SymbolConfiguration(pointSize: 30.0))
+                point.x = point.x - (img.size.width / 2)
+                point.y = point.y - (img.size.height / 2)
+                img.draw(at: point)
                 
                 let compositeImage = UIGraphicsGetImageFromCurrentImageContext()
                 UIGraphicsEndImageContext()

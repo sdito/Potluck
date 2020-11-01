@@ -449,7 +449,7 @@ class FindRestaurantVC: UIViewController {
                 switch response {
                 case .success(let newRestaurants):
                     self.mapView.removeAnnotations(self.mapView.annotations)
-                    self.mapView.showRestaurants(newRestaurants, fitInTopHalf: self.childPosition == .middle)
+                    self.mapView.showRestaurants(newRestaurants, fitInTopHalf: self.childPosition == .middle, reCenterMap: self.childPosition != .top)
                     self.restaurantListVC.scrollTableViewToTop()
                     self.restaurants = newRestaurants
                 case .failure(_):

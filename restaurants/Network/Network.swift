@@ -60,6 +60,7 @@ class Network {
     typealias YelpCategory = (alias: String?, title: String)
     typealias YelpCategories = [YelpCategory]
     var yelpCategories: YelpCategories = []
+    var visitTags: YelpCategories = []
     
     private let baseCategories: YelpCategories = ["Delivery", "Takeout", "Outdoor Seating"].map({(nil, $0)})
     static let commonSearches: YelpCategories = [("pizza", "Pizza"),
@@ -385,6 +386,7 @@ class Network {
                     
                 }
                 self.yelpCategories = self.baseCategories + results
+                self.visitTags = results
             case .failure(_):
                 print("Error, something went wrong on setCategoriesForYelpSearch")
             }

@@ -55,6 +55,7 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     }
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        
         if viewController.isKind(of: AddRestaurantVC.self) {
             
             if Network.shared.loggedIn {

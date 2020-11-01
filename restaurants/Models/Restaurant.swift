@@ -226,8 +226,6 @@ extension Restaurant {
         var photos: [String]
         var hours: [Hours]
         
-
-        
         enum CodingKeys: String, CodingKey {
             case phone
             case displayPhone = "display_phone"
@@ -281,7 +279,6 @@ extension Restaurant {
 
 
 // MARK: Yelp location
-
 extension Restaurant {
     struct YelpLocation: Decodable {
         var address1: String?
