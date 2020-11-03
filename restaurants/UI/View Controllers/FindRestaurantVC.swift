@@ -281,8 +281,6 @@ class FindRestaurantVC: UIViewController {
     }
     
     private func handleAddingReDoSearchButtonIfNeeded() {
-        // basic things to not allow
-        
         // need to find the distance between the farthest annotations
         // can just find the rect then get top left to bottom right
         
@@ -571,7 +569,6 @@ extension FindRestaurantVC: MKMapViewDelegate {
             }
         }
     }
-    
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         // Only need to handle pin for search center location

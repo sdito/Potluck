@@ -21,6 +21,7 @@ class Visit: Codable {
     var userId: Int
     var accountUsername: String
     var otherImages: [VisitImage]
+    var tags: [VisitTag]
     var rating: Double?
     var yelpID: String?
     
@@ -31,12 +32,70 @@ class Visit: Codable {
     var longitude: Double?
     var latitude: Double?
     
+    struct VisitImage: Codable {
+        var image: String
+    }
+    
+    struct VisitTag: Codable {
+        var display: String
+        
+        init(display: String) {
+            self.display = display
+        }
+    }
+    
     var listPhotos: [String] {
         var arr: [String] = [mainImage]
         for photo in otherImages {
             arr.append(photo.image)
         }
         return arr
+    }
+    
+    private func getTagsAttributedString(smallerThanNormal: Bool) -> NSAttributedString {
+        let font: UIFont = smallerThanNormal ? .smallBold : .mediumBold
+        let mutableString = NSMutableAttributedString()
+        for (i, tag) in tags.enumerated() {
+            if i != 0 {
+                mutableString.append(NSAttributedString(string: " "))
+            }
+            let attributedString = NSAttributedString(string: " \(tag.display) ", attributes: [
+                NSAttributedString.Key.font: font,
+                NSAttributedString.Key.backgroundColor: Colors.main,
+                NSAttributedString.Key.foregroundColor: UIColor.systemBackground,
+            ])
+            mutableString.append(attributedString)
+        }
+        return mutableString
+    }
+    
+    func getTagAndCommentAttributedString(smallerThanNormal: Bool) -> (string: NSAttributedString, hasData: Bool) {
+        let mutableString = NSMutableAttributedString()
+        var hasData = self.hasTags
+        
+        let tagsAttributedString = self.getTagsAttributedString(smallerThanNormal: smallerThanNormal)
+        mutableString.append(tagsAttributedString)
+        
+        if let commentText = self.comment {
+            
+            if hasData {
+                // add an in-between for when there are both tags and a comment
+                let middle = NSAttributedString(string: " · ", attributes: [
+                    NSAttributedString.Key.font: UIFont.mediumBold,
+                    NSAttributedString.Key.foregroundColor: UIColor.label
+                ])
+                mutableString.append(middle)
+            }
+            
+            hasData = true
+            mutableString.append(NSAttributedString(string: commentText))
+        }
+        
+        return (mutableString, hasData)
+    }
+    
+    var hasTags: Bool {
+        return tags.count > 0
     }
     
     var accountColor: UIColor {
@@ -111,6 +170,12 @@ class Visit: Codable {
         presentingVC.present(vc, animated: false, completion: nil)
     }
     
+    func changeTagsProcess(presentingVC: UIViewController, visitTagsDelegate: VisitTagsDelegate?) {
+        guard let delegate = visitTagsDelegate else { return }
+        let vc = VisitTagsVC(delegate: delegate, tags: self.tags.map({$0.display}))
+        presentingVC.present(vc, animated: true, completion: nil)
+    }
+    
     enum CodingKeys: String, CodingKey {
         case djangoOwnID = "id"
         case djangoRestaurantID = "restaurant"
@@ -129,6 +194,7 @@ class Visit: Codable {
         case rating
         case yelpID = "restaurant_yelp_id"
         case accountHexColor = "account_hex_color"
+        case tags
     }
     
     

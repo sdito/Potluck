@@ -36,6 +36,8 @@ class EstablishmentListVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(self, selector: #selector(establishmentUpdated(notification:)), name: .establishmentUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(establishmentDeleted(notification:)), name: .establishmentDeleted, object: nil)
     }
     
     private func setUpElements() {
@@ -112,6 +114,27 @@ class EstablishmentListVC: UIViewController {
             self.navigationItem.rightBarButtonItem = listBarButtonItem
         } else {
             self.navigationItem.rightBarButtonItem = nil
+        }
+    }
+    
+    @objc private func establishmentDeleted(notification: Notification) {
+        if let establishment = notification.userInfo?["establishment"] as? Establishment {
+            guard var establishments = profile?.establishments else { return }
+            establishments.removeAll { (est) -> Bool in
+                est.djangoID == establishment.djangoID && est.name == establishment.name
+            }
+            profile?.establishments = establishments
+            tableView.reloadData(); #warning("shouldn't use tableView.reloadData, fix later")
+        }
+    }
+    
+    @objc private func establishmentUpdated(notification: Notification) {
+        if let updatedEstablishment = notification.userInfo?["establishment"] as? Establishment {
+            guard let establishments = profile?.establishments else { return }
+            if let previousEstablishment = establishments.filter({ $0.djangoID == updatedEstablishment.djangoID && $0.name == updatedEstablishment.name }).first {
+                previousEstablishment.updateSelfForValuesThatAreNil(newEstablishment: updatedEstablishment)
+                tableView.reloadData(); #warning("shouldn't use tableView.reloadData, fix later")
+            }
         }
     }
     

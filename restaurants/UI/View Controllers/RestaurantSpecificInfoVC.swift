@@ -65,11 +65,16 @@ class RestaurantSpecificInfoVC: UIViewController {
     
     func setUp(restaurant: Restaurant) {
         self.view.backgroundColor = .systemBackground
-        self.navigationItem.title = "More info"
+        setUpNavigation()
         setUpTableView()
     }
     
-    func setUpTableView() {
+    private func setUpNavigation() {
+        let navigationHeaderView = NavigationTitleView(upperText: restaurant.name, lowerText: "More info")
+        self.navigationItem.titleView = navigationHeaderView
+    }
+    
+    private func setUpTableView() {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self

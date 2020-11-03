@@ -20,7 +20,7 @@ protocol VisitCellDelegate: class {
     func personSelected(for visit: Visit)
 }
 
-
+#warning("need to add tags")
 class VisitCell: UITableViewCell {
     
     var visit: Visit?
@@ -34,10 +34,7 @@ class VisitCell: UITableViewCell {
         // probably not the best, used to calculate visitImageView height since it is based on width
         return UIScreen.main.bounds.width - (baseConstraintConstant * 2)
     }
-    var commentText: String? {
-        return visit?.comment
-    }
-    
+
     weak var delegate: VisitCellDelegate?
     private let base = UIView()
     private let baseHeight: CGFloat = 250.0
@@ -176,11 +173,10 @@ class VisitCell: UITableViewCell {
         base.addSubview(lowerStackView)
         
         let priority = UILayoutPriority(rawValue: 999.0)
-        lowerStackView.constrain(.top, to: scrollingStackView, .bottom, constant: 10.0, priority: priority)
+        lowerStackView.constrain(.top, to: scrollingStackView, .bottom, constant: 5.0, priority: priority)
         lowerStackView.constrain(.leading, to: base, .leading, constant: 10.0, priority: priority)
         lowerStackView.constrain(.trailing, to: base, .trailing, constant: 10.0, priority: priority)
-        lowerStackView.constrain(.bottom, to: base, .bottom, constant: 10.0, priority: priority)
-        
+        lowerStackView.constrain(.bottom, to: base, .bottom, constant: 5.0, priority: priority)
         return lowerStackView
     }
     
@@ -197,7 +193,7 @@ class VisitCell: UITableViewCell {
         commentLabel.text = "This is the text for the comment"
         commentLabel.textColor = .secondaryLabel
         commentLabel.font = .smallerThanNormal
-        commentLabel.numberOfLines = 3
+        commentLabel.numberOfLines = 4
     }
     
     @objc private func mapAction() {
@@ -217,7 +213,8 @@ class VisitCell: UITableViewCell {
         vc.appActionSheet(buttons: [
             AppAction(title: "Edit visit", action: nil, buttons: [
                 AppAction(title: "Edit comment", action: { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .textView, enterTextViewDelegate: self) }),
-                AppAction(title: "Edit rating", action: { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .rating, enterTextViewDelegate: self) })
+                AppAction(title: "Edit rating", action: { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .rating, enterTextViewDelegate: self) }),
+                AppAction(title: "Edit tags", action: { [weak self] in visit.changeTagsProcess(presentingVC: vc, visitTagsDelegate: self) })
             ]),
             AppAction(title: "Delete visit", action: { [weak self] in
                 vc.appAlert(title: "Are you sure you want to delete this visit?", message: "This action cannot be undone.", buttons: [
@@ -305,13 +302,17 @@ class VisitCell: UITableViewCell {
     }
     
     private func setUpCommentText() {
-        if let commentText = commentText {
-            commentLabel.text = commentText
+        guard let visit = visit else { return }
+        let (string, hasData) = visit.getTagAndCommentAttributedString(smallerThanNormal: false)
+        
+        commentLabel.attributedText = string
+        
+        if hasData {
             commentLabel.isHidden = false
         } else {
-            commentLabel.text = ""
             commentLabel.isHidden = true
         }
+        
     }
     
     private func setUpRatingLabelText() {
@@ -352,7 +353,8 @@ extension VisitCell: EnterValueViewDelegate {
         visit.rating = Double(String(format: "%.1f", Double(rating)))
         self.findViewController()?.showMessage("Rating changed")
         delegate?.updatedVisit(visit: visit)
-        Network.shared.updateVisit(visit: visit, rating: rating, newComment: nil, success: { _ in return })
+        Network.shared.updateVisit(visit: visit, rating: rating, newComment: nil, newTags: nil, success: { _ in return })
+        NotificationCenter.default.post(name: .visitUpdated, object: nil, userInfo: ["visit": visit])
     }
     
     func textFound(string: String?) {
@@ -360,7 +362,17 @@ extension VisitCell: EnterValueViewDelegate {
         visit.comment = string
         self.findViewController()?.showMessage("Comment changed")
         delegate?.updatedVisit(visit: visit)
-        Network.shared.updateVisit(visit: visit, rating: nil, newComment: string, success: { _ in return })
+        Network.shared.updateVisit(visit: visit, rating: nil, newComment: string, newTags: nil, success: { _ in return })
+        NotificationCenter.default.post(name: .visitUpdated, object: nil, userInfo: ["visit": visit])
     }
-    
+}
+
+// MARK: VisitTagsDelegate
+extension VisitCell: VisitTagsDelegate {
+    func tagsSelected(tags: [String]) {
+        guard let visit = visit else { return }
+        visit.tags = tags.map({Visit.VisitTag(display: $0)})
+        Network.shared.updateVisit(visit: visit, rating: nil, newComment: nil, newTags: tags, success: { _ in return })
+        NotificationCenter.default.post(name: .visitUpdated, object: nil, userInfo: ["visit": visit])
+    }
 }

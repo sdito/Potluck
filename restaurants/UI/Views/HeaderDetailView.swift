@@ -77,7 +77,6 @@ class HeaderDetailView: UIView {
         newSV.axis = .vertical
         newSV.spacing = 17.5
         newSV.alignment = .leading
-
         inside.addSubview(newSV)
         newSV.constrainSides(to: inside, distance: 10.0)
     }
@@ -86,13 +85,14 @@ class HeaderDetailView: UIView {
         let disclosureButton = UIButton(type: .detailDisclosure)
         disclosureButton.tintColor = Colors.main
         disclosureButton.addTarget(self, action: #selector(moreInfoOnHeaderPressedSelector), for: .touchUpInside)
+        disclosureButton.setContentHuggingPriority(.required, for: .horizontal)
         let categories = restaurant.categories ?? ["Restaurant"]
         let viewsToAdd = categories.createViewsForDisplay()
         let scrollingView = ScrollingStackView(subViews: viewsToAdd)
         
-        let topStackView = UIStackView(arrangedSubviews: [scrollingView, UIView(), disclosureButton])
+        let topStackView = UIStackView(arrangedSubviews: [scrollingView, disclosureButton])
         topStackView.translatesAutoresizingMaskIntoConstraints = false
-        topStackView.spacing = 10.0
+        topStackView.spacing = 3.0
         topStackView.axis = .horizontal
         topStackView.distribution = .fill
         newSV.addArrangedSubview(topStackView)

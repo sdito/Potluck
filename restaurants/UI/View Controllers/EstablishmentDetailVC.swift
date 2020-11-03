@@ -401,6 +401,7 @@ class EstablishmentDetailVC: UIViewController {
             if let visit = dict["visit"] as? Visit, let index = visits.firstIndex(where: {$0.djangoOwnID == visit.djangoOwnID}) {
                 visits[index].comment = visit.comment
                 visits[index].rating = visit.rating
+                visits[index].tags = visit.tags
                 let header = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: index)) as? HeaderEstablishmentReusableView
                 header?.update(visit: visits[index])
             }

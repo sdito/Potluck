@@ -16,7 +16,6 @@ protocol AlphabetViewDelegate: class {
 
 class AlphabetView: UIView {
     
-    #warning("need to use")
     private weak var delegate: AlphabetViewDelegate?
     private var alphabetButtons: [UIButton] = []
     private var previousLetter: String?
@@ -94,6 +93,7 @@ class AlphabetView: UIView {
     private func askDelegate(for letter: String?) {
         guard let letter = letter else { previousLetter = nil; return }
         if previousLetter != letter {
+            UIDevice.vibrateSelectionChanged()
             delegate?.letterSelected(letter)
         }
         previousLetter = letter

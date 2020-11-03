@@ -99,6 +99,8 @@ extension String {
 
 
 extension Array where Element == String {
+    
+    
     func createViewsForDisplay() -> [UIView] {
         var scrollingViewsToAdd: [UIView] = []
         for string in self {

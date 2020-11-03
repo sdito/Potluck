@@ -29,13 +29,15 @@ class SubmitRestaurantVC: UIViewController {
     private let headerStackView = UIStackView()
     private let showMapPopUpButton = UIButton()
     private var sliderRatingView: SliderRatingView?
+    private var tagScrollingStack: ScrollingStackView?
     
     private let textView = PlaceholderTextView(placeholder: "Add comment. Type of meal, how the experience was, who you went with, etc. (Optional)", font: UIFont.systemFont(ofSize: UIFont.systemFontSize))
     
     private var nameRawValue: String?
     private var addressRawValue: String?
     private var coordinateRawValue: CLLocationCoordinate2D?
-
+    private var tags: [String]?
+    
     
     private var establishment: Establishment?
     private var restaurant: Restaurant?
@@ -77,6 +79,7 @@ class SubmitRestaurantVC: UIViewController {
         setUpLabels()
         setUpMap()
         setUpSliderView()
+        setUpTagPortion()
         setUpCommentTextView()
         setUpChildView()
         setUpImageSelector()
@@ -168,7 +171,7 @@ class SubmitRestaurantVC: UIViewController {
         map?.widthAnchor.constraint(equalTo: headerStackView.widthAnchor).isActive = true
         map?.layer.cornerRadius = 10.0
         map?.clipsToBounds = true
-        
+//        map?.setContentHuggingPriority(.fittingSizeLevel, for: .vertical)
         
         showMapPopUpButton.translatesAutoresizingMaskIntoConstraints = false
         showMapPopUpButton.setImage(.mapImage, for: .normal)
@@ -184,8 +187,38 @@ class SubmitRestaurantVC: UIViewController {
         sliderRatingView = SliderRatingView()
         headerStackView.addArrangedSubview(sliderRatingView!)
         sliderRatingView!.widthAnchor.constraint(equalTo: headerStackView.widthAnchor).isActive = true
+        sliderRatingView!.sliderView.setContentCompressionResistancePriority(.required, for: .vertical)
     }
     
+    private func setUpTagPortion() {
+        let descriptionLabel = UILabel()
+        descriptionLabel.font = .mediumBold
+        descriptionLabel.text = "Tags  "
+        descriptionLabel.textColor = .label
+        descriptionLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        
+        self.tags = restaurant?.categories
+        let tagViews = getTagViews(tags: self.tags)
+        tagScrollingStack = ScrollingStackView(subViews: [descriptionLabel] + tagViews)
+        headerStackView.addArrangedSubview(tagScrollingStack!)
+        tagScrollingStack!.widthAnchor.constraint(equalTo: headerStackView.widthAnchor).isActive = true
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(goToTagsPressed))
+        tagScrollingStack!.addGestureRecognizer(tapGestureRecognizer)
+        
+        if tagViews.count == 0 {
+            addViewToTellUserToAddTags()
+        }
+    }
+    
+    func getTagViews(tags: [String]?) -> [UIView] {
+        var views: [UIView] = []
+        for tag in tags ?? [] {
+            let tagButton = TagButton(title: tag, withImage: false)
+            tagButton.isUserInteractionEnabled = false
+            views.append(tagButton)
+        }
+        return views
+    }
     
     private func setUpCommentTextView() {
         textView.translatesAutoresizingMaskIntoConstraints = false
@@ -199,6 +232,7 @@ class SubmitRestaurantVC: UIViewController {
     }
     
     private func setUpChildView() {
+        
         containerView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(containerView)
         
@@ -206,7 +240,6 @@ class SubmitRestaurantVC: UIViewController {
         
         containerViewHeightAnchor = containerView.heightAnchor.constraint(equalToConstant: containerViewBaseHeight!)
         containerViewHeightAnchor?.isActive = true
-        
         containerView.constrain(.bottom, to: self.view, .bottom)
         containerView.constrain(.leading, to: self.view, .leading)
         containerView.constrain(.trailing, to: self.view, .trailing)
@@ -225,12 +258,13 @@ class SubmitRestaurantVC: UIViewController {
         imageSelector.delegate = self
     }
     
+    @objc private func goToTagsPressed() {
+        let vc = VisitTagsVC(delegate: self, tags: self.tags)
+        self.navigationController?.present(vc, animated: true, completion: nil)
+    }
+    
     @objc private func submitPressed() {
 
-        let vc = VisitTagsVC(tags: restaurant?.categories)
-        self.navigationController?.present(vc, animated: true, completion: nil)
-        return;
-        
         #warning("need to refractor and clean following code")
         guard let mode = mode else {
             fatalError()
@@ -276,6 +310,7 @@ class SubmitRestaurantVC: UIViewController {
                                                           otherImages: otherPhotos,
                                                           comment: textView.text,
                                                           rating: sliderRatingView?.sliderValue,
+                                                          tags: self.tags,
                                                           progressView: progressView)
                     { (result) in
                         DispatchQueue.main.async {
@@ -309,6 +344,7 @@ class SubmitRestaurantVC: UIViewController {
                                           otherImages: otherImages,
                                           comment: comment,
                                           rating: sliderRatingView?.sliderValue,
+                                          tags: self.tags,
                                           progressView: progressView)
         { (result) in
             DispatchQueue.main.async {
@@ -418,7 +454,12 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
     
     func photosUpdated(to selectedPhotos: [ImageSelectorVC.ImageInfo]) {
         self.selectedPhotos = selectedPhotos
-        
+    }
+    
+    func addViewToTellUserToAddTags() {
+        let tagView = TagButton(title: "Add tags", withImage: false)
+        tagView.isUserInteractionEnabled = false
+        tagScrollingStack?.stackView.addArrangedSubview(tagView)
     }
 }
 
@@ -437,6 +478,27 @@ extension SubmitRestaurantVC: ProgressViewDelegate {
             self.navigationController?.popViewController(animated: true)
         }
     }
-    
 }
 
+// MARK: VisitTagsDelegate
+extension SubmitRestaurantVC: VisitTagsDelegate {
+    func tagsSelected(tags: [String]) {
+        self.tags = tags
+        guard let tagStack = tagScrollingStack else { return }
+        
+        for view in tagStack.stackView.arrangedSubviews {
+            if type(of: view) == TagButton.self {
+                view.removeFromSuperview()
+            }
+        }
+        
+        let newTagViews = getTagViews(tags: tags)
+        if newTagViews.count > 0 {
+            for view in newTagViews {
+                tagStack.stackView.addArrangedSubview(view)
+            }
+        } else {
+            addViewToTellUserToAddTags()
+        }
+    }
+}

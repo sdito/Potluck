@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+#warning("need to update with tags")
 class HeaderEstablishmentReusableView: UICollectionReusableView {
     
     private let dateLabel = UILabel()
@@ -89,7 +89,8 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
         vc.appActionSheet(buttons: [
             AppAction(title: "Edit visit", action: nil, buttons: [
                 AppAction(title: "Edit comment", action: { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .textView, enterTextViewDelegate: self) }),
-                AppAction(title: "Edit rating", action: { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .rating, enterTextViewDelegate: self) })
+                AppAction(title: "Edit rating", action: { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .rating, enterTextViewDelegate: self) }),
+                AppAction(title: "Edit tags", action: { [weak self] in visit.changeTagsProcess(presentingVC: vc, visitTagsDelegate: self) })
             ]),
             AppAction(title: "Delete visit", action: { [weak self] in
                 vc.appAlert(title: "Are you sure you want to delete this visit?", message: "This action cannot be undone.", buttons: [
@@ -98,8 +99,6 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
                 ])
             })
         ])
-        
-        
     }
     
     private func handleDeleting() {
@@ -128,12 +127,11 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
         self.visit = visit
         self.allowPressing = allowPressing
         dateLabel.text = visit.userDateVisited
-        if let comment = visit.comment {
-            commentLabel.text = comment
-            commentLabel.isHidden = false
-        } else {
-            commentLabel.isHidden = true
-        }
+        
+        let (string, hasData) = visit.getTagAndCommentAttributedString(smallerThanNormal: true)
+        commentLabel.attributedText = string
+        commentLabel.isHidden = !hasData
+
         self.layoutIfNeeded()
         stackConstraint?.constant = dateLabel.bounds.width
         ratingLabel.attributedText = visit.ratingString
@@ -147,13 +145,9 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
     
     func update(visit: Visit) {
         self.visit = visit
-        if let comment = visit.comment {
-            commentLabel.text = comment
-            commentLabel.isHidden = false
-        } else {
-            commentLabel.isHidden = true
-        }
-        
+        let (string, hasData) = visit.getTagAndCommentAttributedString(smallerThanNormal: true)
+        commentLabel.attributedText = string
+        commentLabel.isHidden = !hasData
         ratingLabel.attributedText = visit.ratingString
     }
 }
@@ -165,7 +159,7 @@ extension HeaderEstablishmentReusableView: EnterValueViewDelegate {
         guard let visit = visit else { return }
         visit.comment = string
         self.findViewController()?.showMessage("Comment changed")
-        Network.shared.updateVisit(visit: visit, rating: nil, newComment: string, success: { _ in return })
+        Network.shared.updateVisit(visit: visit, rating: nil, newComment: string, newTags: nil, success: { _ in return })
         
         NotificationCenter.default.post(name: .visitUpdated, object: nil, userInfo: ["visit": visit])
     }
@@ -174,9 +168,19 @@ extension HeaderEstablishmentReusableView: EnterValueViewDelegate {
         guard let visit = visit, let rating = float else { return }
         visit.rating = Double(String(format: "%.1f", Double(rating)))
         self.findViewController()?.showMessage("Rating changed")
-        Network.shared.updateVisit(visit: visit, rating: rating, newComment: nil, success: { _ in return })
+        Network.shared.updateVisit(visit: visit, rating: rating, newComment: nil, newTags: nil, success: { _ in return })
         
         NotificationCenter.default.post(name: .visitUpdated, object: nil, userInfo: ["visit": visit])
     }
     func phoneFound(string: String?) { return }
+}
+
+// MARK: VisitTagsDelegate
+extension HeaderEstablishmentReusableView: VisitTagsDelegate {
+    func tagsSelected(tags: [String]) {
+        guard let visit = visit else { return }
+        visit.tags = tags.map({Visit.VisitTag(display: $0)})
+        Network.shared.updateVisit(visit: visit, rating: nil, newComment: nil, newTags: tags, success: { _ in return })
+        NotificationCenter.default.post(name: .visitUpdated, object: nil, userInfo: ["visit": visit])
+    }
 }

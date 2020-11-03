@@ -70,7 +70,16 @@ class MapLocationView: UIView {
                 self.setUpSnapshot(with: location, size: size)
             }
         } else {
-            fatalError("Need to have either a coordinate or an address")
+            // No location, so just add a label in the center saying that there is no location found
+            self.appEndSkeleton()
+            let label = UILabel()
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.font = .mediumBold
+            label.text = "No location found"
+            imageView.addSubview(label)
+            label.centerXAnchor.constraint(equalTo: imageView.centerXAnchor).isActive = true
+            label.centerYAnchor.constraint(equalTo: imageView.centerYAnchor).isActive = true
+            //fatalError("Need to have either a coordinate or an address")
         }
         
     }

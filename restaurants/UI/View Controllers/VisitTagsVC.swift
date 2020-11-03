@@ -8,13 +8,21 @@
 
 import UIKit
 
+
+protocol VisitTagsDelegate: class {
+    func tagsSelected(tags: [String])
+}
+
+
 class VisitTagsVC: UIViewController {
-    #warning("show previous tags and stuff at the beginning for the user")
+    
+    private weak var delegate: VisitTagsDelegate?
+    private var submitTagsOnWillDisappear = true
     private var previousTags: [String]?
     private let searchBar = UISearchBar()
     private let actionButton = SizeChangeButton(sizeDifference: .inverse, restingColor: Colors.main, selectedColor: Colors.main)
     private let tableView = UITableView(frame: .zero, style: .plain)
-    private let headerView = HeaderView(leftButtonTitle: "Cancel", rightButtonTitle: "Add", title: "Visit tags")
+    private let headerView = HeaderView(leftButtonTitle: "Cancel", rightButtonTitle: "Done", title: "Visit tags")
     private let spacerView = SpacerView(size: 2.0, orientation: .vertical)
     private let addButton = UIButton()
     private var scrollingStackView: ScrollingStackView?
@@ -25,9 +33,10 @@ class VisitTagsVC: UIViewController {
     private var selectedTags = Set<String>()
     private var tagButtons = Set<UIButton>()
     
-    init(tags: [String]?) {
+    init(delegate: VisitTagsDelegate, tags: [String]?) {
         super.init(nibName: nil, bundle: nil)
         self.previousTags = tags
+        self.delegate = delegate
     }
     
     required init?(coder: NSCoder) {
@@ -48,12 +57,19 @@ class VisitTagsVC: UIViewController {
         selectThePreviouslySetTags()
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        if submitTagsOnWillDisappear {
+            delegate?.tagsSelected(tags: selectedTags.sorted())
+        }
+    }
+    
     private func setUpHeader() {
         self.view.addSubview(headerView)
         headerView.constrain(.leading, to: self.view, .leading)
         headerView.constrain(.trailing, to: self.view, .trailing)
         headerView.constrain(.top, to: self.view, .top, constant: 10.0)
         headerView.leftButton.addTarget(self, action: #selector(dismissView), for: .touchUpInside)
+        headerView.rightButton.addTarget(self, action: #selector(submitNewTags), for: .touchUpInside)
     }
     
     private func setUpSpacer() {
@@ -72,6 +88,7 @@ class VisitTagsVC: UIViewController {
         searchBar.constrain(.trailing, to: self.view, .trailing, constant: padding)
         searchBar.constrain(.top, to: spacerView, .bottom)
         searchBar.setImage(UIImage(), for: .clear, state: .normal)
+        searchBar.tintColor = Colors.main
         searchBar.delegate = self
     }
     
@@ -107,6 +124,7 @@ class VisitTagsVC: UIViewController {
         tableView.constrain(.top, to: scrollingStackView!, .bottom, constant: padding*2)
         tableView.register(CheckBoxCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.allowsMultipleSelection = true
+        tableView.showsVerticalScrollIndicator = false
     }
     
     private func setUpAlphabetView() {
@@ -115,27 +133,9 @@ class VisitTagsVC: UIViewController {
         alphabetView.constrain(.trailing, to: self.view, .trailing)
         alphabetView.centerYAnchor.constraint(equalTo: tableView.centerYAnchor).isActive = true
     }
-    
-    private func getSelectedTagButton(title: String) -> SizeChangeButton {
-        let button = SizeChangeButton(sizeDifference: .inverse, restingColor: .label, selectedColor: .label)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(title, for: .normal)
-        button.setTitleColor(.label, for: .normal)
-        button.titleLabel?.font = .mediumBold
-        button.clipsToBounds = true
-        button.backgroundColor = .secondarySystemBackground
-        button.layer.cornerRadius = 5.0
-        button.contentEdgeInsets = UIEdgeInsets(top: 5.0, left: 5.0, bottom: 5.0, right: 5.0)
-        button.setImage(UIImage.xImage.withConfiguration(.small), for: .normal)
-        button.tintColor = .secondaryLabel
-        button.addTarget(self, action: #selector(buttonPressed(sender:)), for: .touchUpInside)
-        return button
-    }
-    
     private func selectThePreviouslySetTags() {
         guard let tags = previousTags else { return }
         for tag in tags {
-            print("Tag: \(tag)")
             if let firstLetter = tag.first?.uppercased(),
                let section = dictionaryAlphabetKeys.firstIndex(of: firstLetter),
                let row = tagsDictionary[firstLetter]?.firstIndex(where: {$0.title == tag}) {
@@ -150,6 +150,11 @@ class VisitTagsVC: UIViewController {
     }
     
     @objc private func dismissView() {
+        submitTagsOnWillDisappear = false
+        self.dismiss(animated: true, completion: nil)
+    }
+    
+    @objc private func submitNewTags() {
         self.dismiss(animated: true, completion: nil)
     }
     
@@ -201,6 +206,39 @@ class VisitTagsVC: UIViewController {
         }
     }
     
+    func handleDeletionAndInsertion(indexPath: IndexPath) {
+        
+        let section = dictionaryAlphabetKeys[indexPath.section]
+        let element = tagsDictionary[section]![indexPath.row].title
+        if selectedTags.contains(element) {
+            selectedTags.remove(element)
+            for button in tagButtons {
+                guard let title = button.title(for: .normal) else { continue }
+                if title == element {
+                    handleProcessForDeletingButton(button: button)
+                    break
+                }
+            }
+        } else {
+            addButton(element: element)
+        }
+    }
+    
+    private func addButton(element: String) {
+        #warning("scroll to the view tag")
+        selectedTags.insert(element)
+        let button = TagButton(title: element, withImage: true)
+        button.addTarget(self, action: #selector(buttonPressed(sender:)), for: .touchUpInside)
+        tagButtons.insert(button)
+        button.isHidden = true
+        scrollingStackView?.stackView.addArrangedSubview(button)
+        UIView.animate(withDuration: 0.3) {
+            button.isHidden = false
+        }
+    }
+    
+    
+    
 }
 
 
@@ -239,33 +277,11 @@ extension VisitTagsVC: UITableViewDelegate, UITableViewDataSource {
         handleDeletionAndInsertion(indexPath: indexPath)
     }
     
-    func handleDeletionAndInsertion(indexPath: IndexPath) {
-        
-        let section = dictionaryAlphabetKeys[indexPath.section]
-        let element = tagsDictionary[section]![indexPath.row].title
-        if selectedTags.contains(element) {
-            selectedTags.remove(element)
-            for button in tagButtons {
-                guard let title = button.title(for: .normal) else { continue }
-                if title == element {
-                    handleProcessForDeletingButton(button: button)
-                    break
-                }
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        if scrollView == tableView {
+            if searchBar.isFirstResponder {
+                searchBar.endEditing(true)
             }
-        } else {
-            addButton(element: element)
-        }
-    }
-    
-    private func addButton(element: String) {
-        #warning("scroll to the view tag")
-        selectedTags.insert(element)
-        let button = getSelectedTagButton(title: element)
-        tagButtons.insert(button)
-        button.isHidden = true
-        scrollingStackView?.stackView.addArrangedSubview(button)
-        UIView.animate(withDuration: 0.3) {
-            button.isHidden = false
         }
     }
     

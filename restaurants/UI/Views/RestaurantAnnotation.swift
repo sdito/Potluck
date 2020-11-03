@@ -18,7 +18,6 @@ class RestaurantAnnotation: NSObject, MKAnnotation {
     let place: Int
     
     
-    
     init(restaurant: Restaurant, place: Int) {
         self.title = restaurant.name
         self.locationName = restaurant.price
@@ -27,7 +26,6 @@ class RestaurantAnnotation: NSObject, MKAnnotation {
         self.establishment = nil
         self.place = place
     }
-    
     
     init(establishment: Establishment) {
         self.title = establishment.name

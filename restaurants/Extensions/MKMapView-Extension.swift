@@ -148,7 +148,7 @@ extension MKMapView {
     }
     
     func getAnnotationBoundsFarthestDistance() -> CLLocationDistance {
-        let zoomRect = getZoomRectForMapViewAnnotations(annotations: self.annotations)
+        let zoomRect = getZoomRectForMapViewAnnotations(annotations: self.nonUserAnnotations)
         let mapRegion = MKCoordinateRegion(zoomRect)
         
         let span = mapRegion.span

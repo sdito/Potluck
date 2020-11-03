@@ -46,8 +46,12 @@ extension Network {
         case friends
     }
     
-    
-    private func reqVisit(params: Parameters?, visit: Visit?, requestType: VisitRequestType, mainImage: UIImage? = nil, otherImages: [UIImage]? = nil) -> DataRequest? {
+    private func reqVisit(params: Parameters?,
+                          visit: Visit?,
+                          requestType: VisitRequestType,
+                          mainImage: UIImage? = nil,
+                          otherImages: [UIImage]? = nil,
+                          tags: [String]? = nil) -> DataRequest? {
         guard let token = Network.shared.account?.token else { return nil }
         let headers: HTTPHeaders = ["Authorization": "Token \(token)"]
         
@@ -76,6 +80,14 @@ extension Network {
                     }
                 }
                 
+                if let tags = tags {
+                    for i in 0..<tags.count {
+                        let tag = tags[i]
+                        let key = "tags[\(i)]display"
+                        multipartFormData.append(tag.data(using: .utf8)!, withName: key)
+                    }
+                }
+                
                 for (key, value) in params {
                     multipartFormData.append("\(value)".data(using: .utf8)!, withName: key)
                 }
@@ -100,7 +112,17 @@ extension Network {
         })
     }
     
-    func userPostNotVisited(establishment: Establishment, mainImage: UIImage, mainImageDate: Date, otherImages: [UIImage]?, comment: String?, rating: Float?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
+    
+    func userPostNotVisited(establishment: Establishment,
+                            mainImage: UIImage,
+                            mainImageDate: Date,
+                            otherImages: [UIImage]?,
+                            comment: String?,
+                            rating: Float?,
+                            tags: [String]?,
+                            progressView: ProgressView?,
+                            completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
+        
         // add everything into the params for the request
         do {
             let data = try encoder.encode(establishment)
@@ -117,7 +139,7 @@ extension Network {
                 
                 establishmentJson["date_visited"] = self.dateFormatter.string(from: mainImageDate)
                 
-                let req = reqVisit(params: establishmentJson, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages)
+                let req = reqVisit(params: establishmentJson, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages, tags: tags)
                 req?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
                     guard let self = self else { return }
                     guard let data = response.data, response.error == nil else {
@@ -154,7 +176,17 @@ extension Network {
         }
     }
     
-    func userPostAlreadyVisited(djangoID: Int, mainImage: UIImage, mainImageDate: Date, otherImages: [UIImage]?, comment: String?, rating: Float?, progressView: ProgressView?, completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
+
+    func userPostAlreadyVisited(djangoID: Int,
+                                mainImage: UIImage,
+                                mainImageDate: Date,
+                                otherImages: [UIImage]?,
+                                comment: String?,
+                                rating: Float?,
+                                tags: [String]?,
+                                progressView: ProgressView?,
+                                completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
+
         
         var params: Parameters = ["restaurant_id":djangoID]
         if let comment = comment, comment != "" {
@@ -167,7 +199,7 @@ extension Network {
         
         params["date_visited"] = self.dateFormatter.string(from: mainImageDate)
 
-        let request = reqVisit(params: params, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages)
+        let request = reqVisit(params: params, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages, tags: tags)
         request?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
             guard let self = self else { return }
             guard let data = response.data, response.error == nil else {
@@ -220,11 +252,29 @@ extension Network {
         }
     }
     
-    func updateVisit(visit: Visit, rating: Float?, newComment: String?, success: @escaping (Bool) -> Void) {
+    func updateVisit(visit: Visit, rating: Float?, newComment: String?, newTags: [String]?, success: @escaping (Bool) -> Void) {
         
         var params: [String:Any] = [:]
-        if let rating = rating { params["rating"] = rating }
-        if let comment = newComment { params["comment"] = comment }
+        
+        if let rating = rating {
+            params["rating"] = rating
+        }
+        
+        if let comment = newComment {
+            params["comment"] = comment
+        }
+        
+        if let tags = newTags {
+            if tags.count > 0 {
+                for i in 0..<tags.count {
+                    let tag = tags[i]
+                    let key = "tags[\(i)]display"
+                    params[key] = tag
+                }
+            } else {
+                params["tags"] = nil
+            }
+        }
         
         let req = reqVisit(params: params, visit: visit, requestType: .updateVisit)
         
@@ -233,7 +283,6 @@ extension Network {
                 success(false)
                 return
             }
-            
             success(code == Network.okCode)
             
         })

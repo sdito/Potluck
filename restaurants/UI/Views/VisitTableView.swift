@@ -121,6 +121,7 @@ class VisitTableView: UITableView {
                 let previousVisit = visits[index]
                 previousVisit.comment = visit.comment
                 previousVisit.rating = visit.rating
+                previousVisit.tags = visit.tags
                 let cell = self.cellForRow(at: IndexPath(row: index, section: 0)) as? VisitCell
                 cell?.visit = previousVisit
                 cell?.update()
@@ -313,6 +314,7 @@ extension VisitTableView: VisitCellDelegate {
             let visitToUpdate = visits[idx]
             visitToUpdate.rating = visit.rating
             visitToUpdate.comment = visit.comment
+            visitToUpdate.tags = visit.tags
             guard let cellToUpdate = self.cellForRow(at: indexPath) as? VisitCell else { return }
             cellToUpdate.visit = visit
             
