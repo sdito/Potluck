@@ -21,7 +21,7 @@ class Visit: Codable {
     var userId: Int
     var accountUsername: String
     var otherImages: [VisitImage]
-    var tags: [VisitTag]
+    var tags: [Tag]
     var rating: Double?
     var yelpID: String?
     
@@ -36,13 +36,7 @@ class Visit: Codable {
         var image: String
     }
     
-    struct VisitTag: Codable {
-        var display: String
-        
-        init(display: String) {
-            self.display = display
-        }
-    }
+    
     
     var listPhotos: [String] {
         var arr: [String] = [mainImage]
@@ -126,25 +120,34 @@ class Visit: Codable {
     var ratingString: NSAttributedString? {
         
         if let rating = rating {
-            let color = rating.getColorFromZeroToTen()
-            let mutableString = NSMutableAttributedString()
-            
-            let ratingPortion = NSAttributedString(string: " \(rating)", attributes: [NSAttributedString.Key.font: UIFont.mediumBold,
-                                                                                      NSAttributedString.Key.baselineOffset: 1.8,
-                                                                                      NSAttributedString.Key.foregroundColor: color])
-            
-            let image = UIImage.starCircleImage.withConfiguration(UIImage.SymbolConfiguration(scale: .small)).withTintColor(color)
-            let imageAttachment = NSTextAttachment(image: image)
-            let imageString = NSAttributedString(attachment: imageAttachment)
-            
-            mutableString.append(imageString)
-            mutableString.append(ratingPortion)
-            
-            return mutableString
+            return getStringForNumber(rating: rating)
         } else {
             return nil
         }
     }
+    
+    private func getStringForNumber(rating: Double, preSetColor: UIColor? = nil) -> NSAttributedString {
+        let color = preSetColor ?? rating.getColorFromZeroToTen()
+        let mutableString = NSMutableAttributedString()
+        
+        let ratingPortion = NSAttributedString(string: " \(rating)", attributes: [NSAttributedString.Key.font: UIFont.mediumBold,
+                                                                                  NSAttributedString.Key.baselineOffset: 1.8,
+                                                                                  NSAttributedString.Key.foregroundColor: color])
+        
+        let image = UIImage.starCircleImage.withConfiguration(UIImage.SymbolConfiguration(scale: .small)).withTintColor(color)
+        let imageAttachment = NSTextAttachment(image: image)
+        let imageString = NSAttributedString(attachment: imageAttachment)
+        
+        mutableString.append(imageString)
+        mutableString.append(ratingPortion)
+        
+        return mutableString
+    }
+    
+    func getDummyRatingString() -> NSAttributedString {
+        return getStringForNumber(rating: 0.0, preSetColor: .clear)
+    }
+    
     
     func getEstablishment() -> Establishment {
         let establishment = Establishment(name: self.restaurantName, isRestaurant: false, djangoID: self.djangoRestaurantID, longitude: self.longitude, latitude: self.latitude, yelpID: self.yelpID, category: nil, address1: nil, address2: nil, address3: nil, city: nil, zipCode: nil, state: nil, country: nil, firstVisited: nil, visits: nil, userId: self.userId)

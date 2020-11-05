@@ -11,12 +11,12 @@ import UIKit
 class EstablishmentListVC: UIViewController {
     
     var person: Person?
-    var profile: Person.Profile?
+    var profile: Profile?
     var initialDataFound = false
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let reuseIdentifier = "establishmentCellReuseIdentifier"
     
-    init(profile: Person.Profile) {
+    init(profile: Profile) {
         super.init(nibName: nil, bundle: nil)
         self.initialDataFound = true
         self.profile = profile

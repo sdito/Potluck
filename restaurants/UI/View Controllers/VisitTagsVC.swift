@@ -25,12 +25,17 @@ class VisitTagsVC: UIViewController {
     private let headerView = HeaderView(leftButtonTitle: "Cancel", rightButtonTitle: "Done", title: "Visit tags")
     private let spacerView = SpacerView(size: 2.0, orientation: .vertical)
     private let addButton = UIButton()
+    private let clearButton = UIButton()
     private var scrollingStackView: ScrollingStackView?
     private let reuseIdentifier = "visitTagsVcReuseIdentifier"
     private let padding: CGFloat = 5.0
     private var tagsDictionary: [String:Network.YelpCategories] = [:]
     private var dictionaryAlphabetKeys: [String] = []
-    private var selectedTags = Set<String>()
+    private var selectedTags = Set<String>() {
+        didSet {
+            clearButton.appIsHiddenAnimated(isHidden: selectedTags.count == 0)
+        }
+    }
     private var tagButtons = Set<UIButton>()
     
     init(delegate: VisitTagsDelegate, tags: [String]?) {
@@ -51,6 +56,7 @@ class VisitTagsVC: UIViewController {
         setUpSearchBar()
         setUpAddButtonOnTopOfSearchBar()
         setUpScrollingStackView()
+        setUpClearButton()
         setUpTableView()
         setDictionaryForPotentialCategories()
         setUpAlphabetView()
@@ -109,8 +115,20 @@ class VisitTagsVC: UIViewController {
         scrollingStackView = ScrollingStackView(subViews: [placeHolderView])
         self.view.addSubview(scrollingStackView!)
         scrollingStackView!.constrain(.leading, to: self.view, .leading)
-        scrollingStackView!.constrain(.trailing, to: self.view, .trailing)
         scrollingStackView!.constrain(.top, to: searchBar, .bottom)
+    }
+    
+    private func setUpClearButton() {
+        clearButton.translatesAutoresizingMaskIntoConstraints = false
+        clearButton.setImage(.clearImage, for: .normal)
+        clearButton.tintColor = Colors.main
+        clearButton.setTitleColor(.label, for: .normal)
+        self.view.addSubview(clearButton)
+        clearButton.constrain(.leading, to: scrollingStackView!, .trailing, constant: 5.0)
+        clearButton.constrain(.trailing, to: self.view, .trailing, constant: 10.0)
+        clearButton.centerYAnchor.constraint(equalTo: scrollingStackView!.centerYAnchor).isActive = true
+        clearButton.addTarget(self, action: #selector(clearButtonPressed), for: .touchUpInside)
+        clearButton.isHidden = true
     }
     
     private func setUpTableView() {
@@ -147,6 +165,7 @@ class VisitTagsVC: UIViewController {
                 addButton(element: tag)
             }
         }
+        
     }
     
     @objc private func dismissView() {
@@ -177,7 +196,8 @@ class VisitTagsVC: UIViewController {
     }
     
     @objc private func buttonPressed(sender: UIButton) {
-        if let buttonTitle = sender.titleLabel?.text, let firstLetter = buttonTitle.first?.uppercased(),
+        guard let buttonTitle = sender.titleLabel?.text else { return }
+        if let firstLetter = buttonTitle.first?.uppercased(),
            let section = dictionaryAlphabetKeys.firstIndex(of: firstLetter),
            let row = tagsDictionary[firstLetter]?.firstIndex(where: {$0.title == buttonTitle}) {
             let indexPath = IndexPath(row: row, section: section)
@@ -185,9 +205,10 @@ class VisitTagsVC: UIViewController {
             tableView.deselectRow(at: indexPath, animated: true)
         } else {
             // does not belong on the table view, just remove the button
+            selectedTags.remove(buttonTitle)
             handleProcessForDeletingButton(button: sender)
+            
         }
-        
     }
     
     @objc private func addButtonPressed() {
@@ -195,6 +216,21 @@ class VisitTagsVC: UIViewController {
         addButton(element: text)
         searchBar.text = ""
         searchBar(searchBar, textDidChange: "")
+    }
+    
+    @objc private func clearButtonPressed() {
+        for selectedRow in tableView.indexPathsForSelectedRows ?? [] {
+            //tableView(tableView, didDeselectRowAt: selectedRow)
+            tableView.deselectRow(at: selectedRow, animated: true)
+            
+        }
+        
+        selectedTags.removeAll()
+        for button in tagButtons {
+            handleProcessForDeletingButton(button: button)
+        }
+        
+        
     }
     
     private func handleProcessForDeletingButton(button: UIButton) {
@@ -216,7 +252,6 @@ class VisitTagsVC: UIViewController {
                 guard let title = button.title(for: .normal) else { continue }
                 if title == element {
                     handleProcessForDeletingButton(button: button)
-                    break
                 }
             }
         } else {
@@ -225,20 +260,22 @@ class VisitTagsVC: UIViewController {
     }
     
     private func addButton(element: String) {
-        #warning("scroll to the view tag")
+        guard let scrollingStackView = scrollingStackView else { return }
         selectedTags.insert(element)
-        let button = TagButton(title: element, withImage: true)
+        let button = TagButton(title: element, withImage: true, normal: true)
         button.addTarget(self, action: #selector(buttonPressed(sender:)), for: .touchUpInside)
         tagButtons.insert(button)
         button.isHidden = true
-        scrollingStackView?.stackView.addArrangedSubview(button)
-        UIView.animate(withDuration: 0.3) {
+        scrollingStackView.stackView.addArrangedSubview(button)
+        
+        
+        UIView.animate(withDuration: 0.2) {
             button.isHidden = false
+        } completion: { _ in
+            scrollingStackView.scrollView.scrollRectToVisible(button.frame, animated: true)
         }
     }
-    
-    
-    
+
 }
 
 
@@ -270,6 +307,7 @@ extension VisitTagsVC: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        searchBar.text = ""
         handleDeletionAndInsertion(indexPath: indexPath)
     }
     
@@ -293,7 +331,7 @@ extension VisitTagsVC: AlphabetViewDelegate {
         // scroll to (without animating) the section of the letter
         guard let section = dictionaryAlphabetKeys.firstIndex(of: string) else { return }
         tableView.scrollToRow(at: IndexPath(row: 0, section: section), at: .top, animated: false)
-        print("Letter form AVD: \(string)")
+        
     }
 }
 
@@ -303,7 +341,20 @@ extension VisitTagsVC: UISearchBarDelegate {
         addButton.appIsHiddenAnimated(isHidden: searchText.count == 0)
         
         // scroll to the correct tag
-        #warning("need to complete")
-        #warning("need to create an alias i.e. all lowercase, remove all punctuation, replace spaces with underscores")
+        guard let firstLetter = searchText.first?.uppercased(), let section = dictionaryAlphabetKeys.firstIndex(of: firstLetter) else { return }
+        
+        if searchText.count == 1 {
+            tableView.scrollToRow(at: IndexPath(row: 0, section: section), at: .top, animated: false)
+        } else {
+            print("Need to scroll more")
+            guard let elements = tagsDictionary[firstLetter] else { return }
+            let elementNames = elements.map({$0.title.lowercased()})
+            let searchTermLower =  searchText.lowercased()
+            
+            // get the index of the first element that starts with
+            if let firstIndex = elementNames.firstIndex(where: {$0.starts(with: searchTermLower)}) {
+                tableView.scrollToRow(at: IndexPath(row: firstIndex, section: section), at: .top, animated: false)
+            }
+        }
     }
 }

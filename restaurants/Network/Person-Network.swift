@@ -192,7 +192,7 @@ extension Network {
         }
     }
     
-    func getPersonProfile(person: Person?, profileFound: @escaping (Result<Person.Profile, Errors.Friends>) -> Void) {
+    func getPersonProfile(person: Person?, profileFound: @escaping (Result<Profile, Errors.Friends>) -> Void) {
         guard let personId = person?.id else { profileFound(Result.failure(.other)); return }
         let params: Parameters = ["account": personId]
         guard let req = reqPerson(params: params, requestType: .getPersonProfile) else { profileFound(Result.failure(.other)); return }
@@ -203,7 +203,7 @@ extension Network {
             }
             
             do {
-                let profile = try self.decoder.decode(Person.Profile.self, from: data)
+                let profile = try self.decoder.decode(Profile.self, from: data)
                 profileFound(Result.success(profile))
             } catch {
                 print(error)

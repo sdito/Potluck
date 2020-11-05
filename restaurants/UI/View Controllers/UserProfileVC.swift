@@ -16,7 +16,7 @@ class UserProfileVC: UIViewController {
     #warning("potentially use person's account color somewhere here")
     
     private var person: Person?
-    private var profile: Person.Profile?
+    private var profile: Profile?
     
     private let mapView = MKMapView()
     private let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
@@ -159,13 +159,14 @@ class UserProfileVC: UIViewController {
             case .success(let profile):
                 self.profile = profile
                 self.setUpWithProfile(profile: profile)
+                
             case .failure(_):
                 print("Failed getting profile")
             }
         }
     }
     
-    private func setUpWithProfile(profile: Person.Profile) {
+    private func setUpWithProfile(profile: Profile) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             if let establishments = profile.establishments {

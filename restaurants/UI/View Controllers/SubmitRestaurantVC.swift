@@ -213,7 +213,7 @@ class SubmitRestaurantVC: UIViewController {
     func getTagViews(tags: [String]?) -> [UIView] {
         var views: [UIView] = []
         for tag in tags ?? [] {
-            let tagButton = TagButton(title: tag, withImage: false)
+            let tagButton = TagButton(title: tag, withImage: false, normal: true)
             tagButton.isUserInteractionEnabled = false
             views.append(tagButton)
         }
@@ -457,7 +457,7 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
     }
     
     func addViewToTellUserToAddTags() {
-        let tagView = TagButton(title: "Add tags", withImage: false)
+        let tagView = TagButton(title: "Add tags", withImage: false, normal: false)
         tagView.isUserInteractionEnabled = false
         tagScrollingStack?.stackView.addArrangedSubview(tagView)
     }

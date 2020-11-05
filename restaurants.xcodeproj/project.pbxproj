@@ -80,6 +80,8 @@
 		E2574A2D24B6A537006618D7 /* TimeInterval-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */; };
 		E2574A3224B7D41D006618D7 /* ScrollingStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2574A3124B7D41D006618D7 /* ScrollingStackView.swift */; };
 		E258F166254F341200980A8B /* TagButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E258F165254F341200980A8B /* TagButton.swift */; };
+		E258F19825539E8000980A8B /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = E258F19725539E8000980A8B /* Tag.swift */; };
+		E258F19C2553A3E500980A8B /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E258F19B2553A3E500980A8B /* Profile.swift */; };
 		E25BA4B32533910E0063C944 /* PersonTitleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E25BA4B22533910E0063C944 /* PersonTitleButton.swift */; };
 		E25BA4B72533B0160063C944 /* VisitTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E25BA4B62533B0160063C944 /* VisitTableView.swift */; };
 		E25BA4CB253679630063C944 /* EstablishmentListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E25BA4CA253679630063C944 /* EstablishmentListVC.swift */; };
@@ -214,6 +216,8 @@
 		E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval-Extension.swift"; sourceTree = "<group>"; };
 		E2574A3124B7D41D006618D7 /* ScrollingStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollingStackView.swift; sourceTree = "<group>"; };
 		E258F165254F341200980A8B /* TagButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagButton.swift; sourceTree = "<group>"; };
+		E258F19725539E8000980A8B /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
+		E258F19B2553A3E500980A8B /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		E25BA4B22533910E0063C944 /* PersonTitleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonTitleButton.swift; sourceTree = "<group>"; };
 		E25BA4B62533B0160063C944 /* VisitTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitTableView.swift; sourceTree = "<group>"; };
 		E25BA4CA253679630063C944 /* EstablishmentListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstablishmentListVC.swift; sourceTree = "<group>"; };
@@ -529,6 +533,7 @@
 		E2B6A2B524AFC8B50070DECA /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				E258F19725539E8000980A8B /* Tag.swift */,
 				E2A0147024F5D13F00379518 /* Visit.swift */,
 				E23AF9FC24F860AC004542A2 /* Establishment.swift */,
 				E2B6A2B624AFECD10070DECA /* Restaurant.swift */,
@@ -536,6 +541,7 @@
 				E239840F24E9F09800F3828C /* Account.swift */,
 				E26CD827251C0A550082DBE0 /* Setting.swift */,
 				E253A6B02523FBAF00778500 /* Person.swift */,
+				E258F19B2553A3E500980A8B /* Profile.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -664,6 +670,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E23AFA0524F8DBB4004542A2 /* SelectLocationVC.swift in Sources */,
+				E258F19C2553A3E500980A8B /* Profile.swift in Sources */,
 				E2574A2324B53348006618D7 /* UIImageView-Extension.swift in Sources */,
 				E2564CB32546015200304B5B /* LoaderView.swift in Sources */,
 				E2DC2F2724EDCED0002C6A07 /* ImageXView.swift in Sources */,
@@ -680,6 +687,7 @@
 				E23AF9FB24F62075004542A2 /* VisitCell.swift in Sources */,
 				E2DC2F3E24EFAE7F002C6A07 /* PHAsset-Extension.swift in Sources */,
 				E25BA4CF25368AEC0063C944 /* EstablishmentCell.swift in Sources */,
+				E258F19825539E8000980A8B /* Tag.swift in Sources */,
 				E27A756E24A855EC00E446EE /* FindRestaurantVC.swift in Sources */,
 				E239841224EA03B200F3828C /* SettingsVC.swift in Sources */,
 				E239840A24E8FEA700F3828C /* Account-Network.swift in Sources */,

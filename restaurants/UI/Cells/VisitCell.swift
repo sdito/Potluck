@@ -371,7 +371,7 @@ extension VisitCell: EnterValueViewDelegate {
 extension VisitCell: VisitTagsDelegate {
     func tagsSelected(tags: [String]) {
         guard let visit = visit else { return }
-        visit.tags = tags.map({Visit.VisitTag(display: $0)})
+        visit.tags = tags.map({Tag(display: $0)})
         Network.shared.updateVisit(visit: visit, rating: nil, newComment: nil, newTags: tags, success: { _ in return })
         NotificationCenter.default.post(name: .visitUpdated, object: nil, userInfo: ["visit": visit])
     }

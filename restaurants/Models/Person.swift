@@ -78,37 +78,7 @@ class Person: Decodable {
         }
     }
     
-    struct Profile: Decodable {
-        var account: Person
-        var establishments: [Establishment]?
-        var visits: [Visit]?
-        var receivedRequestId: Int?
-        var sentRequestId: Int?
-        var isOwnProfile: Bool
-        var friendshipId: Int?
-        
-        var hasPendingReceivedRequest: Bool {
-            return receivedRequestId != nil
-        }
-        
-        var hasPendingSentRequest: Bool {
-            return sentRequestId != nil
-        }
-        
-        var areFriends: Bool {
-            return friendshipId != nil
-        }
-        
-        enum CodingKeys: String, CodingKey {
-            case account
-            case establishments
-            case visits
-            case receivedRequestId = "received_request_from_user"
-            case sentRequestId = "sent_request_to_user"
-            case isOwnProfile = "is_own_profile"
-            case friendshipId = "friend_id"
-        }
-    }
+    
     
     struct Friend: Decodable {
         var friend: Person

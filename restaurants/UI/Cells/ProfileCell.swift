@@ -106,7 +106,7 @@ class ProfileCell: UICollectionViewCell {
         
         placeLabel.text = visit.restaurantName
         
-        ratingLabel.attributedText = visit.ratingString
+        ratingLabel.attributedText = visit.ratingString ?? visit.getDummyRatingString()
         
         if visit.listPhotos.count > 1 {
             multipleImagesView.isHidden = false
@@ -116,7 +116,6 @@ class ProfileCell: UICollectionViewCell {
     }
     
     private func hideCell() {
-        print("Hiding the cell")
         self.isUserInteractionEnabled = false
         self.alpha = 0.0
         self.contentView.alpha = 0.0
