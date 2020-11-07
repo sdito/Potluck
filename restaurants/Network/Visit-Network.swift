@@ -244,10 +244,8 @@ extension Network {
                 guard let vis = visits.visits else { return }
                 completion(Result.success(vis))
                 numberRequests(count)
-                
             } catch {
                 print(error)
-                
             }
         }
     }

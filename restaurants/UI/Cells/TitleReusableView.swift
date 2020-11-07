@@ -10,9 +10,12 @@ import UIKit
 
 class TitleReusableView: UICollectionReusableView {
     
+    private let stackView = UIStackView()
     private let label = UILabel()
-    let button = UIButton()
+    let rightButton = UIButton()
+    let leftButton = UIButton()
     private let constraintDistance: CGFloat = 10.0
+    let tagButton = TagButton(title: "", withImage: true, normal: true)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -26,42 +29,57 @@ class TitleReusableView: UICollectionReusableView {
     private func setUpElements() {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.backgroundColor = UIColor.secondarySystemBackground
-        
+        setUpStackView()
         setUpLabel()
-        setUpButton()
+        setUpTagButton()
+        setUpLeftButton()
+        setUpRightButton()
+    }
+    
+    private func setUpStackView() {
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(stackView)
+        stackView.constrainSides(to: self, distance: constraintDistance)
+        stackView.spacing = constraintDistance
+        stackView.axis = .horizontal
+        stackView.distribution = .fill
+        stackView.alignment = .center
     }
     
     private func setUpLabel() {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "This is a header"
-        label.font = .createdTitle
-        
-        // to have the label automatically fit the vertical and horizontal space
-        label.minimumScaleFactor = 0.1
-        label.adjustsFontSizeToFitWidth = true
-        label.lineBreakMode = .byClipping
-        label.numberOfLines = 0
-        
-        self.addSubview(label)
-        
-        label.constrain(.leading, to: self, .leading, constant: constraintDistance)
-        label.constrain(.top, to: self, .top, constant: constraintDistance)
-        label.constrain(.bottom, to: self, .bottom, constant: constraintDistance)
+        label.font = .largerBold
+        stackView.addArrangedSubview(label)
+        label.setContentHuggingPriority(.required, for: .horizontal)
     }
     
-    private func setUpButton() {
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(.arrowDownImage, for: .normal)
-        button.tintColor = .secondaryLabel
+    private func setUpTagButton() {
+        stackView.addArrangedSubview(tagButton)
+        tagButton.setContentHuggingPriority(.required, for: .horizontal)
+        tagButton.setContentCompressionResistancePriority(.required, for: .vertical)
+        tagButton.alpha = 0.0
+    }
+    
+    private func setUpLeftButton() {
+        leftButton.translatesAutoresizingMaskIntoConstraints = false
+        leftButton.setImage(.arrowDownImage, for: .normal)
+        leftButton.tintColor = Colors.main
+        stackView.addArrangedSubview(leftButton)
+        leftButton.contentHorizontalAlignment = .trailing
+        leftButton.alpha = 0.0
+    }
+    
+    private func setUpRightButton() {
+        rightButton.translatesAutoresizingMaskIntoConstraints = false
+        rightButton.setImage(.filterImage, for: .normal)
+        rightButton.setTitle(" TAGS", for: .normal)
+        rightButton.setTitleColor(Colors.main, for: .normal)
+        rightButton.titleLabel?.font = .smallBold
+        rightButton.tintColor = Colors.main
         
-        self.addSubview(button)
-        
-        button.constrain(.leading, to: label, .trailing, constant: constraintDistance)
-        button.constrain(.top, to: self, .top, constant: constraintDistance)
-        button.constrain(.bottom, to: self, .bottom, constant: constraintDistance)
-        button.constrain(.trailing, to: self, .trailing, constant: constraintDistance)
-        
-        button.setContentHuggingPriority(.required, for: .horizontal)
+        stackView.addArrangedSubview(rightButton)
+        rightButton.setContentHuggingPriority(.required, for: .horizontal)
     }
     
     func setTitle(_ str: String) {

@@ -47,6 +47,14 @@ extension UIViewController {
         }
     }
     
+    func showTagSelectorView(tags: [Tag]?, tagSelectorViewDelegate: TagSelectorViewDelegate) {
+        let tagSelectorView = TagSelectorView(tags: tags, tagSelectorViewDelegate: tagSelectorViewDelegate)
+        let vc = ShowViewVC(newView: tagSelectorView, mode: .middle, allowScreenPressToDismiss: true)
+        vc.modalPresentationStyle = .overFullScreen
+        tagSelectorView.showViewVC = vc
+        self.present(vc, animated: false, completion: nil)
+    }
+    
     func appAlert(title: String?, message: String?, buttons: [AlertView.ButtonAction]?) {
         let alertView = AlertView(title: title, message: message, buttons: buttons)
         let vc = ShowViewVC(newView: alertView, mode: .middle, allowScreenPressToDismiss: false)

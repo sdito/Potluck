@@ -22,13 +22,25 @@ class ProfileHomeVC: UIViewController {
     private var preLoadedData = false
     private var otherUserUsername: String?
     private var allowMapButton = true
-
+    private let scrollingStackView = ScrollingStackView(subViews: [UIView()])
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
         setUpNavigationBar()
+        setUpTagPortion()
+        setUpTableView()
+        handleInitialDataNeeded()
         
+        NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
+    }
+    
+    private func setUpNavigationBar() {
+        self.setNavigationBarColor()
+        self.navigationController?.navigationBar.tintColor = Colors.main
+        let rightNavigationButton = UIBarButtonItem(image: .listImage, style: .plain, target: self, action: #selector(establishmentListPressed))
+        self.navigationItem.rightBarButtonItem = rightNavigationButton
         if let username = otherUserUsername {
             let navigationTitleView = NavigationTitleView(upperText: username, lowerText: "Visits")
             navigationItem.titleView = navigationTitleView
@@ -37,30 +49,6 @@ class ProfileHomeVC: UIViewController {
         }
         
         navigationController?.navigationBar.isTranslucent = false
-        setUpTableView()
-        
-        if !preLoadedData {
-            getInitialUserVisits()
-        } else {
-            visitTableView?.reloadData()
-            if let elementId = selectedVisit?.djangoOwnID, let idx = visits.map({$0.djangoOwnID}).firstIndex(of: elementId) {
-                visitTableView?.visits = visits
-                visitTableView?.layoutIfNeeded()
-                DispatchQueue.main.async {
-                    self.visitTableView?.scrollToRow(at: IndexPath(row: idx, section: 0), at: .top, animated: false)
-                }
-            }
-        }
-        NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
-        
-    }
-    
-    private func setUpNavigationBar() {
-        self.setNavigationBarColor()
-        self.navigationController?.navigationBar.tintColor = Colors.main
-        let rightNavigationButton = UIBarButtonItem(image: .listImage, style: .plain, target: self, action: #selector(establishmentListPressed))
-        self.navigationItem.rightBarButtonItem = rightNavigationButton
     }
     
     deinit {
@@ -85,6 +73,20 @@ class ProfileHomeVC: UIViewController {
         super.init(coder: coder)
     }
     
+    private func handleInitialDataNeeded() {
+        if !preLoadedData {
+            getInitialUserVisits()
+        } else {
+            visitTableView?.reloadData()
+            if let elementId = selectedVisit?.djangoOwnID, let idx = visits.map({$0.djangoOwnID}).firstIndex(of: elementId) {
+                visitTableView?.visits = visits
+                visitTableView?.layoutIfNeeded()
+                DispatchQueue.main.async {
+                    self.visitTableView?.scrollToRow(at: IndexPath(row: idx, section: 0), at: .top, animated: false)
+                }
+            }
+        }
+    }
     
     private func getInitialUserVisits() {
         setMapButton(hidden: true)
@@ -113,10 +115,33 @@ class ProfileHomeVC: UIViewController {
         }
     }
     
+    private func setUpTagPortion() {
+        scrollingStackView.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(scrollingStackView)
+        scrollingStackView.constrain(.leading, to: self.view, .leading)
+        scrollingStackView.constrain(.top, to: self.view, .top)
+        scrollingStackView.constrain(.trailing, to: self.view, .trailing)
+        
+        
+        #error("need to use with the actual tags and to actually implement this, with network request and stuff, think about if diff between user and profile")
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+//            for name in ["Italian", "American", "Barbecue", "Thai", "Chinese", "Breakfast", "Brunch", "Something else"] {
+//                let tagButton = TagButton(title: name, withImage: false, normal: true)
+//                tagButton.isHidden = true
+//                self.scrollingStackView.stackView.addArrangedSubview(tagButton)
+//                UIView.animate(withDuration: 0.3) {
+//                    tagButton.isHidden = false
+//                }
+//            }
+//        }
+    }
+    
     private func setUpTableView() {
-
         self.view.addSubview(visitTableView!)
-        visitTableView!.constrainSides(to: self.view)
+        visitTableView!.constrain(.top, to: scrollingStackView, .bottom, constant: 5.0)
+        visitTableView!.constrain(.leading, to: self.view, .leading)
+        visitTableView!.constrain(.trailing, to: self.view, .trailing)
+        visitTableView!.constrain(.bottom, to: self.view, .bottom)
         
         showOnMapButton.setTitle("Show on map", for: .normal)
         showOnMapButton.addTarget(self, action: #selector(showOnMapButtonPressed), for: .touchUpInside)
@@ -126,7 +151,6 @@ class ProfileHomeVC: UIViewController {
         showOnMapButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -((self.tabBarController?.tabBar.bounds.height ?? 0.0) + 10.0)).isActive = true
         
         if !allowMapButton { showOnMapButton.isHidden = true }
-        
     }
     
     private func noUserTableView() {

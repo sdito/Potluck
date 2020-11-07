@@ -12,11 +12,9 @@ import MapKit
 
 
 class UserProfileVC: UIViewController {
-    
-    #warning("potentially use person's account color somewhere here")
-    
     private var person: Person?
     private var profile: Profile?
+    private var filteredVisits: [Visit] = []
     
     private let mapView = MKMapView()
     private let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
@@ -28,14 +26,16 @@ class UserProfileVC: UIViewController {
     private var collectionViewTop: NSLayoutConstraint?
     private var mapViewHeight: CGFloat?
     private var headerButton: UIButton?
+    private var filterButton: UIButton?
+    private var tagButton: UIButton?
     private let imageCache = NSCache<NSString, UIImage>()
     private let animatedRefreshControl = AnimatedRefreshControl()
     private var threeDotsBarButtonItem: UIBarButtonItem?
+    private var establishmentListButton: UIBarButtonItem?
     private var overlayForNoEstablishments: OverlayButton? { didSet { self.overlayForNoEstablishments?.isUserInteractionEnabled = false } }
     private var initialDataReceived = false
     private var refreshControlSetUp = false
     
-    private let establishmentListButton = OverlayButton()
     private let reCenterMapButton = OverlayButton()
     private let overlayConfiguration = UIImage.SymbolConfiguration(scale: .large)
     
@@ -50,7 +50,6 @@ class UserProfileVC: UIViewController {
         getPersonData()
         setUpMap()
         setUpCollectionView()
-        setUpEstablishmentListButton()
         setUpReCenterButton()
     }
     
@@ -64,14 +63,22 @@ class UserProfileVC: UIViewController {
     }
     
     private func setUpNavigationBar() {
+        var barButtonItems: [UIBarButtonItem] = []
         if let username = person?.username {
             let navigationTitleView = NavigationTitleView(upperText: username, lowerText: "Profile")
             self.navigationItem.titleView = navigationTitleView
         } else {
             self.navigationItem.title = "Profile"
         }
+        
         threeDotsBarButtonItem = UIBarButtonItem(image: .threeDotsImage, style: .plain, target: self, action: #selector(profileInfoPressed))
-        self.navigationItem.rightBarButtonItem = threeDotsBarButtonItem
+        barButtonItems.append(threeDotsBarButtonItem!)
+        
+        establishmentListButton = UIBarButtonItem(image: .listImage, style: .plain, target: self, action: #selector(establishmentListAction(sender:)))
+        establishmentListButton!.tintColor = .clear
+        barButtonItems.append(establishmentListButton!)
+        
+        self.navigationItem.rightBarButtonItems = barButtonItems
     }
     
     private func setUpMap() {
@@ -86,29 +93,15 @@ class UserProfileVC: UIViewController {
         mapView.layoutIfNeeded()
     }
     
-    private func setUpEstablishmentListButton() {
-        establishmentListButton.tintColor = Colors.main
-        establishmentListButton.setImage(UIImage.listImage.withConfiguration(overlayConfiguration), for: .normal)
-        self.view.addSubview(establishmentListButton)
-        establishmentListButton.constrain(.bottom, to: collectionView!, .top, constant: mapOverlayButtonPadding)
-        establishmentListButton.constrain(.trailing, to: self.view, .trailing, constant: mapOverlayButtonPadding)
-        establishmentListButton.addTarget(self, action: #selector(establishmentListAction), for: .touchUpInside)
-        establishmentListButton.isHidden = true
-    }
-    
     private func setUpReCenterButton() {
         reCenterMapButton.tintColor = Colors.locationColor
         reCenterMapButton.setImage(UIImage.locationImage.withConfiguration(overlayConfiguration), for: .normal)
         self.view.addSubview(reCenterMapButton)
         reCenterMapButton.constrain(.bottom, to: collectionView!, .top, constant: mapOverlayButtonPadding)
-        reCenterMapButton.constrain(.trailing, to: establishmentListButton, .leading, constant: mapOverlayButtonPadding)
+        reCenterMapButton.constrain(.trailing, to: self.view, .trailing, constant: mapOverlayButtonPadding)
         reCenterMapButton.addTarget(self, action: #selector(reCenterMapAction), for: .touchUpInside)
-        reCenterMapButton.heightAnchor.constraint(equalTo: establishmentListButton.heightAnchor).isActive = true
-        reCenterMapButton.widthAnchor.constraint(equalTo: establishmentListButton.widthAnchor).isActive = true
         reCenterMapButton.isHidden = true
     }
-    
-    
     
     private func setUpCollectionView() {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -118,7 +111,7 @@ class UserProfileVC: UIViewController {
         layout.itemSize = UICollectionViewFlowLayout.automaticSize
         layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         layout.minimumInteritemSpacing = 0.0
-        layout.headerReferenceSize = CGSize(width: UIScreen.main.bounds.width, height: 40.0)
+        layout.headerReferenceSize = CGSize(width: UIScreen.main.bounds.width, height: 45.0)
         layout.sectionHeadersPinToVisibleBounds = true
         
         collectionView?.showsVerticalScrollIndicator = false
@@ -181,6 +174,7 @@ class UserProfileVC: UIViewController {
                 self.hideBarButtonItem()
             }
             
+            self.filteredVisits = profile.visits ?? []
             self.collectionView?.reloadData()
             self.showOnMapIfThereAreNoEstablishments(establishments: profile.establishments)
         }
@@ -191,7 +185,7 @@ class UserProfileVC: UIViewController {
         self.collectionViewTop?.constant = 0.0
         self.collectionView?.setNeedsLayout()
         self.allowChanges = false
-        self.headerButton?.isHidden = true
+        self.headerButton?.hideWithAlphaAnimated()
         
         UIView.animate(withDuration: 0.5) {
             self.mapView.alpha = 1.0
@@ -211,7 +205,10 @@ class UserProfileVC: UIViewController {
         mapView.trueFitAllAnnotations(annotations: mapView.annotations, animated: true)
     }
     
-    @objc private func establishmentListAction() {
+    @objc private func establishmentListAction(sender: UIBarButtonItem) {
+        // when button is disabled it is clear, since barButtonItems cant be disabled so a button press could still go through
+        guard sender.tintColor != .clear else { return}
+        
         let userName = profile?.account.username ?? "User"
         guard let profile = profile else {
             self.showMessage("\(userName) has no places yet")
@@ -219,7 +216,6 @@ class UserProfileVC: UIViewController {
         }
         
         self.navigationController?.pushViewController(EstablishmentListVC(profile: profile), animated: true)
-        
     }
     
     @objc private func profileInfoPressed() {
@@ -294,13 +290,18 @@ class UserProfileVC: UIViewController {
             overlayForNoEstablishments!.constrain(.bottom, to: mapView, .bottom, constant: 10.0)
             overlayForNoEstablishments!.setTitle("User has no places yet", for: .normal)
             overlayForNoEstablishments!.setTitleColor(.label, for: .normal)
-            establishmentListButton.isHidden = true
+            establishmentListButton?.tintColor = .clear
+            
             reCenterMapButton.isHidden = true
         } else {
             overlayForNoEstablishments?.removeFromSuperview()
             overlayForNoEstablishments = nil
-            establishmentListButton.isHidden = false
+            establishmentListButton?.tintColor = Colors.main
         }
+    }
+    
+    @objc private func filterButtonPressed() {
+        self.showTagSelectorView(tags: profile?.tags, tagSelectorViewDelegate: self)
     }
     
 }
@@ -354,11 +355,16 @@ extension UserProfileVC: MKMapViewDelegate {
 // MARK: Collection view
 extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        let count = profile?.visits?.count ?? 0
+        let count = filteredVisits.count
         
         if count == 0 {
             if initialDataReceived {
-                collectionView.setEmptyWithAction(message: "\(person?.username ?? "This user") does not have any visits yet", buttonTitle: "")
+                if let totalCount = profile?.visits?.count, totalCount == 0 {
+                    collectionView.setEmptyWithAction(message: "\(person?.username ?? "This user") does not have any visits yet", buttonTitle: "")
+                } else {
+                    collectionView.setEmptyWithAction(message: "\(person?.username ?? "This user") does not have any visits with that tag yet", buttonTitle: "")
+                }
+                
             } else {
                 collectionView.showLoadingOnCollectionView()
             }
@@ -381,10 +387,9 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! ProfileCell
         let width = (self.view.frame.width / 2) - padding/2
-        guard let visit = profile?.visits?.appAtIndex(indexPath.row) else {
+        guard let visit = filteredVisits.appAtIndex(indexPath.row) else {
             // Will be called when there is only one visit, this will just blank out the cell to ensure that the columns lay out correctly, else it will lay out in the center
             // See numberOfItemsInSection for when there are two cells when technically there should be one
-            print(indexPath.row)
             cell.setUp(with: nil, width: width)
             return cell
         }
@@ -420,15 +425,27 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerIdentifier, for: indexPath) as! TitleReusableView
         header.setTitle("Visits")
-        headerButton = header.button
-        headerButton!.isHidden = true
+        headerButton = header.leftButton
         headerButton!.addTarget(self, action: #selector(headerButtonAction), for: .touchUpInside)
+        
+        filterButton = header.rightButton
+        filterButton!.addTarget(self, action: #selector(filterButtonPressed), for: .touchUpInside)
+        
+        tagButton = header.tagButton
+        tagButton?.addTarget(self, action: #selector(clearTag), for: .touchUpInside)
+        
+        if let count = profile?.tags?.count, count > 0 {
+            filterButton!.isHidden = false
+        } else {
+            filterButton!.isHidden = true
+        }
+        
         return header
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if let visits = profile?.visits, let visit = visits.appAtIndex(indexPath.item) {
-            let profileVC = ProfileHomeVC(isOwnUsersProfile: false, visits: visits, selectedVisit: visit, prevImageCache: imageCache, otherUserUsername: person?.username)
+        if let visit = filteredVisits.appAtIndex(indexPath.item) {
+            let profileVC = ProfileHomeVC(isOwnUsersProfile: false, visits: filteredVisits, selectedVisit: visit, prevImageCache: imageCache, otherUserUsername: person?.username)
             self.navigationController?.pushViewController(profileVC, animated: true)
         }
     }
@@ -439,7 +456,7 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
             allowChanges = false
             
             if mapViewHeight == nil {
-                let topSafeArea = establishmentListButton.bounds.height + (mapOverlayButtonPadding * 2)
+                let topSafeArea = reCenterMapButton.bounds.height + (mapOverlayButtonPadding * 2)
                 mapViewHeight = mapView.frame.height - topSafeArea
             }
             
@@ -457,18 +474,18 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
                     previousScrollOffset = scrollView.contentOffset.y
                     let alpha = 1 - (-potentialNewTop/mapViewHeight)
                     if alpha > 0.9 {
-                        headerButton?.isHidden = true
+                        headerButton?.hideWithAlphaAnimated()
                     } else {
-                        headerButton?.isHidden = false
+                        headerButton?.showWithAlphaAnimated()
                     }
                     mapView.alpha = alpha
                 } else {
                     if potentialNewTop < -mapViewHeight {
-                        headerButton?.isHidden = false
+                        headerButton?.showWithAlphaAnimated()
                         mapView.alpha = 0.0
                         collectionViewTop.constant = -mapViewHeight
                     } else {
-                        headerButton?.isHidden = true
+                        headerButton?.hideWithAlphaAnimated()
                         mapView.alpha = 1.0
                         collectionViewTop.constant = 0.0
                     }
@@ -477,11 +494,46 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
             allowChanges = true
         }
     }
-    
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         self.allowChanges = true
     }
     
+    func reloadCollectionView(tag: Tag?) {
+        let prevAlpha = headerButton?.alpha ?? 0.0
+        collectionView?.reloadData()
+        headerButton?.alpha = prevAlpha
+        
+        if let tag = tag {
+            tagButton?.setTitle(tag.display, for: .normal)
+            tagButton?.showWithAlphaAnimated()
+            filterButton?.showNotificationStyleText(str: "1")
+        } else {
+            tagButton?.hideWithAlphaAnimated()
+            filterButton?.removeNotificationStyleText()
+        }
+    }
 }
 
+// MARK: TagSelectorViewDelegate
+extension UserProfileVC: TagSelectorViewDelegate {
+    @objc func clearTag() {
+        guard let allVisits = profile?.visits else { return }
+        filteredVisits = allVisits
+        reloadCollectionView(tag: nil)
+    }
+    
+    func tagSelected(tag: Tag) {
+        guard let selectedAlias = tag.alias else { return }
+        guard let allVisits = profile?.visits else { return }
+        // *** use alias to filter
+        let potentialVisits = allVisits.filter({ (visit) -> Bool in
+            visit.tags.contains { (tag) -> Bool in
+                tag.alias == selectedAlias
+            }
+        })
+        filteredVisits = potentialVisits
+        reloadCollectionView(tag: tag)
 
+    }
+    
+}

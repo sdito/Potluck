@@ -42,6 +42,8 @@
 		E223BE3B254CF73A00AFFADF /* AlphabetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E223BE3A254CF73A00AFFADF /* AlphabetView.swift */; };
 		E233541624B15F8C00A85DA3 /* Values.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541524B15F8C00A85DA3 /* Values.swift */; };
 		E233541824B1627200A85DA3 /* UIImage-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541724B1627200A85DA3 /* UIImage-Extension.swift */; };
+		E239269C2553D6C900996C2D /* TagSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239269B2553D6C900996C2D /* TagSelectorView.swift */; };
+		E23926A025549D5600996C2D /* TagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239269F25549D5600996C2D /* TagCell.swift */; };
 		E239840A24E8FEA700F3828C /* Account-Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239840924E8FEA700F3828C /* Account-Network.swift */; };
 		E239840C24E9BAF200F3828C /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239840B24E9BAF200F3828C /* Errors.swift */; };
 		E239841024E9F09800F3828C /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239840F24E9F09800F3828C /* Account.swift */; };
@@ -178,6 +180,8 @@
 		E223BE3A254CF73A00AFFADF /* AlphabetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphabetView.swift; sourceTree = "<group>"; };
 		E233541524B15F8C00A85DA3 /* Values.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Values.swift; sourceTree = "<group>"; };
 		E233541724B1627200A85DA3 /* UIImage-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage-Extension.swift"; sourceTree = "<group>"; };
+		E239269B2553D6C900996C2D /* TagSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSelectorView.swift; sourceTree = "<group>"; };
+		E239269F25549D5600996C2D /* TagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagCell.swift; sourceTree = "<group>"; };
 		E239840924E8FEA700F3828C /* Account-Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Account-Network.swift"; sourceTree = "<group>"; };
 		E239840B24E9BAF200F3828C /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		E239840F24E9F09800F3828C /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
@@ -390,6 +394,7 @@
 		E2574A3024B7D397006618D7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E239269B2553D6C900996C2D /* TagSelectorView.swift */,
 				E223BE3A254CF73A00AFFADF /* AlphabetView.swift */,
 				E25BA4B62533B0160063C944 /* VisitTableView.swift */,
 				E288B12625192F1A004B2849 /* AlertView.swift */,
@@ -436,6 +441,7 @@
 				E253A6CD252BCB8A00778500 /* ProfileCell.swift */,
 				E2E6E0A2250581F00005A55B /* HeaderEstablishmentReusableView.swift */,
 				E287AB3E252C3F67008D8DBC /* TitleReusableView.swift */,
+				E239269F25549D5600996C2D /* TagCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -678,6 +684,7 @@
 				E223BE3B254CF73A00AFFADF /* AlphabetView.swift in Sources */,
 				E2E6E09F250445100005A55B /* ProfileMapVC.swift in Sources */,
 				E26CD819251997B70082DBE0 /* ActionSheetView.swift in Sources */,
+				E239269C2553D6C900996C2D /* TagSelectorView.swift in Sources */,
 				E223BE37254BE4CA00AFFADF /* VisitTagsVC.swift in Sources */,
 				E27A757024A85AA100E446EE /* UIViewController-Extension.swift in Sources */,
 				E25BA4B32533910E0063C944 /* PersonTitleButton.swift in Sources */,
@@ -764,6 +771,7 @@
 				E215535B24B4343500494E1A /* PaddingLabel.swift in Sources */,
 				E2E6E0A1250461040005A55B /* EstablishmentDetailVC.swift in Sources */,
 				E2778DE124BB8C0F00151F29 /* HeaderDetailView.swift in Sources */,
+				E23926A025549D5600996C2D /* TagCell.swift in Sources */,
 				E287AB42252E6849008D8DBC /* NavigationTitleView.swift in Sources */,
 				E215535D24B5007500494E1A /* UIScrollView-Extension.swift in Sources */,
 				E287AB4D253186C7008D8DBC /* UIColor-Extension.swift in Sources */,
