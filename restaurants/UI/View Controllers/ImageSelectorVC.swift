@@ -42,10 +42,8 @@ class ImageSelectorVC: UIViewController {
     private let placeholderView = UIView()
     private let scrollingView = ScrollingStackView(subViews: [])
     private let basicSize: CGFloat = 80.0
-    private var collectionView: UICollectionView!
-    private let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
+    private lazy var collectionView = CameraRollCollectionView(width: self.view.bounds.width)
     private let imageManager = PHImageManager.default()
-    private let padding: CGFloat = 2.0
     private let reuseIdentifier = "photoCellReuseIdentifier"
     private let requestOptions = PHImageRequestOptions()
     private let imageCache = NSCache<NSString, UIImage>()
@@ -91,10 +89,10 @@ class ImageSelectorVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.backgroundColor = .systemBackground
         setUpSelectedImageScrollView()
         setUpCollectionView()
         setUp()
-        
     }
     
     
@@ -131,32 +129,15 @@ class ImageSelectorVC: UIViewController {
         placeholderView.equalSides(size: basicSize)
         placeholderView.tag = -1
         placeholderView.isHidden = true
-        
-        
     }
     
     
     private func setUpCollectionView() {
-        layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 2.0
-        let cellSizeSize = self.view.frame.width / 3
-        layout.itemSize = CGSize(width: cellSizeSize - padding/2, height: cellSizeSize - padding)
-        layout.minimumInteritemSpacing = 0.0
-        
-        collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.register(PhotoCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        collectionView.backgroundColor = .tertiarySystemBackground
-        
-        collectionView.setCollectionViewLayout(layout, animated: false)
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.showsVerticalScrollIndicator = false
-        collectionView.allowsMultipleSelection = true
-        collectionView.alwaysBounceVertical = true
         
         self.view.addSubview(collectionView)
-        
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(PhotoCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         collectionView.constrain(.top, to: scrollingView, .bottom, constant: 10.0)
         collectionView.constrain(.leading, to: self.view, .leading)
         collectionView.constrain(.trailing, to: self.view, .trailing)
@@ -203,7 +184,7 @@ class ImageSelectorVC: UIViewController {
             }
         }
     }
-    
+
     private func imageDeselected(index: Int) {
         scrollingView.stackView.arrangedSubviews.forEach { (vEach) in
             if let v = vEach as? ImageXView {
@@ -450,9 +431,9 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
         if let cachedImage = imageCache.object(forKey: key) {
             cell.imageView.image = cachedImage
         } else {
-            imageManager.requestImage(for: asset, targetSize: CGSize(width: layout.itemSize.width, height: layout.itemSize.height), contentMode: .aspectFill, options: requestOptions) { (image, info) in
+            imageManager.requestImage(for: asset, targetSize: CGSize(width: self.collectionView.cameraLayout.itemSize.width, height: self.collectionView.cameraLayout.itemSize.height), contentMode: .aspectFill, options: requestOptions) { (image, info) in
                 if let image = image {
-                    print(self.layout.itemSize.width, image.size.width)
+                    print(self.collectionView.cameraLayout.itemSize.width, image.size.width)
                     cell.imageView.image = image
                     self.imageCache.setObject(image, forKey: key)
                 } else {

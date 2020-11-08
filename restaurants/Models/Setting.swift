@@ -21,7 +21,7 @@ enum Setting: String, CaseIterable {
         switch self {
         case .account:
             if Network.shared.loggedIn {
-                return [RV.logout.instance, RV.phoneNumber.instance, RV.accountColor.instance, RV.friends.instance, RV.requestsSent.instance, RV.requestsReceived.instance]
+                return [RV.logout.instance, RV.phoneNumber.instance, RV.profileImage.instance, RV.accountColor.instance, RV.friends.instance, RV.requestsSent.instance, RV.requestsReceived.instance]
             } else {
                 return [RV.logout.instance]
             }
@@ -47,6 +47,7 @@ enum Setting: String, CaseIterable {
         enum Value {
             case logout
             case phoneNumber
+            case profileImage
             case accountColor
             case friends
             case requestsSent
@@ -73,6 +74,12 @@ enum Setting: String, CaseIterable {
                                mode: .arrowOpen,
                                subtitle: Network.shared.account?.phone ?? "None",
                                pressAction: { phoneNumberAction() })
+                case .profileImage:
+                    return Row(title: "Profile image",
+                               description: "If you have a profile image, it will appear when people search your account and by your username.",
+                               mode: .arrowOpen,
+                               subtitle: "Add",
+                               pressAction: { profileImageAction() })
                 case .accountColor:
                     return Row(title: "Account color",
                                description: "The account color will be showed when people search your account and by your name. You are randomly assigned one.",
@@ -164,6 +171,13 @@ enum Setting: String, CaseIterable {
             AppAction(title: "Dark mode", action: { UIDevice.setSystemAppearance(dark: true) } ),
             AppAction(title: "Light mode", action: { UIDevice.setSystemAppearance(light: true) })
         ])
+    }
+    
+    private static func profileImageAction() {
+        print("Profile image action selected")
+        guard let vc = UIApplication.topMostViewController?.navigationController else { return }
+        let selector = ProfileImageSelectorVC()
+        vc.pushViewController(selector, animated: true)
     }
     
     private static func phoneNumberAction() {

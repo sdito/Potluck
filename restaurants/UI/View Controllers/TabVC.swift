@@ -11,12 +11,14 @@ import UIKit
 class TabVC: UITabBarController, UITabBarControllerDelegate {
     #warning("*****map clustering only on profile maps (userProfileVC, profileMapVC)")
     #warning("pagination on django")
+    #warning("remove fatalError stuff")
     
     #warning("need to make sure errors are correct on VisitView in django")
     #warning("maybe have a widget -> one that has a map based on the last area you searched, that has buttons for search shortcuts, one that lets you add a visit maybe")
     #warning("image url can expire before it is seen")
     #warning("unique together the reverse way too")
     #warning("unique together i.e. do not allow the reverse of friends to be true")
+    #warning("if a visit is deleted, and then a tag is selected that has that visit, it will show again, prob same for establishments")
     
     #warning("profile image icon")
     

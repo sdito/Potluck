@@ -40,6 +40,8 @@
 		E215535F24B5220500494E1A /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E215535E24B5220500494E1A /* ReviewView.swift */; };
 		E223BE37254BE4CA00AFFADF /* VisitTagsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E223BE36254BE4CA00AFFADF /* VisitTagsVC.swift */; };
 		E223BE3B254CF73A00AFFADF /* AlphabetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E223BE3A254CF73A00AFFADF /* AlphabetView.swift */; };
+		E22E6CDD25587D6000A1A88C /* ProfileImageSelectorVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22E6CDC25587D6000A1A88C /* ProfileImageSelectorVC.swift */; };
+		E22E6CE12558803900A1A88C /* CameraRollCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22E6CE02558803900A1A88C /* CameraRollCollectionView.swift */; };
 		E233541624B15F8C00A85DA3 /* Values.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541524B15F8C00A85DA3 /* Values.swift */; };
 		E233541824B1627200A85DA3 /* UIImage-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541724B1627200A85DA3 /* UIImage-Extension.swift */; };
 		E239269C2553D6C900996C2D /* TagSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239269B2553D6C900996C2D /* TagSelectorView.swift */; };
@@ -178,6 +180,8 @@
 		E215535E24B5220500494E1A /* ReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewView.swift; sourceTree = "<group>"; };
 		E223BE36254BE4CA00AFFADF /* VisitTagsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitTagsVC.swift; sourceTree = "<group>"; };
 		E223BE3A254CF73A00AFFADF /* AlphabetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphabetView.swift; sourceTree = "<group>"; };
+		E22E6CDC25587D6000A1A88C /* ProfileImageSelectorVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageSelectorVC.swift; sourceTree = "<group>"; };
+		E22E6CE02558803900A1A88C /* CameraRollCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraRollCollectionView.swift; sourceTree = "<group>"; };
 		E233541524B15F8C00A85DA3 /* Values.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Values.swift; sourceTree = "<group>"; };
 		E233541724B1627200A85DA3 /* UIImage-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage-Extension.swift"; sourceTree = "<group>"; };
 		E239269B2553D6C900996C2D /* TagSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSelectorView.swift; sourceTree = "<group>"; };
@@ -332,6 +336,7 @@
 		E2574A2E24B7D370006618D7 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				E22E6CDC25587D6000A1A88C /* ProfileImageSelectorVC.swift */,
 				E223BE36254BE4CA00AFFADF /* VisitTagsVC.swift */,
 				E25BA4EE253C0AA80063C944 /* ForgotPasswordVC.swift */,
 				E239841524EB632100F3828C /* TabVC.swift */,
@@ -412,6 +417,7 @@
 				E2768DED24B15284004CB475 /* RestaurantAnnotationView.swift */,
 				E2768DE724B1020F004CB475 /* RestaurantAnnotation.swift */,
 				E2778DE024BB8C0F00151F29 /* HeaderDetailView.swift */,
+				E22E6CE02558803900A1A88C /* CameraRollCollectionView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -677,6 +683,7 @@
 			files = (
 				E23AFA0524F8DBB4004542A2 /* SelectLocationVC.swift in Sources */,
 				E258F19C2553A3E500980A8B /* Profile.swift in Sources */,
+				E22E6CE12558803900A1A88C /* CameraRollCollectionView.swift in Sources */,
 				E2574A2324B53348006618D7 /* UIImageView-Extension.swift in Sources */,
 				E2564CB32546015200304B5B /* LoaderView.swift in Sources */,
 				E2DC2F2724EDCED0002C6A07 /* ImageXView.swift in Sources */,
@@ -728,6 +735,7 @@
 				E27A755A24A8557E00E446EE /* AppDelegate.swift in Sources */,
 				E215535124B2EA1B00494E1A /* RestaurantDetailVC.swift in Sources */,
 				E215535924B4247D00494E1A /* Fonts.swift in Sources */,
+				E22E6CDD25587D6000A1A88C /* ProfileImageSelectorVC.swift in Sources */,
 				E2B6A2B724AFECD10070DECA /* Restaurant.swift in Sources */,
 				E2768DE824B1020F004CB475 /* RestaurantAnnotation.swift in Sources */,
 				E253A6AE2522AD0200778500 /* PhoneTextField.swift in Sources */,

@@ -86,10 +86,8 @@ class TagSelectorView: UIView {
     }
     
     private func setUpSelectedRow(selectedTag: Tag?) {
-        #warning("not working properly")
         guard let tag = selectedTag, let selectedIndex = tags.firstIndex(of: tag) else { return }
-        tableView.selectRow(at: IndexPath(row: selectedIndex, section: 0), animated: true, scrollPosition: .none)
-        tableView.cellForRow(at: IndexPath(row: selectedIndex, section: 0))?.isSelected = true
+        tableView.selectRow(at: IndexPath(row: selectedIndex, section: 0), animated: false, scrollPosition: .none)
     }
     
     @objc private func cancelPressed() {
@@ -117,16 +115,22 @@ extension TagSelectorView: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        guard let cell = tableView.cellForRow(at: indexPath), !cell.isSelected else {
+            clearPressed()
+            tableView.deselectRow(at: indexPath, animated: true)
+            return nil
+        }
+        return indexPath
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("SELECTED")
         let tag = tags[indexPath.row]
         showViewVC?.animateSelectorWithCompletion(completion: { [weak self] _ in
             self?.tagSelectorViewDelegate?.tagSelected(tag: tag)
         })
+        
     }
     
-    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        print("DESELECTED")
-    }
     
 }

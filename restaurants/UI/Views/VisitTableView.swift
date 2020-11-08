@@ -99,6 +99,10 @@ class VisitTableView: UITableView {
         visitTableViewDelegate?.refreshControlSelected()
     }
     
+    @objc private func addNewPostSelector() {
+        self.findViewController()?.tabBarController?.presentAddRestaurantVC()
+    }
+    
     @objc private func establishmentDeleted(notification: Notification) {
         if let establishment = notification.userInfo?["establishment"] as? Establishment {
             changeEstablishment(establishment: establishment, delete: true)
@@ -109,10 +113,6 @@ class VisitTableView: UITableView {
         if let establishment = notification.userInfo?["establishment"] as? Establishment {
             changeEstablishment(establishment: establishment, delete: false)
         }
-    }
-    
-    @objc private func addNewPostSelector() {
-        self.findViewController()?.tabBarController?.presentAddRestaurantVC()
     }
     
     @objc private func visitUpdated(notification: Notification) {
