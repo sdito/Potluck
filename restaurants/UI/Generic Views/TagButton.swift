@@ -10,8 +10,15 @@ import UIKit
 
 class TagButton: SizeChangeButton {
     
+    var buttonTag: Tag?
+    private let baseTitleColor = UIColor.systemBackground
+    private let selectedTitleColor = Colors.main
+    private let baseBackgroundColor = Colors.main
+    private let selectedBackgroundColor = UIColor.secondarySystemBackground
+    var isTagActive = false
+    
     init(title: String?, withImage: Bool, normal: Bool) {
-        super.init(sizeDifference: .inverse, restingColor: .systemBackground, selectedColor: .systemBackground)
+        super.init(sizeDifference: .inverse)
         self.translatesAutoresizingMaskIntoConstraints = false
         self.setTitle(title, for: .normal)
         self.titleLabel?.font = .mediumBold
@@ -21,15 +28,15 @@ class TagButton: SizeChangeButton {
         self.setContentCompressionResistancePriority(.required, for: .vertical)
         
         if withImage {
-            self.setImage(UIImage.xImage.withConfiguration(.small), for: .normal)
+            setImage()
         }
         
         if normal {
-            self.setTitleColor(.systemBackground, for: .normal)
-            self.backgroundColor = Colors.main
+            self.setTitleColor(baseTitleColor, for: .normal)
+            self.backgroundColor = baseBackgroundColor
         } else {
-            self.setTitleColor(Colors.main, for: .normal)
-            self.backgroundColor = .secondarySystemBackground
+            self.setTitleColor(selectedTitleColor, for: .normal)
+            self.backgroundColor = selectedBackgroundColor
         }
         
         self.tintColor = .secondarySystemBackground
@@ -38,5 +45,32 @@ class TagButton: SizeChangeButton {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
+    
+    func setUpForSelected() {
+        isTagActive = true
+        setImage()
+        UIView.animate(withDuration: 0.2) {
+            self.setTitleColor(self.selectedTitleColor, for: .normal)
+            self.backgroundColor = self.selectedBackgroundColor
+            self.tintColor = self.selectedTitleColor
+        }
+    }
+    
+    func setUpForNormal() {
+        isTagActive = false
+        self.setImage(nil, for: .normal)
+        
+        UIView.animate(withDuration: 0.2) {
+            self.setTitleColor(self.baseTitleColor, for: .normal)
+            self.backgroundColor = self.baseBackgroundColor
+            self.tintColor = self.baseTitleColor
+        }
+        
+    }
+    
+    private func setImage() {
+        self.setImage(UIImage.xImage.withConfiguration(.small), for: .normal)
+    }
+    
 
 }

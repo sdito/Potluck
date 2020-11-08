@@ -100,7 +100,6 @@ class VisitCell: UITableViewCell {
     }
     
     private func setUpUserNameButton() {
-        usernameButton.setTitle("Username here", for: .normal)
         base.addSubview(usernameButton)
         headerStackView.addArrangedSubview(usernameButton)
         usernameButton.addTarget(self, action: #selector(usernameSelected), for: .touchUpInside)

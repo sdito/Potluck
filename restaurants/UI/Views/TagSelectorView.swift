@@ -26,14 +26,15 @@ class TagSelectorView: UIView {
     private let spacerPadding: CGFloat = 5.0
     weak var showViewVC: ShowViewVC?
     
-    init(tags: [Tag]?, tagSelectorViewDelegate: TagSelectorViewDelegate) {
+    init(tags: [Tag]?, selectedTag: Tag?, tagSelectorViewDelegate: TagSelectorViewDelegate) {
         super.init(frame: .zero)
-        self.tags = tags?.sorted(by: { (one, two) -> Bool in one.display > two.display }) ?? []
+        self.tags = tags ?? []
         self.tagSelectorViewDelegate = tagSelectorViewDelegate
         setUpView()
         setUpHeader()
         setUpSpacer()
         setUpTableView()
+        setUpSelectedRow(selectedTag: selectedTag)
     }
     
     required init?(coder: NSCoder) {
@@ -84,6 +85,13 @@ class TagSelectorView: UIView {
         tableView.register(TagCell.self, forCellReuseIdentifier: reuseIdentifier)
     }
     
+    private func setUpSelectedRow(selectedTag: Tag?) {
+        #warning("not working properly")
+        guard let tag = selectedTag, let selectedIndex = tags.firstIndex(of: tag) else { return }
+        tableView.selectRow(at: IndexPath(row: selectedIndex, section: 0), animated: true, scrollPosition: .none)
+        tableView.cellForRow(at: IndexPath(row: selectedIndex, section: 0))?.isSelected = true
+    }
+    
     @objc private func cancelPressed() {
         showViewVC?.animateSelectorWithCompletion(completion: { _ in return })
     }
@@ -110,10 +118,15 @@ extension TagSelectorView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("SELECTED")
         let tag = tags[indexPath.row]
         showViewVC?.animateSelectorWithCompletion(completion: { [weak self] _ in
             self?.tagSelectorViewDelegate?.tagSelected(tag: tag)
         })
+    }
+    
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        print("DESELECTED")
     }
     
 }

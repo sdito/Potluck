@@ -10,21 +10,23 @@ import UIKit
 
 class NavigationTitleView: UIStackView {
     
+    private let upperLabel = UILabel()
+    private let lowerLabel = UILabel()
+    
     // Upper is typically a username, lower is typically the normal navigation name
     init(upperText: String, lowerText: String) {
         super.init(frame: .zero)
-        let upperLabel = UILabel()
-        let lowerLabel = UILabel()
-        upperLabel.translatesAutoresizingMaskIntoConstraints = false
-        lowerLabel.translatesAutoresizingMaskIntoConstraints = false
-        upperLabel.text = upperText.uppercased()
-        lowerLabel.text = lowerText
-        upperLabel.textColor = .secondaryLabel
-        lowerLabel.textColor = .label
-        upperLabel.font = .mediumBold
-        lowerLabel.font = .boldSystemFont(ofSize: 17.5)
         
+        upperLabel.translatesAutoresizingMaskIntoConstraints = false
+        upperLabel.text = upperText.uppercased()
+        upperLabel.textColor = .secondaryLabel
+        upperLabel.font = .mediumBold
         self.addArrangedSubview(upperLabel)
+        
+        lowerLabel.translatesAutoresizingMaskIntoConstraints = false
+        lowerLabel.text = lowerText
+        lowerLabel.textColor = .label
+        lowerLabel.font = .boldSystemFont(ofSize: 17.5)
         self.addArrangedSubview(lowerLabel)
         
         self.axis = .vertical

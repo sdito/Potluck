@@ -8,12 +8,13 @@
 
 import Foundation
 
-struct Tag: Codable {
+struct Tag: Codable, Equatable {
     var display: String
     var alias: String?
     var id: Int?
     var firstUsed: Date?
     var lastUsed: Date?
+    var numberOfVisits: Int?
     
     init(display: String) {
         self.display = display
@@ -25,6 +26,7 @@ struct Tag: Codable {
         case id
         case firstUsed = "first_used"
         case lastUsed = "last_used"
+        case numberOfVisits = "number_of_visits"
     }
     
 }

@@ -154,6 +154,7 @@ class RestaurantCell: UITableViewCell {
     }
     
     func setUp(restaurant: Restaurant, place: Int, vc: UIViewController) {
+        self.restaurantImageView.image = nil
         self.restaurant = restaurant
         self.delegate = vc as? RestaurantCellDelegate
         self.tag = place - 1
@@ -185,6 +186,4 @@ class RestaurantCell: UITableViewCell {
     }
     
 }
-
-
 

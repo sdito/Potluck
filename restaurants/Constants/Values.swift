@@ -74,4 +74,5 @@ extension UIImage {
 
 extension UIImage.Configuration {
     static let small = UIImage.SymbolConfiguration(scale: .small)
+    static let large = UIImage.SymbolConfiguration(scale: .large)
 }

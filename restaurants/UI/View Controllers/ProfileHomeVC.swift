@@ -13,16 +13,20 @@ class ProfileHomeVC: UIViewController {
     private var isOwnUsersProfile = false
     private let showOnMapButton = OverlayButton()
     private var visitTableView: VisitTableView?
-    private var visits: [Visit] = [] {
+    private var filteredVisits: [Visit] = [] {
         didSet {
-            visitTableView?.visits = visits
+            visitTableView?.visits = filteredVisits
         }
     }
+    private var allVisits: [Visit] = []
+    private var tags: [Tag] = []
+    private var selectedTag: Tag?
     private weak var selectedVisit: Visit?
     private var preLoadedData = false
     private var otherUserUsername: String?
     private var allowMapButton = true
-    private let scrollingStackView = ScrollingStackView(subViews: [UIView()])
+    private let scrollingStackView = ScrollingStackView(subViews: [UIView.getSpacerView()])
+    private var tagButtons: [TagButton] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,7 +51,6 @@ class ProfileHomeVC: UIViewController {
         } else {
             navigationItem.title = "Visits"
         }
-        
         navigationController?.navigationBar.isTranslucent = false
     }
     
@@ -59,9 +62,9 @@ class ProfileHomeVC: UIViewController {
         super.init(nibName: nil, bundle: nil)
         self.isOwnUsersProfile = isOwnUsersProfile
         visitTableView = VisitTableView(mode: .user, prevImageCache: prevImageCache, delegate: self)
-        
+        #warning("could init with tags from the user here, this is for the non user account, see set up with tags")
         if let visits = visits {
-            self.visits = visits
+            self.filteredVisits = visits
             self.selectedVisit = selectedVisit
             self.otherUserUsername = otherUserUsername
             self.preLoadedData = true
@@ -78,8 +81,8 @@ class ProfileHomeVC: UIViewController {
             getInitialUserVisits()
         } else {
             visitTableView?.reloadData()
-            if let elementId = selectedVisit?.djangoOwnID, let idx = visits.map({$0.djangoOwnID}).firstIndex(of: elementId) {
-                visitTableView?.visits = visits
+            if let elementId = selectedVisit?.djangoOwnID, let idx = filteredVisits.map({$0.djangoOwnID}).firstIndex(of: elementId) {
+                visitTableView?.visits = filteredVisits
                 visitTableView?.layoutIfNeeded()
                 DispatchQueue.main.async {
                     self.visitTableView?.scrollToRow(at: IndexPath(row: idx, section: 0), at: .top, animated: false)
@@ -88,29 +91,59 @@ class ProfileHomeVC: UIViewController {
         }
     }
     
+    private func setUpWithTags() {
+        
+        for view in scrollingStackView.stackView.arrangedSubviews {
+            view.removeFromSuperview()
+        }
+        scrollingStackView.stackView.addArrangedSubview(UIView.getSpacerView())
+        guard tags.count > 0 else { return }
+        let tagButton = UIButton()
+        tagButton.translatesAutoresizingMaskIntoConstraints = false
+        tagButton.setTitleColor(.secondaryLabel, for: .normal)
+        tagButton.tintColor = .secondaryLabel
+        tagButton.setImage(UIImage.filterImage.withConfiguration(.large), for: .normal)
+        tagButton.titleLabel?.font = .mediumBold
+        tagButton.addTarget(self, action: #selector(filterTagButtonPressed), for: .touchUpInside)
+        self.scrollingStackView.stackView.addArrangedSubview(tagButton)
+        
+        for tag in tags {
+            let tagButton = TagButton(title: tag.display, withImage: false, normal: true)
+            tagButton.addTarget(self, action: #selector(tagButtonSelected(sender:)), for: .touchUpInside)
+            tagButton.isHidden = true
+            tagButton.buttonTag = tag
+            self.scrollingStackView.stackView.addArrangedSubview(tagButton)
+            tagButtons.append(tagButton)
+            UIView.animate(withDuration: 0.3) {
+                tagButton.isHidden = false
+            }
+        }
+    }
+    
     private func getInitialUserVisits() {
         setMapButton(hidden: true)
-        
-        if Network.shared.loggedIn {    
-            Network.shared.getVisitFeed(feedType: .user, completion: { [weak self] (result) in
+        if Network.shared.loggedIn {
+            Network.shared.getVisitFeed(feedType: .user) { [weak self] (result) in
                 DispatchQueue.main.async {
                     guard let self = self else { return }
                     switch result {
-                    case .success(let visits):
+                    case .success(let value):
+                        self.allVisits = value.visits
+                        self.filteredVisits = value.visits
+                        self.tags = value.tags ?? []
                         self.visitTableView?.allowHintToCreateRestaurant = true
                         self.visitTableView?.refreshControl?.endRefreshing()
                         self.visitTableView?.clearCaches()
-                        self.visits = visits
                         self.visitTableView?.reloadData()
-                        self.setMapButton(hidden: visits.count < 1)
+                        self.setMapButton(hidden: self.filteredVisits.count < 1)
+                        self.setUpWithTags()
                     case .failure(_):
-                        self.visits = []
+                        self.filteredVisits = []
                     }
                 }
-            }, numberRequests: { _ in return })
-            
+            }
         } else {
-            self.visits = []
+            self.filteredVisits = []
             noUserTableView()
         }
     }
@@ -121,19 +154,6 @@ class ProfileHomeVC: UIViewController {
         scrollingStackView.constrain(.leading, to: self.view, .leading)
         scrollingStackView.constrain(.top, to: self.view, .top)
         scrollingStackView.constrain(.trailing, to: self.view, .trailing)
-        
-        
-        #error("need to use with the actual tags and to actually implement this, with network request and stuff, think about if diff between user and profile")
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-//            for name in ["Italian", "American", "Barbecue", "Thai", "Chinese", "Breakfast", "Brunch", "Something else"] {
-//                let tagButton = TagButton(title: name, withImage: false, normal: true)
-//                tagButton.isHidden = true
-//                self.scrollingStackView.stackView.addArrangedSubview(tagButton)
-//                UIView.animate(withDuration: 0.3) {
-//                    tagButton.isHidden = false
-//                }
-//            }
-//        }
     }
     
     private func setUpTableView() {
@@ -180,9 +200,12 @@ class ProfileHomeVC: UIViewController {
     
     @objc private func userLoggedOut() {
         visitTableView?.clearCaches()
-        visits = []
+        filteredVisits = []
+        allVisits = []
+        tags = []
         visitTableView?.reloadData()
         noUserTableView()
+        setUpWithTags()
     }
     
     @objc private func showOnMapButtonPressed() {
@@ -196,7 +219,7 @@ class ProfileHomeVC: UIViewController {
                 guard let account = Network.shared.account else { return nil }
                 return Person(account: account)
             } else {
-                guard let visit = selectedVisit ?? visits.first else { return nil }
+                guard let visit = selectedVisit ?? filteredVisits.first else { return nil }
                 return Person(visit: visit)
             }
         }
@@ -206,7 +229,38 @@ class ProfileHomeVC: UIViewController {
         } else {
             self.showMessage("Not able to show places")
         }
-        
+    }
+    
+    @objc private func tagButtonSelected(sender: TagButton) {
+        #warning("need to complete -- see comments")
+        selectedTag = nil
+        guard let tag = sender.buttonTag, let alias = tag.alias else { return }
+        var newTitle = "Visits"
+        if sender.isTagActive {
+            sender.setUpForNormal()
+            
+            // need to clear all the tag filters here
+            filteredVisits = allVisits
+            visitTableView?.reloadData()
+        } else {
+            selectedTag = tag
+            tagButtons.forEach({$0.setUpForNormal()})
+            sender.setUpForSelected()
+            newTitle = "(\(tag.display)) Visits"
+            
+            // need to filter for the tag
+            filteredVisits = allVisits.filter({ (v) -> Bool in
+                v.tags.contains { (t) -> Bool in
+                    t.alias == alias
+                }
+            })
+            visitTableView?.reloadData()
+        }
+        self.updateNavigationItemTitle(to: newTitle)
+    }
+    
+    @objc private func filterTagButtonPressed() {
+        self.showTagSelectorView(tags: self.tags, selectedTag: selectedTag, tagSelectorViewDelegate: self)
     }
     
     private func setMapButton(hidden: Bool) {
@@ -223,4 +277,24 @@ extension ProfileHomeVC: VisitTableViewDelegate {
     func refreshControlSelected() {
         getInitialUserVisits()
     }
+}
+
+// MARK: TagSelectorViewDelegate
+extension ProfileHomeVC: TagSelectorViewDelegate {
+    func tagSelected(tag: Tag) {
+        tagButtons.forEach { (button) in
+            if button.buttonTag == tag {
+                tagButtonSelected(sender: button)
+            }
+        }
+    }
+    
+    func clearTag() {
+        tagButtons.forEach { (button) in
+            if button.isTagActive {
+                tagButtonSelected(sender: button)
+            }
+        }
+    }
+    
 }

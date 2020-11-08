@@ -53,29 +53,21 @@ class FeedHomeVC: UIViewController {
     }
     
     private func getUserFeed() {
-        
         Network.shared.getVisitFeed(feedType: .friends) { [weak self] (result) in
             DispatchQueue.main.async {
                 self?.visitTableView?.allowHintForFriendsFeed = true
                 self?.visitTableView?.refreshControl?.endRefreshing()
                 guard let self = self else { return }
                 switch result {
-                case .success(let visits):
-                    self.visits = visits
-                    
+                case .success(let value):
+                    self.visits = value.visits
+                    let numberOfRequests = value.pending_request_count ?? 0
+                    self.handleNotificationTextFor(numberOfRequests: numberOfRequests)
                 case .failure(_):
                     print("Failure getting friends visit feed")
                     self.visits = []
                 }
-                
                 self.handleReloadingVisitTableView()
-                
-            }
-        } numberRequests: { [weak self] (reqNumber) in
-            DispatchQueue.main.async {
-                let numberOfRequests = reqNumber ?? 0
-                self?.handleNotificationTextFor(numberOfRequests: numberOfRequests)
-                
             }
         }
     }

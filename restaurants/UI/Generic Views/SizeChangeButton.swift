@@ -11,8 +11,8 @@ import UIKit
 class SizeChangeButton: UIButton {
     
     private var sizeSelected: SizeDifference = .medium
-    var restingColor: UIColor!
-    private var selectedColor: UIColor!
+    var restingColor: UIColor?
+    private var selectedColor: UIColor?
     
     enum SizeDifference: CGFloat {
         case large = 1.5
@@ -21,7 +21,7 @@ class SizeChangeButton: UIButton {
         case inverse = 0.9
     }
     
-    init(sizeDifference: SizeDifference, restingColor: UIColor, selectedColor: UIColor) {
+    init(sizeDifference: SizeDifference, restingColor: UIColor? = nil, selectedColor: UIColor? = nil) {
         super.init(frame: .zero)
         self.sizeSelected = sizeDifference
         self.restingColor = restingColor
@@ -46,7 +46,7 @@ class SizeChangeButton: UIButton {
     @objc private func touchDown() {
         // Transform the view to show it is being selected
         UIView.animate(withDuration: 0.2, animations: {
-            self.setTitleColor(self.selectedColor, for: .normal)
+            self.setTitleColor(self.selectedColor ?? self.currentTitleColor, for: .normal)
             self.transform = CGAffineTransform(scaleX: self.sizeSelected.rawValue, y: self.sizeSelected.rawValue)
         })
     }
@@ -54,7 +54,7 @@ class SizeChangeButton: UIButton {
     @objc private func touchUp() {
         // Transform the view back to normal
         UIView.animate(withDuration: 0.2, animations: {
-            self.setTitleColor(self.restingColor, for: .normal)
+            self.setTitleColor(self.restingColor ?? self.currentTitleColor, for: .normal)
             self.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
         })
     }

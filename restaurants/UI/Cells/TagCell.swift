@@ -12,6 +12,7 @@ class TagCell: UITableViewCell {
     
     private let stackView = UIStackView()
     private let tagButton = TagButton(title: "Tag name", withImage: false, normal: true)
+    private let countLabel = UILabel()
     private let dateLabel = UILabel()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -19,6 +20,7 @@ class TagCell: UITableViewCell {
         setUpStackView()
         setUpButton()
         setUpDateLabel()
+        setUpCountLabel()
     }
     
     required init?(coder: NSCoder) {
@@ -54,12 +56,18 @@ class TagCell: UITableViewCell {
         stackView.addArrangedSubview(dateLabel)
     }
     
-    func setUpWith(tag: Tag) {
-        tagButton.setTitle(tag.display, for: .normal)
-        let str = tag.lastUsed?.dateString(style: .medium)
-        dateLabel.text = str
+    private func setUpCountLabel() {
+        countLabel.translatesAutoresizingMaskIntoConstraints = false
+        countLabel.textColor = .label
+        countLabel.font = .mediumBold
+        stackView.addArrangedSubview(countLabel)
+        countLabel.setContentHuggingPriority(.required, for: .horizontal)
     }
     
-    
-    
+    func setUpWith(tag: Tag) {
+        tagButton.setTitle(tag.display, for: .normal)
+        let str = tag.lastUsed?.dateString(style: .short)
+        dateLabel.text = str
+        countLabel.text = "\(tag.numberOfVisits ?? 0) visits"
+    }
 }

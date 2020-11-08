@@ -316,7 +316,6 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: restaurantCellReuseIdentifier) as! RestaurantCell
         let restaurant = restaurants![indexPath.row]
         cell.setUp(restaurant: restaurant, place: indexPath.row + 1, vc: owner)
-        cell.imageView?.image = nil
         let key = "\(indexPath.section).\(indexPath.row)" as NSString
         if let cachedImage = imageCache.object(forKey: key) {
             cell.restaurantImageView.image = cachedImage

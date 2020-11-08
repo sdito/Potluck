@@ -201,8 +201,9 @@ class Visit: Codable {
     }
     
     
-    class VisitDecoder: Decodable {
-        var visits: [Visit]?
+    class VisitFeedDecoder: Decodable {
+        var visits: [Visit]
+        var tags: [Tag]?
         var pending_request_count: Int?
     }
     

@@ -301,7 +301,7 @@ class UserProfileVC: UIViewController {
     }
     
     @objc private func filterButtonPressed() {
-        self.showTagSelectorView(tags: profile?.tags, tagSelectorViewDelegate: self)
+        self.showTagSelectorView(tags: profile?.tags, selectedTag: nil, tagSelectorViewDelegate: self)
     }
     
 }

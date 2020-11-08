@@ -13,6 +13,14 @@ import SafariServices
 
 extension UIViewController {
     
+    func updateNavigationItemTitle(to string: String) {
+        let fadeTextAnimation = CATransition()
+        fadeTextAnimation.duration = 0.2
+        fadeTextAnimation.type = .fade
+        self.navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
+        self.navigationItem.title = string
+    }
+    
     func showMapDetail(locationTitle: String, coordinate: CLLocationCoordinate2D?, address: String?) {
         let sideSize = UIScreen.main.bounds.width * 0.8
         let size = CGSize(width: sideSize, height: sideSize)
@@ -47,8 +55,8 @@ extension UIViewController {
         }
     }
     
-    func showTagSelectorView(tags: [Tag]?, tagSelectorViewDelegate: TagSelectorViewDelegate) {
-        let tagSelectorView = TagSelectorView(tags: tags, tagSelectorViewDelegate: tagSelectorViewDelegate)
+    func showTagSelectorView(tags: [Tag]?, selectedTag: Tag?, tagSelectorViewDelegate: TagSelectorViewDelegate) {
+        let tagSelectorView = TagSelectorView(tags: tags, selectedTag: selectedTag, tagSelectorViewDelegate: tagSelectorViewDelegate)
         let vc = ShowViewVC(newView: tagSelectorView, mode: .middle, allowScreenPressToDismiss: true)
         vc.modalPresentationStyle = .overFullScreen
         tagSelectorView.showViewVC = vc

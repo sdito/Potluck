@@ -14,18 +14,17 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     
     #warning("need to make sure errors are correct on VisitView in django")
     #warning("maybe have a widget -> one that has a map based on the last area you searched, that has buttons for search shortcuts, one that lets you add a visit maybe")
-    #warning("add tags to visits")
     #warning("image url can expire before it is seen")
     #warning("unique together the reverse way too")
     #warning("unique together i.e. do not allow the reverse of friends to be true")
     
     #warning("profile image icon")
     
-    #warning("start with profile for other users")
-    
     #warning("in general for image caches, have a cache for processing requests maybe")
     
     #warning("still some issues with restaurantList image cache")
+    
+    #warning("calendar option, should be a pop-up view")
     
     private let home = UINavigationController(rootViewController: ProfileHomeVC(isOwnUsersProfile: true, visits: nil, prevImageCache: nil))
     private let feed = UINavigationController(rootViewController: FeedHomeVC())
