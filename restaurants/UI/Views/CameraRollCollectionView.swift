@@ -37,7 +37,3 @@ class CameraRollCollectionView: UICollectionView {
 }
 
 
-// MARK: Collection view
-//extension CameraRollCollectionView: UICollectionViewDelegate, UICollectionViewDataSource {
-//    
-//}

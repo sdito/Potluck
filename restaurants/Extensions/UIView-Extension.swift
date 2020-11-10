@@ -11,6 +11,55 @@ import SkeletonView
 
 extension UIView {
     
+    func addCameraLines() -> UIView {
+        #warning("return dummy view, so that the lines can be hidden when view is not actively being scrolled")
+        /*
+         two vertical lines, and two horizontal lines
+         split the view into thirds both directions
+         */
+        
+        let dummyView = UIView()
+        dummyView.translatesAutoresizingMaskIntoConstraints = false
+        dummyView.backgroundColor = .clear
+        dummyView.isUserInteractionEnabled = false
+        dummyView.clipsToBounds = true
+        self.addSubview(dummyView)
+        dummyView.constrainSides(to: self)
+        dummyView.layer.cornerRadius = self.bounds.width / 2.0
+        
+        let lineWidth: CGFloat = 2.0
+        
+        // for vertical lines
+        let widthThird = self.bounds.width / 3.0
+        
+        let startingPoints: [CGFloat] = [widthThird, widthThird*2]
+        
+        for point in startingPoints {
+            let view = UIView()
+            view.translatesAutoresizingMaskIntoConstraints = false
+            view.backgroundColor = UIColor.white.withAlphaComponent(0.55)
+            dummyView.addSubview(view)
+            view.widthAnchor.constraint(equalToConstant: lineWidth).isActive = true
+            view.constrain(.top, to: dummyView, .top)
+            view.constrain(.bottom, to: dummyView, .bottom)
+            view.constrain(.leading, to: dummyView, .leading, constant: point)
+        }
+        
+        for point in startingPoints {
+            let view = UIView()
+            view.translatesAutoresizingMaskIntoConstraints = false
+            view.backgroundColor = UIColor.white.withAlphaComponent(0.55)
+            dummyView.addSubview(view)
+            view.heightAnchor.constraint(equalToConstant: lineWidth).isActive = true
+            view.constrain(.leading, to: dummyView, .leading)
+            view.constrain(.trailing, to: dummyView, .trailing)
+            view.constrain(.top, to: dummyView, .top, constant: point)
+        }
+        dummyView.alpha = 0.0
+        return dummyView
+        
+    }
+    
     static func getSpacerView() -> UIView {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false

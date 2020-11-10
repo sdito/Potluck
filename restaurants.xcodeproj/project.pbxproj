@@ -42,6 +42,7 @@
 		E223BE3B254CF73A00AFFADF /* AlphabetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E223BE3A254CF73A00AFFADF /* AlphabetView.swift */; };
 		E22E6CDD25587D6000A1A88C /* ProfileImageSelectorVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22E6CDC25587D6000A1A88C /* ProfileImageSelectorVC.swift */; };
 		E22E6CE12558803900A1A88C /* CameraRollCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22E6CE02558803900A1A88C /* CameraRollCollectionView.swift */; };
+		E22E6CFF25589B0A00A1A88C /* CropImageVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22E6CFE25589B0A00A1A88C /* CropImageVC.swift */; };
 		E233541624B15F8C00A85DA3 /* Values.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541524B15F8C00A85DA3 /* Values.swift */; };
 		E233541824B1627200A85DA3 /* UIImage-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E233541724B1627200A85DA3 /* UIImage-Extension.swift */; };
 		E239269C2553D6C900996C2D /* TagSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E239269B2553D6C900996C2D /* TagSelectorView.swift */; };
@@ -182,6 +183,7 @@
 		E223BE3A254CF73A00AFFADF /* AlphabetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphabetView.swift; sourceTree = "<group>"; };
 		E22E6CDC25587D6000A1A88C /* ProfileImageSelectorVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageSelectorVC.swift; sourceTree = "<group>"; };
 		E22E6CE02558803900A1A88C /* CameraRollCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraRollCollectionView.swift; sourceTree = "<group>"; };
+		E22E6CFE25589B0A00A1A88C /* CropImageVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CropImageVC.swift; sourceTree = "<group>"; };
 		E233541524B15F8C00A85DA3 /* Values.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Values.swift; sourceTree = "<group>"; };
 		E233541724B1627200A85DA3 /* UIImage-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage-Extension.swift"; sourceTree = "<group>"; };
 		E239269B2553D6C900996C2D /* TagSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSelectorView.swift; sourceTree = "<group>"; };
@@ -336,6 +338,7 @@
 		E2574A2E24B7D370006618D7 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				E22E6CFE25589B0A00A1A88C /* CropImageVC.swift */,
 				E22E6CDC25587D6000A1A88C /* ProfileImageSelectorVC.swift */,
 				E223BE36254BE4CA00AFFADF /* VisitTagsVC.swift */,
 				E25BA4EE253C0AA80063C944 /* ForgotPasswordVC.swift */,
@@ -801,6 +804,7 @@
 				E2574A2D24B6A537006618D7 /* TimeInterval-Extension.swift in Sources */,
 				E239841C24ECA23F00F3828C /* ImageSelectorVC.swift in Sources */,
 				E284DC0B24BE8EC400790A29 /* RestaurantSpecificInfoVC.swift in Sources */,
+				E22E6CFF25589B0A00A1A88C /* CropImageVC.swift in Sources */,
 				E27A757424AEDD3A00E446EE /* MKMapView-Extension.swift in Sources */,
 				E23AFA1124FF0E5C004542A2 /* ProgressView.swift in Sources */,
 				E2DC2F3C24EF3CD7002C6A07 /* MapLocationView.swift in Sources */,

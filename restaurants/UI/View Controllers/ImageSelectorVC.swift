@@ -107,7 +107,6 @@ class ImageSelectorVC: UIViewController {
         selectUpToLabel.constrain(.top, to: self.view, .top, constant: scrollingViewConstant)
         selectUpToLabel.constrain(.leading, to: self.view, .leading, constant: scrollingViewConstant)
         
-        
         let infoButton = UIButton(type: .infoDark)
         infoButton.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(infoButton)
@@ -131,9 +130,7 @@ class ImageSelectorVC: UIViewController {
         placeholderView.isHidden = true
     }
     
-    
     private func setUpCollectionView() {
-        
         self.view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -462,7 +459,6 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
             cell.updateForShowingSelection(selected: true, animated: true)
             let origin = collectionView.convert(cell.frame, to: self.view)
             imageSelected(image: image, index: indexPath.row, originFrame: origin, cell: cell)
-            
         }
     }
     

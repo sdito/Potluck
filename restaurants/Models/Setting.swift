@@ -23,7 +23,7 @@ enum Setting: String, CaseIterable {
             if Network.shared.loggedIn {
                 return [RV.logout.instance, RV.phoneNumber.instance, RV.profileImage.instance, RV.accountColor.instance, RV.friends.instance, RV.requestsSent.instance, RV.requestsReceived.instance]
             } else {
-                return [RV.logout.instance]
+                return [RV.logout.instance, RV.profileImage.instance]; #warning("remove profileImage later")
             }
             
         case .settings:
@@ -174,7 +174,6 @@ enum Setting: String, CaseIterable {
     }
     
     private static func profileImageAction() {
-        print("Profile image action selected")
         guard let vc = UIApplication.topMostViewController?.navigationController else { return }
         let selector = ProfileImageSelectorVC()
         vc.pushViewController(selector, animated: true)
@@ -211,13 +210,23 @@ enum Setting: String, CaseIterable {
     
     private static func showColorPicker() {
         guard let vc = UIApplication.topMostViewController else { return }
-        let colorPickerVC = ColorPickerVC(startingColor: UIColor(hex: Network.shared.account?.color))
+        let colorPickerVC = ColorPickerVC(startingColor: UIColor(hex: Network.shared.account?.color), colorPickerDelegate: Manager.shared)
         vc.present(colorPickerVC, animated: true, completion: nil)
     }
 }
 
 
-fileprivate class Manager: EnterValueViewDelegate {
+fileprivate class Manager: EnterValueViewDelegate, ColorPickerDelegate {
+    func colorPicker(color: UIColor) {
+        let newColorHex = color.toHexString()
+        Network.shared.account?.color = newColorHex
+        Network.shared.account?.writeToKeychain()
+        Network.shared.alterUserPhoneNumberOrColor(newNumber: nil, newColor: newColorHex, complete: { _ in return })
+        
+        NotificationCenter.default.post(name: .reloadSettings, object: nil)
+        UIApplication.topMostViewController?.showMessage("Account color changed")
+    }
+    
     func textFound(string: String?) { return }
     func ratingFound(float: Float?) { return }
     

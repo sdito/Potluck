@@ -8,7 +8,15 @@
 
 import UIKit
 
+
+protocol ColorPickerDelegate: class {
+    func colorPicker(color: UIColor)
+}
+
+
 class ColorPickerVC: UIViewController {
+    
+    private weak var colorPickerDelegate: ColorPickerDelegate?
     
     private let headerView = HeaderView(leftButtonTitle: "Cancel", rightButtonTitle: "Choose", title: "Pick color")
     private let spacer = SpacerView(size: 2.0, orientation: .vertical)
@@ -50,8 +58,9 @@ class ColorPickerVC: UIViewController {
         setUpColorOptionsGrid()
     }
     
-    init(startingColor: UIColor?) {
+    init(startingColor: UIColor?, colorPickerDelegate: ColorPickerDelegate) {
         super.init(nibName: nil, bundle: nil)
+        self.colorPickerDelegate = colorPickerDelegate
         self.currentColor = startingColor
     }
     
@@ -281,15 +290,17 @@ class ColorPickerVC: UIViewController {
         // Need to get the hex color
         guard let color = currentColor else { return }
         let newColorHex = color.toHexString()
-        
-        Network.shared.account?.color = newColorHex
-        Network.shared.account?.writeToKeychain()
-        Network.shared.alterUserPhoneNumberOrColor(newNumber: nil, newColor: newColorHex, complete: { _ in return })
-        
-        NotificationCenter.default.post(name: .reloadSettings, object: nil)
-        
-        self.showMessage("Account color changed")
+        colorPickerDelegate?.colorPicker(color: color)
         self.dismiss(animated: true, completion: nil)
+//
+//        Network.shared.account?.color = newColorHex
+//        Network.shared.account?.writeToKeychain()
+//        Network.shared.alterUserPhoneNumberOrColor(newNumber: nil, newColor: newColorHex, complete: { _ in return })
+//
+//        NotificationCenter.default.post(name: .reloadSettings, object: nil)
+//
+//        self.showMessage("Account color changed")
+//        self.dismiss(animated: true, completion: nil)
     }
     
     @objc private func reloadButtonColors() {

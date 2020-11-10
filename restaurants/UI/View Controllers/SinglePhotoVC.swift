@@ -58,7 +58,6 @@ class SinglePhotoVC: UIViewController {
         ])
         
         doneButton.addTarget(self, action: #selector(dismissSinglePhoto), for: .touchUpInside)
-        
     }
     
     private func setUpScrollView() {
@@ -179,7 +178,7 @@ class SinglePhotoVC: UIViewController {
     }
 }
 
-
+// MARK: Scroll view
 extension SinglePhotoVC: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return imageView

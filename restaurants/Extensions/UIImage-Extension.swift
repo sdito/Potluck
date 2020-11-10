@@ -10,6 +10,34 @@ import UIKit
 
 extension UIImage {
     
+    static func circularOverlayMask(bounds: CGRect) -> UIImage {
+        let width = bounds.size.width
+        let height = bounds.size.height
+        
+        let diameter = width
+        let radius = diameter / 2
+        let center = CGPoint(x: width / 2, y: height / 2)
+
+        // Create the image context
+        UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0)
+
+        // Create the bezier paths
+        let clipPath = UIBezierPath(rect: bounds)
+        let maskPath = UIBezierPath(ovalIn: CGRect(x: center.x - radius, y: center.y - radius, width: diameter, height: diameter))
+
+        clipPath.append(maskPath)
+        clipPath.usesEvenOddFillRule = true
+
+        clipPath.addClip()
+        UIColor(white: 0, alpha: 0.5).setFill()
+        clipPath.fill()
+        
+
+        let finalImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
+
+        return finalImage
+    }
+    
     func resizeImageToSizeButKeepAspectRatio(targetSize: CGSize) -> UIImage {
         // i.e. resize to 200 / 200, with original size of 1000 / 400
         // new size would be 500 / 200, i.e. go to the minimum size

@@ -14,7 +14,7 @@ extension PHAsset {
         
         let manager = PHImageManager.default()
         let requestOptions = PHImageRequestOptions()
-        requestOptions.isSynchronous = false
+        requestOptions.isSynchronous = true
         requestOptions.deliveryMode = .highQualityFormat
         
         manager.requestImage(for: self, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: requestOptions) { (image, _) in
