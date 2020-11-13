@@ -20,7 +20,8 @@ class VisitTableView: UITableView {
     
     private var imageCache: NSCache<NSString, UIImage>?
     private let otherImageCache = NSCache<NSString, ImageRequest>()
-    private var photoIndexCache: [Int:Int] = [:]
+    private var profileImageCache: NSCache<NSString, UIImage>?
+    private var photoIndexCache: [Int:Int] = [:]; #warning("should make this into an NSCache")
     
     var visits: [Visit] = [] {
         didSet {
@@ -68,6 +69,8 @@ class VisitTableView: UITableView {
             NotificationCenter.default.addObserver(self, selector: #selector(establishmentUpdated(notification:)), name: .establishmentUpdated, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(visitUpdated(notification:)), name: .visitUpdated, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(visitDeleted(notification:)), name: .visitDeleted, object: nil)
+        } else if mode == .friends {
+            profileImageCache = NSCache<NSString, UIImage>()
         }
         
     }
@@ -213,7 +216,8 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! VisitCell
         let visit = visits[indexPath.row]
         let selectedIndex = photoIndexCache[visit.djangoOwnID]
-        cell.setUpWith(visit: visit, selectedPhotoIndex: selectedIndex, forOwnUser: mode == .user)
+        let forOwnUser = mode == .user
+        cell.setUpWith(visit: visit, selectedPhotoIndex: selectedIndex, forOwnUser: forOwnUser)
         cell.delegate = self
         
         if selectedIndex != nil {
@@ -245,6 +249,36 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
                         }
                     }
                 }
+            }
+        }
+        
+        #warning("when image is removed from profile, it still flashes on the settings")
+        // handle the profile image
+        if !forOwnUser {
+            // always update to at least update name and color, at the beginning
+            if let imageUrl = visit.person?.image, let cache = profileImageCache, let personId = visit.person?.id {
+                let key = NSString(string: "\(personId)")
+                if let image = cache.object(forKey: key) {
+                    cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: image)
+                } else {
+                    cell.usernameButton.startImageSkeleton()
+                    
+                    Network.shared.getImage(url: imageUrl) { (imageFound) in
+                        cell.usernameButton.endImageSkeleton()
+                        if let imageFound = imageFound {
+                            cache.setObject(imageFound, forKey: key)
+                            // make cell still needs to be updated for the correct person (i.e. could take a while to load and set on the wrong dequed cell)
+                            if let id = cell.visit?.person?.id, id == personId {
+                                cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: imageFound)
+                            }
+                        } else {
+                            cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: UIImage.personImage)
+                        }
+                    }
+                }
+            } else {
+                print("Should be setting up with base")
+                cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: UIImage.personImage)
             }
         }
         

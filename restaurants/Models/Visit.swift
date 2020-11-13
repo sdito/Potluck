@@ -18,8 +18,9 @@ class Visit: Codable {
     var comment: String?
     var mainImageHeight: Int
     var mainImageWidth: Int
-    var userId: Int
-    var accountUsername: String
+    
+    var person: Person?
+    
     var otherImages: [VisitImage]
     var tags: [Tag]
     var rating: Double?
@@ -27,7 +28,6 @@ class Visit: Codable {
     
     private var serverDateVisited: Date
     private var serverDatePosted: Date
-    var accountHexColor: String?
     
     var longitude: Double?
     var latitude: Double?
@@ -35,8 +35,6 @@ class Visit: Codable {
     struct VisitImage: Codable {
         var image: String
     }
-    
-    
     
     var listPhotos: [String] {
         var arr: [String] = [mainImage]
@@ -93,7 +91,7 @@ class Visit: Codable {
     }
     
     var accountColor: UIColor {
-        return UIColor(hex: accountHexColor) ?? Colors.random
+        return UIColor(hex: self.person?.hex_color) ?? Colors.random
     }
     
     var userDateVisited: String {
@@ -106,7 +104,7 @@ class Visit: Codable {
     
     var isCurrentUsersVisit: Bool {
         guard let id = Network.shared.account?.id else { return false }
-        return self.userId == id
+        return self.person?.id == id
     }
     
     var coordinate: CLLocationCoordinate2D? {
@@ -150,7 +148,7 @@ class Visit: Codable {
     
     
     func getEstablishment() -> Establishment {
-        let establishment = Establishment(name: self.restaurantName, isRestaurant: false, djangoID: self.djangoRestaurantID, longitude: self.longitude, latitude: self.latitude, yelpID: self.yelpID, category: nil, address1: nil, address2: nil, address3: nil, city: nil, zipCode: nil, state: nil, country: nil, firstVisited: nil, visits: nil, userId: self.userId)
+        let establishment = Establishment(name: self.restaurantName, isRestaurant: false, djangoID: self.djangoRestaurantID, longitude: self.longitude, latitude: self.latitude, yelpID: self.yelpID, category: nil, address1: nil, address2: nil, address3: nil, city: nil, zipCode: nil, state: nil, country: nil, firstVisited: nil, visits: nil, userId: self.person?.id)
         
         return establishment
     }
@@ -189,14 +187,14 @@ class Visit: Codable {
         case serverDatePosted = "date_posted"
         case mainImageHeight = "main_image_height"
         case mainImageWidth = "main_image_width"
-        case userId = "account"
-        case accountUsername = "account_username"
+        
+        case person = "account"
         case longitude = "restaurant_longitude"
         case latitude = "restaurant_latitude"
         case otherImages = "other_images"
         case rating
         case yelpID = "restaurant_yelp_id"
-        case accountHexColor = "account_hex_color"
+        
         case tags
     }
     

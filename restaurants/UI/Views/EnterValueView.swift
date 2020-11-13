@@ -32,6 +32,7 @@ class EnterValueView: UIView {
     private var mode: Mode = .textField
     
     private var maximumNumber = 0
+    private var allowMessage = true
     
     init(text: String?, placeholder: String?, controller: ShowViewVC?, delegate: EnterValueViewDelegate?, mode: Mode, maximumNumber: Int = 255) {
         super.init(frame: .zero)
@@ -247,7 +248,14 @@ extension EnterValueView: UITextFieldDelegate {
             if integerValue <= maximumNumber {
                 return true
             } else {
-                controller?.showMessage("Needs to be less than \(maximumNumber)", lastsFor: 1.5, on: controller)
+                if allowMessage {
+                    allowMessage = false
+                    let messageDuration = 1.5
+                    controller?.showMessage("Needs to be less than \(maximumNumber)", lastsFor: messageDuration, on: controller)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + messageDuration + 0.2) { [weak self] in
+                        self?.allowMessage = true
+                    }
+                }
             }
             
             return false

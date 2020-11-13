@@ -25,12 +25,11 @@ class PersonCell: UITableViewCell {
     private var friend: Person.Friend?
     
     private let outerStackView = UIStackView()
-    private let personImageView = UIImageView()
+    let personImageView = UIImageView()
     private let primaryLabel = UILabel()
     private let secondaryLabel = UILabel()
     private let addButton = UIButton()
     private let cancelButton = UIButton()
-    private let configuration = UIImage.SymbolConfiguration(scale: .large)
     
     private let acceptTag = 700
     private let declineTag = 7001
@@ -75,13 +74,12 @@ class PersonCell: UITableViewCell {
         personImageView.backgroundColor = .secondarySystemBackground
         personImageView.contentMode = .scaleAspectFit
         personImageView.clipsToBounds = true
-        personImageView.image = UIImage.personCircleImage.withConfiguration(configuration)
         
-        let sideSize: CGFloat = 35.0
+        let sideSize: CGFloat = 40.0
         personImageView.setContentCompressionResistancePriority(.required, for: .horizontal)
         personImageView.equalSides(size: sideSize)
         personImageView.layer.cornerRadius = sideSize / 2.0
-        
+        personImageView.layer.borderWidth = 1.5
     }
     
     private func setUpLabels() {
@@ -116,7 +114,7 @@ class PersonCell: UITableViewCell {
         
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
         cancelButton.tintColor = .systemRed
-        cancelButton.setImage(UIImage.xImage.withConfiguration(configuration), for: .normal)
+        cancelButton.setImage(UIImage.xImage.withConfiguration(.large), for: .normal)
         cancelButton.addTarget(self, action: #selector(requestButtonAction(sender:)), for: .touchUpInside)
         cancelButton.tag = declineTag
     }
@@ -158,10 +156,10 @@ class PersonCell: UITableViewCell {
         setUpProfileIcon(color: contact.color)
         addButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         if contact.username != nil {
-            addButton.setImage(UIImage.plusImage.withConfiguration(configuration), for: .normal)
+            addButton.setImage(UIImage.plusImage.withConfiguration(.large), for: .normal)
             addButton.tintColor = UIColor.systemGreen
         } else {
-            addButton.setImage(UIImage.messageImage.withConfiguration(configuration), for: .normal)
+            addButton.setImage(UIImage.messageImage.withConfiguration(.large), for: .normal)
             addButton.tintColor = .systemBlue
         }
         setUpAllowInteraction(person: contact)
@@ -180,7 +178,7 @@ class PersonCell: UITableViewCell {
         }
         setUpProfileIcon(color: contact.color)
         addButton.tintColor = .systemGreen
-        addButton.setImage(UIImage.checkImage.withConfiguration(configuration), for: .normal)
+        addButton.setImage(UIImage.checkImage.withConfiguration(.large), for: .normal)
         addButton.addTarget(self, action: #selector(requestButtonAction(sender:)), for: .touchUpInside)
         self.cancelButton.isHidden = false
     }
@@ -194,7 +192,7 @@ class PersonCell: UITableViewCell {
         secondaryLabel.text = request.message ?? "Sent on \(request.dateAsked.dateString(style: .medium))"
         setUpProfileIcon(color: usePerson.color)
         addButton.tintColor = .systemRed
-        addButton.setImage(UIImage.trashImage.withConfiguration(configuration), for: .normal)
+        addButton.setImage(UIImage.trashImage.withConfiguration(.large), for: .normal)
         addButton.addTarget(self, action: #selector(deleteRequestButtonSelected), for: .touchUpInside)
     }
     
@@ -221,8 +219,9 @@ class PersonCell: UITableViewCell {
     }
     
     private func setUpProfileIcon(color: UIColor) {
-        personImageView.backgroundColor = color
-        personImageView.tintColor = color.lighter
+        personImageView.tintColor = color
+        personImageView.layer.borderColor = color.cgColor
+        personImageView.image = UIImage.personImage.withConfiguration(.large)
     }
     
     private func setUpAllowInteraction(person: Person) {

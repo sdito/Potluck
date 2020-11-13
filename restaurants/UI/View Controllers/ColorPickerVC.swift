@@ -289,18 +289,8 @@ class ColorPickerVC: UIViewController {
     @objc private func chooseColorSelected() {
         // Need to get the hex color
         guard let color = currentColor else { return }
-        let newColorHex = color.toHexString()
         colorPickerDelegate?.colorPicker(color: color)
         self.dismiss(animated: true, completion: nil)
-//
-//        Network.shared.account?.color = newColorHex
-//        Network.shared.account?.writeToKeychain()
-//        Network.shared.alterUserPhoneNumberOrColor(newNumber: nil, newColor: newColorHex, complete: { _ in return })
-//
-//        NotificationCenter.default.post(name: .reloadSettings, object: nil)
-//
-//        self.showMessage("Account color changed")
-//        self.dismiss(animated: true, completion: nil)
     }
     
     @objc private func reloadButtonColors() {

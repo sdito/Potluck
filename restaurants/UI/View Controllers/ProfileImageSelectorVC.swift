@@ -10,25 +10,31 @@ import UIKit
 import Photos
 
 class ProfileImageSelectorVC: UIViewController {
-    #warning("also select the color from the VC, and remove the other option from the settings")
-    #warning("could update phone number from here form settings")
     #warning("could update account name form here also, would need to implement")
     
     private var allPhotos = PHFetchResult<PHAsset>()
     private let requestOptions = PHImageRequestOptions()
     private let imageCache = NSCache<NSString, UIImage>()
     private let imageManager = PHImageManager.default()
-    
+    private var somethingChanged = false
     private let profilePortionView = UIView()
     private lazy var collectionView = CameraRollCollectionView(width: self.view.bounds.width)
     private let reuseIdentifier = "photoCellReuseIdentifier"
     private let stackView = UIStackView()
     private let imageView = UIImageView()
     private let nameButton = UIButton()
+    private let deleteImageButton = UIButton()
     private let colorPickerButton = UIButton()
     private lazy var profilePortionHeightConstant = self.view.bounds.height * 0.2
     private let accountColor: UIColor = UIColor(hex: Network.shared.account?.color) ?? Colors.random
+    private var hasProfileImage: Bool = false {
+        didSet {
+            deleteImageButton.isHidden = !hasProfileImage
+        }
+    }
+    
     private var newAccountColor: UIColor?
+    private var newProfileImage: UIImage?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,6 +43,7 @@ class ProfileImageSelectorVC: UIViewController {
         setUpProfilePortion()
         setUpInnerProfileStackView()
         setUpProfileImageView()
+        setUpDeleteButton()
         setUpProfileName()
         setUpCollectionView()
         getPhotos()
@@ -49,6 +56,10 @@ class ProfileImageSelectorVC: UIViewController {
         let rightBarButtonItem = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(savePressed))
         rightBarButtonItem.tintColor = Colors.main
         self.navigationItem.rightBarButtonItem = rightBarButtonItem
+        
+        // cancel button
+        self.navigationItem.leftItemsSupplementBackButton = false
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelPressed))
     }
     
     private func setUpProfilePortion() {
@@ -84,8 +95,32 @@ class ProfileImageSelectorVC: UIViewController {
         imageView.clipsToBounds = true
         imageView.layer.borderWidth = 3.0
         imageView.layer.borderColor = accountColor.cgColor
-        imageView.image = UIImage.personImage
+        
+        if let image = Network.shared.account?.actualImage {
+            hasProfileImage = true
+            imageView.image = image
+        } else {
+            hasProfileImage = false
+            imageView.image = UIImage.personImage
+        }
+        
         imageView.tintColor = accountColor
+    }
+    
+    private func setUpDeleteButton() {
+        #warning("button to remove the image")
+        deleteImageButton.translatesAutoresizingMaskIntoConstraints = false
+        deleteImageButton.setImage(.xImage, for: .normal)
+        deleteImageButton.tintColor = Colors.main
+        deleteImageButton.backgroundColor = .secondarySystemBackground
+        deleteImageButton.addTarget(self, action: #selector(removePhotoPressed), for: .touchUpInside)
+        self.view.addSubview(deleteImageButton)
+        deleteImageButton.constrain(.trailing, to: imageView, .trailing)
+        deleteImageButton.constrain(.top, to: imageView, .top)
+        deleteImageButton.imageEdgeInsets = UIEdgeInsets(top: 3.0, left: 3.0, bottom: 3.0, right: 3.0)
+        deleteImageButton.equalSides()
+        deleteImageButton.layoutIfNeeded()
+        deleteImageButton.layer.cornerRadius = deleteImageButton.bounds.height / 2.0
     }
     
     private func setUpProfileName() {
@@ -108,7 +143,6 @@ class ProfileImageSelectorVC: UIViewController {
         nameStackView.addArrangedSubview(colorPickerButton)
     }
     
-    
     private func setUpCollectionView() {
         self.view.addSubview(collectionView)
         collectionView.delegate = self
@@ -125,17 +159,60 @@ class ProfileImageSelectorVC: UIViewController {
     }
     
     @objc private func chooseNewAccountColor() {
-        self.present(ColorPickerVC(startingColor: accountColor, colorPickerDelegate: self), animated: true, completion: nil)
+        let colorPicker = ColorPickerVC(startingColor: newAccountColor ?? accountColor, colorPickerDelegate: self)
+        self.present(colorPicker, animated: true, completion: nil)
+    }
+    
+    @objc private func removePhotoPressed() {
+        print("remove photo pressed")
+        
+        self.appAlert(title: nil, message: "Are you sure you want to remove your profile photo?", buttons: [
+            ("Cancel", nil),
+            ("Remove", { [weak self] in
+                self?.hasProfileImage = false
+                self?.imageView.image = UIImage.personImage
+                self?.newProfileImage = nil
+            })
+        ])
+        
+    }
+    
+    @objc private func cancelPressed() {
+        if !somethingChanged {
+            self.navigationController?.popViewController(animated: true)
+        } else {
+            self.appAlert(title: "Unsaved changes", message: "Are you sure you want to exit and lose your unsaved changes?", buttons: [
+                ("Exit", {
+                    self.navigationController?.popViewController(animated: true)
+                }),
+                ("Stay", nil)
+            ])
+        }
     }
     
     @objc private func savePressed() {
+        var somethingChanged = false
         if let newColorHex = newAccountColor?.toHexString() {
             Network.shared.account?.color = newColorHex
             Network.shared.account?.writeToKeychain()
-            Network.shared.alterUserPhoneNumberOrColor(newNumber: nil, newColor: newColorHex, complete: { _ in return })
-            NotificationCenter.default.post(name: .reloadSettings, object: nil)
+            Network.shared.alterUserPhoneNumberOrColor(changePhone: false, newNumber: nil, newColor: newColorHex, complete: { _ in return })
+            somethingChanged = true
         }
+        
+        // If newProfileImage is set then there has to be a new image, if newProfileImage is nil and the user did have an image, then it was removed
+        // updateUserProfilePhoto(newImage adds an image if not nil, or removes the image if it is nil
+        if newProfileImage != nil || (Network.shared.account?.actualImage != nil && !hasProfileImage) {
+            Network.shared.account?.actualImage = newProfileImage
+            Network.shared.updateUserProfilePhoto(newImage: newProfileImage) { _ in return }
+            somethingChanged = true
+        }
+        
+        if somethingChanged {
+            NotificationCenter.default.post(name: .reloadSettings, object: nil)
+        } 
+        
         self.navigationController?.popViewController(animated: true)
+        
     }
     
     private func getPhotos() {
@@ -230,16 +307,18 @@ extension ProfileImageSelectorVC: CropImageDelegate {
     }
     
     func imageFound(image: UIImage) {
-        #warning("need to actually store and then write")
+        self.somethingChanged = true
+        self.hasProfileImage = true
         self.imageView.image = image
         self.imageView.hero.id = ""
+        self.newProfileImage = image
     }
 }
 
 // MARK: ColorPickerDelegate
 extension ProfileImageSelectorVC: ColorPickerDelegate {
     func colorPicker(color: UIColor) {
-        print("Setting new account color")
+        self.somethingChanged = true
         self.nameButton.setTitleColor(color, for: .normal)
         self.colorPickerButton.tintColor = color
         self.imageView.layer.borderColor = color.cgColor

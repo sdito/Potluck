@@ -70,6 +70,7 @@ extension Network {
     }
     
     func retrieveToken(identifier: String, password: String, result: @escaping (Result<Bool, Errors.LogIn>) -> Void) {
+        print("Am retreiving token")
         let params: Parameters = [
             "identifier": identifier,
             "password": password
@@ -85,6 +86,7 @@ extension Network {
                 let logInResponse = try JSONDecoder().decode(Account.self, from: data)
                 Network.shared.account = logInResponse
                 logInResponse.writeToKeychain()
+                NotificationCenter.default.post(name: .userLoggedIn, object: self)
                 result(Result.success(true))
             } catch let err {
                 print(err)
@@ -113,6 +115,7 @@ extension Network {
                 let registerResponse = try decoder.decode(Account.self, from: data)
                 Network.shared.account = registerResponse
                 registerResponse.writeToKeychain()
+                NotificationCenter.default.post(name: .userLoggedIn, object: self)
                 completion(Result.success(true))
             } catch {
                 do {
@@ -136,12 +139,16 @@ extension Network {
         }
     }
     
-    /// if newNumber is nil, then the phone number will be deleted, both can't be nil
-    func alterUserPhoneNumberOrColor(newNumber: String?, newColor: String?, complete: @escaping (Bool) -> Void) {
+    /// if changePhone and newNumber is nil, then the phone number is going to be removed
+    func alterUserPhoneNumberOrColor(changePhone: Bool, newNumber: String?, newColor: String?, complete: @escaping (Bool) -> Void) {
         var params: Parameters = [:]
         
-        if let number = newNumber {
-            params["phone"] = number
+        if changePhone {
+            if let newNumber = newNumber {
+                params["phone"] = newNumber
+            } else {
+                params["phone"] = ""
+            }
         }
         
         if let color = newColor {
@@ -162,6 +169,32 @@ extension Network {
             return
         }
     }
+    
+    /// newImage to nil removes the user's profile image
+    func updateUserProfilePhoto(newImage: UIImage?, complete: @escaping (Bool) -> Void) {
+        
+        let requestType = LogInRequestType.alterUserPhoneNumberOrColor
+        let requestUrl = Network.djangoURL + requestType.url
+        
+        let req = AF.upload(multipartFormData: { (multipartFormData) in
+            if let image = newImage {
+                // there is an image, write the file
+                guard let imageData = image.resizeImageToSizeButKeepAspectRatio(targetSize: CGSize(width: 50, height: 50)).jpegData(compressionQuality: 0.8) else { return }
+                multipartFormData.append(imageData,
+                                         withName: "profile_image",
+                                         fileName: "\(Network.shared.account?.username ?? "anon_user")-\(Int(Date().timeIntervalSince1970))-\(String.randomString(6)).png",
+                                         mimeType: "jpg/png")
+            } else {
+                // there isnt an image, so trigger removing it
+                multipartFormData.append("none".data(using: .utf8)!, withName: "profile_image")
+            }
+        }, to: requestUrl, headers: requestType.headers)
+        
+        req.response(queue: .global(qos: .background)) { (completion) in
+            complete(completion.response?.statusCode == Network.okCode)
+        }
+    }
+    
     
     func searchForAccountsBy(term: String, accountsFound: @escaping (Result<[Person], Errors.Friends>) -> Void) {
         let parmas: Parameters = ["search": term]
@@ -251,7 +284,9 @@ extension Network {
                 acc.phone = refresh.phone
                 acc.username = refresh.username
                 acc.color = refresh.hex_color
+                acc.image = refresh.image
                 acc.writeToKeychain()
+                
             } catch {
                 print(error)
             }

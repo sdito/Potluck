@@ -7,24 +7,18 @@
 //
 
 import Foundation
-
+import UIKit
 
 
 class Account: Decodable {
-    
-    static let emailKey = "django-keychain-email"
-    static let usernameKey = "django-keychain-username"
-    static let idKey = "django-keychain-id"
-    static let tokenKey = "django-keychain-token"
-    static let phoneKey = "django-keychain-phone"
-    static let colorKey = "django-keychain-color"
-    
     var email: String
     var username: String
     let id: Int
     let token: String
     var phone: String?
     var color: String?
+    var image: String?
+    var actualImage: UIImage?
     
     init(email: String, username: String, id: Int, token: String, phone: String?, color: String?) {
         self.email = email
@@ -34,6 +28,36 @@ class Account: Decodable {
         self.phone = phone
         self.color = color
     }
+    
+    private enum CodingKeys: String, CodingKey {
+        case email
+        case username
+        case id
+        case token
+        case phone
+        case color
+        case image
+    }
+    
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.email = try container.decode(String.self, forKey: .email)
+        self.username = try container.decode(String.self, forKey: .username)
+        self.id = try container.decode(Int.self, forKey: .id)
+        self.token = try container.decode(String.self, forKey: .token)
+        self.phone = try? container.decode(String.self, forKey: .phone)
+        self.color = try? container.decode(String.self, forKey: .color)
+        self.image = try? container.decode(String.self, forKey: .image)
+        self.actualImage = nil
+    }
+    
+    // MARK: Keychain
+    static let emailKey = "django-keychain-email"
+    static let usernameKey = "django-keychain-username"
+    static let idKey = "django-keychain-id"
+    static let tokenKey = "django-keychain-token"
+    static let phoneKey = "django-keychain-phone"
+    static let colorKey = "django-keychain-color"
     
     static func readFromKeychain() -> Account? {
         let keyChain = Network.shared.keychain
@@ -51,30 +75,6 @@ class Account: Decodable {
             print("Account is nil on log in")
             return nil
         }
-    }
-    
-    struct Refresh: Decodable {
-        var email: String
-        var username: String
-        var phone: String?
-        var hex_color: String?
-    }
-    
-    struct PasswordResetRequest: Decodable {
-        var id: Int
-        var expiresAt: Date
-        
-        enum CodingKeys: String, CodingKey {
-            case id
-            case expiresAt = "date_expires"
-        }
-    }
-    
-    struct CodeResponse: Decodable {
-        var success: Bool
-        var token: String?
-        var account: Int?
-        var error: String?
     }
     
     func writeToKeychain() {
@@ -96,7 +96,11 @@ class Account: Decodable {
             keyChain.delete(Account.colorKey)
         }
         
-        NotificationCenter.default.post(name: .userLoggedIn, object: self)
+        
+        Network.shared.getImage(url: self.image) { [weak self] (imageFound) in
+            self?.actualImage = imageFound
+            NotificationCenter.default.post(name: .reloadSettings, object: nil, userInfo: nil)
+        }
     }
     
     func updatePhone(newPhone: String?) {
@@ -109,6 +113,7 @@ class Account: Decodable {
     }
     
     func logOut() {
+        
         let keyChain = Network.shared.keychain
         keyChain.delete(Account.usernameKey)
         keyChain.delete(Account.emailKey)
@@ -121,5 +126,30 @@ class Account: Decodable {
         NotificationCenter.default.post(name: .userLoggedOut, object: nil)
     }
     
+    // MARK: Refresh
+    struct Refresh: Decodable {
+        var email: String
+        var username: String
+        var phone: String?
+        var hex_color: String?
+        var image: String?
+    }
     
+    // MARK: PasswordResetRequest
+    struct PasswordResetRequest: Decodable {
+        var id: Int
+        var expiresAt: Date
+        
+        enum CodingKeys: String, CodingKey {
+            case id
+            case expiresAt = "date_expires"
+        }
+    }
+    // MARK: Code response
+    struct CodeResponse: Decodable {
+        var success: Bool
+        var token: String?
+        var account: Int?
+        var error: String?
+    }
 }

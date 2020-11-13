@@ -48,7 +48,7 @@ class VisitCell: UITableViewCell {
     private var dateAndButtonStackView = UIStackView()
     private let moreActionsButton = UIButton()
     private let mapButton = UIButton()
-    private let usernameButton = PersonTitleButton()
+    let usernameButton = PersonTitleView()
     private let headerStackView = UIStackView()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -102,7 +102,7 @@ class VisitCell: UITableViewCell {
     private func setUpUserNameButton() {
         base.addSubview(usernameButton)
         headerStackView.addArrangedSubview(usernameButton)
-        usernameButton.addTarget(self, action: #selector(usernameSelected), for: .touchUpInside)
+        usernameButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(usernameSelected)))
     }
     
     private func setUpUiElementsForDateAndButtons() {
@@ -245,7 +245,7 @@ class VisitCell: UITableViewCell {
         if forOwnUser {
             usernameButton.isHidden = true
         } else {
-            usernameButton.update(name: visit.accountUsername, color: visit.accountColor)
+            // usernameButton is updated on VisitTableView cell for row
             usernameButton.isHidden = false
         }
         

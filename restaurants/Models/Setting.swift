@@ -43,6 +43,7 @@ enum Setting: String, CaseIterable {
         var pressAction: (() -> ())?
         var switchValue: Bool?
         var color: UIColor?
+        var profileImage: Bool = false
         
         enum Value {
             case logout
@@ -78,13 +79,14 @@ enum Setting: String, CaseIterable {
                     return Row(title: "Profile image",
                                description: "If you have a profile image, it will appear when people search your account and by your username.",
                                mode: .arrowOpen,
-                               subtitle: "Add",
-                               pressAction: { profileImageAction() })
+                               subtitle: Network.shared.account?.actualImage == nil ? "Add" : "Change",
+                               pressAction: { profileImageAction() },
+                               profileImage: true)
                 case .accountColor:
                     return Row(title: "Account color",
                                description: "The account color will be showed when people search your account and by your name. You are randomly assigned one.",
                                mode: .arrowOpen,
-                               subtitle: "Change",
+                               subtitle: "Edit",
                                pressAction: { showColorPicker() },
                                color: UIColor(hex: Network.shared.account?.color))
                 case .friends:
@@ -221,7 +223,7 @@ fileprivate class Manager: EnterValueViewDelegate, ColorPickerDelegate {
         let newColorHex = color.toHexString()
         Network.shared.account?.color = newColorHex
         Network.shared.account?.writeToKeychain()
-        Network.shared.alterUserPhoneNumberOrColor(newNumber: nil, newColor: newColorHex, complete: { _ in return })
+        Network.shared.alterUserPhoneNumberOrColor(changePhone: false, newNumber: nil, newColor: newColorHex, complete: { _ in return })
         
         NotificationCenter.default.post(name: .reloadSettings, object: nil)
         UIApplication.topMostViewController?.showMessage("Account color changed")
@@ -232,7 +234,7 @@ fileprivate class Manager: EnterValueViewDelegate, ColorPickerDelegate {
     
     func phoneFound(string: String?) {
         Network.shared.account?.updatePhone(newPhone: string)
-        Network.shared.alterUserPhoneNumberOrColor(newNumber: string, newColor: nil) { _ in return }
+        Network.shared.alterUserPhoneNumberOrColor(changePhone: true, newNumber: string, newColor: nil) { _ in return }
         NotificationCenter.default.post(name: .reloadSettings, object: nil)
     }
     

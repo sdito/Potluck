@@ -15,6 +15,7 @@ class GenericTableVC: UITableViewController {
     
     private var mode: Mode = .friends
     private let reuseIdentifier = "genericTableReuseIdentifier"
+    private let imageCache = NSCache<NSString, UIImage>()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -188,21 +189,42 @@ class GenericTableVC: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! PersonCell
-        
+        var person: Person?
         switch mode {
         case .friends:
             if let element = friends?[indexPath.row]  {
                 cell.setUpValuesFriend(friend: element)
+                person = element.friend
             }
         case .requestsSent:
             if let element = requests?[indexPath.row] {
                 cell.setUpForSentRequest(request: element, delegate: self)
+                person = element.toPerson
             }
         case .requestsReceived:
             if let element = requests?[indexPath.row] {
                 cell.setUpValuesPersonRequest(person: element, delegate: self)
+                person = element.fromPerson
             }
         }
+        
+        
+        if let person = person, let url = person.image, let id = person.id {
+            let key = NSString(string: "\(id)")
+            if let image = imageCache.object(forKey: key) {
+                cell.personImageView.image = image
+            } else {
+                cell.personImageView.appStartSkeleton()
+                Network.shared.getImage(url: url) { [weak self] (imageFound) in
+                    cell.personImageView.appEndSkeleton()
+                    if let imageFound = imageFound {
+                        cell.personImageView.image = imageFound
+                        self?.imageCache.setObject(imageFound, forKey: key)
+                    }
+                }
+            }
+        }
+        
         return cell
     }
     

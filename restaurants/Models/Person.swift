@@ -10,12 +10,14 @@ import Foundation
 import Contacts
 import PhoneNumberKit
 
-class Person: Decodable {
+class Person: Codable {
+    
     var phone: String?
     var username: String?
     var actualName: String?
     var id: Int?
     var hex_color: String?
+    var image: String?
     lazy var alreadyInteracted = false
     
     var color: UIColor {
@@ -29,9 +31,9 @@ class Person: Decodable {
     }
     
     init(visit: Visit) {
-        self.id = visit.userId
-        self.username = visit.accountUsername
-        self.hex_color = visit.accountHexColor
+        self.id = visit.person?.id
+        self.username = visit.person?.username
+        self.hex_color = visit.person?.hex_color
     }
     
     init(account: Account) {
@@ -77,8 +79,6 @@ class Person: Decodable {
             }
         }
     }
-    
-    
     
     struct Friend: Decodable {
         var friend: Person

@@ -56,6 +56,7 @@ class UserProfileVC: UIViewController {
     init(person: Person) {
         super.init(nibName: nil, bundle: nil)
         self.person = person
+        #warning("could do something with image and color here")
     }
     
     required init?(coder: NSCoder) {

@@ -8,33 +8,61 @@
 
 import UIKit
 
-class PersonTitleButton: UIButton {
+class PersonTitleView: UIView {
     
-    
-    // use a test image
-    private let imageSideSize: CGFloat = 30.0
+    private let imageView = UIImageView()
+    private let label = UILabel()
     
     init() {
         super.init(frame: .zero)
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.titleLabel?.font = .mediumBold
-        self.contentHorizontalAlignment = .left
+        setUpImageView()
+        setUpLabel()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
     
-    func update(name: String, color: UIColor) {
-        self.setTitle(" \(name)", for: .normal)
-        let image = UIImage(named: "test-image")?.resizeImageToSizeButKeepAspectRatio(targetSize: CGSize(width: imageSideSize, height: imageSideSize))
-        self.imageView?.layer.cornerRadius = imageSideSize / 2.0
-        self.imageView?.clipsToBounds = true
-        self.imageView?.layer.borderWidth = 1.0
-        self.imageView?.layer.borderColor = color.cgColor
-        self.setTitleColor(color, for: .normal)
-        self.tintColor = color
-        self.setImage(image, for: .normal)
+    private func setUpImageView() {
+        let side: CGFloat = 35.0
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.image = UIImage.personCircleImage
+        imageView.clipsToBounds = true
+        self.addSubview(imageView)
+        imageView.constrain(.leading, to: self, .leading)
+        imageView.constrain(.top, to: self, .top)
+        imageView.constrain(.bottom, to: self, .bottom)
+        imageView.equalSides(size: side)
+        imageView.layer.cornerRadius = side / 2.0
+        imageView.layer.borderWidth = 1.0
+        imageView.contentMode = .scaleAspectFit
+    }
+    
+    private func setUpLabel() {
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .mediumBold
+        self.addSubview(label)
+        label.constrain(.top, to: self, .top)
+        label.constrain(.trailing, to: self, .trailing)
+        label.constrain(.bottom, to: self, .bottom)
+        label.constrain(.leading, to: imageView, .trailing, constant: 5.0)
+    }
+    
+    func update(name: String, color: UIColor, image: UIImage?) {
+        label.text = name
+        label.textColor = color
+        imageView.image = image
+        imageView.layer.borderColor = color.cgColor
+        imageView.tintColor = color
+    }
+    
+    func startImageSkeleton() {
+        self.imageView.appStartSkeleton()
+    }
+    
+    func endImageSkeleton() {
+        self.imageView.appEndSkeleton()
     }
     
 }

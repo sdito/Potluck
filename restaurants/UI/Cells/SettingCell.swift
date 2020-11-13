@@ -47,6 +47,28 @@ class SettingCell: UITableViewCell {
             switchAction = value.switchAction
             switchControl.setOn(value.switchValue ?? false, animated: false)
         }
+        
+        if value.profileImage {
+            setUpImageView()
+        } else {
+            self.imageView?.image = nil
+        }
+    }
+    
+    override func layoutSubviews() {
+        guard let iv = self.imageView else { return }
+        super.layoutSubviews()
+        iv.layer.cornerRadius = iv.frame.width / 2
+        iv.clipsToBounds = true
+    }
+    
+    private func setUpImageView() {
+        guard let imageView = self.imageView else { return }
+        imageView.image = Network.shared.account?.actualImage ?? UIImage.personImage.withConfiguration(.large)
+        let color = UIColor(hex: Network.shared.account?.color)
+        imageView.tintColor = color
+        imageView.layer.borderColor = color?.cgColor
+        imageView.layer.borderWidth = 1.5
     }
     
     @objc private func switchControlSelector() {
