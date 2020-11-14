@@ -66,7 +66,7 @@ class UserProfileVC: UIViewController {
     private func setUpNavigationBar() {
         var barButtonItems: [UIBarButtonItem] = []
         if let username = person?.username {
-            let navigationTitleView = NavigationTitleView(upperText: username, lowerText: "Profile")
+            let navigationTitleView = NavigationTitleView(upperText: username, lowerText: "Profile", profileImage: .init(url: person?.image, color: person?.color, image: nil))
             self.navigationItem.titleView = navigationTitleView
         } else {
             self.navigationItem.title = "Profile"
@@ -446,7 +446,11 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let visit = filteredVisits.appAtIndex(indexPath.item) {
-            let profileVC = ProfileHomeVC(isOwnUsersProfile: false, visits: filteredVisits, selectedVisit: visit, prevImageCache: imageCache, otherUserUsername: person?.username)
+            let profileVC = ProfileHomeVC(isOwnUsersProfile: false,
+                                          visits: filteredVisits,
+                                          selectedVisit: visit,
+                                          prevImageCache: imageCache,
+                                          otherPerson: person)
             self.navigationController?.pushViewController(profileVC, animated: true)
         }
     }

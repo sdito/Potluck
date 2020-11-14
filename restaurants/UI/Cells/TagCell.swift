@@ -68,6 +68,7 @@ class TagCell: UITableViewCell {
         tagButton.setTitle(tag.display, for: .normal)
         let str = tag.lastUsed?.dateString(style: .short)
         dateLabel.text = str
-        countLabel.text = "\(tag.numberOfVisits ?? 0) visits"
+        let num = tag.numberOfVisits ?? 0
+        countLabel.text = "\(num) visit\(num.s)"
     }
 }

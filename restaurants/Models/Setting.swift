@@ -23,7 +23,7 @@ enum Setting: String, CaseIterable {
             if Network.shared.loggedIn {
                 return [RV.logout.instance, RV.phoneNumber.instance, RV.profileImage.instance, RV.accountColor.instance, RV.friends.instance, RV.requestsSent.instance, RV.requestsReceived.instance]
             } else {
-                return [RV.logout.instance, RV.profileImage.instance]; #warning("remove profileImage later")
+                return [RV.logout.instance]
             }
             
         case .settings:

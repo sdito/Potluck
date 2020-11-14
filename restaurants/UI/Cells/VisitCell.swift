@@ -20,7 +20,7 @@ protocol VisitCellDelegate: class {
     func personSelected(for visit: Visit)
 }
 
-#warning("need to add tags")
+
 class VisitCell: UITableViewCell {
     
     var visit: Visit?
@@ -235,19 +235,13 @@ class VisitCell: UITableViewCell {
         delegate?.personSelected(for: visit)
     }
     
-    func setUpWith(visit: Visit, selectedPhotoIndex: Int?, forOwnUser: Bool) {
+    func setUpWith(visit: Visit, selectedPhotoIndex: Int?) {
+        // usernameButton in cell is set on cellForRow
         self.visit = visit
         self.requested = false
         
         allowScrollViewDelegate = false
         defer { allowScrollViewDelegate = true }
-        
-        if forOwnUser {
-            usernameButton.isHidden = true
-        } else {
-            // usernameButton is updated on VisitTableView cell for row
-            usernameButton.isHidden = false
-        }
         
         imageView?.image = nil
         setUpCommentText()

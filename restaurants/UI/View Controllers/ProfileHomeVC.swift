@@ -11,6 +11,7 @@ import UIKit
 class ProfileHomeVC: UIViewController {
     
     private var isOwnUsersProfile = false
+    private var otherPerson: Person?
     private let showOnMapButton = OverlayButton()
     private var visitTableView: VisitTableView?
     private var filteredVisits: [Visit] = [] {
@@ -23,7 +24,6 @@ class ProfileHomeVC: UIViewController {
     private var selectedTag: Tag?
     private weak var selectedVisit: Visit?
     private var preLoadedData = false
-    private var otherUserUsername: String?
     private var allowMapButton = true
     private let scrollingStackView = ScrollingStackView(subViews: [UIView.getSpacerView()])
     private var tagButtons: [TagButton] = []
@@ -45,8 +45,10 @@ class ProfileHomeVC: UIViewController {
         self.navigationController?.navigationBar.tintColor = Colors.main
         let rightNavigationButton = UIBarButtonItem(image: .listImage, style: .plain, target: self, action: #selector(establishmentListPressed))
         self.navigationItem.rightBarButtonItem = rightNavigationButton
-        if let username = otherUserUsername {
-            let navigationTitleView = NavigationTitleView(upperText: username, lowerText: "Visits")
+        if let otherPerson = otherPerson {
+            let navigationTitleView = NavigationTitleView(upperText: otherPerson.username ?? "User",
+                                                          lowerText: "Visits",
+                                                          profileImage: .init(url: otherPerson.image, color: otherPerson.color, image: nil))
             navigationItem.titleView = navigationTitleView
         } else {
             navigationItem.title = "Visits"
@@ -58,7 +60,7 @@ class ProfileHomeVC: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
     
-    init(isOwnUsersProfile: Bool, visits: [Visit]?, selectedVisit: Visit? = nil, prevImageCache: NSCache<NSString, UIImage>? = nil, otherUserUsername: String? = nil) {
+    init(isOwnUsersProfile: Bool, visits: [Visit]?, selectedVisit: Visit? = nil, prevImageCache: NSCache<NSString, UIImage>? = nil, otherPerson: Person? = nil) {
         super.init(nibName: nil, bundle: nil)
         self.isOwnUsersProfile = isOwnUsersProfile
         visitTableView = VisitTableView(mode: .user, prevImageCache: prevImageCache, delegate: self)
@@ -66,7 +68,7 @@ class ProfileHomeVC: UIViewController {
         if let visits = visits {
             self.filteredVisits = visits
             self.selectedVisit = selectedVisit
-            self.otherUserUsername = otherUserUsername
+            self.otherPerson = otherPerson
             self.preLoadedData = true
             self.allowMapButton = false
         }

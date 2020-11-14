@@ -15,7 +15,7 @@ import CoreLocation
 protocol SearchUpdatedFromMasterDelegate: class {
     func newSearch(search: Network.RestaurantSearch)
 }
-#warning("dont do both animations on load up on restaurantListVC on initial load")
+
 class FindRestaurantVC: UIViewController {
     
     weak var delegate: SearchUpdatedFromMasterDelegate?

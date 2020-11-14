@@ -21,7 +21,7 @@ class VisitTableView: UITableView {
     private var imageCache: NSCache<NSString, UIImage>?
     private let otherImageCache = NSCache<NSString, ImageRequest>()
     private var profileImageCache: NSCache<NSString, UIImage>?
-    private var photoIndexCache: [Int:Int] = [:]; #warning("should make this into an NSCache")
+    private let photoIndexCache = NSCache<NSNumber, NSNumber>()
     
     var visits: [Visit] = [] {
         didSet {
@@ -215,9 +215,9 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! VisitCell
         let visit = visits[indexPath.row]
-        let selectedIndex = photoIndexCache[visit.djangoOwnID]
-        let forOwnUser = mode == .user
-        cell.setUpWith(visit: visit, selectedPhotoIndex: selectedIndex, forOwnUser: forOwnUser)
+        //let selectedIndex = photoIndexCache[visit.djangoOwnID]
+        let selectedIndex = photoIndexCache.object(forKey: NSNumber(value: visit.djangoOwnID)) as? Int
+        cell.setUpWith(visit: visit, selectedPhotoIndex: selectedIndex)
         cell.delegate = self
         
         if selectedIndex != nil {
@@ -254,7 +254,8 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         
         #warning("when image is removed from profile, it still flashes on the settings")
         // handle the profile image
-        if !forOwnUser {
+        if mode == .friends {
+            print("Not for own user")
             // always update to at least update name and color, at the beginning
             if let imageUrl = visit.person?.image, let cache = profileImageCache, let personId = visit.person?.id {
                 let key = NSString(string: "\(personId)")
@@ -277,9 +278,13 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
                     }
                 }
             } else {
-                print("Should be setting up with base")
+                // doesn't have an image
                 cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: UIImage.personImage)
             }
+        } else {
+            // should just hide the usernameButton
+            #warning("make sure this is fine, instead of hiding it")
+            cell.usernameButton.removeFromSuperview()
         }
         
         return cell
@@ -325,7 +330,8 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func clearCaches() {
-        photoIndexCache = [:]
+//        photoIndexCache = [:]
+        photoIndexCache.removeAllObjects()
         imageCache?.removeAllObjects()
         otherImageCache.removeAllObjects()
     }
@@ -358,7 +364,8 @@ extension VisitTableView: VisitCellDelegate {
     
     func newPhotoIndexSelected(idx: Int, for visit: Visit?) {
         guard let visit = visit else { return }
-        photoIndexCache[visit.djangoOwnID] = idx
+//        photoIndexCache[visit.djangoOwnID] = idx
+        photoIndexCache.setObject(NSNumber(value: idx), forKey: NSNumber(value: visit.djangoOwnID))
     }
     
     func moreImageRequest(visit: Visit?, cell: VisitCell) {

@@ -22,6 +22,8 @@ class AddFriendsVC: UIViewController {
     private let searchBar = UISearchBar()
     private let stackView = UIStackView()
     private var searchBarTimer: Timer?
+    
+    private let imageCache = NSCache<NSString, UIImage>()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -208,12 +210,34 @@ extension AddFriendsVC: UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! PersonCell
         let option = Option.allCases[indexPath.section]
         
+        var usedPerson: Person?
+        
         if let person = rowsPerson(option: option)?[indexPath.row] {
+            usedPerson = person
             cell.setUpValues(contact: person, delegate: self)
         } else if let personRequest = rowsPersonRequest(option: option)?[indexPath.row] {
+            usedPerson = personRequest.notUser
             cell.setUpValuesPersonRequest(person: personRequest, delegate: self)
         } else {
             cell.resetValues()
+        }
+        
+        //do the image cache thing here
+        //#error("left off on this")
+        if let person = usedPerson, let url = person.image, let id = person.id {
+            let key = NSString(string: "\(id)")
+            if let image = imageCache.object(forKey: key) {
+                cell.personImageView.image = image
+            } else {
+                cell.personImageView.appStartSkeleton()
+                Network.shared.getImage(url: url) { [weak self] (imageFound) in
+                    if let imageFound = imageFound {
+                        cell.personImageView.appEndSkeleton()
+                        cell.personImageView.image = imageFound
+                        self?.imageCache.setObject(imageFound, forKey: key)
+                    }
+                }
+            }
         }
         
         return cell
