@@ -112,18 +112,17 @@ class EstablishmentDetailVC: UIViewController {
         Network.shared.getEstablishmentDetail(from: establishment) { [weak self] (result) in
             DispatchQueue.main.async {
                 guard let self = self else { return }
+                self.initialDataFound = true
                 switch result {
                 case .success(let establishment):
-                    
                     self.establishment?.updateSelfForValuesThatAreNil(newEstablishment: establishment)
-                    
                     self.visits = establishment.visits ?? []
-                    self.initialDataFound = true
                     self.addViewsToScrollingStack()
                     self.collectionView.reloadData()
                 case .failure(let error):
                     print(error)
-                    fatalError()
+                    self.visits = []
+                    self.collectionView.reloadData()
                 }
             }
         }

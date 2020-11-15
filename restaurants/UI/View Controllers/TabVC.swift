@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TabVC: UITabBarController, UITabBarControllerDelegate {
+class TabVC: UITabBarController {
     #warning("*****map clustering only on profile maps (userProfileVC, profileMapVC)")
     #warning("pagination on django")
     #warning("remove fatalError stuff")
@@ -28,7 +28,8 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     
     #warning("calendar option, should be a pop-up view")
     
-    private let home = UINavigationController(rootViewController: ProfileHomeVC(isOwnUsersProfile: true, visits: nil, prevImageCache: nil))
+//    private let home =
+    private let home = ProfilePageVC()//UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     private let feed = UINavigationController(rootViewController: FeedHomeVC())
     private let addRestaurant = AddRestaurantVC()
     private let explore = UINavigationController(rootViewController: FindRestaurantVC())
@@ -56,20 +57,6 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
         
     }
     
-    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-        
-        if viewController.isKind(of: AddRestaurantVC.self) {
-            
-            if Network.shared.loggedIn {
-                self.presentAddRestaurantVC()
-            } else {
-                self.userNotLoggedInAlert(tabVC: self)
-            }
-            
-            return false
-        }
-        return true
-    }
     
     func getProfileTabIndex() -> Int {
         for (i, tab) in self.children.enumerated() {
@@ -83,9 +70,62 @@ class TabVC: UITabBarController, UITabBarControllerDelegate {
     func getProfileNavigationController() -> UINavigationController {
         return settings
     }
-
+    
+    #warning("need to complete and implement")
+    func changeActivePageViewController() {
+        print("changeActivePageViewController activated")
+        if !goToNextPage() {
+            goToPreviousPage()
+        }
+    }
+    
+    func goToNextPage() -> Bool {
+        guard let currentViewController = home.viewControllers?.first else { return false }
+        guard let nextViewController = home.dataSource?.pageViewController(home, viewControllerAfter: currentViewController ) else { return false }
+        
+        self.view.isUserInteractionEnabled = false
+        home.setViewControllers([nextViewController], direction: .forward, animated: true) { [weak self] _ in
+            self?.view.isUserInteractionEnabled = true
+        }
+        return true
+    }
+    
+    @discardableResult
+    func goToPreviousPage() -> Bool {
+        guard let currentViewController = home.viewControllers?.first else { return false }
+        guard let previousViewController = home.dataSource?.pageViewController(home, viewControllerBefore: currentViewController ) else { return false }
+        
+        self.view.isUserInteractionEnabled = false
+        home.setViewControllers([previousViewController], direction: .reverse, animated: true) { [weak self] _ in
+            self?.view.isUserInteractionEnabled = true
+        }
+        
+        return true
+    }
 }
 
-
-
+// MARK: Tab bar controller
+extension TabVC: UITabBarControllerDelegate {
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        if viewController.isKind(of: AddRestaurantVC.self) {
+            if Network.shared.loggedIn {
+                self.presentAddRestaurantVC()
+            } else {
+                self.userNotLoggedInAlert(tabVC: self)
+            }
+            
+            return false
+        } else if viewController == home {
+            // will potentially need to manually pop to the root view controller for the selected navigation controller in the page controller (home)
+            if let currentViewController = tabBarController.viewControllers?[tabBarController.selectedIndex], currentViewController == home {
+                home.popToCurrentPageRootViewController()
+                
+            }
+        }
+        return true
+    }
+    
+    
+    
+}
 

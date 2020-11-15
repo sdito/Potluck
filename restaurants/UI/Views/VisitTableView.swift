@@ -220,6 +220,7 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         cell.setUpWith(visit: visit, selectedPhotoIndex: selectedIndex)
         cell.delegate = self
         
+        
         if selectedIndex != nil {
             cell.delegate?.moreImageRequest(visit: visit, cell: cell)
         }

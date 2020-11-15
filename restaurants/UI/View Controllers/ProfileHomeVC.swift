@@ -12,7 +12,6 @@ class ProfileHomeVC: UIViewController {
     
     private var isOwnUsersProfile = false
     private var otherPerson: Person?
-    private let showOnMapButton = OverlayButton()
     private var visitTableView: VisitTableView?
     private var filteredVisits: [Visit] = [] {
         didSet {
@@ -27,6 +26,20 @@ class ProfileHomeVC: UIViewController {
     private var allowMapButton = true
     private let scrollingStackView = ScrollingStackView(subViews: [UIView.getSpacerView()])
     private var tagButtons: [TagButton] = []
+    
+    init(isOwnUsersProfile: Bool, visits: [Visit]?, selectedVisit: Visit? = nil, prevImageCache: NSCache<NSString, UIImage>? = nil, otherPerson: Person? = nil) {
+        super.init(nibName: nil, bundle: nil)
+        self.isOwnUsersProfile = isOwnUsersProfile
+        visitTableView = VisitTableView(mode: .user, prevImageCache: prevImageCache, delegate: self)
+        #warning("could init with tags from the user here, this is for the non user account, see set up with tags")
+        if let visits = visits {
+            self.filteredVisits = visits
+            self.selectedVisit = selectedVisit
+            self.otherPerson = otherPerson
+            self.preLoadedData = true
+            self.allowMapButton = false
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,35 +56,31 @@ class ProfileHomeVC: UIViewController {
     private func setUpNavigationBar() {
         self.setNavigationBarColor()
         self.navigationController?.navigationBar.tintColor = Colors.main
+        
+        // right button
         let rightNavigationButton = UIBarButtonItem(image: .listImage, style: .plain, target: self, action: #selector(establishmentListPressed))
         self.navigationItem.rightBarButtonItem = rightNavigationButton
+        
+        // left button
+        if allowMapButton {
+            let leftNavigationButton = UIBarButtonItem(title: "Map", style: .plain, target: self, action: #selector(switchPagePressed))
+            self.navigationItem.leftBarButtonItem = leftNavigationButton
+        }
+        
+        // title view
         if let otherPerson = otherPerson {
             let navigationTitleView = NavigationTitleView(upperText: otherPerson.username ?? "User",
                                                           lowerText: "Visits",
                                                           profileImage: .init(url: otherPerson.image, color: otherPerson.color, image: nil))
             navigationItem.titleView = navigationTitleView
         } else {
-            navigationItem.title = "Visits"
+            navigationItem.title = "Visit feed"
         }
         navigationController?.navigationBar.isTranslucent = false
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
-    }
-    
-    init(isOwnUsersProfile: Bool, visits: [Visit]?, selectedVisit: Visit? = nil, prevImageCache: NSCache<NSString, UIImage>? = nil, otherPerson: Person? = nil) {
-        super.init(nibName: nil, bundle: nil)
-        self.isOwnUsersProfile = isOwnUsersProfile
-        visitTableView = VisitTableView(mode: .user, prevImageCache: prevImageCache, delegate: self)
-        #warning("could init with tags from the user here, this is for the non user account, see set up with tags")
-        if let visits = visits {
-            self.filteredVisits = visits
-            self.selectedVisit = selectedVisit
-            self.otherPerson = otherPerson
-            self.preLoadedData = true
-            self.allowMapButton = false
-        }
     }
     
     required init?(coder: NSCoder) {
@@ -123,7 +132,6 @@ class ProfileHomeVC: UIViewController {
     }
     
     private func getInitialUserVisits() {
-        setMapButton(hidden: true)
         if Network.shared.loggedIn {
             Network.shared.getVisitFeed(feedType: .user) { [weak self] (result) in
                 DispatchQueue.main.async {
@@ -137,7 +145,6 @@ class ProfileHomeVC: UIViewController {
                         self.visitTableView?.refreshControl?.endRefreshing()
                         self.visitTableView?.clearCaches()
                         self.visitTableView?.reloadData()
-                        self.setMapButton(hidden: self.filteredVisits.count < 1)
                         self.setUpWithTags()
                     case .failure(_):
                         self.filteredVisits = []
@@ -164,15 +171,6 @@ class ProfileHomeVC: UIViewController {
         visitTableView!.constrain(.leading, to: self.view, .leading)
         visitTableView!.constrain(.trailing, to: self.view, .trailing)
         visitTableView!.constrain(.bottom, to: self.view, .bottom)
-        
-        showOnMapButton.setTitle("Show on map", for: .normal)
-        showOnMapButton.addTarget(self, action: #selector(showOnMapButtonPressed), for: .touchUpInside)
-        
-        self.view.addSubview(showOnMapButton)
-        showOnMapButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-        showOnMapButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -((self.tabBarController?.tabBar.bounds.height ?? 0.0) + 10.0)).isActive = true
-        
-        if !allowMapButton { showOnMapButton.isHidden = true }
     }
     
     private func noUserTableView() {
@@ -215,6 +213,11 @@ class ProfileHomeVC: UIViewController {
         self.navigationController?.pushViewController(mapProfile, animated: true)
     }
     
+    @objc private func switchPagePressed() {
+        guard let tabVC = self.tabBarController as? TabVC else { return }
+        tabVC.changeActivePageViewController()
+    }
+    
     @objc private func establishmentListPressed() {
         var person: Person? {
             if isOwnUsersProfile {
@@ -237,7 +240,7 @@ class ProfileHomeVC: UIViewController {
         #warning("need to complete -- see comments")
         selectedTag = nil
         guard let tag = sender.buttonTag, let alias = tag.alias else { return }
-        var newTitle = "Visits"
+        var newTitle = "Visit feed"
         if sender.isTagActive {
             sender.setUpForNormal()
             
@@ -263,14 +266,6 @@ class ProfileHomeVC: UIViewController {
     
     @objc private func filterTagButtonPressed() {
         self.showTagSelectorView(tags: self.tags, selectedTag: selectedTag, tagSelectorViewDelegate: self)
-    }
-    
-    private func setMapButton(hidden: Bool) {
-        if allowMapButton {
-            DispatchQueue.main.async {
-                self.showOnMapButton.isHidden = hidden
-            }
-        }
     }
 }
 

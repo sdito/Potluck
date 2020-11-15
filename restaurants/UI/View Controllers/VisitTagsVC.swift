@@ -13,7 +13,7 @@ protocol VisitTagsDelegate: class {
     func tagsSelected(tags: [String])
 }
 
-
+#warning("show previously used tags from the user at the beginning section of the table view")
 class VisitTagsVC: UIViewController {
     
     private weak var delegate: VisitTagsDelegate?

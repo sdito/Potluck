@@ -126,6 +126,7 @@
 		E288B12725192F1A004B2849 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E288B12625192F1A004B2849 /* AlertView.swift */; };
 		E2894ECB2502F2E50012E8D8 /* NotificationName.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2894ECA2502F2E50012E8D8 /* NotificationName.swift */; };
 		E298816F251095CC009FCC81 /* EnterValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E298816E251095CC009FCC81 /* EnterValueView.swift */; };
+		E29A0F9D2560D0C500E8D452 /* ProfilePageVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29A0F9C2560D0C500E8D452 /* ProfilePageVC.swift */; };
 		E29AF2F724D690F5004C60FC /* SearchRestaurantsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29AF2F624D690F5004C60FC /* SearchRestaurantsVC.swift */; };
 		E29AF2F924E08A53004C60FC /* RestaurantSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29AF2F824E08A53004C60FC /* RestaurantSearchBar.swift */; };
 		E2A0146F24F5C00F00379518 /* Visit-Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A0146E24F5C00F00379518 /* Visit-Network.swift */; };
@@ -270,6 +271,7 @@
 		E288B12625192F1A004B2849 /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
 		E2894ECA2502F2E50012E8D8 /* NotificationName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationName.swift; sourceTree = "<group>"; };
 		E298816E251095CC009FCC81 /* EnterValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterValueView.swift; sourceTree = "<group>"; };
+		E29A0F9C2560D0C500E8D452 /* ProfilePageVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePageVC.swift; sourceTree = "<group>"; };
 		E29AF2F624D690F5004C60FC /* SearchRestaurantsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRestaurantsVC.swift; sourceTree = "<group>"; };
 		E29AF2F824E08A53004C60FC /* RestaurantSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantSearchBar.swift; sourceTree = "<group>"; };
 		E2A0146E24F5C00F00379518 /* Visit-Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Visit-Network.swift"; sourceTree = "<group>"; };
@@ -340,6 +342,7 @@
 		E2574A2E24B7D370006618D7 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				E29A0F9C2560D0C500E8D452 /* ProfilePageVC.swift */,
 				E22E6CFE25589B0A00A1A88C /* CropImageVC.swift */,
 				E22E6CDC25587D6000A1A88C /* ProfileImageSelectorVC.swift */,
 				E223BE36254BE4CA00AFFADF /* VisitTagsVC.swift */,
@@ -694,6 +697,7 @@
 				E2564CB32546015200304B5B /* LoaderView.swift in Sources */,
 				E2DC2F2724EDCED0002C6A07 /* ImageXView.swift in Sources */,
 				E253A6C32528EBA100778500 /* UISearchBar-Extension.swift in Sources */,
+				E29A0F9D2560D0C500E8D452 /* ProfilePageVC.swift in Sources */,
 				E223BE3B254CF73A00AFFADF /* AlphabetView.swift in Sources */,
 				E2E6E09F250445100005A55B /* ProfileMapVC.swift in Sources */,
 				E26CD819251997B70082DBE0 /* ActionSheetView.swift in Sources */,

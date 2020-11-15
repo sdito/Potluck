@@ -39,7 +39,7 @@ class VisitCell: UITableViewCell {
     private let base = UIView()
     private let baseHeight: CGFloat = 250.0
     private let baseConstraintConstant: CGFloat = 7.5
-    private let scrollingStackView = ScrollingStackView(subViews: [], showPlaceholder: true)
+    let scrollingStackView = ScrollingStackView(subViews: [], showPlaceholder: true)
     private let restaurantNameButton = SizeChangeButton(sizeDifference: .inverse, restingColor: .label, selectedColor: Colors.main)
     private let commentLabel = UILabel()
     var visitImageViewHeightConstraint: NSLayoutConstraint?

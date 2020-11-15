@@ -11,10 +11,11 @@ import MapKit
 
 class ProfileMapVC: UIViewController {
     
+    private let searchDistanceRadius = 5_000
     private let mapView = MKMapView()
     private let searchBar = UISearchBar()
     private var searchBarShown = false
-    private let searchBarDistance: CGFloat = 7.5
+    private let searchBarDistance: CGFloat = 10.0
     private weak var searchHelperDelegate: SearchHelperDelegate?
     private let searchAndCellBackgroundColor = UIColor.systemBackground.withAlphaComponent(0.9)
     private var allowHelperToChange = true
@@ -30,30 +31,32 @@ class ProfileMapVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .blue
-        navigationItem.title = "Profile map"
-        
-        getRestaurantData()
+        self.view.backgroundColor = .systemBackground
+        setUpNavigationController()
         setUpMap()
         setUpSearchBar()
         setUpSearchHelper()
         setUpLocationButton()
-        edgesForExtendedLayout = [.top, .left, .right]
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: .magnifyingGlassImage, style: .plain, target: self, action: #selector(searchBarPressed))
-        
+        setUpAbilityToScrollBackOnMap()
+        getRestaurantData()
+        edgesForExtendedLayout = []
         NotificationCenter.default.addObserver(self, selector: #selector(establishmentDeleted(notification:)), name: .establishmentDeleted, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(establishmentUpdated(notification:)), name: .establishmentUpdated, object: nil)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.setNavigationBarHidden(false, animated: animated)
-        self.setNavigationBarColor()
-        
-    }
-    
     deinit {
         NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func setUpNavigationController() {
+        //switchPagePressed
+        self.setNavigationBarColor()
+        self.navigationController?.navigationBar.tintColor = Colors.main
+        self.navigationController?.navigationBar.isTranslucent = false
+        navigationItem.title = "Visit map"
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Feed", style: .plain, target: self, action: #selector(switchPagePressed))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: .magnifyingGlassImage, style: .plain, target: self, action: #selector(searchBarPressed))
     }
     
     private func getRestaurantData() {
@@ -95,16 +98,16 @@ class ProfileMapVC: UIViewController {
     private func setUpSearchBar() {
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(searchBar)
+        searchBar.tintColor = Colors.main
         searchBar.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
         searchBar.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 0.95).isActive = true
-        searchBar.topAnchor.constraint(equalTo: self.view.topAnchor, constant: searchBarDistance).isActive = true
+        searchBar.constrain(.top, to: self.view, .top, constant: searchBarDistance)
         searchBar.placeholder = "Search place or location"
         searchBar.searchBarStyle = .minimal
         searchBar.searchTextField.backgroundColor = searchAndCellBackgroundColor
         searchBar.layoutIfNeeded()
         searchBar.delegate = self
         handleSearchBarTransform(animated: false)
-        
     }
     
     private func setUpSearchHelper() {
@@ -129,33 +132,27 @@ class ProfileMapVC: UIViewController {
         locationButton.setImage(.locationImage, for: .normal)
         locationButton.tintColor = Colors.locationColor
         self.view.addSubview(locationButton)
-        locationButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-        locationButton.bottomAnchor.constraint(equalTo: self.mapView.bottomAnchor, constant: -searchBarDistance).isActive = true
+        locationButton.constrain(.trailing, to: self.mapView, .trailing, constant: searchBarDistance)
+        locationButton.constrain(.bottom, to: self.mapView, .bottom, constant: searchBarDistance)
         locationButton.addTarget(self, action: #selector(fitAnnotations), for: .touchUpInside)
         locationButton.layoutIfNeeded()
         handleHidingOrShowingLocationButton(animated: false, show: false)
     }
     
+    private func setUpAbilityToScrollBackOnMap() {
+        #warning("potentially add this same thing on the other view of the page view controller")
+        let swipeView = UIView()
+        swipeView.translatesAutoresizingMaskIntoConstraints = false
+        swipeView.backgroundColor = .clear
+        mapView.addSubview(swipeView)
+        swipeView.constrain(.leading, to: mapView, .leading)
+        swipeView.constrain(.top, to: mapView, .top)
+        swipeView.constrain(.bottom, to: mapView, .bottom)
+        swipeView.widthAnchor.constraint(equalToConstant: 30.0).isActive = true
+    }
+    
     private func handleHidingOrShowingLocationButton(animated: Bool, show: Bool) {
-        guard show != locationButtonShown else { return }
-
-        locationButtonShown = show
-        var transform: CGAffineTransform {
-            if show {
-                return .identity
-            } else {
-                return CGAffineTransform(translationX: 0, y: searchBarDistance + locationButton.bounds.height)
-            }
-        }
-        
-        if animated {
-            UIView.animate(withDuration: 0.3) {
-                self.locationButton.transform = transform
-            }
-        } else {
-            locationButton.transform = transform
-        }
-        
+        locationButton.appIsHiddenAnimated(isHidden: !show, animated: animated)
     }
     
     private func handleSearchBarTransform(animated: Bool) {
@@ -230,6 +227,10 @@ class ProfileMapVC: UIViewController {
         }
     }
     
+    @objc private func switchPagePressed() {
+        guard let tabVC = self.tabBarController as? TabVC else { return }
+        tabVC.changeActivePageViewController()
+    }
 }
 
 // MARK: Map view
@@ -279,7 +280,6 @@ extension ProfileMapVC: MKMapViewDelegate {
             handleHidingOrShowingLocationButton(animated: true, show: false)
         }
     }
-    
     
 }
 
@@ -337,16 +337,13 @@ extension ProfileMapVC: SearchHelperComplete {
         
         geoCoder.geocodeAddressString(addressFound) { [weak self] (placeMarks, error) in
             guard let self = self else { return }
-
             guard let placeMarks = placeMarks, let first = placeMarks.first, let location = first.location?.coordinate else {
                 self.showMessage("Unable to locate address")
                 return
             }
             
-            self.mapView.setRegionAroundCoordinate(coordinate: location, distance: 15_000, animated: true)
+            self.mapView.setRegionAroundCoordinate(coordinate: location, distance: self.searchDistanceRadius, animated: true)
         }
-        
-
         allowHelperToChange = true
     }
 }
