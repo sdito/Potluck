@@ -235,7 +235,6 @@ class ProfileImageSelectorVC: UIViewController {
                     }
                 }
                 
-                print("Found \(self.allPhotos.count) assets")
             case .denied, .restricted:
                 print("Not allowed")
                 DispatchQueue.main.async {
@@ -243,10 +242,10 @@ class ProfileImageSelectorVC: UIViewController {
                     button.addTarget(self, action: #selector(self.photosNotAuthorized), for: .touchUpInside)
                 }
             case .notDetermined:
-                // Should not see this when requesting
-                print("Not determined yet...should ask???")
+                // Already automatically requests
+                return
             @unknown default:
-                fatalError()
+                return
             }
         }
     }

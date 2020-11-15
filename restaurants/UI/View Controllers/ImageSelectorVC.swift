@@ -175,9 +175,9 @@ class ImageSelectorVC: UIViewController {
                 }
             case .notDetermined:
                 // Should not see this when requesting
-                print("Not determined yet...should ask???")
+                return
             @unknown default:
-                fatalError()
+                return
             }
         }
     }

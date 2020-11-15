@@ -236,13 +236,14 @@ extension Network {
         request.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
             guard let data = response.data, response.error == nil else {
                 print(response.error as Any)
-                fatalError()
+                completion(Result.failure(.other(alamoFireError: response.error)))
+                return
             }
             do {
                 let visits = try self.decoder.decode(Visit.VisitFeedDecoder.self, from: data)
                 completion(Result.success(visits))
             } catch {
-                print(error)
+                completion(Result.failure(.decoding))
             }
         }
     }

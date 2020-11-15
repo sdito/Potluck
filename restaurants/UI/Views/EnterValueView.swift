@@ -174,8 +174,9 @@ class EnterValueView: UIView {
                     return (textField?.text, textField!)
                 } else if mode == .textView {
                     return (textView?.text, textView!)
-                } else {
-                    fatalError()
+                }  else {
+                    // won't go here, would potentially need to change if there is another option
+                    return (nil, textField!)
                 }
             }
             

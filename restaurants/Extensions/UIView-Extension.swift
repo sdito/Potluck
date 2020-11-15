@@ -205,31 +205,6 @@ extension UIView {
         }
     }
     
-    @discardableResult
-    func addGestureToIncreaseAndDecreaseSizeOnPresses() -> UIButton {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(button)
-        button.constrainSides(to: self)
-        button.addTarget(self, action: #selector(touchDown), for: [.touchDown, .touchDragEnter])
-        button.addTarget(self, action: #selector(touchUp), for: [.touchDragExit, .touchUpInside, .touchCancel])
-        return button
-    }
-    
-    @objc private func touchDown() {
-        // Transform the view to show it is being selected
-        UIView.animate(withDuration: 0.2, animations: {
-            self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-        })
-    }
-
-    @objc private func touchUp() {
-        // Transform the view back to normal
-        UIView.animate(withDuration: 0.2, animations: {
-            self.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
-        })
-    }
-    
     func setGradientBackground(colorOne: UIColor, colorTwo: UIColor) {
         let gradientLayer = CAGradientLayer()
         gradientLayer.frame = bounds

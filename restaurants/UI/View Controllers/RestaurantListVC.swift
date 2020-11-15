@@ -133,8 +133,9 @@ class RestaurantListVC: UIViewController {
             searchBarStack.heightAnchor.constraint(equalToConstant: 30.0)
         ])
         
-        let topGestureButton = restaurantSearchBar.addGestureToIncreaseAndDecreaseSizeOnPresses()
+        let topGestureButton = restaurantSearchBar.addPressDownGestureOverView()
         topGestureButton.addTarget(self, action: #selector(searchBarPressed(sender:forEvent:)), for: .touchUpInside)
+        restaurantSearchBar.reloadButton.addTarget(self, action: #selector(reloadPressed), for: .touchUpInside)
         
         let testViewForScrollingButtons = UIView()
         testViewForScrollingButtons.translatesAutoresizingMaskIntoConstraints = false
@@ -243,7 +244,11 @@ class RestaurantListVC: UIViewController {
         // default, to allow the table view to scroll to the bottom view
         tableView.layoutIfNeeded()
         tableView.contentInset.bottom = tableView.frame.height
-
+    }
+    
+    @objc private func reloadPressed() {
+        #warning("complete")
+        owner.reloadSearchWithSameAttributes()
     }
     
     @objc private func showFilterController() {

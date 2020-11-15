@@ -87,6 +87,7 @@ class FilterRestaurantsVC: UIViewController {
     }
     
     private func hoursCollection() -> [String:Any] {
+        print("Hours collection being called")
         var tempParams: [String:Any] = [:]
         guard let selectedCells = tableView.indexPathsForSelectedRows else { return tempParams }
         for indexPath in selectedCells {
@@ -95,7 +96,7 @@ class FilterRestaurantsVC: UIViewController {
                 if let alias = value.alias, alias == "open_now" {
                     tempParams[alias] = "true"
                 } else {
-                    fatalError("Need to update hoursCollection in FilterRestaurantsVC")
+                    // would need to update if there are more cells in Hours section
                 }
             }
         }

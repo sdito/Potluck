@@ -153,15 +153,17 @@ extension Network {
     
     func getFriendRequests(sent: Bool = false, received: Bool = false, requestsFound: @escaping (Result<[Person.PersonRequest], Errors.Friends>) -> Void) {
         
-        var value: String {
+        var requestValue: String? {
             if sent {
                 return "sent"
             } else if received {
                 return "received"
             } else {
-                fatalError()
+                return nil
             }
         }
+        
+        guard let value = requestValue else { return }
         
         let params: Parameters = ["type": value]
         guard let req = reqPerson(params: params, requestType: .getSentFriendRequests) else { requestsFound(Result.failure(.other)); return }

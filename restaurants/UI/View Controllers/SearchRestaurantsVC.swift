@@ -11,7 +11,7 @@ import MapKit
 
 
 protocol SearchCompleteDelegate: class {
-    func newSearchCompleted(searchType: Network.YelpCategory, locationText: String?)
+    func newSearchCompleted(searchType: Network.YelpCategory?, locationText: String?)
 }
 
 

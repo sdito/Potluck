@@ -253,35 +253,11 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
             }
         }
         
-        #warning("when image is removed from profile, it still flashes on the settings")
         // handle the profile image
         if mode == .friends {
             print("Not for own user")
             // always update to at least update name and color, at the beginning
-            if let imageUrl = visit.person?.image, let cache = profileImageCache, let personId = visit.person?.id {
-                let key = NSString(string: "\(personId)")
-                if let image = cache.object(forKey: key) {
-                    cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: image)
-                } else {
-                    cell.usernameButton.startImageSkeleton()
-                    
-                    Network.shared.getImage(url: imageUrl) { (imageFound) in
-                        cell.usernameButton.endImageSkeleton()
-                        if let imageFound = imageFound {
-                            cache.setObject(imageFound, forKey: key)
-                            // make cell still needs to be updated for the correct person (i.e. could take a while to load and set on the wrong dequed cell)
-                            if let id = cell.visit?.person?.id, id == personId {
-                                cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: imageFound)
-                            }
-                        } else {
-                            cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: UIImage.personImage)
-                        }
-                    }
-                }
-            } else {
-                // doesn't have an image
-                cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: UIImage.personImage)
-            }
+            setProfileImage(visit: visit, cell: cell)
         } else {
             // should just hide the usernameButton
             #warning("make sure this is fine, instead of hiding it")
@@ -326,6 +302,34 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
+    private func setProfileImage(visit: Visit, cell: VisitCell) {
+        if let imageUrl = visit.person?.image, let cache = profileImageCache, let personId = visit.person?.id {
+            let key = NSString(string: "\(personId)")
+            if let image = cache.object(forKey: key) {
+                cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: image)
+            } else {
+                cell.usernameButton.startImageSkeleton()
+                
+                Network.shared.getImage(url: imageUrl) { (imageFound) in
+                    cell.usernameButton.endImageSkeleton()
+                    if let imageFound = imageFound {
+                        cache.setObject(imageFound, forKey: key)
+                        // make cell still needs to be updated for the correct person (i.e. could take a while to load and set on the wrong dequed cell)
+                        if let id = cell.visit?.person?.id, id == personId {
+                            cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: imageFound)
+                        }
+                    } else {
+                        cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: UIImage.personImage)
+                    }
+                }
+            }
+        } else {
+            // doesn't have an image
+            cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: UIImage.personImage)
+        }
+    }
+    
+    // MARK: Table view helpers
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         animatedRefreshControl.updateProgress(with: scrollView.contentOffset.y)
     }
@@ -341,8 +345,8 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
 // MARK: VisitCellDelegate
 extension VisitTableView: VisitCellDelegate {
     func personSelected(for visit: Visit) {
-        guard let navigationController = self.findViewController()?.navigationController else { return }
-        let person = Person(visit: visit)
+        guard let navigationController = self.findViewController()?.navigationController,
+              let person = visit.person else { return }
         let vc = UserProfileVC(person: person)
         navigationController.pushViewController(vc, animated: true)
     }

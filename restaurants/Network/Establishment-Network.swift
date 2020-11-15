@@ -93,7 +93,7 @@ extension Network {
                 completion(Result.success(establishmentsFound))
             } catch {
                 print(error)
-                fatalError()
+                completion(Result.failure(.decoding))
             }
         })
     }

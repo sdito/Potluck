@@ -30,11 +30,12 @@ class Person: Codable {
         self.actualName = actualName
     }
     
-    init(visit: Visit) {
-        self.id = visit.person?.id
-        self.username = visit.person?.username
-        self.hex_color = visit.person?.hex_color
-    }
+//    init(visit: Visit) {
+//        self.id = visit.person?.id
+//        self.username = visit.person?.username
+//        self.hex_color = visit.person?.hex_color
+//        
+//    }
     
     init(account: Account) {
         self.id = account.id

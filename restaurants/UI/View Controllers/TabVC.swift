@@ -11,7 +11,6 @@ import UIKit
 class TabVC: UITabBarController {
     #warning("*****map clustering only on profile maps (userProfileVC, profileMapVC)")
     #warning("pagination on django")
-    #warning("remove fatalError stuff")
     
     #warning("need to make sure errors are correct on VisitView in django")
     #warning("maybe have a widget -> one that has a map based on the last area you searched, that has buttons for search shortcuts, one that lets you add a visit maybe")
@@ -20,15 +19,8 @@ class TabVC: UITabBarController {
     #warning("unique together i.e. do not allow the reverse of friends to be true")
     #warning("if a visit is deleted, and then a tag is selected that has that visit, it will show again, prob same for establishments")
     
-    #warning("profile image icon")
-    
-    #warning("in general for image caches, have a cache for processing requests maybe")
-    
-    #warning("still some issues with restaurantList image cache")
-    
     #warning("calendar option, should be a pop-up view")
     
-//    private let home =
     private let home = ProfilePageVC()//UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     private let feed = UINavigationController(rootViewController: FeedHomeVC())
     private let addRestaurant = AddRestaurantVC()
@@ -71,9 +63,7 @@ class TabVC: UITabBarController {
         return settings
     }
     
-    #warning("need to complete and implement")
     func changeActivePageViewController() {
-        print("changeActivePageViewController activated")
         if !goToNextPage() {
             goToPreviousPage()
         }
@@ -83,7 +73,7 @@ class TabVC: UITabBarController {
         guard let currentViewController = home.viewControllers?.first else { return false }
         guard let nextViewController = home.dataSource?.pageViewController(home, viewControllerAfter: currentViewController ) else { return false }
         
-        self.view.isUserInteractionEnabled = false
+        self.view.isUserInteractionEnabled = false // dont wan't anything to be clicked while the animation is in progress
         home.setViewControllers([nextViewController], direction: .forward, animated: true) { [weak self] _ in
             self?.view.isUserInteractionEnabled = true
         }
@@ -95,7 +85,7 @@ class TabVC: UITabBarController {
         guard let currentViewController = home.viewControllers?.first else { return false }
         guard let previousViewController = home.dataSource?.pageViewController(home, viewControllerBefore: currentViewController ) else { return false }
         
-        self.view.isUserInteractionEnabled = false
+        self.view.isUserInteractionEnabled = false // dont wan't anything to be clicked while the animation is in progress
         home.setViewControllers([previousViewController], direction: .reverse, animated: true) { [weak self] _ in
             self?.view.isUserInteractionEnabled = true
         }
@@ -118,14 +108,12 @@ extension TabVC: UITabBarControllerDelegate {
         } else if viewController == home {
             // will potentially need to manually pop to the root view controller for the selected navigation controller in the page controller (home)
             if let currentViewController = tabBarController.viewControllers?[tabBarController.selectedIndex], currentViewController == home {
+                // only call if the home tab is already selected and being selected again
                 home.popToCurrentPageRootViewController()
                 
             }
         }
         return true
     }
-    
-    
-    
 }
 

@@ -438,9 +438,11 @@ class FindRestaurantVC: UIViewController {
     }
     
     private func getRestaurantsFromPreSetRestaurantSearch(initial: Bool) {
+        
         if !initial {
             moreRestaurantsButton?.showLoadingOnButton(withLoaderView: false)
         }
+        
         Network.shared.getRestaurants(restaurantSearch: restaurantSearch, filters: searchFilters) { [weak self] (response) in
             DispatchQueue.main.async {
                 guard let self = self else { return }
@@ -661,12 +663,15 @@ extension FindRestaurantVC: RestaurantSelectedViewDelegate {
         isRestSelectedViewSwipeDismissed = true
         mapView.deselectAllAnnotations()
     }
+    
+    
 }
 
 // MARK: SearchRestaurantsVCDelegate
 extension FindRestaurantVC: SearchCompleteDelegate {
-    func newSearchCompleted(searchType: Network.YelpCategory, locationText: String?) {
+    func newSearchCompleted(searchType: Network.YelpCategory?, locationText: String?) {
         // use a temp search
+        print("Is getting to new search completed")
         var tempSearch = restaurantSearch
         if let locationText = locationText {
             tempSearch.location = locationText
@@ -679,9 +684,14 @@ extension FindRestaurantVC: SearchCompleteDelegate {
             }
         }
         tempSearch.yelpCategory = searchType
-        restaurantSearchBar?.update(searchInfo: tempSearch)
-        
         restaurantSearch = tempSearch
+        
+        
         getRestaurantsFromPreSetRestaurantSearch(initial: false)
     }
+    
+    func reloadSearchWithSameAttributes() {
+        newSearchCompleted(searchType: restaurantSearch.yelpCategory, locationText: restaurantSearch.location)
+    }
+    
 }

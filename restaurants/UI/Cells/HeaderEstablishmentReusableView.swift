@@ -7,7 +7,7 @@
 //
 
 import UIKit
-#warning("need to update with tags")
+
 class HeaderEstablishmentReusableView: UICollectionReusableView {
     
     private let dateLabel = UILabel()

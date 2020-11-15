@@ -49,6 +49,10 @@ class ProfileHomeVC: UIViewController {
         setUpTableView()
         handleInitialDataNeeded()
         
+        if isOwnUsersProfile {
+            setUpScrollAssistantView()
+        }
+        
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
     }
@@ -180,6 +184,18 @@ class ProfileHomeVC: UIViewController {
         createAccountButton?.addTarget(self, action: #selector(rightBarButtonItemSelector), for: .touchUpInside)
     }
     
+    private func setUpScrollAssistantView() {
+        guard let visitTableView = visitTableView else { return }
+        let scrollHelperView = UIView()
+        scrollHelperView.translatesAutoresizingMaskIntoConstraints = false
+        scrollHelperView.backgroundColor = .clear
+        self.view.addSubview(scrollHelperView)
+        scrollHelperView.constrain(.top, to: visitTableView, .top)
+        scrollHelperView.constrain(.trailing, to: visitTableView, .trailing)
+        scrollHelperView.constrain(.bottom, to: visitTableView, .bottom)
+        scrollHelperView.widthAnchor.constraint(equalToConstant: 17.5).isActive = true
+    }
+    
     @objc private func rightBarButtonItemSelector() {
         
         if Network.shared.loggedIn {
@@ -224,8 +240,8 @@ class ProfileHomeVC: UIViewController {
                 guard let account = Network.shared.account else { return nil }
                 return Person(account: account)
             } else {
-                guard let visit = selectedVisit ?? filteredVisits.first else { return nil }
-                return Person(visit: visit)
+                guard let visit = selectedVisit ?? filteredVisits.first, let person = visit.person else { return nil }
+                return person
             }
         }
         if let person = person {
@@ -237,7 +253,6 @@ class ProfileHomeVC: UIViewController {
     }
     
     @objc private func tagButtonSelected(sender: TagButton) {
-        #warning("need to complete -- see comments")
         selectedTag = nil
         guard let tag = sender.buttonTag, let alias = tag.alias else { return }
         var newTitle = "Visit feed"
