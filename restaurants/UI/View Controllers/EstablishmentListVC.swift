@@ -118,13 +118,16 @@ class EstablishmentListVC: UIViewController {
     }
     
     @objc private func establishmentDeleted(notification: Notification) {
-        if let establishment = notification.userInfo?["establishment"] as? Establishment {
+        if let establishment = notification.userInfo?["establishment"] as? Establishment, let id = establishment.djangoID {
             guard var establishments = profile?.establishments else { return }
-            establishments.removeAll { (est) -> Bool in
-                est.djangoID == establishment.djangoID && est.name == establishment.name
+            
+            if let removeIndex = establishments.firstIndex(where: {$0.djangoID == id}) {
+                let indexPath = IndexPath(row: removeIndex, section: 0)
+                establishments.remove(at: removeIndex)
+                profile?.establishments = establishments
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+                
             }
-            profile?.establishments = establishments
-            tableView.reloadData(); #warning("shouldn't use tableView.reloadData, fix later")
         }
     }
     
@@ -132,8 +135,15 @@ class EstablishmentListVC: UIViewController {
         if let updatedEstablishment = notification.userInfo?["establishment"] as? Establishment {
             guard let establishments = profile?.establishments else { return }
             if let previousEstablishment = establishments.filter({ $0.djangoID == updatedEstablishment.djangoID && $0.name == updatedEstablishment.name }).first {
+                
                 previousEstablishment.updateSelfForValuesThatAreNil(newEstablishment: updatedEstablishment)
-                tableView.reloadData(); #warning("shouldn't use tableView.reloadData, fix later")
+                
+                if let updatedId = updatedEstablishment.djangoID, let index = establishments.firstIndex(where: {$0.djangoID == updatedId}) {
+                    let indexPath = IndexPath(row: index, section: 0)
+                    tableView.reloadRows(at: [indexPath], with: .automatic)
+                } else {
+                    tableView.reloadData()
+                }
             }
         }
     }

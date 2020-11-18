@@ -173,9 +173,9 @@ class PersonCell: UITableViewCell {
         if let username = contact.username {
             primaryLabel.text = username
         }
-        if let message = person.message {
-            secondaryLabel.text = message
-        }
+        
+        secondaryLabel.text = "Received \(person.dateAsked.dateString(style: .short))"
+        
         setUpProfileIcon(color: contact.color)
         addButton.tintColor = .systemGreen
         addButton.setImage(UIImage.checkImage.withConfiguration(.large), for: .normal)
@@ -189,7 +189,7 @@ class PersonCell: UITableViewCell {
         self.personRequest = request
         let usePerson = request.toPerson
         primaryLabel.text = usePerson.username
-        secondaryLabel.text = request.message ?? "Sent on \(request.dateAsked.dateString(style: .medium))"
+        secondaryLabel.text = "Sent \(request.dateAsked.dateString(style: .short))"
         setUpProfileIcon(color: usePerson.color)
         addButton.tintColor = .systemRed
         addButton.setImage(UIImage.trashImage.withConfiguration(.large), for: .normal)

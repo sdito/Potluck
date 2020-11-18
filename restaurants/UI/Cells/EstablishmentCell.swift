@@ -32,13 +32,14 @@ class EstablishmentCell: UITableViewCell {
         guard let establishment = establishment else { return }
         mainLabel.text = establishment.name
         
-        let option1 = establishment.displayAddress
-        var option2: String? {
+        var option1: String? {
             if let date = establishment.firstVisited?.dateString(style: .medium) {
                 return "First visited on \(date)"
             }
             return nil
         }
+        
+        let option2 = establishment.displayAddress
         
         detailLabel.text = option1 ?? option2
     }

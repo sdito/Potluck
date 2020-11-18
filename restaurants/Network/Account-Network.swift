@@ -101,7 +101,7 @@ extension Network {
             "password": password,
             "username": username
         ]
-        #warning("for loggoing in on loading screen, have a cancel button and thus having a loading screen")
+        
         let req = reqAccount(params: params, requestType: .createAccount)
         let decoder = JSONDecoder()
         req.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in

@@ -148,7 +148,7 @@ class Establishment: Codable {
         if self.zipCode == nil { self.zipCode = new.zipCode }
         if self.state == nil { self.state = new.state }
         if self.country == nil { self.country = new.country }
-        
+        if self.firstVisited == nil { self.firstVisited = new.firstVisited }
     }
     
 }

@@ -107,16 +107,14 @@ extension Network {
                 return
             }
             
-            if code == Network.deletedCode {
-                success(true)
-            } else {
-                success(false)
-            }
+            success(code == Network.deletedCode)
+            
         }
     }
     
     
     func updateEstablishment(establishment: Establishment, success: @escaping (Bool) -> Void) {
+        
         NotificationCenter.default.post(name: .establishmentUpdated, object: nil, userInfo: ["establishment": establishment])
         
         do {
@@ -132,11 +130,7 @@ extension Network {
                         return
                     }
                     
-                    if code == Network.okCode {
-                        success(true)
-                    } else {
-                        success(false)
-                    }
+                    success(code == Network.okCode)
                 })
             }
             success(false)

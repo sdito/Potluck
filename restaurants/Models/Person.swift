@@ -30,13 +30,6 @@ class Person: Codable {
         self.actualName = actualName
     }
     
-//    init(visit: Visit) {
-//        self.id = visit.person?.id
-//        self.username = visit.person?.username
-//        self.hex_color = visit.person?.hex_color
-//        
-//    }
-    
     init(account: Account) {
         self.id = account.id
         self.username = account.username
@@ -59,14 +52,12 @@ class Person: Codable {
         var toPerson: Person
         var dateAsked: Date
         var id: Int
-        var message: String?
         
         enum CodingKeys: String, CodingKey {
             case fromPerson = "from_account"
             case toPerson = "to_account"
             case dateAsked = "date_asked"
             case id
-            case message
         }
         
         var notUser: Person? {
