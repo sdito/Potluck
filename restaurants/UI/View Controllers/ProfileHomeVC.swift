@@ -78,7 +78,7 @@ class ProfileHomeVC: UIViewController {
                                                           profileImage: .init(url: otherPerson.image, color: otherPerson.color, image: nil))
             navigationItem.titleView = navigationTitleView
         } else {
-            navigationItem.title = "Visit feed"
+            setBaseNavigationTitle()
         }
         navigationController?.navigationBar.isTranslucent = false
     }
@@ -89,6 +89,10 @@ class ProfileHomeVC: UIViewController {
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+    }
+    
+    private func setBaseNavigationTitle() {
+        self.navigationItem.title = "Visit feed"
     }
     
     private func handleInitialDataNeeded() {
@@ -287,6 +291,7 @@ class ProfileHomeVC: UIViewController {
 // MARK: VisitTableViewDelegate
 extension ProfileHomeVC: VisitTableViewDelegate {
     func refreshControlSelected() {
+        setBaseNavigationTitle()
         getInitialUserVisits()
     }
 }

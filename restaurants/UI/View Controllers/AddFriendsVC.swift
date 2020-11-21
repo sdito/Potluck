@@ -116,6 +116,7 @@ class AddFriendsVC: UIViewController {
         }
     
         Network.shared.getPeopleToAddForUser(phoneNumbers: useNumbers) { [weak self] (result) in
+            #warning("this isnt working")
             guard let self = self else { return }
             switch result {
             case .success(let peopleFeedFound):

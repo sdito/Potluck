@@ -312,7 +312,7 @@ extension ProfileMapVC: SearchHelperComplete {
         searchBar.text = establishment.name
         searchBarShown = false
         handleSearchBarTransform(animated: false)
-        
+        searchBar.endEditing(true)
         // select the annotation here
         // first find the annotation
         

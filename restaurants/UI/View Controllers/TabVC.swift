@@ -8,6 +8,11 @@
 
 import UIKit
 
+#warning("editing visit's rating removes the tag")
+#warning("add friends screen empty")
+
+
+
 class TabVC: UITabBarController {
     #warning("*****map clustering only on profile maps (userProfileVC, profileMapVC)")
     #warning("pagination on django")

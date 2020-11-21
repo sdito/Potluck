@@ -10,8 +10,7 @@ import Alamofire
 
 extension Network {
     
-    static let djangoURL = "http://127.0.0.1:8000/"
-    
+
     private struct LogInErrorResponse: Decodable {
         var email: [String]?
         var username: [String]?

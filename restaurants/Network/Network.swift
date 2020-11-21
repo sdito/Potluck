@@ -12,6 +12,11 @@ import CoreLocation
 import KeychainSwift
 
 class Network {
+    
+    static let yelpURL = "https://api.yelp.com/v3/"
+    static let djangoURL = "https://dito-restaurants.herokuapp.com/"
+//    static let djangoURL = "http://127.0.0.1:8000/"
+    
     /// 200
     static let okCode: Int = 200
     /// 201
@@ -82,7 +87,6 @@ class Network {
     
     
     static let yelpKey = "oXMAqpsZfTY1TpOVzrd-kq6IGlbN5iz-BkS0GLMFJv1loE-Mu1EJio8Ui3cFpk0r_rAzAnLK4ZVzH2aR7jNw6dYwFZznzmiwD4YzwjAvPOx8X8bGPOlM8dOWs_LOXnYx"
-    static let yelpURL = "https://api.yelp.com/v3/"
     static let shared = Network()
     private init() {}
     

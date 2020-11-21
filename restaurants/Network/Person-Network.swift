@@ -40,11 +40,11 @@ extension Network {
         
         var method: HTTPMethod {
             switch self {
-            case .relatedPeople, .getFriends, .getSentFriendRequests, .getPersonProfile:
+            case .getFriends, .getSentFriendRequests, .getPersonProfile:
                 return .get
             case .answerFriendRequest:
                 return .put
-            case .sendFriendRequest:
+            case .sendFriendRequest, .relatedPeople:
                 return .post
             case .deleteFriend, .rescindFriendRequest:
                 return .delete
@@ -64,11 +64,12 @@ extension Network {
         let params: Parameters = ["numbers": phoneNumbers.joined(separator: ",")]
         
         guard let req = reqPerson(params: params, requestType: .relatedPeople) else { return }
-        req.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { [unowned self] (response) in
+        req.responseString(queue: DispatchQueue.global(qos: .userInteractive)) { [unowned self] (response) in
             guard let data = response.data, response.error == nil else {
                 peopleFound(Result.failure(.other))
                 return
             }
+            
             do {
                 let accountsFound = try self.decoder.decode(Person.FindRelated.self, from: data)
                 peopleFound(Result.success(accountsFound))

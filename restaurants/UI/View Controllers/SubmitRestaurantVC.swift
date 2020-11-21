@@ -31,7 +31,7 @@ class SubmitRestaurantVC: UIViewController {
     private var sliderRatingView: SliderRatingView?
     private var tagScrollingStack: ScrollingStackView?
     
-    private let textView = PlaceholderTextView(placeholder: "Add comment. Type of meal, how the experience was, who you went with, etc. (Optional)", font: UIFont.systemFont(ofSize: UIFont.systemFontSize))
+    private lazy var textView = PlaceholderTextView(placeholder: "Add comment. Type of meal, how the experience was, who you went with, etc. (Optional)", font: UIFont.systemFont(ofSize: UIFont.systemFontSize))
     
     private var nameRawValue: String?
     private var addressRawValue: String?
@@ -85,7 +85,7 @@ class SubmitRestaurantVC: UIViewController {
         setUpImageSelector()
         findAssociatedRestaurant()
         setUpNavigationBar()
-        
+        setUpKeyboardRecognizer()
         self.edgesForExtendedLayout = [.bottom, .left, .right]
     }
     
@@ -228,7 +228,7 @@ class SubmitRestaurantVC: UIViewController {
         textView.backgroundColor = .secondarySystemBackground
         textView.layer.cornerRadius = 10.0
         textView.clipsToBounds = true
-        
+        textView.addToolbar()
     }
     
     private func setUpChildView() {
@@ -392,6 +392,35 @@ class SubmitRestaurantVC: UIViewController {
             self.coordinateRawValue = location
         }
     }
+    
+    private func setUpKeyboardRecognizer() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc func keyboardWillShow(_ notification: Notification) {
+        
+        guard textView.isActive else { return } // only want to move keyboard for textView
+        
+        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight = keyboardRectangle.height
+            
+            let boundsInView = textView.convert(textView.bounds.origin, to: self.view).y
+            let textViewTopToBottom = boundsInView + textView.bounds.height
+            let distanceFromBottom = self.view.bounds.height - textViewTopToBottom
+            
+            if keyboardHeight > distanceFromBottom {
+                let distance = keyboardHeight - distanceFromBottom
+                textView.transform = CGAffineTransform(translationX: 0, y: -distance)
+            }
+        }
+    }
+    
+    @objc private func keyboardWillHide() {
+        textView.transform = .identity
+    }
+    
 }
 
 
@@ -450,6 +479,7 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
                 }
             }
         }
+        
     }
     
     func photosUpdated(to selectedPhotos: [ImageSelectorVC.ImageInfo]) {
