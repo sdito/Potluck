@@ -301,7 +301,7 @@ class UserProfileVC: UIViewController {
     }
     
     @objc private func filterButtonPressed() {
-        self.showTagSelectorView(tags: profile?.tags, selectedTag: nil, tagSelectorViewDelegate: self)
+        self.showTagSelectorView(tags: profile?.tags, selectedTags: nil, tagSelectorViewDelegate: self)
     }
     
 }
@@ -539,5 +539,5 @@ extension UserProfileVC: TagSelectorViewDelegate {
         reloadCollectionView(tag: tag)
 
     }
-    
+    func multipleChange(newAdditions: [Tag], newSubtractions: [Tag]) { return }
 }

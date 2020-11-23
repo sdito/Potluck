@@ -69,6 +69,7 @@ extension UIImage {
     static let filterImage = UIImage(systemName: "line.horizontal.3.decrease.circle")!
     static let filterNoCircleImage = UIImage(systemName: "line.horizontal.3.decrease")!
     static let colorPickerIcon = UIImage(systemName: "eyedropper.halffull")!
+    static let recentsImage = UIImage(systemName: "clock")!
 }
 
 

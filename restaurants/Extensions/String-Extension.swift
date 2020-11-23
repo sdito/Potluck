@@ -11,6 +11,18 @@ import UIKit
 
 extension String {
     
+    func createTagAlias() -> String {
+        var string = self.lowercased()
+        string = string.replacingOccurrences(of: " ", with: "_")
+        
+        if let regex = try? NSRegularExpression(pattern: "[^a-z_0-9]+", options: []) {
+            let modString = regex.stringByReplacingMatches(in: string, options: [], range: NSRange(location: 0, length:  string.count), withTemplate: "")
+            return modString
+        } else {
+            return string
+        }
+    }
+    
     var isNumber: Bool {
         return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil
     }
@@ -99,8 +111,6 @@ extension String {
 
 
 extension Array where Element == String {
-    
-    
     func createViewsForDisplay() -> [UIView] {
         var scrollingViewsToAdd: [UIView] = []
         for string in self {

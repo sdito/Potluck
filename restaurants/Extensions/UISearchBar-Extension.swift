@@ -33,4 +33,9 @@ extension UISearchBar {
         }
     }
     
+    var isEmpty: Bool {
+        guard let text = self.text else { return true }
+        return text.count == 0
+    }
+    
 }

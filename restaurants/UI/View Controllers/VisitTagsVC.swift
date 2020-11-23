@@ -96,17 +96,25 @@ class VisitTagsVC: UIViewController {
         searchBar.setImage(UIImage(), for: .clear, state: .normal)
         searchBar.tintColor = Colors.main
         searchBar.delegate = self
+        setUpAddButtonImage()
     }
     
     private func setUpAddButtonOnTopOfSearchBar() {
         addButton.translatesAutoresizingMaskIntoConstraints = false
-        addButton.setImage(UIImage.plusImage, for: .normal)
-        addButton.tintColor = Colors.main
         searchBar.addSubview(addButton)
         addButton.centerYAnchor.constraint(equalTo: searchBar.centerYAnchor).isActive = true
         addButton.constrain(.trailing, to: searchBar, .trailing, constant: 15.0)
-        addButton.appIsHiddenAnimated(isHidden: true, animated: false)
         addButton.addTarget(self, action: #selector(addButtonPressed), for: .touchUpInside)
+    }
+    
+    private func setUpAddButtonImage() {
+        if searchBar.isEmpty {
+            addButton.tintColor = .label
+            addButton.setImage(UIImage.recentsImage, for: .normal)
+        } else {
+            addButton.tintColor = Colors.main
+            addButton.setImage(UIImage.plusImage, for: .normal)
+        }
     }
     
     private func setUpScrollingStackView() {
@@ -146,7 +154,8 @@ class VisitTagsVC: UIViewController {
     }
     
     private func setUpAlphabetView() {
-        let alphabetView = AlphabetView(delegate: self, alphabetString: dictionaryAlphabetKeys.joined())
+        let oneLetterStrings = dictionaryAlphabetKeys.filter({$0.count == 1})
+        let alphabetView = AlphabetView(delegate: self, alphabetString: oneLetterStrings.joined())
         self.view.addSubview(alphabetView)
         alphabetView.constrain(.trailing, to: self.view, .trailing)
         alphabetView.centerYAnchor.constraint(equalTo: tableView.centerYAnchor).isActive = true
@@ -154,18 +163,24 @@ class VisitTagsVC: UIViewController {
     private func selectThePreviouslySetTags() {
         guard let tags = previousTags else { return }
         for tag in tags {
-            if let firstLetter = tag.first?.uppercased(),
-               let section = dictionaryAlphabetKeys.firstIndex(of: firstLetter),
-               let row = tagsDictionary[firstLetter]?.firstIndex(where: {$0.title == tag}) {
-                let indexPath = IndexPath(row: row, section: section)
-                tableView(tableView, didSelectRowAt: indexPath)
-                tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
-            } else {
-                // just create tag without adding the row, since the row doesn't exist
-                addButton(element: tag)
-            }
+            handleAddingTagFromText(tag: tag)
         }
-        
+    }
+    
+    private func handleAddingTagFromText(tag: String) {
+        if let firstLetter = tag.first?.uppercased(),
+           let section = dictionaryAlphabetKeys.firstIndex(of: firstLetter),
+           let row = tagsDictionary[firstLetter]?.firstIndex(where: {$0.title == tag}) {
+                let indexPath = IndexPath(row: row, section: section)
+                if !(tableView.cellForRow(at: indexPath)?.isSelected ?? false) {
+                    tableView(tableView, didSelectRowAt: indexPath)
+                    tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+                }
+                
+        } else {
+            // just create tag without adding the row, since the row doesn't exist
+            addButton(element: tag)
+        }
     }
     
     @objc private func dismissView() {
@@ -191,46 +206,63 @@ class VisitTagsVC: UIViewController {
         }
         
         dictionaryAlphabetKeys = tagsDictTemp.keys.sorted()
-        // don't need to sort the individual arrays in tagsDictTemp since the input (Network.shared.visitTags) is sorted
         self.tagsDictionary = tagsDictTemp
     }
     
     @objc private func buttonPressed(sender: UIButton) {
         guard let buttonTitle = sender.titleLabel?.text else { return }
-        if let firstLetter = buttonTitle.first?.uppercased(),
+        handleProcessForRemovingTag(tagText: buttonTitle, sender: sender)
+    }
+    
+    private func handleProcessForRemovingTag(tagText: String, sender: UIButton?) {
+        if let firstLetter = tagText.first?.uppercased(),
            let section = dictionaryAlphabetKeys.firstIndex(of: firstLetter),
-           let row = tagsDictionary[firstLetter]?.firstIndex(where: {$0.title == buttonTitle}) {
+           let row = tagsDictionary[firstLetter]?.firstIndex(where: {$0.title == tagText}) {
             let indexPath = IndexPath(row: row, section: section)
             tableView(tableView, didDeselectRowAt: indexPath)
             tableView.deselectRow(at: indexPath, animated: true)
         } else {
             // does not belong on the table view, just remove the button
-            selectedTags.remove(buttonTitle)
-            handleProcessForDeletingButton(button: sender)
-            
+            selectedTags.remove(tagText)
+            if let sender = sender {
+                handleProcessForDeletingButton(button: sender)
+            } else {
+                for button in tagButtons {
+                    if let title = button.titleLabel?.text {
+                        if title == tagText {
+                            handleProcessForDeletingButton(button: button)
+                        }
+                    }
+                }
+            }
         }
     }
     
     @objc private func addButtonPressed() {
-        guard let text = searchBar.text else { return }
-        addButton(element: text)
-        searchBar.text = ""
-        searchBar(searchBar, textDidChange: "")
+        if searchBar.isEmpty {
+            // have the recents pop up
+            let selected = self.selectedTags.map({Tag(display: $0, alias: $0.createTagAlias())})
+            self.showTagSelectorView(tags: nil, selectedTags: selected, loadUsersTagsInstead: true, tagSelectorViewDelegate: self)
+            
+        } else {
+            // add the tag
+            guard let text = searchBar.text else { return }
+            handleAddingTagFromText(tag: text)
+            searchBar.text = ""
+            searchBar(searchBar, textDidChange: "")
+        }
     }
     
     @objc private func clearButtonPressed() {
         for selectedRow in tableView.indexPathsForSelectedRows ?? [] {
             //tableView(tableView, didDeselectRowAt: selectedRow)
             tableView.deselectRow(at: selectedRow, animated: true)
-            
         }
         
         selectedTags.removeAll()
         for button in tagButtons {
             handleProcessForDeletingButton(button: button)
         }
-        
-        
     }
     
     private func handleProcessForDeletingButton(button: UIButton) {
@@ -275,7 +307,6 @@ class VisitTagsVC: UIViewController {
             scrollingStackView.scrollView.scrollRectToVisible(button.frame, animated: true)
         }
     }
-
 }
 
 
@@ -338,7 +369,8 @@ extension VisitTagsVC: AlphabetViewDelegate {
 // MARK: Search bar
 extension VisitTagsVC: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        addButton.appIsHiddenAnimated(isHidden: searchText.count == 0)
+        
+        setUpAddButtonImage()
         
         // scroll to the correct tag
         guard let firstLetter = searchText.first?.uppercased(), let section = dictionaryAlphabetKeys.firstIndex(of: firstLetter) else { return }
@@ -355,6 +387,24 @@ extension VisitTagsVC: UISearchBarDelegate {
             if let firstIndex = elementNames.firstIndex(where: {$0.starts(with: searchTermLower)}) {
                 tableView.scrollToRow(at: IndexPath(row: firstIndex, section: section), at: .top, animated: false)
             }
+        }
+    }
+}
+
+
+
+// MARK: TagSelectorViewDelegate
+extension VisitTagsVC: TagSelectorViewDelegate {
+    func tagSelected(tag: Tag) { return }
+    func clearTag() { return }
+    
+    func multipleChange(newAdditions: [Tag], newSubtractions: [Tag]) {
+        for addition in newAdditions {
+            handleAddingTagFromText(tag: addition.display)
+        }
+        
+        for subtraction in newSubtractions {
+            handleProcessForRemovingTag(tagText: subtraction.display, sender: nil)
         }
     }
 }

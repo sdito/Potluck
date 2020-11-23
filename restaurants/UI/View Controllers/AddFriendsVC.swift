@@ -17,7 +17,8 @@ class AddFriendsVC: UIViewController {
     private var searchResults: [Person] = []
     private var pending: [Person.PersonRequest] = []
     private var easyAdd: [Person] = []
-    private var askToJoin: [Person] = []
+    private var contacts: [Person] = []
+    private var allContacts: [Person] = []
     
     private let searchBar = UISearchBar()
     private let stackView = UIStackView()
@@ -53,7 +54,7 @@ class AddFriendsVC: UIViewController {
         case .onApp:
             return self.easyAdd
         case .message:
-            return self.askToJoin
+            return self.contacts
         case .requests:
             return nil
         case .searchResults:
@@ -116,7 +117,6 @@ class AddFriendsVC: UIViewController {
         }
     
         Network.shared.getPeopleToAddForUser(phoneNumbers: useNumbers) { [weak self] (result) in
-            #warning("this isnt working")
             guard let self = self else { return }
             switch result {
             case .success(let peopleFeedFound):
@@ -135,8 +135,9 @@ class AddFriendsVC: UIViewController {
                 userContacts.sort { (p1, p2) -> Bool in
                     p1.actualName ?? "" < p2.actualName ?? ""
                 }
-
-                self.askToJoin = userContacts
+                
+                self.allContacts = userContacts
+                self.contacts = userContacts
                 self.easyAdd = contactsFound
                 self.pending = requests
                 
@@ -288,12 +289,12 @@ extension AddFriendsVC: UITableViewDataSource, UITableViewDelegate {
         return header
     }
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         if !searchBar.isHidden && searchBar.isFirstResponder {
-            print("Is shutting down search bar")
             searchBar.endEditing(true)
         }
     }
+    
 }
 
 // MARK: Search bar
@@ -302,10 +303,24 @@ extension AddFriendsVC: UISearchBarDelegate {
         searchBarTimer?.invalidate()
         if searchBar.text == "" {
             fireTimer()
+            contacts = allContacts
         } else {
             // just to only run the network code after typing has been done for a second
             searchBarTimer = Timer.scheduledTimer(timeInterval: 0.75, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: false)
+            // handle filtering contacts
+            let searchLower = searchText.lowercased()
+            contacts = allContacts.filter({ (person) -> Bool in
+                if let name = person.actualName?.lowercased() {
+                    return name.contains(searchLower)
+                }
+                return false
+            })
+            
         }
+        
+        // always reload the contacts section
+        let section = Option.allCases.firstIndex(of: .message)!
+        tableView.reloadSections(IndexSet(integer: section), with: .automatic)
     }
     
     @objc private func fireTimer() {
@@ -334,7 +349,7 @@ extension AddFriendsVC: UISearchBarDelegate {
                 DispatchQueue.main.async { [weak self] in
                     self?.tableView.reloadSections(IndexSet([idx]), with: .automatic)
                     if people.count == 0 {
-                        self?.showMessage("No people found")
+                        self?.showMessage("No existing accounts")
                     }
                 }
             case .failure(_):

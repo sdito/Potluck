@@ -204,7 +204,7 @@ class AddRestaurantVC: UIViewController {
             }
             
         case .previous:
-            
+            self.searchBar.endEditing(true)
             UIView.animate(withDuration: 0.3) {
                 self.searchBarStack.isHidden = true
                 self.searchOptionsStack.layoutIfNeeded()

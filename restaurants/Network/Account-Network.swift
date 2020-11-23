@@ -25,6 +25,7 @@ extension Network {
         case initiatePasswordReset
         case checkPasswordResetCode
         case setNewPassword
+        case getUsersStandardTags
         
         var url: String {
             switch self {
@@ -40,6 +41,8 @@ extension Network {
                 return "resetpassword"
             case .checkPasswordResetCode:
                 return "verifypasswordreset"
+            case .getUsersStandardTags:
+                return "standardtag"
             }
         }
         var method: HTTPMethod {
@@ -48,13 +51,13 @@ extension Network {
                 return .post
             case .alterUserPhoneNumberOrColor, .setNewPassword:
                 return .put
-            case .searchForAccounts, .refreshAccount:
+            case .searchForAccounts, .refreshAccount, .getUsersStandardTags:
                 return .get
             }
         }
         var headers: HTTPHeaders? {
             switch self {
-            case .alterUserPhoneNumberOrColor, .searchForAccounts, .refreshAccount:
+            case .alterUserPhoneNumberOrColor, .searchForAccounts, .refreshAccount, .getUsersStandardTags:
                 guard let token = Network.shared.account?.token else { return nil }
                 return  ["Authorization": "Token \(token)"]
             case .logIn, .createAccount, .initiatePasswordReset, .checkPasswordResetCode, .setNewPassword:
@@ -292,5 +295,23 @@ extension Network {
         }
     }
     
+    func getUsersStandardTags(tagsReturned: @escaping (Result<[Tag], Errors.VisitEstablishment>) -> Void) {
+        let req = reqAccount(params: nil, requestType: .getUsersStandardTags)
+        req.responseJSON(queue: .global(qos: .userInteractive)) { (response) in
+            
+            guard let data = response.data, response.error == nil else {
+                tagsReturned(Result.failure(.statusCode))
+                return
+            }
+            
+            do {
+                let tagDecoder = try self.decoder.decode(Tag.TagDecoder.self, from: data)
+                let tags = tagDecoder.tags
+                tagsReturned(Result.success(tags))
+            } catch {
+                tagsReturned(Result.failure(.decoding))
+            }
+        }
+    }
     
 }

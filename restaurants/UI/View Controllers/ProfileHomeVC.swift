@@ -284,7 +284,8 @@ class ProfileHomeVC: UIViewController {
     }
     
     @objc private func filterTagButtonPressed() {
-        self.showTagSelectorView(tags: self.tags, selectedTag: selectedTag, tagSelectorViewDelegate: self)
+        let selectedTags = selectedTag == nil ? nil : [selectedTag!]
+        self.showTagSelectorView(tags: self.tags, selectedTags: selectedTags, tagSelectorViewDelegate: self)
     }
 }
 
@@ -313,5 +314,7 @@ extension ProfileHomeVC: TagSelectorViewDelegate {
             }
         }
     }
+    
+    func multipleChange(newAdditions: [Tag], newSubtractions: [Tag]) { return }
     
 }

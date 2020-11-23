@@ -16,8 +16,9 @@ struct Tag: Codable, Equatable {
     var lastUsed: Date?
     var numberOfVisits: Int?
     
-    init(display: String) {
+    init(display: String, alias: String? = nil) {
         self.display = display
+        self.alias = alias
     }
     
     enum CodingKeys: String, CodingKey {
@@ -27,6 +28,10 @@ struct Tag: Codable, Equatable {
         case firstUsed = "first_used"
         case lastUsed = "last_used"
         case numberOfVisits = "number_of_visits"
+    }
+    
+    struct TagDecoder: Decodable {
+        var tags: [Tag]
     }
     
 }

@@ -12,6 +12,7 @@ import UIKit
 protocol TagSelectorViewDelegate: class {
     func tagSelected(tag: Tag)
     func clearTag()
+    func multipleChange(newAdditions: [Tag], newSubtractions: [Tag])
 }
 
 
@@ -25,16 +26,27 @@ class TagSelectorView: UIView {
     private weak var tagSelectorViewDelegate: TagSelectorViewDelegate?
     private let spacerPadding: CGFloat = 5.0
     weak var showViewVC: ShowViewVC?
+    private var selectedTags: [Tag]?
+    private var selectMultipleMode = false
     
-    init(tags: [Tag]?, selectedTag: Tag?, tagSelectorViewDelegate: TagSelectorViewDelegate) {
+    init(tags: [Tag]?, selectedTags: [Tag]?, loadUsersTagsInstead: Bool = false, tagSelectorViewDelegate: TagSelectorViewDelegate) {
         super.init(frame: .zero)
         self.tags = tags ?? []
         self.tagSelectorViewDelegate = tagSelectorViewDelegate
+        self.selectedTags = selectedTags
+        self.selectMultipleMode = loadUsersTagsInstead
         setUpView()
         setUpHeader()
         setUpSpacer()
         setUpTableView()
-        setUpSelectedRow(selectedTag: selectedTag)
+        setUpSelectedRow()
+        
+        if loadUsersTagsInstead {
+            tableView.allowsMultipleSelection = true
+            headerView.headerLabel.text = "Recents"
+            headerView.rightButton.setTitle("Done", for: .normal)
+            getUsersTags()
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -61,7 +73,7 @@ class TagSelectorView: UIView {
         headerView.constrain(.trailing, to: self, .trailing)
         
         headerView.leftButton.addTarget(self, action: #selector(cancelPressed), for: .touchUpInside)
-        headerView.rightButton.addTarget(self, action: #selector(clearPressed), for: .touchUpInside)
+        headerView.rightButton.addTarget(self, action: #selector(rightButtonPressed), for: .touchUpInside)
     }
     
     private func setUpSpacer() {
@@ -85,19 +97,77 @@ class TagSelectorView: UIView {
         tableView.register(TagCell.self, forCellReuseIdentifier: reuseIdentifier)
     }
     
-    private func setUpSelectedRow(selectedTag: Tag?) {
-        guard let tag = selectedTag, let selectedIndex = tags.firstIndex(of: tag) else { return }
-        tableView.selectRow(at: IndexPath(row: selectedIndex, section: 0), animated: false, scrollPosition: .none)
+    private func setUpSelectedRow() {
+        guard let selectedTags = selectedTags else { return }
+        for tag in selectedTags {
+            guard let tagAlias = tag.alias else { continue }
+            if let selectedIndex = tags.firstIndex(where: {$0.alias == tagAlias}) {
+                print(selectedIndex)
+                tableView.selectRow(at: IndexPath(row: selectedIndex, section: 0), animated: false, scrollPosition: .none)
+            }
+        }
     }
     
     @objc private func cancelPressed() {
         showViewVC?.animateSelectorWithCompletion(completion: { _ in return })
     }
     
-    @objc private func clearPressed() {
-        showViewVC?.animateSelectorWithCompletion(completion: { [weak self] _ in
-            self?.tagSelectorViewDelegate?.clearTag()
-        })
+    @objc private func rightButtonPressed() {
+        if selectMultipleMode {
+            let (additions, subtractions) = getTagChangesForMultipleMode()
+            tagSelectorViewDelegate?.multipleChange(newAdditions: additions, newSubtractions: subtractions)
+            showViewVC?.animateSelectorWithCompletion(completion: { _ in return })
+        } else {
+            showViewVC?.animateSelectorWithCompletion(completion: { [weak self] _ in
+                self?.tagSelectorViewDelegate?.clearTag()
+            })
+        }
+    }
+    
+    private func getTagChangesForMultipleMode() -> (additions: [Tag], subtractions: [Tag]) {
+        let currentlySelectedIndexes = (tableView.indexPathsForSelectedRows ?? []).map({$0.row})
+        
+        let currentlySelectedTags = tags.itemsAtIndices(currentlySelectedIndexes)
+        let previouslySelectedTags = selectedTags ?? []
+        
+        let currentlySelectedAliases = currentlySelectedTags.map({$0.alias ?? $0.display.createTagAlias()})
+        let previouslySelectedAliases = previouslySelectedTags.map({$0.alias ?? $0.display.createTagAlias()})
+        
+        var newAdditions: [Tag] = []
+        var newSubtractions: [Tag] = []
+        
+        for tag in currentlySelectedTags {
+            guard let tagAlias = tag.alias else { continue }
+            if !previouslySelectedAliases.contains(tagAlias) {
+                newAdditions.append(tag)
+            }
+        }
+        
+        for tag in previouslySelectedTags {
+            guard let tagAlias = tag.alias else { continue }
+            if !currentlySelectedAliases.contains(tagAlias) {
+                newSubtractions.append(tag)
+            }
+        }
+        return (newAdditions, newSubtractions)
+    }
+    
+    private func getUsersTags() {
+        tableView.showLoadingOnTableView()
+        Network.shared.getUsersStandardTags { [weak self] (result) in
+            guard let self = self else { return }
+            switch result {
+            case .success(let tags):
+                self.tags = tags
+                DispatchQueue.main.async {
+                    self.tableView.restore(separatorStyle: .none)
+                    self.tableView.reloadData()
+                    self.setUpSelectedRow()
+                }
+            case .failure(_):
+                print("Failure")
+            }
+        }
     }
     
 }
@@ -116,20 +186,24 @@ extension TagSelectorView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        guard let cell = tableView.cellForRow(at: indexPath), !cell.isSelected else {
-            clearPressed()
-            tableView.deselectRow(at: indexPath, animated: true)
-            return nil
+        if !selectMultipleMode {
+            guard let cell = tableView.cellForRow(at: indexPath), !cell.isSelected else {
+                rightButtonPressed()
+                tableView.deselectRow(at: indexPath, animated: true)
+                return nil
+            }
         }
         return indexPath
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let tag = tags[indexPath.row]
-        showViewVC?.animateSelectorWithCompletion(completion: { [weak self] _ in
-            self?.tagSelectorViewDelegate?.tagSelected(tag: tag)
-        })
-        
+        if !selectMultipleMode {
+            let tag = tags[indexPath.row]
+            
+            showViewVC?.animateSelectorWithCompletion(completion: { [weak self] _ in
+                self?.tagSelectorViewDelegate?.tagSelected(tag: tag)
+            })
+        }
     }
     
     

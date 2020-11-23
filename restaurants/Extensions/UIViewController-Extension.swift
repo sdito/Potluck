@@ -55,8 +55,8 @@ extension UIViewController {
         }
     }
     
-    func showTagSelectorView(tags: [Tag]?, selectedTag: Tag?, tagSelectorViewDelegate: TagSelectorViewDelegate) {
-        let tagSelectorView = TagSelectorView(tags: tags, selectedTag: selectedTag, tagSelectorViewDelegate: tagSelectorViewDelegate)
+    func showTagSelectorView(tags: [Tag]?, selectedTags: [Tag]?, loadUsersTagsInstead: Bool = false, tagSelectorViewDelegate: TagSelectorViewDelegate) {
+        let tagSelectorView = TagSelectorView(tags: tags, selectedTags: selectedTags, loadUsersTagsInstead: loadUsersTagsInstead, tagSelectorViewDelegate: tagSelectorViewDelegate)
         let vc = ShowViewVC(newView: tagSelectorView, mode: .middle, allowScreenPressToDismiss: true)
         vc.modalPresentationStyle = .overFullScreen
         tagSelectorView.showViewVC = vc

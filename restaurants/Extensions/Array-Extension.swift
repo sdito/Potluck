@@ -18,4 +18,13 @@ extension Array {
             return self[idx]
         }
     }
+    
+    func itemsAtIndices(_ idxs: [Int]) -> [Element] {
+        var items: [ArrayLiteralElement] = []
+        for index in idxs {
+            items.append(self[index])
+        }
+        return items
+    }
+    
 }
