@@ -260,16 +260,15 @@ extension Network {
             params["comment"] = comment
         }
         
-        if let tags = newTags {
-            if tags.count > 0 {
-                for i in 0..<tags.count {
-                    let tag = tags[i]
-                    let key = "tags[\(i)]display"
-                    params[key] = tag
-                }
-            } else {
-                params["tags"] = nil
+        let tags = newTags ?? visit.tags.map({$0.display}) // if own tags are not sent back when updating visit, it removes the tag, so lets just take a shortcut and send the tags again
+        if tags.count > 0 {
+            for i in 0..<tags.count {
+                let tag = tags[i]
+                let key = "tags[\(i)]display"
+                params[key] = tag
             }
+        } else {
+            params["tags"] = nil
         }
         
         let req = reqVisit(params: params, visit: visit, requestType: .updateVisit)

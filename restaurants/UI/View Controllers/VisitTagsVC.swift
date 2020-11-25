@@ -399,6 +399,9 @@ extension VisitTagsVC: TagSelectorViewDelegate {
     func clearTag() { return }
     
     func multipleChange(newAdditions: [Tag], newSubtractions: [Tag]) {
+        
+        print("New additions: \(newAdditions.map({$0.display})), new subtractions: \(newSubtractions.map({$0.display}))")
+        
         for addition in newAdditions {
             handleAddingTagFromText(tag: addition.display)
         }

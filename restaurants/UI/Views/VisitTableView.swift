@@ -369,7 +369,6 @@ extension VisitTableView: VisitCellDelegate {
     
     func newPhotoIndexSelected(idx: Int, for visit: Visit?) {
         guard let visit = visit else { return }
-//        photoIndexCache[visit.djangoOwnID] = idx
         photoIndexCache.setObject(NSNumber(value: idx), forKey: NSNumber(value: visit.djangoOwnID))
     }
     

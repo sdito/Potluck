@@ -8,10 +8,6 @@
 
 import UIKit
 
-#warning("editing visit's rating removes the tag")
-#warning("add friends screen empty")
-
-
 
 class TabVC: UITabBarController {
     #warning("*****map clustering only on profile maps (userProfileVC, profileMapVC)")
@@ -24,7 +20,7 @@ class TabVC: UITabBarController {
     
     #warning("calendar option, should be a pop-up view")
     
-    private let home = ProfilePageVC()//UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
+    private let home = ProfilePageVC()
     private let feed = UINavigationController(rootViewController: FeedHomeVC())
     private let addRestaurant = AddRestaurantVC()
     private let explore = UINavigationController(rootViewController: FindRestaurantVC())

@@ -328,10 +328,17 @@ extension AddFriendsVC: UISearchBarDelegate {
         let searchTerm = searchBar.text ?? ""
         guard searchTerm != "" else {
             guard let idx = Option.allCases.firstIndex(of: .searchResults) else { return }
+            
+            tableView.beginUpdates()
+            let indexPaths = searchResults.indices.map({IndexPath(row: $0, section: idx)})
             searchResults = []
-            DispatchQueue.main.async {
-                self.tableView.reloadSections(IndexSet([idx]), with: .automatic)
+            tableView.deleteRows(at: indexPaths, with: .automatic)
+            tableView.endUpdates()
+            
+            DispatchQueue.main.async { [weak self] in
+                self?.tableView.reloadSections(IndexSet([idx]), with: .automatic)
             }
+            
             return
         }
         
@@ -363,7 +370,6 @@ extension AddFriendsVC: UISearchBarDelegate {
         if let index = pending.firstIndex(where: {$0.id == useId}), let section = Option.allCases.firstIndex(where: {$0 == .requests}) {
             pending.remove(at: index)
             tableView.deleteRows(at: [IndexPath(row: index, section: section)], with: .automatic)
-            
         }
     }
     

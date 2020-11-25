@@ -33,7 +33,6 @@ class TagSelectorView: UIView {
         super.init(frame: .zero)
         self.tags = tags ?? []
         self.tagSelectorViewDelegate = tagSelectorViewDelegate
-        self.selectedTags = selectedTags
         self.selectMultipleMode = loadUsersTagsInstead
         setUpView()
         setUpHeader()
@@ -45,7 +44,9 @@ class TagSelectorView: UIView {
             tableView.allowsMultipleSelection = true
             headerView.headerLabel.text = "Recents"
             headerView.rightButton.setTitle("Done", for: .normal)
-            getUsersTags()
+            getUsersTags(previouslySelectedTags: selectedTags)
+        } else {
+            self.selectedTags = selectedTags
         }
     }
     
@@ -152,13 +153,26 @@ class TagSelectorView: UIView {
         return (newAdditions, newSubtractions)
     }
     
-    private func getUsersTags() {
+    private func getUsersTags(previouslySelectedTags: [Tag]?) {
         tableView.showLoadingOnTableView()
         Network.shared.getUsersStandardTags { [weak self] (result) in
             guard let self = self else { return }
             switch result {
             case .success(let tags):
                 self.tags = tags
+                
+                // previously selected tags should be ones that exist in table view
+                var tempPrevTags: [Tag] = []
+                let tagsAliases = tags.map({$0.alias ?? $0.display.createTagAlias()})
+                for tag in previouslySelectedTags ?? [] {
+                    let tagAlias = tag.alias ?? tag.display.createTagAlias()
+                    if tagsAliases.contains(tagAlias) {
+                        tempPrevTags.append(tag)
+                    }
+                }
+                
+                self.selectedTags = tempPrevTags
+                
                 DispatchQueue.main.async {
                     self.tableView.restore(separatorStyle: .none)
                     self.tableView.reloadData()
