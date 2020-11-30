@@ -335,7 +335,6 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func clearCaches() {
-//        photoIndexCache = [:]
         photoIndexCache.removeAllObjects()
         imageCache?.removeAllObjects()
         otherImageCache.removeAllObjects()
@@ -373,7 +372,7 @@ extension VisitTableView: VisitCellDelegate {
     }
     
     func moreImageRequest(visit: Visit?, cell: VisitCell) {
-        
+        cell.otherImageViews.forEach({ $0.appEndSkeleton() })
         guard let visit = visit else { return }
         
         for (i, imageUrl) in visit.otherImages.map({$0.image}).enumerated() {
@@ -386,9 +385,12 @@ extension VisitTableView: VisitCellDelegate {
                     cell.otherImageViews[i].image = image
                 }
             } else {
+                
                 let newObject = ImageRequest()
                 otherImageCache.setObject(newObject, forKey: imageRequestKey)
+                cell.otherImageViews.first?.appStartSkeleton()
                 Network.shared.getImage(url: imageUrl) { [weak self] (imageFound) in
+                    cell.otherImageViews.first?.appEndSkeleton()
                     if let image = imageFound {
                         DispatchQueue.global(qos: .background).async {
                             let resized = image.resizeToBeNoLargerThanScreenWidth()
