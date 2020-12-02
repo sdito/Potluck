@@ -22,14 +22,16 @@ class AddRestaurantVC: UIViewController {
     private let myPlacesTitle = "New place name"
     private let myPlacesButton = SizeChangeButton(sizeDifference: .medium, restingColor: Colors.secondary, selectedColor: Colors.main)
     private var searchBarStack: UIStackView!
-    
+    private var overlayButton: UIButton?
     private var previousRestaurantsOnSearch = true
     private var previousSearchedRestaurants: [Restaurant] = []
+    private var customPlaceSegment: Segment?
+    private var customRestaurantName: String?
     
     private var initialLoadingDone = false {
         didSet {
             if currentSelectedSegment != .search {
-                tableView.reloadData()
+                addRestaurantReloadTable()
             }
         }
     }
@@ -37,7 +39,7 @@ class AddRestaurantVC: UIViewController {
     private var myPlaces: [Establishment] = []
     private var searchResults: [(name: String, address: String)] = [] {
         didSet {
-            tableView.reloadData()
+            addRestaurantReloadTable()
         }
     }
     
@@ -55,11 +57,11 @@ class AddRestaurantVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
-        
         setUpHeaderPortionWithCancel()
         setUpSearchOptions()
         setUpSearchTableView()
         setUpRequest()
+        setUpCreateOwnRestaurantButton()
         getInitialData()
         previousSearchedRestaurants = Network.shared.previousSearchedRestaurants
     }
@@ -129,13 +131,14 @@ class AddRestaurantVC: UIViewController {
         tableView.constrain(.trailing, to: self.view, .trailing)
         tableView.constrain(.bottom, to: self.view, .bottom)
         tableView.register(TwoLevelCell.self, forCellReuseIdentifier: reuseIdentifier)
-        
-        
-//        let foot = UIView()
-//        foot.translatesAutoresizingMaskIntoConstraints = false
-//        foot.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
-//        foot.backgroundColor = .red
-//        tableView.tableFooterView = UIView()
+    }
+    
+    private func setUpCreateOwnRestaurantButton() {
+        overlayButton = headerView.rightButton
+        overlayButton!.translatesAutoresizingMaskIntoConstraints = false
+        overlayButton!.setTitle("Create", for: .normal)
+        overlayButton!.addTarget(self, action: #selector(overlayButtonAction), for: .touchUpInside)
+        overlayButton!.alpha = 0.0
     }
     
     private func setUpRequest() {
@@ -157,7 +160,6 @@ class AddRestaurantVC: UIViewController {
                             self.myPlaces.append(establishment)
                         }
                     }
-                    
                     self.previousRestaurants.sortByName()
                     self.myPlaces.sortByName()
                     
@@ -175,15 +177,13 @@ class AddRestaurantVC: UIViewController {
     }
     
     @objc private func myPlacesButtonAction() {
-        
         if let text = searchBar.text, text.count > 0 {
+            customPlaceSegment = .myPlaces
             self.present(SelectLocationVC(owner: self), animated: true, completion: nil)
         } else {
             searchBar.shakeView()
         }
     }
-    
-    
     
     @objc private func segmentedControlChanged() {
         tableView.transitionReload()
@@ -225,17 +225,70 @@ class AddRestaurantVC: UIViewController {
         
         searchBar.searchTextField.leftViewMode = .always
         searchBar.searchTextField.leftView?.tintColor = .systemGray
+        handleShowingOrHidingAddRestaurantOption()
     }
     
     @objc private func addVisitButtonAction() {
         for (i, segment) in Segment.allCases.enumerated() {
             if segment == .search {
                 segmentedControl.selectedSegmentIndex = i
-                tableView.reloadData()
+                addRestaurantReloadTable()
                 break
             }
         }
     }
+    
+    private func addRestaurantReloadTable() {
+        tableView.reloadData()
+        handleShowingOrHidingAddRestaurantOption()
+    }
+    
+    private func handleShowingOrHidingAddRestaurantOption() {
+        // overlayButton
+        print("handleShowingOrHidingAddRestaurantOption being called")
+        guard let currText = searchBar.text, currText.count > 0, currentSelectedSegment == .search else {
+            overlayButton?.hideWithAlphaAnimated()
+            return
+        }
+        
+        let numberOfRows = tableView.numberOfRows(inSection: 0)
+        // arbitrary number of 3 for the cutoff point to decide if the user should be able to create their own restaurant
+        if numberOfRows <= 3 {
+            overlayButton?.showWithAlphaAnimated()
+        } else {
+            overlayButton?.hideWithAlphaAnimated()
+        }
+    }
+    
+    @objc private func overlayButtonAction() {
+        self.getTextFromUser(delegate: self, startingText: searchBar.text)
+    }
+    
+    private func handleNewEstablishmentAddition(name: String, type: Segment?, coordinate: CLLocationCoordinate2D, fullAddress: String) {
+        guard let type = type else { return }
+        switch type {
+        case .search:
+            #warning("need to complete")
+            let newRow = (name, fullAddress)
+            tableView.beginUpdates()
+            searchResults.insert(newRow, at: 0)
+            tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+            tableView.endUpdates()
+            self.navigationController?.pushViewController(SubmitRestaurantVC(rawValues: newRow, establishment: nil, restaurant: nil), animated: true)
+        case .myPlaces:
+            let newEstablishment = Establishment(name: name, isRestaurant: false)
+            newEstablishment.updatePropertiesWithFullAddress(address: fullAddress, coordinate: coordinate)
+            myPlaces.append(newEstablishment)
+            addRestaurantReloadTable()
+            self.navigationController?.pushViewController(SubmitRestaurantVC(rawValues: nil, establishment: newEstablishment, restaurant: nil), animated: true)
+        case .previous:
+            return
+        }
+        
+        searchBar.text = ""
+        customPlaceSegment = nil
+    }
+    
 }
 
 
@@ -346,17 +399,15 @@ extension AddRestaurantVC: UITableViewDelegate, UITableViewDataSource {
             searchBar.endEditing(true)
         }
     }
-    
 }
 
 // MARK: Search bar
 extension AddRestaurantVC: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
         if currentSelectedSegment == .search {
             if searchText == "" {
                 previousRestaurantsOnSearch = true
-                tableView.reloadData()
+                addRestaurantReloadTable()
             } else {
                 previousRestaurantsOnSearch = false
                 requestCompleter.queryFragment = searchText
@@ -369,7 +420,6 @@ extension AddRestaurantVC: UISearchBarDelegate {
 extension AddRestaurantVC: MKLocalSearchCompleterDelegate {
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
         let results = completer.results.map({($0.title, $0.subtitle)})
-        
         searchResults = results
     }
 }
@@ -377,12 +427,33 @@ extension AddRestaurantVC: MKLocalSearchCompleterDelegate {
 // MARK: SelectLocationDelegate
 extension AddRestaurantVC: SelectLocationDelegate {
     func locationSelected(coordinate: CLLocationCoordinate2D, fullAddress: String) {
-        guard let searchBarText = searchBar.text else { return }
-        let newEstablishment = Establishment(name: searchBarText, isRestaurant: false)
-        newEstablishment.updatePropertiesWithFullAddress(address: fullAddress, coordinate: coordinate)
-        myPlaces.append(newEstablishment)
-        tableView.reloadData()
-        self.navigationController?.pushViewController(SubmitRestaurantVC(rawValues: nil, establishment: newEstablishment, restaurant: nil), animated: true)
-        searchBar.text = ""
+        var text: String? {
+            guard let segment = customPlaceSegment else { return nil }
+            switch segment {
+            case .search:
+                return customRestaurantName
+            case .myPlaces:
+                return searchBar.text
+            case .previous:
+                return nil
+            }
+        }
+        
+        guard text != nil else { return }
+        
+        handleNewEstablishmentAddition(name: text!, type: customPlaceSegment, coordinate: coordinate, fullAddress: fullAddress)
     }
+}
+
+// MARK: EnterValueViewDelegate
+extension AddRestaurantVC: EnterValueViewDelegate {
+    func textFound(string: String?) {
+        guard let string = string else { return }
+        customPlaceSegment = .search
+        self.customRestaurantName = string
+        self.present(SelectLocationVC(owner: self), animated: true, completion: nil)
+    }
+    
+    func ratingFound(float: Float?) { return }
+    func phoneFound(string: String?) { return }
 }

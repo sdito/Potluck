@@ -33,13 +33,15 @@ class EnterValueView: UIView {
     
     private var maximumNumber = 0
     private var allowMessage = true
+    private var startingText: String?
     
-    init(text: String?, placeholder: String?, controller: ShowViewVC?, delegate: EnterValueViewDelegate?, mode: Mode, maximumNumber: Int = 255) {
+    init(text: String?, placeholder: String?, controller: ShowViewVC?, delegate: EnterValueViewDelegate?, mode: Mode, maximumNumber: Int = 255, startingText: String? = nil) {
         super.init(frame: .zero)
         self.controller = controller
         self.delegate = delegate
         self.mode = mode
         self.maximumNumber = maximumNumber
+        self.startingText = startingText
         setUp(text: text, placeholder: placeholder)
     }
     
@@ -109,7 +111,8 @@ class EnterValueView: UIView {
             textField!.font = .smallerThanNormal
             textField!.layer.cornerRadius = 8.0
             stackView.addArrangedSubview(textField!)
-            textField?.delegate = self
+            textField!.delegate = self
+            textField!.text = startingText
             if mode == .number {
                 textField?.keyboardType = .numberPad
             }
@@ -167,7 +170,6 @@ class EnterValueView: UIView {
     }
     
     @objc private func doneAction() {
-        
         if mode == .textView || mode == .textField || mode == .number {
             var text: (String?, UIView) {
                 if mode == .textField || mode == .number {
@@ -183,8 +185,11 @@ class EnterValueView: UIView {
             guard let string = text.0 else { return }
             
             if string.count > 0 {
-                delegate?.textFound(string: string)
-                controller?.animateSelectorWithCompletion(completion: { _ in return })
+                
+                controller?.animateSelectorWithCompletion(completion: { done in
+                    if done { self.delegate?.textFound(string: string) }
+                })
+                
             } else {
                 UIDevice.vibrateError()
                 text.1.shakeView()

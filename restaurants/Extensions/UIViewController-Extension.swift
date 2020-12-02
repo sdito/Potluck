@@ -95,6 +95,14 @@ extension UIViewController {
         self.present(showViewVC, animated: false, completion: nil)
     }
     
+    func getTextFromUser(delegate: EnterValueViewDelegate, startingText: String?) {
+        let textFieldView = EnterValueView(text: "Enter restaurant name", placeholder: nil, controller: nil, delegate: delegate, mode: .textField, startingText: startingText)
+        let showViewVC = ShowViewVC(newView: textFieldView, mode: .middle)
+        textFieldView.controller = showViewVC
+        showViewVC.modalPresentationStyle = .overFullScreen
+        self.present(showViewVC, animated: false, completion: nil)
+    }
+    
     func showLoadingView() -> WaitView {
         let loadingView = WaitView()
         let showViewVC = ShowViewVC(newView: loadingView, mode: .top, allowScreenPressToDismiss: false)
