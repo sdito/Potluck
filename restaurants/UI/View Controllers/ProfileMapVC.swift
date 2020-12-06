@@ -22,6 +22,7 @@ class ProfileMapVC: UIViewController {
     private let geoCoder = CLGeocoder()
     private var vc: SearchHelperVC?
     private let locationButton = OverlayButton()
+    private let noEstablishments = OverlayButton()
     private var locationButtonShown = true
     private var establishments: [Establishment] = [] {
         didSet {
@@ -37,11 +38,14 @@ class ProfileMapVC: UIViewController {
         setUpSearchBar()
         setUpSearchHelper()
         setUpLocationButton()
+        setUpNoEstablishments()
         setUpAbilityToScrollBackOnMap()
         getRestaurantData()
         edgesForExtendedLayout = []
         NotificationCenter.default.addObserver(self, selector: #selector(establishmentDeleted(notification:)), name: .establishmentDeleted, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(establishmentUpdated(notification:)), name: .establishmentUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(userLoggedInStatusChanged), name: .userLoggedIn, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(userLoggedInStatusChanged), name: .userLoggedOut, object: nil)
     }
     
     deinit {
@@ -60,13 +64,28 @@ class ProfileMapVC: UIViewController {
     }
     
     private func getRestaurantData() {
+        print("Get restaurant data being called")
+        guard Network.shared.loggedIn else {
+            establishments = []
+            mapView.removeAnnotations(mapView.annotations)
+            noEstablishments.setTitle("Not logged in", for: .normal)
+            print("Setting isNotHidden from getRestaurantData guard")
+            noEstablishments.alpha = 1.0
+            return
+        }
+        
+        DispatchQueue.main.async {
+            print("Setting isHidden from getRestaurantData")
+            self.noEstablishments.hideWithAlphaAnimated()
+        }
+        
         Network.shared.getUserEstablishments { [weak self] (result) in
             guard let self = self else { return }
             DispatchQueue.main.async {
+                self.mapView.removeAnnotations(self.mapView.annotations)
                 switch result {
                 case .success(let establishments):
                     self.establishments = establishments
-                    self.mapView.removeAnnotations(self.mapView.annotations)
                     if establishments.count > 0 {
                         for establishment in establishments {
                             let annotation = RestaurantAnnotation(establishment: establishment)
@@ -74,10 +93,9 @@ class ProfileMapVC: UIViewController {
                         }
                         self.fitAnnotations()
                     } else {
-                        self.appAlert(title: "No places", message: "Places you add will show up on the map, where you can then view your visits.", buttons: [
-                            ("Back", { [weak self] in self?.navigationController?.popViewController(animated: true) }),
-                            ("Add visit", { [weak self] in self?.tabBarController?.presentAddRestaurantVC() })
-                        ])
+                        self.noEstablishments.setTitle("No places yet", for: .normal)
+                        print("Setting isNotHidden from network request")
+                        self.noEstablishments.showWithAlphaAnimated()
                     }
                     
                 case .failure(let error):
@@ -108,6 +126,17 @@ class ProfileMapVC: UIViewController {
         searchBar.layoutIfNeeded()
         searchBar.delegate = self
         handleSearchBarTransform(animated: false)
+    }
+    
+    private func setUpNoEstablishments() {
+        noEstablishments.isUserInteractionEnabled = false
+        noEstablishments.setTitle("No places yet", for: .normal)
+        noEstablishments.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(noEstablishments)
+        noEstablishments.constrain(.bottom, to: self.view, .bottom, constant: 50.0)
+        noEstablishments.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        print("Setting isHidden from setUp")
+        noEstablishments.alpha = 0.0
     }
     
     private func setUpSearchHelper() {
@@ -231,6 +260,11 @@ class ProfileMapVC: UIViewController {
         guard let tabVC = self.tabBarController as? TabVC else { return }
         tabVC.changeActivePageViewController()
     }
+    
+    @objc private func userLoggedInStatusChanged() {
+        getRestaurantData()
+    }
+    
 }
 
 // MARK: Map view

@@ -123,5 +123,4 @@ extension SettingsVC: UITableViewDelegate, UITableViewDataSource {
             }
         }
     }
-    
 }

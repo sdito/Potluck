@@ -178,10 +178,12 @@ class EstablishmentDetailVC: UIViewController {
                     headerView!.rightButton.setImage(.threeDotsImage, for: .normal)
                     headerView!.rightButton.addTarget(self, action: #selector(editEstablishmentPressed), for: .touchUpInside)
                     headerView!.rightButton.tintColor = Colors.main
+                    headerView!.rightButton.setContentCompressionResistancePriority(.required, for: .horizontal)
                 }
                 
                 if mode == .halfScreenBase {
                     let addVisit = headerView?.insertButtonAtEnd(with: .plusImage)
+                    addVisit?.setContentCompressionResistancePriority(.required, for: .horizontal)
                     addVisit?.addTarget(self, action: #selector(addVisitPressed), for: .touchUpInside)
                 }
             }
@@ -189,6 +191,7 @@ class EstablishmentDetailVC: UIViewController {
             // Always have the yelp button available
             if establishment.yelpID != nil && mode != .fullScreenHeaderAndMap {
                 let detailPressed = headerView?.insertButtonAtEnd(with: .detailImage)
+                detailPressed?.setContentCompressionResistancePriority(.required, for: .horizontal)
                 detailPressed?.addTarget(self, action: #selector(yelpButtonPressed), for: .touchUpInside)
             }
             

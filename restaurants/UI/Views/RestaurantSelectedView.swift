@@ -348,7 +348,6 @@ class RestaurantSelectedView: UIView {
         default:
             break
         }
-        
     }
     
     func setUpForHero() {

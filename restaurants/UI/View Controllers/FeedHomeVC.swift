@@ -39,7 +39,7 @@ class FeedHomeVC: UIViewController {
     
     private func setUpNavigationBar() {
         self.setNavigationBarColor()
-        self.navigationItem.title = "Feed"
+        self.navigationItem.title = "Friends"
         self.navigationController?.navigationBar.isTranslucent = false
         self.navigationController?.navigationBar.tintColor = Colors.main
         let addPerson = UIBarButtonItem(image: .personBadgeImage, style: .plain, target: self, action: #selector(addPersonAction))

@@ -122,7 +122,6 @@ class Account: Decodable {
         keyChain.delete(Account.idKey)
         keyChain.delete(Account.colorKey)
         Network.shared.account = nil
-        
         NotificationCenter.default.post(name: .userLoggedOut, object: nil)
     }
     

@@ -8,11 +8,12 @@
 
 import Foundation
 import UIKit
+import MessageUI
 
 enum Setting: String, CaseIterable {
     
     case account = "Account"
-    case settings = "Settings"
+    case settings = "App"
     case privacy = "Privacy"
     
     private typealias RV = Row.Value
@@ -27,7 +28,7 @@ enum Setting: String, CaseIterable {
             }
             
         case .settings:
-            return [RV.appAppearance.instance, RV.reviewApp.instance, RV.hapticFeedback.instance]
+            return [RV.contactDeveloper.instance, RV.appAppearance.instance, RV.reviewApp.instance, RV.hapticFeedback.instance]
         case .privacy:
             return [RV.locationEnabled.instance, RV.photosEnabled.instance, RV.contactsEnabled.instance]
         }
@@ -53,6 +54,7 @@ enum Setting: String, CaseIterable {
             case friends
             case requestsSent
             case requestsReceived
+            case contactDeveloper
             case hapticFeedback
             case locationEnabled
             case photosEnabled
@@ -107,6 +109,12 @@ enum Setting: String, CaseIterable {
                                mode: .arrowOpen,
                                subtitle: "Answer",
                                pressAction: { friendsAction(mode: .requestsReceived) })
+                case .contactDeveloper:
+                    return Row(title: "Feedback",
+                               description: "Send the developer an email with your feedback, suggestions, or anything.",
+                               mode: .arrowOpen,
+                               subtitle: "Contact",
+                               pressAction: { sendFeedback() })
                 case .hapticFeedback:
                     return Row(title: "Haptic feedback enabled",
                                description: "Haptic feedback is the tap or quick vibration you feel when interacting with different elements of the application, such as selecting a button to change your restaurant search.",
@@ -215,10 +223,24 @@ enum Setting: String, CaseIterable {
         let colorPickerVC = ColorPickerVC(startingColor: UIColor(hex: Network.shared.account?.color), colorPickerDelegate: Manager.shared)
         vc.present(colorPickerVC, animated: true, completion: nil)
     }
+    
+    private static func sendFeedback() {
+        guard let vc = UIApplication.topMostViewController else { return }
+        if MFMailComposeViewController.canSendMail() {
+            let mail = MFMailComposeViewController()
+            mail.setToRecipients(["contact@stevendito.com"])
+            mail.setSubject("Feedback")
+            mail.mailComposeDelegate = Manager.shared
+            mail.setMessageBody("<br><br><br><br><br><hr><p>\(Network.shared.account?.username ?? "Not logged in")<br>\(UIDevice.modelName)<br>\(UIDevice.current.systemVersion)</p>", isHTML: true)
+            vc.present(mail, animated: true)
+        } else {
+            vc.showMessage("Unable to send mail")
+        }
+    }
 }
 
 
-fileprivate class Manager: EnterValueViewDelegate, ColorPickerDelegate {
+fileprivate class Manager: NSObject, EnterValueViewDelegate, ColorPickerDelegate, MFMailComposeViewControllerDelegate {
     func colorPicker(color: UIColor) {
         let newColorHex = color.toHexString()
         Network.shared.account?.color = newColorHex
@@ -238,6 +260,13 @@ fileprivate class Manager: EnterValueViewDelegate, ColorPickerDelegate {
         NotificationCenter.default.post(name: .reloadSettings, object: nil)
     }
     
-    private init() {}
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true, completion: nil)
+    }
+    
+    private override init() {}
     fileprivate static let shared = Manager()
 }
+
+
+
