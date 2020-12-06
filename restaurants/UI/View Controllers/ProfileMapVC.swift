@@ -24,6 +24,8 @@ class ProfileMapVC: UIViewController {
     private let locationButton = OverlayButton()
     private let noEstablishments = OverlayButton()
     private var locationButtonShown = true
+    private var initialTouchPointY: CGFloat?
+    private var initialFrameY: CGFloat?
     private var establishments: [Establishment] = [] {
         didSet {
             self.vc?.establishments = establishments
@@ -126,6 +128,9 @@ class ProfileMapVC: UIViewController {
         searchBar.layoutIfNeeded()
         searchBar.delegate = self
         handleSearchBarTransform(animated: false)
+        
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(searchBanPanGesture(sender:)))
+        searchBar.addGestureRecognizer(panGesture)
     }
     
     private func setUpNoEstablishments() {
@@ -169,7 +174,6 @@ class ProfileMapVC: UIViewController {
     }
     
     private func setUpAbilityToScrollBackOnMap() {
-        #warning("potentially add this same thing on the other view of the page view controller")
         let swipeView = UIView()
         swipeView.translatesAutoresizingMaskIntoConstraints = false
         swipeView.backgroundColor = .clear
@@ -198,11 +202,19 @@ class ProfileMapVC: UIViewController {
         if animated {
             UIView.animate(withDuration: animationDuration) {
                 self.searchBar.transform = newTransformation
+            } completion: { _ in
+                self.handleSettingSearchBarCorrectFrame()
             }
         } else {
             self.searchBar.transform = newTransformation
+            handleSettingSearchBarCorrectFrame()
         }
-        
+    }
+    
+    private func handleSettingSearchBarCorrectFrame() {
+        if let initialFrameY = self.initialFrameY {
+            self.searchBar.frame.origin.y = initialFrameY
+        }
     }
     
     @objc private func establishmentDeleted(notification: Notification) {
@@ -252,6 +264,7 @@ class ProfileMapVC: UIViewController {
             searchBar.becomeFirstResponder()
             mapView.deselectAllAnnotations()
         } else {
+            searchHelperDelegate?.textChanged(newString: "")
             searchBar.endEditing(true)
         }
     }
@@ -263,6 +276,40 @@ class ProfileMapVC: UIViewController {
     
     @objc private func userLoggedInStatusChanged() {
         getRestaurantData()
+    }
+    
+    @objc private func searchBanPanGesture(sender: UIPanGestureRecognizer) {
+        let touchPointY = sender.location(in: self.view).y
+        switch sender.state {
+        case .began:
+            self.initialTouchPointY = touchPointY
+            self.initialFrameY = searchBar.frame.origin.y
+            
+        case .changed:
+            guard let initialTouchPointY = self.initialTouchPointY else { return }
+            var difference = touchPointY - initialTouchPointY
+            if difference > 0 {
+                // means scrolling down, don't want to let the user scroll the view way down, so use square root on the difference
+                difference = CGFloat(sqrt(difference))
+            }
+            let newOriginY = difference + (initialFrameY ?? 0.0)
+            searchBar.frame.origin.y = newOriginY
+        case .ended:
+            guard let initialTouchPointY = self.initialTouchPointY else { return }
+            let difference = touchPointY - initialTouchPointY
+            self.initialTouchPointY = nil
+            if difference > 0 {
+                // is belowInitial, just scroll back
+                UIView.animate(withDuration: 0.3) {
+                    self.searchBar.frame.origin.y = (self.initialFrameY ?? 0.0)
+                }
+            } else {
+                searchBarPressed()
+            }
+            
+        default:
+            break
+        }
     }
     
 }
@@ -330,7 +377,6 @@ extension ProfileMapVC: EstablishmentDetailDelegate {
 extension ProfileMapVC: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if allowHelperToChange {
-            print(searchText)
             searchHelperDelegate?.textChanged(newString: searchText)
         }
         
