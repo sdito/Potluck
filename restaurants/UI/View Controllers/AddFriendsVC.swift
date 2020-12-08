@@ -407,9 +407,8 @@ extension AddFriendsVC: PersonCellDelegate {
             Network.shared.sendFriendRequest(toPerson: contact) { _ in return }
             
         } else {
-            #warning("need to update this with the app information")
             guard let phone = contact.phone else { return }
-            let sms: String = "sms:\(phone)&body=Join me on this app"
+            let sms: String = "sms:\(phone)&body=https://apps.apple.com/us/app/potluck-restaurant-meal-hub/id1543547966 Join me on Potluck!"
             let strURL: String = sms.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
             UIApplication.shared.open(URL.init(string: strURL)!, options: [:], completionHandler: nil)
         }

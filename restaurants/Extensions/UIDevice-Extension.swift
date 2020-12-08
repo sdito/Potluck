@@ -200,7 +200,7 @@ extension UIDevice {
     
     static func goToReviewPage() {
         #warning("update with this apps id, 1493046325 is the ID portion")
-        guard let reviewUrl = URL(string: "itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=1493046325&onlyLatestVersion=true&pageNumber=0&sortOrdering=1&type=Purple+Software") else { return }
+        guard let reviewUrl = URL(string: "itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=1543547966&onlyLatestVersion=true&pageNumber=0&sortOrdering=1&type=Purple+Software") else { return }
         if UIApplication.shared.canOpenURL(reviewUrl) {
             UIApplication.shared.open(reviewUrl, completionHandler: { _ in return })
         }

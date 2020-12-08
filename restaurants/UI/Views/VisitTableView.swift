@@ -176,6 +176,50 @@ class VisitTableView: UITableView {
         self.findViewController()?.navigationController?.pushViewController(CreateAccountVC(), animated: true)
     }
     
+    func clearCaches() {
+        photoIndexCache.removeAllObjects()
+        imageCache?.removeAllObjects()
+        otherImageCache.removeAllObjects()
+    }
+    
+    private func setProfileImage(visit: Visit, cell: VisitCell) {
+        if let imageUrl = visit.person?.image, let cache = profileImageCache, let personId = visit.person?.id {
+            let key = NSString(string: "\(personId)")
+            if let image = cache.object(forKey: key) {
+                cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: image)
+            } else {
+                cell.usernameButton.startImageSkeleton()
+                
+                Network.shared.getImage(url: imageUrl) { (imageFound) in
+                    cell.usernameButton.endImageSkeleton()
+                    if let imageFound = imageFound {
+                        cache.setObject(imageFound, forKey: key)
+                        // make cell still needs to be updated for the correct person (i.e. could take a while to load and set on the wrong dequed cell)
+                        if let id = cell.visit?.person?.id, id == personId {
+                            cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: imageFound)
+                        }
+                    } else {
+                        cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: UIImage.personImage)
+                    }
+                }
+            }
+        } else {
+            // doesn't have an image
+            cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: UIImage.personImage)
+        }
+    }
+    
+    func removeImagesFromCacheFor(visit: Visit) {
+        print("Remove images from cache: \(visit.djangoOwnID)")
+        let mainKey = NSString(string: "\(visit.djangoOwnID)")
+        imageCache?.removeObject(forKey: mainKey)
+        
+        for visIdx in 0..<visit.otherImages.count {
+            let otherKey = NSString(string: "\(visit.djangoOwnID)-\(visIdx)")
+            otherImageCache.removeObject(forKey: otherKey)
+        }
+    }
+    
 }
 
 // MARK: Table view
@@ -260,7 +304,6 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
             setProfileImage(visit: visit, cell: cell)
         } else {
             // should just hide the usernameButton
-            #warning("make sure this is fine, instead of hiding it")
             cell.usernameButton.removeFromSuperview()
         }
         
@@ -291,54 +334,13 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         self.findViewController()?.navigationController?.pushViewController(photosVC, animated: true)
     }
     
-    func removeImagesFromCacheFor(visit: Visit) {
-        print("Remove images from cache: \(visit.djangoOwnID)")
-        let mainKey = NSString(string: "\(visit.djangoOwnID)")
-        imageCache?.removeObject(forKey: mainKey)
-        
-        for visIdx in 0..<visit.otherImages.count {
-            let otherKey = NSString(string: "\(visit.djangoOwnID)-\(visIdx)")
-            otherImageCache.removeObject(forKey: otherKey)
-        }
-    }
-    
-    private func setProfileImage(visit: Visit, cell: VisitCell) {
-        if let imageUrl = visit.person?.image, let cache = profileImageCache, let personId = visit.person?.id {
-            let key = NSString(string: "\(personId)")
-            if let image = cache.object(forKey: key) {
-                cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: image)
-            } else {
-                cell.usernameButton.startImageSkeleton()
-                
-                Network.shared.getImage(url: imageUrl) { (imageFound) in
-                    cell.usernameButton.endImageSkeleton()
-                    if let imageFound = imageFound {
-                        cache.setObject(imageFound, forKey: key)
-                        // make cell still needs to be updated for the correct person (i.e. could take a while to load and set on the wrong dequed cell)
-                        if let id = cell.visit?.person?.id, id == personId {
-                            cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: imageFound)
-                        }
-                    } else {
-                        cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: UIImage.personImage)
-                    }
-                }
-            }
-        } else {
-            // doesn't have an image
-            cell.usernameButton.update(name: visit.person?.username ?? "User", color: visit.accountColor, image: UIImage.personImage)
-        }
-    }
-    
-    // MARK: Table view helpers
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         animatedRefreshControl.updateProgress(with: scrollView.contentOffset.y)
+        
+        // find out when user is at bottom
     }
     
-    func clearCaches() {
-        photoIndexCache.removeAllObjects()
-        imageCache?.removeAllObjects()
-        otherImageCache.removeAllObjects()
-    }
+    
 }
 
 // MARK: VisitCellDelegate
