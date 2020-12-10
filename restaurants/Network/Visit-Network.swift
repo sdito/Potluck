@@ -198,7 +198,7 @@ extension Network {
         }
         
         params["date_visited"] = self.dateFormatter.string(from: mainImageDate)
-
+        
         let request = reqVisit(params: params, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages, tags: tags)
         request?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
             guard let self = self else { return }
@@ -242,7 +242,8 @@ extension Network {
             do {
                 let visits = try self.decoder.decode(Visit.VisitFeedDecoder.self, from: data)
                 completion(Result.success(visits))
-            } catch {
+            } catch let error {
+                print(error.localizedDescription)
                 completion(Result.failure(.decoding))
             }
         }

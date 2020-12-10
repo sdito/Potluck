@@ -11,16 +11,18 @@ import CoreLocation
 import UIKit
 
 class Visit: Codable {
+    
     var djangoOwnID: Int
     var djangoRestaurantID: Int
     var restaurantName: String
-    var mainImage: String
     var comment: String?
+    
+    #warning("make these options")
+    var mainImage: String
     var mainImageHeight: Int
     var mainImageWidth: Int
     
     var person: Person?
-    
     var otherImages: [VisitImage]
     var tags: [Tag]
     var rating: Double?

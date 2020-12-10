@@ -14,8 +14,8 @@ import KeychainSwift
 class Network {
     
     static let yelpURL = "https://api.yelp.com/v3/"
-    static let djangoURL = "https://dito-restaurants.herokuapp.com/"
-//    static let djangoURL = "http://127.0.0.1:8000/"
+//    static let djangoURL = "https://dito-restaurants.herokuapp.com/"
+    static let djangoURL = "http://127.0.0.1:8000/"
     
     /// 200
     static let okCode: Int = 200
