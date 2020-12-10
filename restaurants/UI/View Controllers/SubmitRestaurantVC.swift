@@ -87,6 +87,7 @@ class SubmitRestaurantVC: UIViewController {
         setUpNavigationBar()
         setUpKeyboardRecognizer()
         self.edgesForExtendedLayout = [.bottom, .left, .right]
+            
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -99,8 +100,11 @@ class SubmitRestaurantVC: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        let ratio: CGFloat = 0.85
-        mapHeightInitial = self.map?.bounds.height ?? 0
+        let buttonHeight = showMapPopUpButton.bounds.height
+        let mapHeight = self.map?.bounds.height ?? buttonHeight
+        
+        let ratio: CGFloat = (mapHeight - buttonHeight) / mapHeight
+        mapHeightInitial = mapHeight
         mapHeightMinimum = mapHeightInitial! * (1-ratio)
         self.containerViewMaxHeight = self.containerViewBaseHeight + (mapHeightInitial! * ratio)
     }
@@ -169,12 +173,11 @@ class SubmitRestaurantVC: UIViewController {
         map = MapLocationView(estimatedSize: CGSize(width: self.view.bounds.width, height: self.view.bounds.height / 2.0), locationTitle: name, coordinate: coordinate, address: address)
         headerStackView.addArrangedSubview(map!)
         map?.widthAnchor.constraint(equalTo: headerStackView.widthAnchor).isActive = true
-        map?.layer.cornerRadius = 10.0
+        map?.layer.cornerRadius = 5.0
         map?.clipsToBounds = true
-//        map?.setContentHuggingPriority(.fittingSizeLevel, for: .vertical)
         
         showMapPopUpButton.translatesAutoresizingMaskIntoConstraints = false
-        showMapPopUpButton.setImage(.mapImage, for: .normal)
+        showMapPopUpButton.setImage(.mapImage, for: .normal) // this one
         map!.addSubview(showMapPopUpButton)
         showMapPopUpButton.centerXAnchor.constraint(equalTo: map!.centerXAnchor).isActive = true
         showMapPopUpButton.constrain(.top, to: map!, .top)

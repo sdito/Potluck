@@ -291,6 +291,13 @@ class ProfileHomeVC: UIViewController {
 
 // MARK: VisitTableViewDelegate
 extension ProfileHomeVC: VisitTableViewDelegate {
+    
+    func nextPageRequested() {
+        #warning("also need to do pagination stuff on user profile vc")
+        #warning("need to complete")
+        print("Next page requested")
+    }
+    
     func refreshControlSelected() {
         setBaseNavigationTitle()
         getInitialUserVisits()

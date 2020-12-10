@@ -224,8 +224,7 @@ extension AddFriendsVC: UITableViewDataSource, UITableViewDelegate {
             cell.resetValues()
         }
         
-        //do the image cache thing here
-        //#error("left off on this")
+        // do the image cache thing here
         if let person = usedPerson, let url = person.image, let id = person.id {
             let key = NSString(string: "\(id)")
             if let image = imageCache.object(forKey: key) {
@@ -258,7 +257,17 @@ extension AddFriendsVC: UITableViewDataSource, UITableViewDelegate {
             person = element.fromPerson
         }
         
-        guard let p = person, p.id != nil else { return }
+        guard let p = person, p.id != nil else {
+            if let phone = person?.phone, let name = person?.actualName {
+                self.appAlert(title: nil, message: "Do you want to message \(name) to download Potluck?", buttons: [
+                    ("Cancel", nil),
+                    ("Message", {
+                        UIDevice.messageUserToJoinApp(phone: phone)
+                    })
+                ])
+            }
+            return
+        }
         
         self.navigationController?.pushViewController(UserProfileVC(person: p), animated: true)
     }
@@ -407,10 +416,8 @@ extension AddFriendsVC: PersonCellDelegate {
             Network.shared.sendFriendRequest(toPerson: contact) { _ in return }
             
         } else {
-            guard let phone = contact.phone else { return }
-            let sms: String = "sms:\(phone)&body=https://apps.apple.com/us/app/potluck-restaurant-meal-hub/id1543547966 Join me on Potluck!"
-            let strURL: String = sms.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-            UIApplication.shared.open(URL.init(string: strURL)!, options: [:], completionHandler: nil)
+            UIDevice.messageUserToJoinApp(phone: contact.phone)
+            
         }
     }
     func editFriendRequest(request: Person.PersonRequest) { return }

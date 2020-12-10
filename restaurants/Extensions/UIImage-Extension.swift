@@ -38,6 +38,7 @@ extension UIImage {
         return finalImage
     }
     
+    
     func resizeImageToSizeButKeepAspectRatio(targetSize: CGSize) -> UIImage {
         // i.e. resize to 200 / 200, with original size of 1000 / 400
         // new size would be 500 / 200, i.e. go to the minimum size

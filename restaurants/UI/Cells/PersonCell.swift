@@ -163,6 +163,12 @@ class PersonCell: UITableViewCell {
             addButton.tintColor = .systemBlue
         }
         setUpAllowInteraction(person: contact)
+        
+        if let data = contact.imageData, let image = UIImage(data: data) {
+            personImageView.image = image
+        } else {
+            personImageView.image = UIImage.personImage.withConfiguration(.large)
+        }
     }
     
     func setUpValuesPersonRequest(person: Person.PersonRequest, delegate: PersonCellDelegate) {

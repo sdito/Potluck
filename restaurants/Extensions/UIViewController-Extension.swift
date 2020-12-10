@@ -65,7 +65,7 @@ extension UIViewController {
     
     func appAlert(title: String?, message: String?, buttons: [AlertView.ButtonAction]?) {
         let alertView = AlertView(title: title, message: message, buttons: buttons)
-        let vc = ShowViewVC(newView: alertView, mode: .middle, allowScreenPressToDismiss: false)
+        let vc = ShowViewVC(newView: alertView, mode: .middle, allowScreenPressToDismiss: true)
         alertView.showViewVC = vc
         vc.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: false, completion: nil)

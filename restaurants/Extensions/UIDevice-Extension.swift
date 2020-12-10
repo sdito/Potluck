@@ -26,6 +26,13 @@ extension UIDevice {
     static let overrideLight = "Light"
     static let runCountToAskForRequest = 5
     
+    static func messageUserToJoinApp(phone: String?) {
+        guard let phone = phone else { return }
+        let sms: String = "sms:\(phone)&body=https://apps.apple.com/us/app/potluck-restaurant-meal-hub/id1543547966 Join me on Potluck!"
+        let strURL: String = sms.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        UIApplication.shared.open(URL.init(string: strURL)!, options: [:], completionHandler: nil)
+    }
+    
     static func getSystemAppearanceOverrideValue() -> String {
         let value = UserDefaults.standard.value(forKey: systemDarkModeKey) as? String
         if let value = value {

@@ -113,8 +113,13 @@ class FeedHomeVC: UIViewController {
 
 // MARK: VisitTableViewDelegate
 extension FeedHomeVC: VisitTableViewDelegate {
+    
+    func nextPageRequested() {
+        #warning("need to complete")
+        print("Next page requested")
+    }
+    
     func refreshControlSelected() {
-        
         if Network.shared.loggedIn {
             self.getUserFeed()
         } else {
@@ -122,7 +127,5 @@ extension FeedHomeVC: VisitTableViewDelegate {
             handleReloadingVisitTableView()
             self.showMessage("Log in to see your friends visits")
         }
-        
-        
     }
 }

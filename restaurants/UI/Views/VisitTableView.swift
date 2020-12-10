@@ -12,6 +12,7 @@ import UIKit
 
 protocol VisitTableViewDelegate: class {
     func refreshControlSelected()
+    func nextPageRequested()
 }
 
 
@@ -28,12 +29,13 @@ class VisitTableView: UITableView {
             self.initialDataFound = true
         }
     }
+    private var lastContentOffset: CGFloat = 0.0
     private let animatedRefreshControl = AnimatedRefreshControl()
     private let reuseIdentifier = "visitCellReuseIdentifier"
     private weak var visitTableViewDelegate: VisitTableViewDelegate?
     private var mode: Mode = .user
     private var initialDataFound = false
-    
+    private var allowNextPage = true; #warning("need to implement")
     var allowHintToCreateRestaurant = false
     var allowHintForFriendsFeed = false
     
@@ -338,6 +340,15 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         animatedRefreshControl.updateProgress(with: scrollView.contentOffset.y)
         
         // find out when user is at bottom
+        lastContentOffset = scrollView.contentOffset.y + self.bounds.height
+        
+        // allowNextPage is the boolean
+        #warning("need to implement here, and implement on django")
+        let tableViewHeight = scrollView.contentSize.height - (self.bounds.height / 2.0)
+        if allowNextPage && lastContentOffset > tableViewHeight {
+            visitTableViewDelegate?.nextPageRequested()
+            allowNextPage = false
+        }
     }
     
     

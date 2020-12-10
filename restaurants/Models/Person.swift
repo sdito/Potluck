@@ -18,16 +18,18 @@ class Person: Codable {
     var id: Int?
     var hex_color: String?
     var image: String?
+    var imageData: Data?
     lazy var alreadyInteracted = false
     
     var color: UIColor {
         return UIColor(hex: hex_color) ?? Colors.random
     }
     
-    init(phone: String, username: String?, actualName: String?) {
+    init(phone: String, username: String?, actualName: String?, imageData: Data?) {
         self.phone = phone
         self.username = username
         self.actualName = actualName
+        self.imageData = imageData
     }
     
     init(account: Account) {
@@ -89,7 +91,9 @@ class Person: Codable {
         let phoneNumberKit = PhoneNumberKit()
         var people: [Person] = []
 
-        let keys = [CNContactFormatter.descriptorForRequiredKeys(for: .fullName), CNContactPhoneNumbersKey] as [Any]
+        
+        
+        let keys = [CNContactFormatter.descriptorForRequiredKeys(for: .fullName), CNContactPhoneNumbersKey, CNContactThumbnailImageDataKey] as [Any]
         let request = CNContactFetchRequest(keysToFetch: keys as! [CNKeyDescriptor])
         do {
             try contactStore.enumerateContacts(with: request) { (contact, stop) in
@@ -98,13 +102,12 @@ class Person: Codable {
                         let phoneNumber = try phoneNumberKit.parse(number, withRegion: "US", ignoreType: true)
                         let formatted = phoneNumberKit.format(phoneNumber, toType: .e164)
                         let name = "\(contact.givenName) \(contact.familyName)"
-                        people.append(Person(phone: formatted, username: nil, actualName: name))
+                        people.append(Person(phone: formatted, username: nil, actualName: name, imageData: contact.thumbnailImageData))
 
                     } catch {
                         print("Phone Number kit parse error")
                     }
                 }
-                
             }
         } catch {
             print("unable to fetch contacts")
