@@ -370,10 +370,6 @@ class ImageSelectorVC: UIViewController {
         }
     }
     
-    func noPhotosSelectedAlert() {
-        collectionView.shakeView()
-    }
-    
     @objc private func removeImageView(sender: UIButton) {
         guard let superView = sender.superview as? ImageXView else { return }
         let indexPath = IndexPath(item: superView.representativeIndex, section: 0)

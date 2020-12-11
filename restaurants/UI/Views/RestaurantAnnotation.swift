@@ -30,7 +30,7 @@ class RestaurantAnnotation: NSObject, MKAnnotation {
     init(establishment: Establishment) {
         self.title = establishment.name
         self.locationName = establishment.name
-        self.coordinate = establishment.coordinate!
+        self.coordinate = establishment.coordinate ?? .simulatorDefault
         self.establishment = establishment
         self.restaurant = nil
         self.place = -1

@@ -62,12 +62,12 @@ extension Network {
             let request = AF.request(requestUrl, method: requestType.requestMethod, parameters: params, headers: headers)
             return request
         case .userPost:
-            guard let mainImage = mainImage, let params = params else { return nil }
+            guard let params = params else { return nil }
             let req = AF.upload(multipartFormData: { (multipartFormData) in
             
-                guard let imageData = mainImage.jpegData(compressionQuality: 0.8) else { return }
-                //"main_image".data(using: .utf8) else { return }//
-                multipartFormData.append(imageData, withName: "main_image", fileName: "\(Network.shared.account?.username ?? "anon_user")-\(Int(Date().timeIntervalSince1970))-\(String.randomString(6))-main.png", mimeType: "jpg/png")
+                if let imageData = mainImage?.jpegData(compressionQuality: 0.8) {
+                    multipartFormData.append(imageData, withName: "main_image", fileName: "\(Network.shared.account?.username ?? "anon_user")-\(Int(Date().timeIntervalSince1970))-\(String.randomString(6))-main.png", mimeType: "jpg/png")
+                }
                 
                 // add the other photos here, if they exist
                 if let otherImages = otherImages {
@@ -114,7 +114,7 @@ extension Network {
     
     
     func userPostNotVisited(establishment: Establishment,
-                            mainImage: UIImage,
+                            mainImage: UIImage?,
                             mainImageDate: Date,
                             otherImages: [UIImage]?,
                             comment: String?,
@@ -178,7 +178,7 @@ extension Network {
     
 
     func userPostAlreadyVisited(djangoID: Int,
-                                mainImage: UIImage,
+                                mainImage: UIImage?,
                                 mainImageDate: Date,
                                 otherImages: [UIImage]?,
                                 comment: String?,

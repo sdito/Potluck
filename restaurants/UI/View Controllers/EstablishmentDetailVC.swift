@@ -485,14 +485,14 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let visit = visits[section]
-        return visit.listPhotos.count
+        return visit.listPhotos?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! PhotoCell
         let visit = visits[indexPath.section]
         let listPhotos = visit.listPhotos
-        let url = listPhotos[indexPath.row]
+        let url = listPhotos?[indexPath.row] ?? ""
         let key = NSString(string: url)
         
         if let image = imageCache.object(forKey: key) {
@@ -515,6 +515,7 @@ extension EstablishmentDetailVC: UICollectionViewDataSource, UICollectionViewDel
                 }
             }
         }
+        
         return cell
     }
     

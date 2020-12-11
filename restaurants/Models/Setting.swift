@@ -226,16 +226,45 @@ enum Setting: String, CaseIterable {
     
     private static func sendFeedback() {
         guard let vc = UIApplication.topMostViewController else { return }
+        let email = "contact@stevendito.com"
+        let subject = "Feedback"
+        let body = "<br><br><br><br><br><hr><p>\(Network.shared.account?.username ?? "Not logged in")<br>\(UIDevice.modelName)<br>\(UIDevice.current.systemVersion)</p>"
+        
         if MFMailComposeViewController.canSendMail() {
             let mail = MFMailComposeViewController()
-            mail.setToRecipients(["contact@stevendito.com"])
-            mail.setSubject("Feedback")
+            mail.setToRecipients(["\(email)"])
+            mail.setSubject(subject)
             mail.mailComposeDelegate = Manager.shared
-            mail.setMessageBody("<br><br><br><br><br><hr><p>\(Network.shared.account?.username ?? "Not logged in")<br>\(UIDevice.modelName)<br>\(UIDevice.current.systemVersion)</p>", isHTML: true)
+            mail.setMessageBody(body, isHTML: true)
             vc.present(mail, animated: true)
+        } else if let url = createEmailUrl(to: email, subject: subject, body: ""), UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url)
         } else {
             vc.showMessage("Unable to send mail")
         }
+    }
+    
+    private static func createEmailUrl(to: String, subject: String, body: String) -> URL? {
+        let subjectEncoded = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        let bodyEncoded = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        
+        let gmailUrl = URL(string: "googlegmail://co?to=\(to)&subject=\(subjectEncoded)&body=\(bodyEncoded)")
+        let outlookUrl = URL(string: "ms-outlook://compose?to=\(to)&subject=\(subjectEncoded)")
+        let yahooMail = URL(string: "ymail://mail/compose?to=\(to)&subject=\(subjectEncoded)&body=\(bodyEncoded)")
+        let sparkUrl = URL(string: "readdle-spark://compose?recipient=\(to)&subject=\(subjectEncoded)&body=\(bodyEncoded)")
+        let defaultUrl = URL(string: "mailto:\(to)?subject=\(subjectEncoded)&body=\(bodyEncoded)")
+        
+        if let gmailUrl = gmailUrl, UIApplication.shared.canOpenURL(gmailUrl) {
+            return gmailUrl
+        } else if let outlookUrl = outlookUrl, UIApplication.shared.canOpenURL(outlookUrl) {
+            return outlookUrl
+        } else if let yahooMail = yahooMail, UIApplication.shared.canOpenURL(yahooMail) {
+            return yahooMail
+        } else if let sparkUrl = sparkUrl, UIApplication.shared.canOpenURL(sparkUrl) {
+            return sparkUrl
+        }
+        
+        return defaultUrl
     }
 }
 

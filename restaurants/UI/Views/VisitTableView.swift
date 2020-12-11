@@ -276,8 +276,11 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         // handle the main image
         let cellImageView = cell.visitImageView
         
-        let ratio = CGFloat(visit.mainImageWidth) / CGFloat(visit.mainImageHeight)
-        cell.visitImageViewHeightConstraint?.constant = cell.standardImageWidth / ratio
+        if let ratio = visit.mainImageRatio {
+            cell.visitImageViewHeightConstraint?.constant = cell.standardImageWidth / ratio
+        } else {
+            cell.visitImageViewHeightConstraint?.constant = 0
+        }
         
         cellImageView.image = nil
         if let image = imageCache?.object(forKey: key) {
@@ -315,8 +318,12 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let visitSelected = visits[indexPath.row]
+        guard let listPhotos = visitSelected.listPhotos else {
+            #warning("do something here")
+            return
+        }
         
-        var images: [(String, UIImage?)] = visitSelected.listPhotos.map({($0, nil)})
+        var images: [(String, UIImage?)] = listPhotos.map({($0, nil)})
         // get the images from the selected visit and add them to what is being sent
         let id = visitSelected.djangoOwnID
         var counter = 0

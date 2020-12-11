@@ -17,10 +17,17 @@ class Visit: Codable {
     var restaurantName: String
     var comment: String?
     
-    #warning("make these options")
-    var mainImage: String
-    var mainImageHeight: Int
-    var mainImageWidth: Int
+    var mainImage: String?
+    var mainImageHeight: Int?
+    var mainImageWidth: Int?
+    
+    var mainImageRatio: CGFloat? {
+        if let imageHeight = mainImageHeight, let imageWidth = mainImageWidth {
+            return CGFloat(imageWidth) / CGFloat(imageHeight)
+        } else {
+            return nil
+        }
+    }
     
     var person: Person?
     var otherImages: [VisitImage]
@@ -38,7 +45,8 @@ class Visit: Codable {
         var image: String
     }
     
-    var listPhotos: [String] {
+    var listPhotos: [String]? {
+        guard let mainImage = mainImage else { return nil }
         var arr: [String] = [mainImage]
         for photo in otherImages {
             arr.append(photo.image)

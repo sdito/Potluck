@@ -273,6 +273,14 @@ class SubmitRestaurantVC: UIViewController {
             fatalError()
         }
         
+        var newComment: String? {
+            if textView.text == "" {
+                return nil
+            } else {
+                return textView.text
+            }
+        }
+        
         if selectedPhotos.count > 0 {
             
             var selectedPhotosCopy = selectedPhotos
@@ -284,63 +292,67 @@ class SubmitRestaurantVC: UIViewController {
             var firstPhoto: UIImage {
                 return firstPhotoWhole.maxImage ?? firstPhotoWhole.image
             }
-            
-            let firstPhotoDate = firstPhotoWhole.date.convertToUTC()
-            
             let progressView = ProgressView(delegate: self)
+            let firstPhotoDate = firstPhotoWhole.date.convertToUTC()
             let vc = ShowViewVC(newView: progressView, mode: .top)
             vc.modalPresentationStyle = .overFullScreen
             self.navigationController?.present(vc, animated: false, completion: nil)
             
-            var newComment: String? {
-                if textView.text == "" {
-                    return nil
-                } else {
-                    return textView.text
-                }
-            }
+            postVisit(mode: mode, firstPhotoDate: firstPhotoDate, firstPhoto: firstPhoto, otherImages: otherPhotos, progressView: progressView, comment: newComment)
             
-            switch mode {
-            case .rawValue:
-                // Will only get called if no yelp restaurant is found from the parts
-                let rawValueEstablishment = Establishment(name: nameRawValue!, fullAddressString: addressRawValue, coordinate: coordinateRawValue)
-                executeForNonVisitedEstablishment(rawValueEstablishment, mainImage: firstPhoto, otherImages: otherPhotos, progressView: progressView, comment: newComment, firstPhotoDate: firstPhotoDate)
-            case .establishment:
-                if let id = establishment!.djangoID {
-                    Network.shared.userPostAlreadyVisited(djangoID: id,
-                                                          mainImage: firstPhoto,
-                                                          mainImageDate: firstPhotoDate,
-                                                          otherImages: otherPhotos,
-                                                          comment: textView.text,
-                                                          rating: sliderRatingView?.sliderValue,
-                                                          tags: self.tags,
-                                                          progressView: progressView)
-                    { (result) in
-                        DispatchQueue.main.async {
-                            switch result {
-                            case .success(_):
-                                progressView.successAnimation()
-                            case .failure(let error):
-                                print(error)
-                                progressView.failureAnimation()
-                            }
-                        }
-                    }
-                } else {
-                    executeForNonVisitedEstablishment(establishment!, mainImage: firstPhoto, otherImages: otherPhotos, progressView: progressView, comment: newComment, firstPhotoDate: firstPhotoDate)
-                }
-                
-            case .restaurant:
-                // turn restaurant into establishment
-                let convertedEstablishment = restaurant!.turnIntoEstablishment()
-                executeForNonVisitedEstablishment(convertedEstablishment, mainImage: firstPhoto, otherImages: otherPhotos, progressView: progressView, comment: newComment, firstPhotoDate: firstPhotoDate)
-            }
         } else {
-            imageSelector.noPhotosSelectedAlert()
+            self.appAlert(title: "No photos selected", message: "Are you sure you want to add a visit with no photos?", buttons: [
+                ("Cancel", nil),
+                ("Post", { [weak self] in
+                    // Still post, just without a photo though
+                    guard let self = self else { return }
+                    self.postVisit(mode: mode, firstPhotoDate: Date(), firstPhoto: nil, otherImages: nil, progressView: nil, comment: newComment)
+                    self.endAnimationComplete()
+                    self.tabBarController?.showMessage("Visit added")
+                })
+            ])
         }
     }
     
-    private func executeForNonVisitedEstablishment(_ establishment: Establishment, mainImage: UIImage, otherImages: [UIImage]?, progressView: ProgressView, comment: String?, firstPhotoDate: Date) {
+    func postVisit(mode: Mode, firstPhotoDate: Date, firstPhoto: UIImage?, otherImages: [UIImage]?, progressView: ProgressView?, comment: String?) {
+        switch mode {
+        case .rawValue:
+            // Will only get called if no yelp restaurant is found from the parts
+            let rawValueEstablishment = Establishment(name: nameRawValue!, fullAddressString: addressRawValue, coordinate: coordinateRawValue)
+            executeForNonVisitedEstablishment(rawValueEstablishment, mainImage: firstPhoto, otherImages: otherImages, progressView: progressView, comment: comment, firstPhotoDate: firstPhotoDate)
+        case .establishment:
+            if let id = establishment!.djangoID {
+                Network.shared.userPostAlreadyVisited(djangoID: id,
+                                                      mainImage: firstPhoto,
+                                                      mainImageDate: firstPhotoDate,
+                                                      otherImages: otherImages,
+                                                      comment: textView.text,
+                                                      rating: sliderRatingView?.sliderValue,
+                                                      tags: self.tags,
+                                                      progressView: progressView)
+                { (result) in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(_):
+                            progressView?.successAnimation()
+                        case .failure(let error):
+                            print(error)
+                            progressView?.failureAnimation()
+                        }
+                    }
+                }
+            } else {
+                executeForNonVisitedEstablishment(establishment!, mainImage: firstPhoto, otherImages: otherImages, progressView: progressView, comment: comment, firstPhotoDate: firstPhotoDate)
+            }
+            
+        case .restaurant:
+            // turn restaurant into establishment
+            let convertedEstablishment = restaurant!.turnIntoEstablishment()
+            executeForNonVisitedEstablishment(convertedEstablishment, mainImage: firstPhoto, otherImages: otherImages, progressView: progressView, comment: comment, firstPhotoDate: firstPhotoDate)
+        }
+    }
+    
+    private func executeForNonVisitedEstablishment(_ establishment: Establishment, mainImage: UIImage?, otherImages: [UIImage]?, progressView: ProgressView?, comment: String?, firstPhotoDate: Date) {
         Network.shared.userPostNotVisited(establishment: establishment,
                                           mainImage: mainImage,
                                           mainImageDate: firstPhotoDate,
@@ -353,9 +365,9 @@ class SubmitRestaurantVC: UIViewController {
             DispatchQueue.main.async {
                 switch result {
                 case .success(_):
-                    progressView.successAnimation()
+                    progressView?.successAnimation()
                 case .failure(_):
-                    progressView.failureAnimation()
+                    progressView?.failureAnimation()
                 }
             }
         }

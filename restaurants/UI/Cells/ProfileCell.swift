@@ -108,12 +108,14 @@ class ProfileCell: UICollectionViewCell {
         
         ratingLabel.attributedText = visit.ratingString ?? visit.getDummyRatingString()
         
-        if visit.listPhotos.count > 1 {
+        if let listPhotos = visit.listPhotos, listPhotos.count > 1 {
             multipleImagesView.isHidden = false
         } else {
             multipleImagesView.isHidden = true
         }
     }
+    
+    
     
     private func hideCell() {
         self.isUserInteractionEnabled = false
