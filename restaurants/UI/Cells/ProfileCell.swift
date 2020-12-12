@@ -15,10 +15,13 @@ class ProfileCell: UICollectionViewCell {
     let imageView = UIImageView()
     private let stackView = UIStackView()
     private let labelStackView = UIStackView()
+    private let ratingStackView = UIStackView()
     private let multipleImagesView = UIImageView(image: .squaresImage)
     private let placeLabel = UILabel()
     private let ratingLabel = UILabel()
+    private let dateLabel = UILabel()
     private var widthConstraint: NSLayoutConstraint?
+    private var heightConstraint: NSLayoutConstraint?
     private let base = UIView()
     
     override init(frame: CGRect) {
@@ -36,7 +39,9 @@ class ProfileCell: UICollectionViewCell {
         setUpImageView()
         setUpLabelStackView()
         setUpNameLabel()
+        setUpRatingStackView()
         setUpRatingLabel()
+        setUpDateLabel()
     }
     
     private func setUpView() {
@@ -59,7 +64,9 @@ class ProfileCell: UICollectionViewCell {
     
     private func setUpImageView() {
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.equalSides()
+//        imageView.equalSides()
+        heightConstraint = imageView.heightAnchor.constraint(equalToConstant: 0)
+        heightConstraint?.isActive = true
         imageView.backgroundColor = .secondarySystemBackground
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
@@ -88,16 +95,42 @@ class ProfileCell: UICollectionViewCell {
         labelStackView.addArrangedSubview(placeLabel)
     }
     
+    private func setUpRatingStackView() {
+        ratingStackView.translatesAutoresizingMaskIntoConstraints = false
+        ratingStackView.axis = .horizontal
+        ratingStackView.spacing = 10.0
+        ratingStackView.alignment = .fill
+        ratingStackView.distribution = .fill
+        labelStackView.addArrangedSubview(ratingStackView)
+    }
+    
     private func setUpRatingLabel() {
         ratingLabel.translatesAutoresizingMaskIntoConstraints = false
         ratingLabel.numberOfLines = 1
-        labelStackView.addArrangedSubview(ratingLabel)
+        ratingLabel.setContentHuggingPriority(.required, for: .horizontal)
+        ratingStackView.addArrangedSubview(ratingLabel)
+    }
+    
+    private func setUpDateLabel() {
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.numberOfLines = 1
+        dateLabel.font = .smallBold
+        dateLabel.textColor = .secondaryLabel
+        dateLabel.textAlignment = .left
+        ratingStackView.addArrangedSubview(dateLabel)
     }
     
     func setUp(with visit: Visit?, width: CGFloat) {
         self.visit = visit
         widthConstraint?.constant = width
         widthConstraint?.isActive = true
+        
+        if visit?.mainImage == nil {
+            heightConstraint?.constant = 0
+        } else {
+            heightConstraint?.constant = width
+        }
+        
         guard let visit = visit else {
             hideCell()
             return
@@ -105,17 +138,22 @@ class ProfileCell: UICollectionViewCell {
         showCell()
         
         placeLabel.text = visit.restaurantName
+        if let text = visit.ratingString {
+            ratingLabel.isHidden = false
+            ratingLabel.attributedText = text
+        } else {
+            ratingLabel.isHidden = true
+        }
         
-        ratingLabel.attributedText = visit.ratingString ?? visit.getDummyRatingString()
+        dateLabel.text = visit.userDateVisited
         
         if let listPhotos = visit.listPhotos, listPhotos.count > 1 {
             multipleImagesView.isHidden = false
         } else {
             multipleImagesView.isHidden = true
         }
+        
     }
-    
-    
     
     private func hideCell() {
         self.isUserInteractionEnabled = false
