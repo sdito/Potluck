@@ -1,14 +1,14 @@
 //
-//  TitleReusableView.swift
+//  UserProfileHeaderView.swift
 //  restaurants
 //
-//  Created by Steven Dito on 10/5/20.
+//  Created by Steven Dito on 12/12/20.
 //  Copyright © 2020 Steven Dito. All rights reserved.
 //
 
 import UIKit
 
-class TitleReusableView: UICollectionReusableView {
+class UserProfileHeaderView: UIView {
     
     private let stackView = UIStackView()
     private let label = UILabel()
@@ -17,8 +17,9 @@ class TitleReusableView: UICollectionReusableView {
     private let constraintDistance: CGFloat = 10.0
     let tagButton = TagButton(title: "", withImage: true, normal: true)
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    
+    init() {
+        super.init(frame: .zero)
         setUpElements()
     }
     
@@ -28,7 +29,7 @@ class TitleReusableView: UICollectionReusableView {
     
     private func setUpElements() {
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.backgroundColor = UIColor.secondarySystemBackground
+        self.backgroundColor = UIColor.systemBackground
         setUpStackView()
         setUpLabel()
         setUpTagButton()
@@ -48,7 +49,7 @@ class TitleReusableView: UICollectionReusableView {
     
     private func setUpLabel() {
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "This is a header"
+        label.text = "Visits"
         label.font = .largerBold
         stackView.addArrangedSubview(label)
         label.setContentHuggingPriority(.required, for: .horizontal)

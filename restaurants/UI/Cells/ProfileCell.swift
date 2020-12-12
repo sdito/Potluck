@@ -9,12 +9,14 @@
 import UIKit
 
 class ProfileCell: UICollectionViewCell {
-
+    
+    let dateLabelFont = UIFont.smallBold
+    let placeLabelFont = UIFont.mediumBold
+    
     var visit: Visit?
     
     let imageView = UIImageView()
     private let stackView = UIStackView()
-    private let labelStackView = UIStackView()
     private let ratingStackView = UIStackView()
     private let multipleImagesView = UIImageView(image: .squaresImage)
     private let placeLabel = UILabel()
@@ -36,12 +38,10 @@ class ProfileCell: UICollectionViewCell {
     private func setUpUiElements() {
         setUpView()
         setUpStackView()
-        setUpImageView()
-        setUpLabelStackView()
-        setUpNameLabel()
-        setUpRatingStackView()
-        setUpRatingLabel()
         setUpDateLabel()
+        setUpImageView()
+        setUpNameLabel()
+        setUpRatingLabel()
     }
     
     private func setUpView() {
@@ -62,9 +62,17 @@ class ProfileCell: UICollectionViewCell {
         stackView.alignment = .fill
     }
     
+    private func setUpDateLabel() {
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.numberOfLines = 1
+        dateLabel.font = dateLabelFont
+        dateLabel.textColor = .secondaryLabel
+        dateLabel.textAlignment = .left
+        stackView.addArrangedSubview(dateLabel)
+    }
+    
     private func setUpImageView() {
         imageView.translatesAutoresizingMaskIntoConstraints = false
-//        imageView.equalSides()
         heightConstraint = imageView.heightAnchor.constraint(equalToConstant: 0)
         heightConstraint?.isActive = true
         imageView.backgroundColor = .secondarySystemBackground
@@ -76,48 +84,22 @@ class ProfileCell: UICollectionViewCell {
         imageView.addSubview(multipleImagesView)
         multipleImagesView.constrain(.top, to: imageView, .top, constant: 5.0)
         multipleImagesView.constrain(.trailing, to: imageView, .trailing, constant: 5.0)
-        
         stackView.addArrangedSubview(imageView)
-    }
-    
-    private func setUpLabelStackView() {
-        labelStackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.addArrangedSubview(labelStackView)
-        labelStackView.axis = .vertical
-        labelStackView.distribution = .fill
     }
     
     private func setUpNameLabel() {
         placeLabel.translatesAutoresizingMaskIntoConstraints = false
         placeLabel.textColor = .label
-        placeLabel.font = .mediumBold
+        placeLabel.font = placeLabelFont
         placeLabel.numberOfLines = 1
-        labelStackView.addArrangedSubview(placeLabel)
-    }
-    
-    private func setUpRatingStackView() {
-        ratingStackView.translatesAutoresizingMaskIntoConstraints = false
-        ratingStackView.axis = .horizontal
-        ratingStackView.spacing = 10.0
-        ratingStackView.alignment = .fill
-        ratingStackView.distribution = .fill
-        labelStackView.addArrangedSubview(ratingStackView)
+        stackView.addArrangedSubview(placeLabel)
     }
     
     private func setUpRatingLabel() {
         ratingLabel.translatesAutoresizingMaskIntoConstraints = false
         ratingLabel.numberOfLines = 1
         ratingLabel.setContentHuggingPriority(.required, for: .horizontal)
-        ratingStackView.addArrangedSubview(ratingLabel)
-    }
-    
-    private func setUpDateLabel() {
-        dateLabel.translatesAutoresizingMaskIntoConstraints = false
-        dateLabel.numberOfLines = 1
-        dateLabel.font = .smallBold
-        dateLabel.textColor = .secondaryLabel
-        dateLabel.textAlignment = .left
-        ratingStackView.addArrangedSubview(dateLabel)
+        stackView.addArrangedSubview(ratingLabel)
     }
     
     func setUp(with visit: Visit?, width: CGFloat) {

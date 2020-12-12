@@ -17,10 +17,9 @@ class UserProfileVC: UIViewController {
     private var filteredVisits: [Visit] = []
     
     private let mapView = MKMapView()
-    private let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
+    private let dynamicHeightLayout = DynamicHeightLayout()
     private var collectionView: UICollectionView?
     private let reuseIdentifier = "userProfileReuseIdentifier"
-    private let headerIdentifier = "userProfileHeaderReuseIdentifier"
     private let padding: CGFloat = 1.5
     private let mapRatio: CGFloat = 0.35
     private var collectionViewTop: NSLayoutConstraint?
@@ -42,6 +41,9 @@ class UserProfileVC: UIViewController {
     private var previousScrollOffset: CGFloat = 0.0
     private var allowChanges = true
     private let mapOverlayButtonPadding: CGFloat = 5.0
+    private let headerHeight: CGFloat = 45.0
+    
+    private let headerView = UserProfileHeaderView()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,6 +52,7 @@ class UserProfileVC: UIViewController {
         getPersonData()
         setUpMap()
         setUpCollectionView()
+        setUpHeader()
         setUpReCenterButton()
     }
     
@@ -93,27 +96,9 @@ class UserProfileVC: UIViewController {
         mapView.layoutIfNeeded()
     }
     
-    private func setUpReCenterButton() {
-        reCenterMapButton.tintColor = Colors.locationColor
-        reCenterMapButton.setImage(UIImage.locationImage.withConfiguration(overlayConfiguration), for: .normal)
-        self.view.addSubview(reCenterMapButton)
-        reCenterMapButton.constrain(.bottom, to: collectionView!, .top, constant: mapOverlayButtonPadding)
-        reCenterMapButton.constrain(.trailing, to: self.view, .trailing, constant: mapOverlayButtonPadding)
-        reCenterMapButton.addTarget(self, action: #selector(reCenterMapAction), for: .touchUpInside)
-        reCenterMapButton.isHidden = true
-    }
-    
     private func setUpCollectionView() {
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        
-        layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = padding
-        layout.itemSize = UICollectionViewFlowLayout.automaticSize
-        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-        layout.minimumInteritemSpacing = 0.0
-        layout.headerReferenceSize = CGSize(width: UIScreen.main.bounds.width, height: 45.0)
-        layout.sectionHeadersPinToVisibleBounds = true
-        
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: dynamicHeightLayout)
+        dynamicHeightLayout.delegate = self
         collectionView?.showsVerticalScrollIndicator = false
         collectionView!.translatesAutoresizingMaskIntoConstraints = false
         collectionView!.delegate = self
@@ -123,10 +108,45 @@ class UserProfileVC: UIViewController {
         collectionView!.constrain(.leading, to: self.view, .leading)
         collectionView!.constrain(.trailing, to: self.view, .trailing)
         collectionView!.constrain(.bottom, to: self.view, .bottom)
-        collectionViewTop = collectionView!.constrain(.top, to: mapView, .bottom)
+        collectionViewTop = collectionView!.constrain(.top, to: mapView, .bottom, constant: headerHeight)
         collectionView!.alwaysBounceVertical = true
         collectionView!.register(ProfileCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        collectionView!.register(TitleReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
+    }
+    
+    private func setUpHeader() {
+        headerView.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(headerView)
+        headerView.constrain(.leading, to: self.view, .leading)
+        headerView.constrain(.trailing, to: self.view, .trailing)
+        headerView.constrain(.bottom, to: collectionView!, .top)
+        headerView.heightAnchor.constraint(equalToConstant: headerHeight).isActive = true
+        
+        headerButton = headerView.leftButton
+        headerButton!.addTarget(self, action: #selector(headerButtonAction), for: .touchUpInside)
+        
+        filterButton = headerView.rightButton
+        filterButton!.addTarget(self, action: #selector(filterButtonPressed), for: .touchUpInside)
+        
+        tagButton = headerView.tagButton
+        tagButton!.addTarget(self, action: #selector(clearTag), for: .touchUpInside)
+    }
+    
+    private func updateHeader() {
+        if let count = profile?.tags?.count, count > 0 {
+            filterButton?.isHidden = false
+        } else {
+            filterButton?.isHidden = true
+        }
+    }
+    
+    private func setUpReCenterButton() {
+        reCenterMapButton.tintColor = Colors.locationColor
+        reCenterMapButton.setImage(UIImage.locationImage.withConfiguration(overlayConfiguration), for: .normal)
+        self.view.addSubview(reCenterMapButton)
+        reCenterMapButton.constrain(.bottom, to: headerView, .top, constant: mapOverlayButtonPadding)
+        reCenterMapButton.constrain(.trailing, to: self.view, .trailing, constant: mapOverlayButtonPadding)
+        reCenterMapButton.addTarget(self, action: #selector(reCenterMapAction), for: .touchUpInside)
+        reCenterMapButton.isHidden = true
     }
     
     private func setUpRefreshControl() {
@@ -152,7 +172,6 @@ class UserProfileVC: UIViewController {
             case .success(let profile):
                 self.profile = profile
                 self.setUpWithProfile(profile: profile)
-                
             case .failure(_):
                 print("Failed getting profile")
             }
@@ -177,12 +196,13 @@ class UserProfileVC: UIViewController {
             self.filteredVisits = profile.visits ?? []
             self.collectionView?.reloadData()
             self.showOnMapIfThereAreNoEstablishments(establishments: profile.establishments)
+            self.updateHeader()
         }
     }
     
     @objc private func headerButtonAction() {
         self.collectionView?.layoutIfNeeded()
-        self.collectionViewTop?.constant = 0.0
+        self.collectionViewTop?.constant = headerHeight
         self.collectionView?.setNeedsLayout()
         self.allowChanges = false
         self.headerButton?.hideWithAlphaAnimated()
@@ -422,27 +442,6 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
         return cell
     }
     
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerIdentifier, for: indexPath) as! TitleReusableView
-        header.setTitle("Visits")
-        headerButton = header.leftButton
-        headerButton!.addTarget(self, action: #selector(headerButtonAction), for: .touchUpInside)
-        
-        filterButton = header.rightButton
-        filterButton!.addTarget(self, action: #selector(filterButtonPressed), for: .touchUpInside)
-        
-        tagButton = header.tagButton
-        tagButton?.addTarget(self, action: #selector(clearTag), for: .touchUpInside)
-        
-        if let count = profile?.tags?.count, count > 0 {
-            filterButton!.isHidden = false
-        } else {
-            filterButton!.isHidden = true
-        }
-        
-        return header
-    }
-    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if let visit = filteredVisits.appAtIndex(indexPath.item) {
             let profileVC = ProfileHomeVC(isOwnUsersProfile: false,
@@ -454,6 +453,26 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
         }
     }
     
+    
+    
+    func reloadCollectionView(tag: Tag?) {
+        let prevAlpha = headerButton?.alpha ?? 0.0
+        collectionView?.reloadData()
+        headerButton?.alpha = prevAlpha
+        
+        if let tag = tag {
+            tagButton?.setTitle(tag.display, for: .normal)
+            tagButton?.showWithAlphaAnimated()
+            filterButton?.showNotificationStyleText(str: "1")
+        } else {
+            tagButton?.hideWithAlphaAnimated()
+            filterButton?.removeNotificationStyleText()
+        }
+    }
+}
+
+// MARK: Scroll view
+extension UserProfileVC {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         animatedRefreshControl.updateProgress(with: scrollView.contentOffset.y)
         if allowChanges {
@@ -470,7 +489,7 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
                 let offset = scrollView.contentOffset.y
                 let difference = previousScrollOffset - offset
                 let potentialNewTop = collectionViewTop.constant + difference
-                let topRange = -mapViewHeight...0.0
+                let topRange = -mapViewHeight...headerHeight
                 
                 if topRange ~= potentialNewTop {
                     collectionViewTop.constant = potentialNewTop
@@ -491,7 +510,7 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
                     } else {
                         headerButton?.hideWithAlphaAnimated()
                         mapView.alpha = 1.0
-                        collectionViewTop.constant = 0.0
+                        collectionViewTop.constant = headerHeight
                     }
                 }
             }
@@ -500,21 +519,6 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     }
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         self.allowChanges = true
-    }
-    
-    func reloadCollectionView(tag: Tag?) {
-        let prevAlpha = headerButton?.alpha ?? 0.0
-        collectionView?.reloadData()
-        headerButton?.alpha = prevAlpha
-        
-        if let tag = tag {
-            tagButton?.setTitle(tag.display, for: .normal)
-            tagButton?.showWithAlphaAnimated()
-            filterButton?.showNotificationStyleText(str: "1")
-        } else {
-            tagButton?.hideWithAlphaAnimated()
-            filterButton?.removeNotificationStyleText()
-        }
     }
 }
 
@@ -540,4 +544,27 @@ extension UserProfileVC: TagSelectorViewDelegate {
 
     }
     func multipleChange(newAdditions: [Tag], newSubtractions: [Tag]) { return }
+}
+
+
+// MARK: DynamicHeightLayout
+extension UserProfileVC: DynamicHeightLayoutDelegate {
+    func collectionView(_ collectionView: UICollectionView, hasSquareImageAt indexPath: IndexPath) -> Bool {
+        let index = indexPath.item
+        guard let visit = filteredVisits.appAtIndex(index) else { return false } // watch out for the dummy cell situation
+        return visit.mainImage != nil
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, heightForBottomSectionIndexPath indexPath: IndexPath) -> CGFloat {
+        #warning("need to actually complete")
+        
+        // Date label (always there, one line)
+        // Name label (always there, for now only one line)
+        // Rating label (attributed text, one line, not always there
+        
+        // Need another function to handle spacing stuff
+        
+        
+        return 100.0
+    }
 }

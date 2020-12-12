@@ -7,24 +7,19 @@
 //
 
 import Foundation
-
-
 import UIKit
 
-
-#warning("need to use")
 protocol DynamicHeightLayoutDelegate {
-    func collectionView(_ collectionView: UICollectionView, heightForTextAtIndexPath indexPath: IndexPath, withWidth width: CGFloat) -> CGFloat
+    func collectionView(_ collectionView: UICollectionView, hasSquareImageAt indexPath: IndexPath) -> Bool
+    func collectionView(_ collectionView: UICollectionView, heightForBottomSectionIndexPath indexPath: IndexPath) -> CGFloat
 }
-
 
 class DynamicHeightLayout: UICollectionViewLayout {
     var delegate: DynamicHeightLayoutDelegate!
     var numberOfColumns = 2
     var cellPadding: CGFloat = 2
-    var headerHeight: CGFloat = 50 // decide if should use
-    
     var cache = [UICollectionViewLayoutAttributes]()
+    
     fileprivate var contentHeight: CGFloat = 0
     fileprivate var width: CGFloat {
         get {
@@ -37,15 +32,12 @@ class DynamicHeightLayout: UICollectionViewLayout {
     }
     
     override var collectionViewContentSize: CGSize {
-        // 100 higher to have a buffer from the bottom so everything is not as tight,
-        // will easily give space to alert the user if there are more recipes loading or if there are no more recipes to find
-        return CGSize(width: width, height: contentHeight + 100.0)
+        return CGSize(width: width, height: contentHeight)
     }
     
     override func prepare() {
         super.prepare()
         cache.removeAll()
-        contentHeight = 0
         if cache.isEmpty {
             let columnWidth = width / CGFloat(numberOfColumns)
             var xOffsets = [CGFloat]()
@@ -55,12 +47,13 @@ class DynamicHeightLayout: UICollectionViewLayout {
             var yOffsets = [CGFloat](repeating: 0, count: numberOfColumns)
             var column = 0
             
-            
             for item in 0..<collectionView!.numberOfItems(inSection: 0) {
                 let indexPath = IndexPath(item: item, section: 0)
                 let width = columnWidth - (cellPadding * 2)
-                let imageHeight = width
-                let height = delegate.collectionView(collectionView!, heightForTextAtIndexPath: indexPath, withWidth: width) + imageHeight + (cellPadding * 2)
+                let imageHeight = delegate.collectionView(collectionView!, hasSquareImageAt: indexPath) ? width : 0.0
+                let bottomHeight = delegate.collectionView(collectionView!, heightForBottomSectionIndexPath: indexPath)
+                
+                let height = imageHeight + bottomHeight
                 
                 let frame = CGRect(x: xOffsets[column], y: yOffsets[column], width: columnWidth, height: height)
                 let insetFrame = frame.insetBy(dx: cellPadding, dy: cellPadding)
@@ -76,9 +69,11 @@ class DynamicHeightLayout: UICollectionViewLayout {
         }
     }
     
+    
+    
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        
         var layoutAttributes = [UICollectionViewLayoutAttributes]()
+        
         for attributes in cache {
             if attributes.frame.intersects(rect) {
                 layoutAttributes.append(attributes)
@@ -86,6 +81,8 @@ class DynamicHeightLayout: UICollectionViewLayout {
         }
         return layoutAttributes
     }
-
+    
+    
+    
     
 }
