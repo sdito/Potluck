@@ -10,8 +10,7 @@ import Foundation
 import UIKit
 
 protocol DynamicHeightLayoutDelegate {
-    func collectionView(_ collectionView: UICollectionView, hasSquareImageAt indexPath: IndexPath) -> Bool
-    func collectionView(_ collectionView: UICollectionView, heightForBottomSectionIndexPath indexPath: IndexPath) -> CGFloat
+    func collectionView(_ collectionView: UICollectionView, heightForCell indexPath: IndexPath, width: CGFloat) -> CGFloat
 }
 
 class DynamicHeightLayout: UICollectionViewLayout {
@@ -50,11 +49,7 @@ class DynamicHeightLayout: UICollectionViewLayout {
             for item in 0..<collectionView!.numberOfItems(inSection: 0) {
                 let indexPath = IndexPath(item: item, section: 0)
                 let width = columnWidth - (cellPadding * 2)
-                let imageHeight = delegate.collectionView(collectionView!, hasSquareImageAt: indexPath) ? width : 0.0
-                let bottomHeight = delegate.collectionView(collectionView!, heightForBottomSectionIndexPath: indexPath)
-                
-                let height = imageHeight + bottomHeight
-                
+                let height = delegate.collectionView(collectionView!, heightForCell: indexPath, width: width)
                 let frame = CGRect(x: xOffsets[column], y: yOffsets[column], width: columnWidth, height: height)
                 let insetFrame = frame.insetBy(dx: cellPadding, dy: cellPadding)
                 let attributes = UICollectionViewLayoutAttributes(forCellWith: indexPath)

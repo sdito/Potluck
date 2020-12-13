@@ -350,7 +350,6 @@ extension RestaurantListVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.tableView.deselectRow(at: indexPath, animated: true)
         let restaurant = restaurants![indexPath.row]
-        //print(restaurant.name)
         let cell = tableView.cellForRow(at: indexPath) as! RestaurantCell
         cell.setUpForHero()
         self.parent?.navigationController?.isHeroEnabled = true

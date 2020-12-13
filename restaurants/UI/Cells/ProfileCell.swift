@@ -10,11 +10,13 @@ import UIKit
 
 class ProfileCell: UICollectionViewCell {
     
-    let dateLabelFont = UIFont.smallBold
-    let placeLabelFont = UIFont.mediumBold
+    static let dateLabelFont = UIFont.smallBold
+    static let placeLabelFont = UIFont.mediumBold
+    static let stackViewSpacing: CGFloat = 10.0
+    static let stackViewPadding: CGFloat = 7.5
+    static let nameNumberOfLines = 2
     
     var visit: Visit?
-    
     let imageView = UIImageView()
     private let stackView = UIStackView()
     private let ratingStackView = UIStackView()
@@ -57,7 +59,7 @@ class ProfileCell: UICollectionViewCell {
         self.base.addSubview(stackView)
         stackView.constrainSides(to: self.base, distance: 7.5)
         stackView.axis = .vertical
-        stackView.spacing = 10.0
+        stackView.spacing = ProfileCell.stackViewSpacing
         stackView.distribution = .fill
         stackView.alignment = .fill
     }
@@ -65,7 +67,7 @@ class ProfileCell: UICollectionViewCell {
     private func setUpDateLabel() {
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         dateLabel.numberOfLines = 1
-        dateLabel.font = dateLabelFont
+        dateLabel.font = ProfileCell.dateLabelFont
         dateLabel.textColor = .secondaryLabel
         dateLabel.textAlignment = .left
         stackView.addArrangedSubview(dateLabel)
@@ -90,8 +92,8 @@ class ProfileCell: UICollectionViewCell {
     private func setUpNameLabel() {
         placeLabel.translatesAutoresizingMaskIntoConstraints = false
         placeLabel.textColor = .label
-        placeLabel.font = placeLabelFont
-        placeLabel.numberOfLines = 1
+        placeLabel.font = ProfileCell.placeLabelFont
+        placeLabel.numberOfLines = ProfileCell.nameNumberOfLines
         stackView.addArrangedSubview(placeLabel)
     }
     
@@ -107,12 +109,9 @@ class ProfileCell: UICollectionViewCell {
         widthConstraint?.constant = width
         widthConstraint?.isActive = true
         
-        if visit?.mainImage == nil {
-            heightConstraint?.constant = 0
-        } else {
-            heightConstraint?.constant = width
-        }
-        
+        let imageHeight = ProfileCell.getVisitImageHeight(visit: visit, width: width)
+        heightConstraint?.constant = imageHeight
+
         guard let visit = visit else {
             hideCell()
             return
@@ -134,7 +133,16 @@ class ProfileCell: UICollectionViewCell {
         } else {
             multipleImagesView.isHidden = true
         }
-        
+    }
+    
+    private static func getVisitImageHeight(visit: Visit?, width: CGFloat) -> CGFloat {
+        #warning("need to have maximum for the thing")
+        if let imageHeight = visit?.mainImageHeight, let imageWidth = visit?.mainImageWidth, visit?.mainImage != nil {
+            let ratio = CGFloat(imageHeight) / CGFloat(imageWidth)
+            return width * ratio
+        } else {
+            return 0.0
+        }
     }
     
     private func hideCell() {
@@ -149,4 +157,22 @@ class ProfileCell: UICollectionViewCell {
         self.contentView.alpha = 1.0
     }
     
+    static func calculateHeight(with visit: Visit, width: CGFloat) -> CGFloat {
+        let padding = ProfileCell.stackViewPadding * 2
+        let dateSize = visit.userDateVisited.heightOfText(font: ProfileCell.dateLabelFont, width: nil)
+        let imageSize = ProfileCell.getVisitImageHeight(visit: visit, width: width)
+        let nameSize = visit.restaurantName.heightOfText(font: ProfileCell.placeLabelFont, width: width - padding, limitNumberOfLines: ProfileCell.nameNumberOfLines)
+        let numberOfStackViewSubviews = visit.rating == nil ? 3 : 4
+        let stackViewPadding = CGFloat(numberOfStackViewSubviews) * ProfileCell.stackViewSpacing
+        
+        var ratingSize: CGFloat {
+            if let rating = visit.ratingString {
+                return rating.heightOfString(width: nil)
+            } else {
+                return 0.0
+            }
+        }
+        
+        return dateSize + imageSize + nameSize + padding + stackViewPadding + ratingSize
+    }
 }

@@ -7,9 +7,23 @@
 //
 
 import UIKit
-
+import AVFoundation
 
 extension String {
+    
+    func heightOfText(font: UIFont, width: CGFloat?, limitNumberOfLines: Int? = nil) -> CGFloat {
+        
+        let rect = NSString(string: self).boundingRect(with: CGSize(width: width ?? CGFloat(MAXFLOAT), height: CGFloat(MAXFLOAT)), options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: font], context: nil)
+        
+        if let limit = limitNumberOfLines {
+            let testString = Array.init(repeating: "|", count: limit).joined(separator: "\n")
+            let testRect = NSString(string: testString).boundingRect(with: CGSize(width: width ?? CGFloat(MAXFLOAT), height: CGFloat(MAXFLOAT)), options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: font], context: nil)
+            
+            return ceil(min(rect.height, testRect.height))
+        } else {
+            return ceil(rect.height)
+        }
+    }
     
     func createTagAlias() -> String {
         var string = self.lowercased()

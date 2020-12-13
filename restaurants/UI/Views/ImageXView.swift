@@ -10,6 +10,7 @@ import UIKit
 
 class ImageXView: UIView {
     var representativeIndex = -1
+    var uniqueId: Int = -1
     
     var imageView = UIImageView()
     var cancelButton = UIButton()
@@ -60,11 +61,11 @@ class ImageXView: UIView {
     }
     
     
-    func setUp(image: UIImage?, size: CGFloat?, tag: Int/*, firstLocation: Bool*/) {
+    func setUp(image: UIImage?, size: CGFloat?, tag: Int, uniqueId: Int) {
         imageView.image = image
         self.equalSides(size: size)
         self.representativeIndex = tag
-        
+        self.uniqueId = uniqueId
     }
     
     func updateForStarPosition(firstLocation: Bool) {

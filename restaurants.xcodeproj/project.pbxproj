@@ -128,6 +128,7 @@
 		E29A0F9D2560D0C500E8D452 /* ProfilePageVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29A0F9C2560D0C500E8D452 /* ProfilePageVC.swift */; };
 		E29A2FBE2583505B00D8C1CD /* DynamicHeightLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29A2FBD2583505B00D8C1CD /* DynamicHeightLayout.swift */; };
 		E29A2FC125855F3600D8C1CD /* UserProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29A2FC025855F3600D8C1CD /* UserProfileHeaderView.swift */; };
+		E29A2FC52585816200D8C1CD /* NSAttributedString-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29A2FC42585816200D8C1CD /* NSAttributedString-Extension.swift */; };
 		E29AF2F724D690F5004C60FC /* SearchRestaurantsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29AF2F624D690F5004C60FC /* SearchRestaurantsVC.swift */; };
 		E29AF2F924E08A53004C60FC /* RestaurantSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29AF2F824E08A53004C60FC /* RestaurantSearchBar.swift */; };
 		E2A0146F24F5C00F00379518 /* Visit-Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A0146E24F5C00F00379518 /* Visit-Network.swift */; };
@@ -274,6 +275,7 @@
 		E29A0F9C2560D0C500E8D452 /* ProfilePageVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePageVC.swift; sourceTree = "<group>"; };
 		E29A2FBD2583505B00D8C1CD /* DynamicHeightLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicHeightLayout.swift; sourceTree = "<group>"; };
 		E29A2FC025855F3600D8C1CD /* UserProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileHeaderView.swift; sourceTree = "<group>"; };
+		E29A2FC42585816200D8C1CD /* NSAttributedString-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedString-Extension.swift"; sourceTree = "<group>"; };
 		E29AF2F624D690F5004C60FC /* SearchRestaurantsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRestaurantsVC.swift; sourceTree = "<group>"; };
 		E29AF2F824E08A53004C60FC /* RestaurantSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantSearchBar.swift; sourceTree = "<group>"; };
 		E2A0146E24F5C00F00379518 /* Visit-Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Visit-Network.swift"; sourceTree = "<group>"; };
@@ -510,6 +512,7 @@
 				E215535424B3F29D00494E1A /* Date-Extension.swift */,
 				E212BE5A255E7382009C8921 /* Int-Extension.swift */,
 				E27A757324AEDD3A00E446EE /* MKMapView-Extension.swift */,
+				E29A2FC42585816200D8C1CD /* NSAttributedString-Extension.swift */,
 				E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */,
 				E2778DD824B7F9DC00151F29 /* String-Extension.swift */,
 				E2574A2C24B6A537006618D7 /* TimeInterval-Extension.swift */,
@@ -718,6 +721,7 @@
 				E25BA4B32533910E0063C944 /* PersonTitleButton.swift in Sources */,
 				E26CD828251C0A550082DBE0 /* Setting.swift in Sources */,
 				E29A2FBE2583505B00D8C1CD /* DynamicHeightLayout.swift in Sources */,
+				E29A2FC52585816200D8C1CD /* NSAttributedString-Extension.swift in Sources */,
 				E2768DF024B15340004CB475 /* Colors.swift in Sources */,
 				E2A0147324F617ED00379518 /* UITableView-Extension.swift in Sources */,
 				E23AF9FB24F62075004542A2 /* VisitCell.swift in Sources */,

@@ -449,6 +449,7 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
                                           selectedVisit: visit,
                                           prevImageCache: imageCache,
                                           otherPerson: person)
+            
             self.navigationController?.pushViewController(profileVC, animated: true)
         }
     }
@@ -555,16 +556,9 @@ extension UserProfileVC: DynamicHeightLayoutDelegate {
         return visit.mainImage != nil
     }
     
-    func collectionView(_ collectionView: UICollectionView, heightForBottomSectionIndexPath indexPath: IndexPath) -> CGFloat {
-        #warning("need to actually complete")
-        
-        // Date label (always there, one line)
-        // Name label (always there, for now only one line)
-        // Rating label (attributed text, one line, not always there
-        
-        // Need another function to handle spacing stuff
-        
-        
-        return 100.0
+    func collectionView(_ collectionView: UICollectionView, heightForCell indexPath: IndexPath, width: CGFloat) -> CGFloat {
+        guard let visit = filteredVisits.appAtIndex(indexPath.item) else { return 0.0 } // watch out for the dummy cell situation
+        let height = ProfileCell.calculateHeight(with: visit, width: width)
+        return height
     }
 }

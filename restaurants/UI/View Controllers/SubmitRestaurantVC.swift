@@ -38,12 +38,10 @@ class SubmitRestaurantVC: UIViewController {
     private var coordinateRawValue: CLLocationCoordinate2D?
     private var tags: [String]?
     
-    
     private var establishment: Establishment?
     private var restaurant: Restaurant?
     private var mode: Mode?
     private var map: MapLocationView?
-    
     
     
     init(rawValues: (name: String, address: String)?, establishment: Establishment?, restaurant: Restaurant?) {
@@ -87,7 +85,6 @@ class SubmitRestaurantVC: UIViewController {
         setUpNavigationBar()
         setUpKeyboardRecognizer()
         self.edgesForExtendedLayout = [.bottom, .left, .right]
-            
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -100,13 +97,17 @@ class SubmitRestaurantVC: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        let buttonHeight = showMapPopUpButton.bounds.height
-        let mapHeight = self.map?.bounds.height ?? buttonHeight
         
-        let ratio: CGFloat = (mapHeight - buttonHeight) / mapHeight
-        mapHeightInitial = mapHeight
-        mapHeightMinimum = mapHeightInitial! * (1-ratio)
-        self.containerViewMaxHeight = self.containerViewBaseHeight + (mapHeightInitial! * ratio)
+        // only need to run on initial, or gets messed up when another VC is presented
+        if self.isBeingPresented || self.isMovingToParent {
+            let buttonHeight = showMapPopUpButton.bounds.height
+            let mapHeight = self.map?.bounds.height ?? buttonHeight
+            let ratio: CGFloat = (mapHeight - buttonHeight) / mapHeight
+            mapHeightInitial = mapHeight
+            mapHeightMinimum = mapHeightInitial! * (1-ratio)
+            self.containerViewMaxHeight = self.containerViewBaseHeight + (mapHeightInitial! * ratio)
+        }
+        
     }
     
     private func setUpNavigationBar() {

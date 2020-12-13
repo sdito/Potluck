@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>The camera is used to take photos to add to your visit</string>
 	<key>CFBundleDisplayName</key>
 	<string>Potluck</string>
 	<key>CFBundleExecutable</key>

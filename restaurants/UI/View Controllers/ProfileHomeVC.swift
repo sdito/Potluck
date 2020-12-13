@@ -30,6 +30,7 @@ class ProfileHomeVC: UIViewController {
     init(isOwnUsersProfile: Bool, visits: [Visit]?, selectedVisit: Visit? = nil, prevImageCache: NSCache<NSString, UIImage>? = nil, otherPerson: Person? = nil) {
         super.init(nibName: nil, bundle: nil)
         self.isOwnUsersProfile = isOwnUsersProfile
+
         visitTableView = VisitTableView(mode: .user, prevImageCache: prevImageCache, delegate: self)
         #warning("could init with tags from the user here, this is for the non user account, see set up with tags")
         if let visits = visits {
@@ -103,8 +104,9 @@ class ProfileHomeVC: UIViewController {
             if let elementId = selectedVisit?.djangoOwnID, let idx = filteredVisits.map({$0.djangoOwnID}).firstIndex(of: elementId) {
                 visitTableView?.visits = filteredVisits
                 visitTableView?.layoutIfNeeded()
+                let indexPath = IndexPath(row: idx, section: 0)
                 DispatchQueue.main.async {
-                    self.visitTableView?.scrollToRow(at: IndexPath(row: idx, section: 0), at: .top, animated: false)
+                    self.visitTableView?.scrollToRow(at: indexPath, at: .top, animated: false)
                 }
             }
         }
