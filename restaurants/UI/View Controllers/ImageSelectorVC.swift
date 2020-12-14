@@ -72,7 +72,7 @@ class ImageSelectorVC: UIViewController {
             self.asset = asset
             self.date = date
             self.indexPath = indexPath
-            self.uniqueId = ImageSelectorVC.idCounter; #warning("need to use uniqueId for everything to make the camera addition work")
+            self.uniqueId = ImageSelectorVC.idCounter
             ImageSelectorVC.idCounter += 1
             
             if !isDummy {
@@ -426,12 +426,12 @@ class ImageSelectorVC: UIViewController {
         let value = maxPhotos - count
         
         if count == 0 {
-            selectUpToLabel.text = "Select up to \(maxPhotos) photos"
+            selectUpToLabel.text = "Select/take up to \(maxPhotos) photos"
         } else if value == 0 {
             selectUpToLabel.text = "Maximum photos selected"
         } else {
             let s = (value == 1) ? "" : "s"
-            selectUpToLabel.text = "Select up to \(value) more photo\(s)"
+            selectUpToLabel.text = "Select/take up to \(value) more photo\(s)"
         }
     }
 }
@@ -508,12 +508,9 @@ extension ImageSelectorVC: UIImagePickerControllerDelegate & UINavigationControl
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
         guard let image = info[.originalImage] as? UIImage else { return }
-        print("Has the original image....")
         
         let imageInfo = ImageInfo(image: image, asset: nil, date: Date(), indexPath: nil, isDummy: false)
-        
         selectedPhotos.append(imageInfo)
-        #warning("combine with other usage")
         let holderView = ImageXView()
         let selectedIndex = self.scrollingView.stackView.arrangedSubviews.count - 1
         holderView.setUp(image: image, size: self.basicSize, tag: -1, uniqueId: imageInfo.uniqueId)

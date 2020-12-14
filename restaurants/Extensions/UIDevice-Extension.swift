@@ -182,6 +182,21 @@ extension UIDevice {
         }
     }
     
+    static func cameraAccessAuthorizedString() -> String {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .notDetermined:
+            return notDetermined
+        case .restricted:
+            return notEnabled
+        case .denied:
+            return notEnabled
+        case .authorized:
+            return enabled
+        default:
+            return notEnabled
+        }
+    }
+    
     static func contactAccessAuthorizedString() -> String {
         switch CNContactStore.authorizationStatus(for: .contacts) {
         case .notDetermined:

@@ -30,7 +30,7 @@ enum Setting: String, CaseIterable {
         case .settings:
             return [RV.contactDeveloper.instance, RV.appAppearance.instance, RV.reviewApp.instance, RV.hapticFeedback.instance]
         case .privacy:
-            return [RV.locationEnabled.instance, RV.photosEnabled.instance, RV.contactsEnabled.instance]
+            return [RV.locationEnabled.instance, RV.photosEnabled.instance, RV.cameraEnabled.instance, RV.contactsEnabled.instance]
         }
     }
     
@@ -58,6 +58,7 @@ enum Setting: String, CaseIterable {
             case hapticFeedback
             case locationEnabled
             case photosEnabled
+            case cameraEnabled
             case contactsEnabled
             case reviewApp
             case appAppearance
@@ -132,6 +133,12 @@ enum Setting: String, CaseIterable {
                                description: "Photo access is used to allow you to select photos for your visits. If this is not enabled, you will not be able to add a visit.",
                                mode: .arrowOpen,
                                subtitle: UIDevice.photoAccessAuthorizedString(),
+                               pressAction: { UIDevice.openAppSettings() })
+                case .cameraEnabled:
+                    return Row(title: "Camera access",
+                               description: "Photo access is used to allow you to select photos for your visits. If this is not enabled, you will not be able to add a visit.",
+                               mode: .arrowOpen,
+                               subtitle: UIDevice.cameraAccessAuthorizedString(),
                                pressAction: { UIDevice.openAppSettings() })
                 case .contactsEnabled:
                     return Row(title: "Contacts access",

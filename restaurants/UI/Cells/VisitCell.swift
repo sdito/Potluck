@@ -207,7 +207,6 @@ class VisitCell: UITableViewCell {
     }
     
     @objc private func moreActionsSelector() {
-        
         guard let delegate = delegate, let vc = findViewController(), let visit = visit else { return }
         vc.appActionSheet(buttons: [
             AppAction(title: "Edit visit", action: nil, buttons: [
