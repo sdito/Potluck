@@ -392,15 +392,7 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
             collectionView.restore()
         }
         
-        if count == 1 {
-            // So, if only one cell is laid out then there will be only one centered column which looks weird
-            // Easy way to fix the issue is to lay out another dummy cell (and hide it), so that the first and only actual cell is in the left aligned column
-            // see appAtIndex calculation in cellForItem, cell blanked out with cell.setUp(with: nil, width: width)
-            return 2
-        } else {
-            // Otherwise just layout the correct number of cells
-            return count
-        }
+        return count
         
     }
     

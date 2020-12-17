@@ -86,19 +86,9 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
     @objc private func layerButtonAction() {
         guard allowPressing else { return }
         guard let vc = self.findViewController(), let visit = visit else { return }
-        vc.appActionSheet(buttons: [
-            AppAction(title: "Edit visit", action: nil, buttons: [
-                AppAction(title: "Edit comment", action: { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .textView, enterTextViewDelegate: self) }),
-                AppAction(title: "Edit rating", action: { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .rating, enterTextViewDelegate: self) }),
-                AppAction(title: "Edit tags", action: { [weak self] in visit.changeTagsProcess(presentingVC: vc, visitTagsDelegate: self) })
-            ]),
-            AppAction(title: "Delete visit", action: { [weak self] in
-                vc.appAlert(title: "Are you sure you want to delete this visit?", message: "This action cannot be undone.", buttons: [
-                    ("Cancel", nil),
-                    ("Delete", { [weak self] in self?.handleDeleting() } )
-                ])
-            })
-        ])
+        
+        #warning("need to test to make sure this actually works")
+        vc.actionSheetToEditVisit(visit: visit, enterValueViewDelegate: self, visitTagsDelegate: self, deleteAction: { [weak self] in self?.handleDeleting() })
     }
     
     private func handleDeleting() {

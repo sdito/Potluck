@@ -13,6 +13,31 @@ import SafariServices
 
 extension UIViewController {
     
+    
+    
+    
+    
+    
+    #warning("this")
+    func actionSheetToEditVisit(visit: Visit, enterValueViewDelegate: EnterValueViewDelegate?, visitTagsDelegate: VisitTagsDelegate?, deleteAction: @escaping (() ->())) {
+        self.appActionSheet(buttons: [
+            AppAction(title: "Edit visit", action: nil, buttons: [
+                AppAction(title: "Edit comment", action: { [unowned self] in visit.changeValueProcess(presentingVC: self, mode: .textView, enterTextViewDelegate: enterValueViewDelegate) }),
+                AppAction(title: "Edit rating", action: { [unowned self] in visit.changeValueProcess(presentingVC: self, mode: .rating, enterTextViewDelegate: enterValueViewDelegate) }),
+                AppAction(title: "Edit tags", action: { [unowned self] in visit.changeTagsProcess(presentingVC: self, visitTagsDelegate: visitTagsDelegate) }),
+                AppAction(title: "Edit photos", action: { visit.changePhotosProcess(presentingVC: self) } )
+            ]),
+            AppAction(title: "Delete visit", action: { [weak self] in
+                self?.appAlert(title: "Are you sure you want to delete this visit?", message: "This action cannot be undone.", buttons: [
+                    ("Cancel", nil),
+                    ("Delete", { deleteAction() } )
+                ])
+            })
+        ])
+    }
+    
+    
+    
     func updateNavigationItemTitle(to string: String) {
         let fadeTextAnimation = CATransition()
         fadeTextAnimation.duration = 0.2

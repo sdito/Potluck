@@ -187,6 +187,12 @@ class Visit: Codable {
         presentingVC.present(vc, animated: true, completion: nil)
     }
     
+    func changePhotosProcess(presentingVC: UIViewController) {
+        let vc = ImageSelectorVC(standalone: true, previousPhotos: self.listPhotos)
+//        vc.modalPresentationStyle = .overFullScreen
+        presentingVC.present(vc, animated: true, completion: nil)
+    }
+    
     enum CodingKeys: String, CodingKey {
         case djangoOwnID = "id"
         case djangoRestaurantID = "restaurant"

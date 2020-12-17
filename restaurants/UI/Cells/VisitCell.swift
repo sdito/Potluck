@@ -207,20 +207,8 @@ class VisitCell: UITableViewCell {
     }
     
     @objc private func moreActionsSelector() {
-        guard let delegate = delegate, let vc = findViewController(), let visit = visit else { return }
-        vc.appActionSheet(buttons: [
-            AppAction(title: "Edit visit", action: nil, buttons: [
-                AppAction(title: "Edit comment", action: { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .textView, enterTextViewDelegate: self) }),
-                AppAction(title: "Edit rating", action: { [weak self] in visit.changeValueProcess(presentingVC: vc, mode: .rating, enterTextViewDelegate: self) }),
-                AppAction(title: "Edit tags", action: { [weak self] in visit.changeTagsProcess(presentingVC: vc, visitTagsDelegate: self) })
-            ]),
-            AppAction(title: "Delete visit", action: { [weak self] in
-                vc.appAlert(title: "Are you sure you want to delete this visit?", message: "This action cannot be undone.", buttons: [
-                    ("Cancel", nil),
-                    ("Delete", { [weak self] in delegate.delete(visit: self?.visit) } )
-                ])
-            })
-        ])
+        guard let delegate = delegate, let vc = self.findViewController(), let visit = visit else { return }
+        vc.actionSheetToEditVisit(visit: visit, enterValueViewDelegate: self, visitTagsDelegate: self, deleteAction: { [weak self] in delegate.delete(visit: self?.visit) })
     }
     
     @objc private func restaurantNameSelected() {

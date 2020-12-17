@@ -18,9 +18,9 @@ protocol ImageSelectorDelegate: class {
 
 
 class ImageSelectorVC: UIViewController {
-    
+    private var standalone = false
+    private var previousPhotos: [String]?
     weak var delegate: ImageSelectorDelegate?
-    
     private var selectedPhotos: [ImageInfo] = [] {
         didSet {
             delegate?.photosUpdated(to: self.selectedPhotos)
@@ -58,64 +58,94 @@ class ImageSelectorVC: UIViewController {
     private let stackViewAnimationDuration: TimeInterval = 0.4
     private let maxPhotos = 5
     private static var idCounter = 1
+    private let upperStackView = UIStackView()
+    private lazy var headerView = HeaderView(leftButtonTitle: "Cancel", rightButtonTitle: "Done", title: "Edit photos")
+    private lazy var spacerView = SpacerView(size: 2.0, orientation: .vertical)
     
-    class ImageInfo {
-        var image: UIImage
-        var asset: PHAsset?
-        var date: Date
-        var indexPath: IndexPath?
-        var maxImage: UIImage?
-        var uniqueId: Int
-        
-        init(image: UIImage, asset: PHAsset?, date: Date, indexPath: IndexPath?, isDummy: Bool) {
-            self.image = image
-            self.asset = asset
-            self.date = date
-            self.indexPath = indexPath
-            self.uniqueId = ImageSelectorVC.idCounter
-            ImageSelectorVC.idCounter += 1
-            
-            if !isDummy {
-                getMaxImage()
-            }
-            
-        }
-        
-        private func getMaxImage() {
-            asset?.getOriginalImage { [weak self] (imageFound) in
-                guard let self = self else { return }
-                self.maxImage = imageFound
-            }
-        }
-        
+    init(standalone: Bool = false, previousPhotos: [String]? = nil) {
+        super.init(nibName: nil, bundle: nil)
+        self.standalone = standalone
+        self.previousPhotos = previousPhotos
     }
-
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
-        setUpSelectedImageScrollView()
+        setUpHeaderForStandalone()
+        setUpUpperElements()
+        setUpScrollingStackView()
         setUpCollectionView()
-        setUp()
+        getUserPhotos()
+        addPreviousPhotos()
     }
     
+    private func setUpHeaderForStandalone() {
+        if standalone {
+            self.view.addSubview(headerView)
+            headerView.constrain(.leading, to: self.view, .leading, constant: scrollingViewConstant)
+            headerView.constrain(.trailing, to: self.view, .trailing, constant: scrollingViewConstant)
+            headerView.constrain(.top, to: self.view, .top, constant: scrollingViewConstant)
+            headerView.leftButton.addTarget(self, action: #selector(dismissVc), for: .touchUpInside)
+            
+            self.view.addSubview(spacerView)
+            spacerView.constrain(.leading, to: self.view, .leading)
+            spacerView.constrain(.trailing, to: self.view, .trailing)
+            spacerView.constrain(.top, to: headerView, .bottom, constant: scrollingViewConstant)
+        }
+    }
     
-    private func setUpSelectedImageScrollView() {
+    private func setUpUpperElements() {
+        upperStackView.translatesAutoresizingMaskIntoConstraints = false
+        upperStackView.axis = .horizontal
+        upperStackView.spacing = scrollingViewConstant
+        upperStackView.distribution = .fill
+        self.view.addSubview(upperStackView)
+        
+        if standalone {
+            // has the header view then
+            upperStackView.constrain(.top, to: spacerView, .bottom, constant: scrollingViewConstant)
+        } else {
+            upperStackView.constrain(.top, to: self.view, .top, constant: scrollingViewConstant)
+            
+        }
+        
+        upperStackView.constrain(.leading, to: self.view, .leading, constant: scrollingViewConstant)
+        upperStackView.constrain(.trailing, to: self.view, .trailing, constant: scrollingViewConstant)
         
         selectUpToLabel.translatesAutoresizingMaskIntoConstraints = false
         updateSelectUpToLabel()
         selectUpToLabel.font = .mediumBold
         selectUpToLabel.textColor = .tertiaryLabel
+        selectUpToLabel.textAlignment = .left
+        selectUpToLabel.setContentHuggingPriority(.fittingSizeLevel, for: .horizontal)
+        upperStackView.addArrangedSubview(selectUpToLabel)
         
-        self.view.addSubview(selectUpToLabel)
-        selectUpToLabel.constrain(.top, to: self.view, .top, constant: scrollingViewConstant)
-        selectUpToLabel.constrain(.leading, to: self.view, .leading, constant: scrollingViewConstant)
+        let infoButton = UIButton(type: .infoDark)
+        infoButton.translatesAutoresizingMaskIntoConstraints = false
+        infoButton.tintColor = Colors.main
+        infoButton.addTarget(self, action: #selector(infoButtonPressed), for: .touchUpInside)
+        infoButton.setContentHuggingPriority(.required, for: .horizontal)
+        upperStackView.addArrangedSubview(infoButton)
         
-        setUpInfoAndCameraButtons()
+        let cameraButton = UIButton()
+        cameraButton.setImage(.cameraImage, for: .normal)
+        cameraButton.translatesAutoresizingMaskIntoConstraints = false
+        cameraButton.tintColor = Colors.main
+        cameraButton.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
+        cameraButton.setContentHuggingPriority(.required, for: .horizontal)
+        upperStackView.addArrangedSubview(cameraButton)
+    }
+    
+    private func setUpScrollingStackView() {
         
         self.view.addSubview(scrollingView)
         scrollingView.constrain(.leading, to: self.view, .leading, constant: scrollingViewConstant)
         scrollingView.constrain(.trailing, to: self.view, .trailing, constant: scrollingViewConstant)
-        scrollingView.constrain(.top, to: selectUpToLabel, .bottom, constant: scrollingViewConstant)
+        scrollingView.constrain(.top, to: upperStackView, .bottom, constant: scrollingViewConstant)
         scrollingView.clipsToBounds = false
         
         placeholderView.translatesAutoresizingMaskIntoConstraints = false
@@ -124,30 +154,6 @@ class ImageSelectorVC: UIViewController {
         placeholderView.equalSides(size: basicSize)
         placeholderView.tag = -1
         placeholderView.isHidden = true
-    }
-    
-    private func setUpInfoAndCameraButtons() {
-        
-        let infoButton = UIButton(type: .infoDark)
-        infoButton.translatesAutoresizingMaskIntoConstraints = false
-        infoButton.tintColor = Colors.main
-        infoButton.addTarget(self, action: #selector(infoButtonPressed), for: .touchUpInside)
-        
-        let cameraButton = UIButton()
-        cameraButton.setImage(.cameraImage, for: .normal)
-        cameraButton.translatesAutoresizingMaskIntoConstraints = false
-        cameraButton.tintColor = Colors.main
-        cameraButton.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
-        
-        let buttonStackView = UIStackView(arrangedSubviews: [infoButton, cameraButton])
-        buttonStackView.translatesAutoresizingMaskIntoConstraints = false
-        buttonStackView.spacing = scrollingViewConstant
-        buttonStackView.axis = .horizontal
-        buttonStackView.distribution = .fillEqually
-        self.view.addSubview(buttonStackView)
-        buttonStackView.constrain(.trailing, to: self.view, .trailing, constant: scrollingViewConstant)
-        buttonStackView.centerYAnchor.constraint(equalTo: selectUpToLabel.centerYAnchor).isActive = true
-        
     }
     
     private func setUpCollectionView() {
@@ -164,9 +170,38 @@ class ImageSelectorVC: UIViewController {
         collectionView.addGestureRecognizer(longPressRecognizer)
     }
     
+    private func addPreviousPhotos() {
+        guard let previousPhotos = previousPhotos else { return }
+        for previousPhoto in previousPhotos {
+            
+            let holderView = addNewImage(image: nil, tag: nil)
+            
+            holderView.appStartSkeleton()
+            Network.shared.getImage(url: previousPhoto) { (imageFound) in
+                holderView.appEndSkeleton()
+                holderView.imageView.image = imageFound
+            }
+            
+        }
+    }
+    
+    #warning("need to use this on the other places, glitched out when trying to use it before")
+    @discardableResult
+    private func addNewImage(image: UIImage?, tag: Int?) -> ImageXView {
+        let imageInfo = ImageInfo(image: image ?? UIImage(), asset: nil, date: Date(), indexPath: nil, isDummy: false)
+        selectedPhotos.append(imageInfo)
+        let holderView = ImageXView()
+        let selectedIndex = self.scrollingView.stackView.arrangedSubviews.count - 1
+        holderView.setUp(image: image ?? UIImage(), size: self.basicSize, tag: tag ?? -1, uniqueId: imageInfo.uniqueId)
+        self.scrollingView.stackView.insertArrangedSubview(holderView, at: selectedIndex)
+        self.setUpMoveGestureRecognizer(holderView)
+        holderView.cancelButton.addTarget(self, action: #selector(self.removeImageView(sender:)), for: .touchUpInside)
+        self.placeholderView.isHidden = true
+        return holderView
+    }
     
     
-    private func setUp() {
+    private func getUserPhotos() {
         requestOptions.isSynchronous = false
         requestOptions.deliveryMode = .highQualityFormat
     
@@ -411,10 +446,16 @@ class ImageSelectorVC: UIViewController {
     }
     
     @objc private func cameraButtonPressed() {
+        guard selectedPhotos.count < maxPhotos else {
+            selectUpToLabel.shakeView()
+            UIDevice.vibrateError()
+            return
+        }
+        
         let vc = UIImagePickerController()
         vc.sourceType = .camera
         vc.delegate = self
-        self.parent?.present(vc, animated: true)
+        (self.parent ?? self).present(vc, animated: true)
     }
     
     @objc private func photosNotAuthorized() {
@@ -433,6 +474,10 @@ class ImageSelectorVC: UIViewController {
             let s = (value == 1) ? "" : "s"
             selectUpToLabel.text = "Select/take up to \(value) more photo\(s)"
         }
+    }
+    
+    @objc private func dismissVc() {
+        self.dismiss(animated: true, completion: nil)
     }
 }
 
@@ -474,6 +519,7 @@ extension ImageSelectorVC: UICollectionViewDelegate, UICollectionViewDataSource 
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if selectedPhotos.count >= maxPhotos {
             selectUpToLabel.shakeView()
+            UIDevice.vibrateError()
             collectionView.cellForItem(at: indexPath)?.shakeView()
             return false
         }
@@ -521,3 +567,34 @@ extension ImageSelectorVC: UIImagePickerControllerDelegate & UINavigationControl
     }
 }
 
+// MARK: Image info
+extension ImageSelectorVC {
+    class ImageInfo {
+        var image: UIImage
+        var asset: PHAsset?
+        var date: Date
+        var indexPath: IndexPath?
+        var maxImage: UIImage?
+        var uniqueId: Int
+        
+        init(image: UIImage, asset: PHAsset?, date: Date, indexPath: IndexPath?, isDummy: Bool) {
+            self.image = image
+            self.asset = asset
+            self.date = date
+            self.indexPath = indexPath
+            self.uniqueId = ImageSelectorVC.idCounter
+            ImageSelectorVC.idCounter += 1
+            
+            if !isDummy {
+                getMaxImage()
+            }
+        }
+        
+        private func getMaxImage() {
+            asset?.getOriginalImage { [weak self] (imageFound) in
+                guard let self = self else { return }
+                self.maxImage = imageFound
+            }
+        }
+    }
+}
