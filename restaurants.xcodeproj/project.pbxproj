@@ -137,6 +137,7 @@
 		E2B6A2B724AFECD10070DECA /* Restaurant.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B6A2B624AFECD10070DECA /* Restaurant.swift */; };
 		E2B6A2B924B007030070DECA /* CLLocationCoordinate2D-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */; };
 		E2C8E88F24C378AE003DC824 /* RestaurantListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2C8E88E24C378AE003DC824 /* RestaurantListVC.swift */; };
+		E2DB960D258DB72200A69E13 /* PreSignedPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DB960C258DB72200A69E13 /* PreSignedPost.swift */; };
 		E2DC2F2724EDCED0002C6A07 /* ImageXView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DC2F2624EDCED0002C6A07 /* ImageXView.swift */; };
 		E2DC2F3C24EF3CD7002C6A07 /* MapLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DC2F3B24EF3CD7002C6A07 /* MapLocationView.swift */; };
 		E2DC2F3E24EFAE7F002C6A07 /* PHAsset-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */; };
@@ -284,6 +285,7 @@
 		E2B6A2B624AFECD10070DECA /* Restaurant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Restaurant.swift; sourceTree = "<group>"; };
 		E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocationCoordinate2D-Extension.swift"; sourceTree = "<group>"; };
 		E2C8E88E24C378AE003DC824 /* RestaurantListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantListVC.swift; sourceTree = "<group>"; };
+		E2DB960C258DB72200A69E13 /* PreSignedPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreSignedPost.swift; sourceTree = "<group>"; };
 		E2DC2F2624EDCED0002C6A07 /* ImageXView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageXView.swift; sourceTree = "<group>"; };
 		E2DC2F3B24EF3CD7002C6A07 /* MapLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapLocationView.swift; sourceTree = "<group>"; };
 		E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PHAsset-Extension.swift"; sourceTree = "<group>"; };
@@ -577,6 +579,7 @@
 				E26CD827251C0A550082DBE0 /* Setting.swift */,
 				E253A6B02523FBAF00778500 /* Person.swift */,
 				E258F19B2553A3E500980A8B /* Profile.swift */,
+				E2DB960C258DB72200A69E13 /* PreSignedPost.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -725,6 +728,7 @@
 				E2768DF024B15340004CB475 /* Colors.swift in Sources */,
 				E2A0147324F617ED00379518 /* UITableView-Extension.swift in Sources */,
 				E23AF9FB24F62075004542A2 /* VisitCell.swift in Sources */,
+				E2DB960D258DB72200A69E13 /* PreSignedPost.swift in Sources */,
 				E2DC2F3E24EFAE7F002C6A07 /* PHAsset-Extension.swift in Sources */,
 				E25BA4CF25368AEC0063C944 /* EstablishmentCell.swift in Sources */,
 				E258F19825539E8000980A8B /* Tag.swift in Sources */,

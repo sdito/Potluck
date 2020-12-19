@@ -17,10 +17,11 @@ extension Network {
         case userPost
         case deleteVisit
         case updateVisit
+        case getPreSignedPost
         
         var requestMethod: HTTPMethod {
             switch self {
-            case .userFeed:
+            case .userFeed, .getPreSignedPost:
                 return .get
             case .userPost:
                 return .post
@@ -37,6 +38,8 @@ extension Network {
                 return "visit"
             case .deleteVisit, .updateVisit:
                 return "visit/\(visit!.djangoOwnID)/"
+            case .getPreSignedPost:
+                return "generatepresignedpost"
             }
         }
     }
@@ -58,7 +61,7 @@ extension Network {
         let requestUrl = Network.djangoURL + requestType.url(visit: visit)
         
         switch requestType {
-        case .deleteVisit, .userFeed, .updateVisit:
+        case .deleteVisit, .userFeed, .updateVisit, .getPreSignedPost:
             let request = AF.request(requestUrl, method: requestType.requestMethod, parameters: params, headers: headers)
             return request
         case .userPost:
@@ -284,5 +287,56 @@ extension Network {
         })
     }
     
+    func getPreSignedPostAWS(count: Int, urlsFound: @escaping (Result<[PreSignedPost], Errors.VisitEstablishment>) -> Void) {
+        let params: Parameters = ["count": count]
+        let req = reqVisit(params: params, visit: nil, requestType: .getPreSignedPost)
+        req?.responseJSON(queue: .global(qos: .userInteractive), completionHandler: { (response) in
+            guard let data = response.data, response.error == nil else {
+                urlsFound(Result.failure(.other(alamoFireError: response.error)))
+                return
+            }
+            
+            do {
+                let preSignedPosts = try self.decoder.decode([PreSignedPost].self, from: data)
+                urlsFound(Result.success(preSignedPosts))
+            } catch {
+                urlsFound(Result.failure(.decoding))
+            }
+        })
+    }
+    
+    func uploadImagesToAwsWithCompletion(orderedImages: [UIImage], allOrderedUrls: @escaping ([String]?) -> Void) {
+        getPreSignedPostAWS(count: orderedImages.count) { (result) in
+            switch result {
+            case .success(let postRequests):
+                guard orderedImages.count == postRequests.count else {
+                    print("Something went wrong, different count of images and post requests")
+                    return
+                }
+                var successfulUrls: [String?] = Array.init(repeating: nil, count: orderedImages.count)
+                
+                for (index, postRequest) in postRequests.enumerated() {
+                    postRequest.uploadImage(image: orderedImages[index]) { (done) in
+                        if done {
+                            successfulUrls[index] = postRequest.fileName
+                            // check if all the requests are completed, if so return them from map
+                            if successfulUrls.nonNilElementsMatchCount() {
+                                let urlsSucceeded = successfulUrls.map({$0!})
+                                allOrderedUrls(urlsSucceeded)
+                            }
+                        } else {
+                            print("Exiting here, wasn't able to upload")
+                            allOrderedUrls(nil)
+                            return
+                        }
+                    }
+                }
+            case .failure(_):
+                print("Unable to get post requests")
+            }
+        }
+    }
     
 }
+
+

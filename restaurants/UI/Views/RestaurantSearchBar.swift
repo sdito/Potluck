@@ -89,6 +89,7 @@ class RestaurantSearchBar: UIView {
         reloadButton.setImage(.reloadImage, for: .normal)
         reloadButton.tintColor = .tertiaryLabel
         reloadButton.setContentHuggingPriority(.required, for: .horizontal)
+        reloadButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         searchStackView.addArrangedSubview(reloadButton)
     }
     

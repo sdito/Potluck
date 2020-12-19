@@ -28,3 +28,25 @@ extension Array {
     }
     
 }
+
+protocol OptionalType {
+    associatedtype W
+    var optional: W? { get }
+}
+
+extension Optional: OptionalType {
+    typealias W = Wrapped
+    var optional: W? { return self }
+}
+
+extension Array where Element: OptionalType {
+    func nonNilElementsMatchCount() -> Bool {
+        var count = 0
+        for element in self {
+            if element.optional != nil {
+                count += 1
+            }
+        }
+        return count == self.count
+    }
+}
