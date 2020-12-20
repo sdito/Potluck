@@ -25,14 +25,13 @@ class ProfileHomeVC: UIViewController {
     private var preLoadedData = false
     private var allowMapButton = true
     private let scrollingStackView = ScrollingStackView(subViews: [UIView.getSpacerView()])
+    private let tagFilterButton = UIButton()
     private var tagButtons: [TagButton] = []
     
     init(isOwnUsersProfile: Bool, visits: [Visit]?, selectedVisit: Visit? = nil, prevImageCache: NSCache<NSString, UIImage>? = nil, otherPerson: Person? = nil) {
         super.init(nibName: nil, bundle: nil)
         self.isOwnUsersProfile = isOwnUsersProfile
-
         visitTableView = VisitTableView(mode: .user, prevImageCache: prevImageCache, delegate: self)
-        #warning("could init with tags from the user here, this is for the non user account, see set up with tags")
         if let visits = visits {
             self.filteredVisits = visits
             self.selectedVisit = selectedVisit
@@ -46,6 +45,7 @@ class ProfileHomeVC: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .systemBackground
         setUpNavigationBar()
+        setUpFilterTagButton()
         setUpTagPortion()
         setUpTableView()
         handleInitialDataNeeded()
@@ -56,6 +56,7 @@ class ProfileHomeVC: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedIn), name: .userLoggedIn, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(userLoggedOut), name: .userLoggedOut, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(tagDeleted(notification:)), name: .standardTagDeleted, object: nil)
     }
     
     private func setUpNavigationBar() {
@@ -113,20 +114,15 @@ class ProfileHomeVC: UIViewController {
     }
     
     private func setUpWithTags() {
-        
         for view in scrollingStackView.stackView.arrangedSubviews {
             view.removeFromSuperview()
         }
         scrollingStackView.stackView.addArrangedSubview(UIView.getSpacerView())
-        guard tags.count > 0 else { return }
-        let tagButton = UIButton()
-        tagButton.translatesAutoresizingMaskIntoConstraints = false
-        tagButton.setTitleColor(.secondaryLabel, for: .normal)
-        tagButton.tintColor = .secondaryLabel
-        tagButton.setImage(UIImage.filterImage.withConfiguration(.large), for: .normal)
-        tagButton.titleLabel?.font = .mediumBold
-        tagButton.addTarget(self, action: #selector(filterTagButtonPressed), for: .touchUpInside)
-        self.scrollingStackView.stackView.addArrangedSubview(tagButton)
+        guard tags.count > 0 else {
+            tagFilterButton.isHidden = true
+            return
+        }
+        tagFilterButton.isHidden = false
         
         for tag in tags {
             let tagButton = TagButton(title: tag.display, withImage: false, normal: true)
@@ -167,12 +163,26 @@ class ProfileHomeVC: UIViewController {
         }
     }
     
+    private func setUpFilterTagButton() {
+        tagFilterButton.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(tagFilterButton)
+        tagFilterButton.constrain(.leading, to: self.view, .leading, constant: 5.0)
+        tagFilterButton.setTitleColor(.secondaryLabel, for: .normal)
+        tagFilterButton.tintColor = .secondaryLabel
+        tagFilterButton.setImage(UIImage.filterImage.withConfiguration(.large), for: .normal)
+        tagFilterButton.titleLabel?.font = .mediumBold
+        tagFilterButton.addTarget(self, action: #selector(filterTagButtonPressed), for: .touchUpInside)
+        tagFilterButton.isHidden = true
+    }
+    
     private func setUpTagPortion() {
         scrollingStackView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(scrollingStackView)
-        scrollingStackView.constrain(.leading, to: self.view, .leading)
+        scrollingStackView.constrain(.leading, to: tagFilterButton, .trailing)
         scrollingStackView.constrain(.top, to: self.view, .top)
         scrollingStackView.constrain(.trailing, to: self.view, .trailing)
+        
+        tagFilterButton.centerYAnchor.constraint(equalTo: scrollingStackView.centerYAnchor).isActive = true
     }
     
     private func setUpTableView() {
@@ -289,6 +299,19 @@ class ProfileHomeVC: UIViewController {
         let selectedTags = selectedTag == nil ? nil : [selectedTag!]
         self.showTagSelectorView(tags: self.tags, selectedTags: selectedTags, tagSelectorViewDelegate: self)
     }
+    
+    @objc private func tagDeleted(notification: Notification) {
+        if let deletedTag = notification.userInfo?["tag"] as? Tag {
+            if let index = tags.firstIndex(of: deletedTag) {
+                tags.remove(at: index)
+                for button in tagButtons {
+                    if button.titleLabel?.text == deletedTag.display {
+                        button.removeFromStackViewAnimated(duration: 0.3)
+                    }
+                }
+            }
+        }
+    }
 }
 
 // MARK: VisitTableViewDelegate
@@ -298,6 +321,7 @@ extension ProfileHomeVC: VisitTableViewDelegate {
         #warning("also need to do pagination stuff on user profile vc")
         #warning("need to complete")
         print("Next page requested")
+        
     }
     
     func refreshControlSelected() {
@@ -312,6 +336,8 @@ extension ProfileHomeVC: TagSelectorViewDelegate {
         tagButtons.forEach { (button) in
             if button.buttonTag == tag {
                 tagButtonSelected(sender: button)
+                let transferredFrame = scrollingStackView.stackView.convert(button.frame, to: scrollingStackView.scrollView)
+                scrollingStackView.scrollView.scrollRectToVisible(transferredFrame, animated: true)
             }
         }
     }

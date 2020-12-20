@@ -423,7 +423,7 @@ extension VisitTableView: VisitCellDelegate {
                         }
                     } else {
                         // remove the value from the cache
-                        print("Image not found for url: \(imageRequestKey)")
+                        print("Image not found for url: \(imageRequestKey), \(imageUrl)")
                         self?.otherImageCache.removeObject(forKey: imageRequestKey)
                     }
                 }

@@ -20,6 +20,7 @@ protocol ImageSelectorDelegate: class {
 class ImageSelectorVC: UIViewController {
     private var standalone = false
     private var previousPhotos: [String]?
+    private var editingVisit: Visit?
     weak var delegate: ImageSelectorDelegate?
     private var selectedPhotos: [ImageInfo] = [] {
         didSet {
@@ -57,15 +58,17 @@ class ImageSelectorVC: UIViewController {
     private let timerInterval = 0.05
     private let stackViewAnimationDuration: TimeInterval = 0.4
     private let maxPhotos = 5
-    private static var idCounter = 1
+    private static var idCounter = 0
     private let upperStackView = UIStackView()
     private lazy var headerView = HeaderView(leftButtonTitle: "Cancel", rightButtonTitle: "Done", title: "Edit photos")
     private lazy var spacerView = SpacerView(size: 2.0, orientation: .vertical)
+    private lazy var imageInfoStartedWith: [ImageInfo] = []
     
-    init(standalone: Bool = false, previousPhotos: [String]? = nil) {
+    init(standalone: Bool = false, previousPhotos: [String]? = nil, visit: Visit? = nil) {
         super.init(nibName: nil, bundle: nil)
         self.standalone = standalone
         self.previousPhotos = previousPhotos
+        self.editingVisit = visit
     }
     
     required init?(coder: NSCoder) {
@@ -90,6 +93,7 @@ class ImageSelectorVC: UIViewController {
             headerView.constrain(.trailing, to: self.view, .trailing, constant: scrollingViewConstant)
             headerView.constrain(.top, to: self.view, .top, constant: scrollingViewConstant)
             headerView.leftButton.addTarget(self, action: #selector(dismissVc), for: .touchUpInside)
+            headerView.rightButton.addTarget(self, action: #selector(doneWithEditingPressed), for: .touchUpInside)
             
             self.view.addSubview(spacerView)
             spacerView.constrain(.leading, to: self.view, .leading)
@@ -173,19 +177,16 @@ class ImageSelectorVC: UIViewController {
     private func addPreviousPhotos() {
         guard let previousPhotos = previousPhotos else { return }
         for previousPhoto in previousPhotos {
-            
             let holderView = addNewImage(image: nil, tag: nil)
-            
             holderView.appStartSkeleton()
             Network.shared.getImage(url: previousPhoto) { (imageFound) in
                 holderView.appEndSkeleton()
                 holderView.imageView.image = imageFound
             }
-            
         }
+        imageInfoStartedWith = selectedPhotos
     }
     
-    #warning("need to use this on the other places, glitched out when trying to use it before")
     @discardableResult
     private func addNewImage(image: UIImage?, tag: Int?) -> ImageXView {
         let imageInfo = ImageInfo(image: image ?? UIImage(), asset: nil, date: Date(), indexPath: nil, isDummy: false)
@@ -299,8 +300,6 @@ class ImageSelectorVC: UIViewController {
             }
         }
     }
-    
-    
     
     @objc private func longPressSelector(sender: UILongPressGestureRecognizer) {
         touchPoint = sender.location(in: self.view)
@@ -479,6 +478,56 @@ class ImageSelectorVC: UIViewController {
     @objc private func dismissVc() {
         self.dismiss(animated: true, completion: nil)
     }
+    
+    @objc private func doneWithEditingPressed() {
+        #warning("need to complete and stuff, can delete imageInfoStartedWith stuff at end probably")
+        print()
+        print("Photos started with: \(imageInfoStartedWith.map({$0.uniqueId}))")
+        print("Photos ended with: \(selectedPhotos.map({$0.uniqueId}))")
+        print()
+        
+        let previousIds = imageInfoStartedWith.map({$0.uniqueId})
+        /*
+         For each photo in selected photos, need to determine how it got there
+         Main is 0, first in other 1, second 2, and so on
+         
+         -- Deletions (not in end, in beginning, will be handled on backend)
+         -- Go through the ending selected photos and create image trasnfers
+         */
+        var imageTransfers: [ImageTransfer] = []
+        for (i, v) in selectedPhotos.enumerated() {
+            let previousMain = previousIds.first == v.uniqueId
+            let newMain = i == 0
+            var previousOrder: Int?
+            var newOrder: Int?
+            if !newMain {
+                newOrder = i
+            }
+            
+            if !previousMain {
+                // a nil previous order means it is new
+                // get indexOf previous id in previousIds for the previous order, if not previousMain
+                previousOrder = previousIds.firstIndex(of: v.uniqueId)
+            }
+            
+            let imageTransfer = ImageTransfer(previousMain: previousMain,
+                                              newMain: newMain,
+                                              newPhoto: !previousMain && previousOrder == nil,
+                                              image: v.maxImage ?? v.image,
+                                              previousOrder: previousOrder,
+                                              newOrder: newOrder)
+            
+            imageTransfers.append(imageTransfer)
+        }
+        
+        
+        // need to determine how many new images there are here, and get that many presigned posts and upload the stuff
+        Network.shared.editPhotosOnVisit(imageTransfer: imageTransfers, visit: editingVisit)
+        
+    }
+    
+    
+    
 }
 
 // MARK: Collection view
@@ -598,3 +647,4 @@ extension ImageSelectorVC {
         }
     }
 }
+

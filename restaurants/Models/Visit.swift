@@ -41,10 +41,6 @@ class Visit: Codable {
     var longitude: Double?
     var latitude: Double?
     
-    struct VisitImage: Codable {
-        var image: String
-    }
-    
     var listPhotos: [String]? {
         guard let mainImage = mainImage else { return nil }
         var arr: [String] = [mainImage]
@@ -188,8 +184,7 @@ class Visit: Codable {
     }
     
     func changePhotosProcess(presentingVC: UIViewController) {
-        let vc = ImageSelectorVC(standalone: true, previousPhotos: self.listPhotos)
-//        vc.modalPresentationStyle = .overFullScreen
+        let vc = ImageSelectorVC(standalone: true, previousPhotos: self.listPhotos, visit: self)
         presentingVC.present(vc, animated: true, completion: nil)
     }
     

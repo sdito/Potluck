@@ -18,6 +18,7 @@ extension Network {
         case deleteVisit
         case updateVisit
         case getPreSignedPost
+        case deleteStandardTag
         
         var requestMethod: HTTPMethod {
             switch self {
@@ -25,21 +26,23 @@ extension Network {
                 return .get
             case .userPost:
                 return .post
-            case .deleteVisit:
+            case .deleteVisit, .deleteStandardTag:
                 return .delete
             case .updateVisit:
                 return .put
             }
         }
         
-        func url(visit: Visit?) -> String {
+        func url(int: Int?) -> String {
             switch self {
             case .userFeed, .userPost:
                 return "visit"
             case .deleteVisit, .updateVisit:
-                return "visit/\(visit!.djangoOwnID)/"
+                return "visit/\(int!)/"
             case .getPreSignedPost:
                 return "generatepresignedpost"
+            case .deleteStandardTag:
+                return "tagdetail/\(int!)/"
             }
         }
     }
@@ -52,34 +55,33 @@ extension Network {
     private func reqVisit(params: Parameters?,
                           visit: Visit?,
                           requestType: VisitRequestType,
-                          mainImage: UIImage? = nil,
-                          otherImages: [UIImage]? = nil,
-                          tags: [String]? = nil) -> DataRequest? {
+                          mainImage: String? = nil,
+                          otherImages: [String]? = nil,
+                          tags: [String]? = nil,
+                          primaryKey: Int? = nil) -> DataRequest? {
         guard let token = Network.shared.account?.token else { return nil }
         let headers: HTTPHeaders = ["Authorization": "Token \(token)"]
         
-        let requestUrl = Network.djangoURL + requestType.url(visit: visit)
+        let requestUrl = Network.djangoURL + requestType.url(int: visit?.djangoOwnID ?? primaryKey)
         
         switch requestType {
-        case .deleteVisit, .userFeed, .updateVisit, .getPreSignedPost:
+        case .deleteVisit, .userFeed, .updateVisit, .getPreSignedPost, .deleteStandardTag:
             let request = AF.request(requestUrl, method: requestType.requestMethod, parameters: params, headers: headers)
             return request
         case .userPost:
             guard let params = params else { return nil }
             let req = AF.upload(multipartFormData: { (multipartFormData) in
-            
-                if let imageData = mainImage?.jpegData(compressionQuality: 0.8) {
-                    multipartFormData.append(imageData, withName: "main_image", fileName: "\(Network.shared.account?.username ?? "anon_user")-\(Int(Date().timeIntervalSince1970))-\(String.randomString(6))-main.png", mimeType: "jpg/png")
+                
+                if let mainImage = mainImage {
+                    multipartFormData.append(mainImage.data(using: .utf8)!, withName: "main_image")
                 }
                 
                 // add the other photos here, if they exist
                 if let otherImages = otherImages {
                     for i in 0..<otherImages.count {
-
-                        let otherImage = otherImages[i]
-                        guard let otherImageData = otherImage.jpegData(compressionQuality: 0.8) else { continue }
-                        
-                        multipartFormData.append(otherImageData, withName: "other_images[\(i)]image", fileName: "\(Network.shared.account?.username ?? "anon_user")-\(Int(Date().timeIntervalSince1970))-\(String.randomString(6))-\(i).png", mimeType: "jpg/png")
+                        let value = otherImages[i]
+                        let key = "other_images[\(i)]image"
+                        multipartFormData.append(value.data(using: .utf8)!, withName: key)
                     }
                 }
                 
@@ -126,60 +128,82 @@ extension Network {
                             progressView: ProgressView?,
                             completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
         
-        // add everything into the params for the request
-        do {
-            let data = try encoder.encode(establishment)
-            let json = try? JSONSerialization.jsonObject(with: data, options: [])
-            if var establishmentJson = json as? [String:Any] {
-                
-                if let comment = comment, comment != "" {
-                    establishmentJson["comment"] = comment
-                }
-                
-                if let rating = rating {
-                    establishmentJson["rating"] = rating
-                }
-                
-                establishmentJson["date_visited"] = self.dateFormatter.string(from: mainImageDate)
-                
-                let req = reqVisit(params: establishmentJson, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages, tags: tags)
-                req?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
-                    guard let self = self else { return }
-                    guard let data = response.data, response.error == nil else {
-                        completion(Result.failure(.other(alamoFireError: response.error)))
-                        return
+        
+        var mainImagePath: String?
+        var otherImagePaths: [String]?
+        
+        var orderedImages: [UIImage] = []
+        
+        if let mainImage = mainImage {
+            orderedImages.append(mainImage)
+        }
+        
+        if let otherImage = otherImages {
+            orderedImages.append(contentsOf: otherImage)
+        }
+        
+        Network.shared.uploadImagesToAwsWithCompletion(orderedImages: orderedImages) { [unowned self] (urlsFound) in
+            if var urls = urlsFound, urls.count > 0 {
+                mainImagePath = urls.removeFirst()
+                otherImagePaths = urls
+            }
+            
+            
+            // add everything into the params for the request
+            do {
+                let data = try self.encoder.encode(establishment)
+                let json = try? JSONSerialization.jsonObject(with: data, options: [])
+                if var establishmentJson = json as? [String:Any] {
+                    
+                    if let comment = comment, comment != "" {
+                        establishmentJson["comment"] = comment
                     }
                     
-                    do {
-                        let visit = try self.decoder.decode(Visit.SingleVisitDecoder.self, from: data).visit
-                        // maybe get establishment
-                        establishment.djangoID = visit.djangoRestaurantID
-                        completion(Result.success(visit))
+                    if let rating = rating {
+                        establishmentJson["rating"] = rating
+                    }
+                    
+                    establishmentJson["date_visited"] = self.dateFormatter.string(from: mainImageDate)
+                    
+                    let req = reqVisit(params: establishmentJson, visit: nil, requestType: .userPost, mainImage: mainImagePath, otherImages: otherImagePaths, tags: tags)
+                    req?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
+                        guard let self = self else { return }
+                        guard let data = response.data, response.error == nil else {
+                            completion(Result.failure(.other(alamoFireError: response.error)))
+                            return
+                        }
                         
-                    } catch {
-                        print(error)
-                        completion(Result.failure(.decoding))
-                    }
-                    
-                })
-                .uploadProgress { progress in
-                    if progressView != nil {
-                        DispatchQueue.main.async {
-                            progressView?.updateProgress(to: Float(progress.fractionCompleted))
+                        do {
+                            let visit = try self.decoder.decode(Visit.SingleVisitDecoder.self, from: data).visit
+                            // maybe get establishment
+                            establishment.djangoID = visit.djangoRestaurantID
+                            completion(Result.success(visit))
+                            
+                        } catch {
+                            print(error)
+                            completion(Result.failure(.decoding))
+                        }
+                        
+                    })
+                    .uploadProgress { progress in
+                        if progressView != nil {
+                            DispatchQueue.main.async {
+                                progressView?.updateProgress(to: Float(progress.fractionCompleted))
+                            }
                         }
                     }
+                    
+                } else {
+                    completion(Result.failure(.encoding))
                 }
-                
-            } else {
+            } catch {
+                print(error)
                 completion(Result.failure(.encoding))
             }
-        } catch {
-            print(error)
-            completion(Result.failure(.encoding))
         }
     }
     
-
+    
     func userPostAlreadyVisited(djangoID: Int,
                                 mainImage: UIImage?,
                                 mainImageDate: Date,
@@ -189,41 +213,61 @@ extension Network {
                                 tags: [String]?,
                                 progressView: ProgressView?,
                                 completion: @escaping (Result<Visit,Errors.VisitEstablishment>) -> Void) {
-
         
-        var params: Parameters = ["restaurant_id":djangoID]
-        if let comment = comment, comment != "" {
-            params["comment"] = comment
+        var mainImagePath: String?
+        var otherImagePaths: [String]?
+        
+        var orderedImages: [UIImage] = []
+        
+        if let mainImage = mainImage {
+            orderedImages.append(mainImage)
         }
         
-        if let rating = rating {
-            params["rating"] = rating
+        if let otherImage = otherImages {
+            orderedImages.append(contentsOf: otherImage)
         }
         
-        params["date_visited"] = self.dateFormatter.string(from: mainImageDate)
         
-        let request = reqVisit(params: params, visit: nil, requestType: .userPost, mainImage: mainImage, otherImages: otherImages, tags: tags)
-        request?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
-            guard let self = self else { return }
-            guard let data = response.data, response.error == nil else {
-                completion(Result.failure(.other(alamoFireError: response.error)))
-                return
+        Network.shared.uploadImagesToAwsWithCompletion(orderedImages: orderedImages) { [unowned self] (urlsFound) in
+            if var urls = urlsFound, urls.count > 0 {
+                mainImagePath = urls.removeFirst()
+                otherImagePaths = urls
             }
             
-            do {
-                let visit = try self.decoder.decode(Visit.SingleVisitDecoder.self, from: data)
-                completion(Result.success(visit.visit))
-            } catch {
-                print(error)
-                completion(Result.failure(.decoding))
+            var params: Parameters = ["restaurant_id":djangoID]
+            if let comment = comment, comment != "" {
+                params["comment"] = comment
             }
-        })
-        .uploadProgress { progress in
-            if progressView != nil {
-                DispatchQueue.main.async {
-                    progressView?.updateProgress(to: Float(progress.fractionCompleted))
+            
+            if let rating = rating {
+                params["rating"] = rating
+            }
+            
+            params["date_visited"] = self.dateFormatter.string(from: mainImageDate)
+            
+            let request = reqVisit(params: params, visit: nil, requestType: .userPost, mainImage: mainImagePath, otherImages: otherImagePaths, tags: tags)
+            request?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
+                guard let self = self else { return }
+                guard let data = response.data, response.error == nil else {
+                    completion(Result.failure(.other(alamoFireError: response.error)))
+                    return
                 }
                 
+                do {
+                    let visit = try self.decoder.decode(Visit.SingleVisitDecoder.self, from: data)
+                    completion(Result.success(visit.visit))
+                } catch {
+                    print(error)
+                    completion(Result.failure(.decoding))
+                }
+            })
+            .uploadProgress { progress in
+                if progressView != nil {
+                    DispatchQueue.main.async {
+                        progressView?.updateProgress(to: Float(progress.fractionCompleted))
+                    }
+                    
+                }
             }
         }
     }
@@ -305,7 +349,9 @@ extension Network {
         })
     }
     
+    #warning("do the progress stuff with this one, average of all the requests")
     func uploadImagesToAwsWithCompletion(orderedImages: [UIImage], allOrderedUrls: @escaping ([String]?) -> Void) {
+        guard orderedImages.count > 0 else { allOrderedUrls(nil); return }
         getPreSignedPostAWS(count: orderedImages.count) { (result) in
             switch result {
             case .success(let postRequests):
@@ -335,6 +381,28 @@ extension Network {
                 print("Unable to get post requests")
             }
         }
+    }
+    
+    func deleteStandardTag(tag: Tag, success: @escaping (Bool) -> Void) {
+        guard let id = tag.id else { return }
+        let req = reqVisit(params: nil, visit: nil, requestType: .deleteStandardTag, primaryKey: id)
+        req?.responseData(completionHandler: { (completion) in
+            success(completion.response?.statusCode == Network.deletedCode)
+            NotificationCenter.default.post(name: .standardTagDeleted, object: nil, userInfo: ["tag": tag])
+        })
+    }
+    
+    func editPhotosOnVisit(imageTransfer: [ImageTransfer], visit: Visit?) {
+        #warning("need to complete")
+        let newTransfers = imageTransfer.filter({$0.newPhoto})
+        let newImagesRaw = newTransfers.map({$0.image})
+        guard let visit = visit, newImagesRaw.nonNilElementsMatchCount() else { return }
+        let newImages = newImagesRaw.map({$0!})
+        
+        self.uploadImagesToAwsWithCompletion(orderedImages: newImages) { (orderedUrls) in
+            let v = orderedUrls
+        }
+        
     }
     
 }

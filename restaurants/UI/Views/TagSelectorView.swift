@@ -39,6 +39,7 @@ class TagSelectorView: UIView {
         setUpSpacer()
         setUpTableView()
         setUpSelectedRow()
+        NotificationCenter.default.addObserver(self, selector: #selector(tagDeleted(notification:)), name: .standardTagDeleted, object: nil)
         
         if loadUsersTagsInstead {
             tableView.allowsMultipleSelection = true
@@ -96,6 +97,7 @@ class TagSelectorView: UIView {
         tableView.constrain(.trailing, to: self, .trailing)
         tableView.constrain(.bottom, to: self, .bottom)
         tableView.register(TagCell.self, forCellReuseIdentifier: reuseIdentifier)
+        
     }
     
     private func setUpSelectedRow() {
@@ -184,6 +186,16 @@ class TagSelectorView: UIView {
         }
     }
     
+    @objc private func tagDeleted(notification: Notification) {
+        print("Tag deleted notification on TagSelectorView")
+        if let deletedTag = notification.userInfo?["tag"] as? Tag {
+            if let index = tags.firstIndex(of: deletedTag) {
+                tags.remove(at: index)
+                tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+            }
+        }
+    }
+    
 }
 
 
@@ -220,5 +232,23 @@ extension TagSelectorView: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
+    
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .delete
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        #warning("need to finish and implement")
+        guard let vc = self.findViewController(), let tag = tags.appAtIndex(indexPath.row) else { return }
+        vc.appAlert(title: "Delete tag", message: "Are you sure you want to delete the \(tag.display) tag? This will delete the tag from all visits that have it. The visits will not be deleted.", buttons: [
+            ("Cancel", nil),
+            ("Delete", {
+                print("Delete the tag")
+                Network.shared.deleteStandardTag(tag: tag) { (done) in
+                    print("Deleting tag success: \(done)")
+                }
+            })
+        ])
+    }
     
 }

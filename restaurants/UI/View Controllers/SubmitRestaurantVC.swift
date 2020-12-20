@@ -269,31 +269,6 @@ class SubmitRestaurantVC: UIViewController {
     
     @objc private func submitPressed() {
         
-        let allPhotos = selectedPhotos.map { (imageInfo) -> UIImage in
-            imageInfo.maxImage ?? imageInfo.image
-        }
-        
-        Network.shared.uploadImagesToAwsWithCompletion(orderedImages: allPhotos) { (imageFileNames) in
-            print(imageFileNames)
-        }
-        
-        
-        return;
-        print("Submit pressed")
-        Network.shared.getPreSignedPostAWS(count: 1) { (result) in
-            switch result {
-            case .success(let values):
-                let first = values.first!
-                var selectedPhotosCopy = self.selectedPhotos
-                let firstPhotoWhole = selectedPhotosCopy.removeFirst()
-                first.uploadImage(image: firstPhotoWhole.maxImage ?? firstPhotoWhole.image) { (done) in
-                    print(done)
-                }
-            case .failure(_):
-                print("Don't want to be seeing this...")
-            }
-        }
-        return;
         
         #warning("need to refractor and clean following code")
         guard let mode = mode else {

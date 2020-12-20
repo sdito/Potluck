@@ -138,6 +138,8 @@
 		E2B6A2B924B007030070DECA /* CLLocationCoordinate2D-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */; };
 		E2C8E88F24C378AE003DC824 /* RestaurantListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2C8E88E24C378AE003DC824 /* RestaurantListVC.swift */; };
 		E2DB960D258DB72200A69E13 /* PreSignedPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DB960C258DB72200A69E13 /* PreSignedPost.swift */; };
+		E2DB9622258EFADE00A69E13 /* VisitImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DB9621258EFADE00A69E13 /* VisitImage.swift */; };
+		E2DB9625258FE49800A69E13 /* ImageTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DB9624258FE49800A69E13 /* ImageTransfer.swift */; };
 		E2DC2F2724EDCED0002C6A07 /* ImageXView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DC2F2624EDCED0002C6A07 /* ImageXView.swift */; };
 		E2DC2F3C24EF3CD7002C6A07 /* MapLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DC2F3B24EF3CD7002C6A07 /* MapLocationView.swift */; };
 		E2DC2F3E24EFAE7F002C6A07 /* PHAsset-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */; };
@@ -286,6 +288,8 @@
 		E2B6A2B824B007030070DECA /* CLLocationCoordinate2D-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocationCoordinate2D-Extension.swift"; sourceTree = "<group>"; };
 		E2C8E88E24C378AE003DC824 /* RestaurantListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantListVC.swift; sourceTree = "<group>"; };
 		E2DB960C258DB72200A69E13 /* PreSignedPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreSignedPost.swift; sourceTree = "<group>"; };
+		E2DB9621258EFADE00A69E13 /* VisitImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitImage.swift; sourceTree = "<group>"; };
+		E2DB9624258FE49800A69E13 /* ImageTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageTransfer.swift; sourceTree = "<group>"; };
 		E2DC2F2624EDCED0002C6A07 /* ImageXView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageXView.swift; sourceTree = "<group>"; };
 		E2DC2F3B24EF3CD7002C6A07 /* MapLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapLocationView.swift; sourceTree = "<group>"; };
 		E2DC2F3D24EFAE7F002C6A07 /* PHAsset-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PHAsset-Extension.swift"; sourceTree = "<group>"; };
@@ -580,6 +584,8 @@
 				E253A6B02523FBAF00778500 /* Person.swift */,
 				E258F19B2553A3E500980A8B /* Profile.swift */,
 				E2DB960C258DB72200A69E13 /* PreSignedPost.swift */,
+				E2DB9621258EFADE00A69E13 /* VisitImage.swift */,
+				E2DB9624258FE49800A69E13 /* ImageTransfer.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -737,6 +743,8 @@
 				E239840A24E8FEA700F3828C /* Account-Network.swift in Sources */,
 				E29A2FC125855F3600D8C1CD /* UserProfileHeaderView.swift in Sources */,
 				E23AFA0324F8D1EF004542A2 /* CLLocationDistance-Extension.swift in Sources */,
+				E2DB9625258FE49800A69E13 /* ImageTransfer.swift in Sources */,
+				E2DB9622258EFADE00A69E13 /* VisitImage.swift in Sources */,
 				E215535524B3F29D00494E1A /* Date-Extension.swift in Sources */,
 				E2E180F124E8B3F6004AA4BE /* LogInButton.swift in Sources */,
 				E239840C24E9BAF200F3828C /* Errors.swift in Sources */,
