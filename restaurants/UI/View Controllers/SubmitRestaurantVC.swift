@@ -296,7 +296,7 @@ class SubmitRestaurantVC: UIViewController {
             }
             let progressView = ProgressView(delegate: self)
             let firstPhotoDate = firstPhotoWhole.date.convertToUTC()
-            let vc = ShowViewVC(newView: progressView, mode: .top)
+            let vc = ShowViewVC(newView: progressView, mode: .top, allowScreenPressToDismiss: false)
             vc.modalPresentationStyle = .overFullScreen
             self.navigationController?.present(vc, animated: false, completion: nil)
             

@@ -61,10 +61,12 @@ class MapLocationView: UIView {
 
                 guard let placeMarks = placeMarks, let first = placeMarks.first else {
                     print("Not able to locate restaurant")
+                    self.appEndSkeleton()
                     return
                 }
                 guard let location = first.location?.coordinate else {
                     print("Not able to get coordinate from location")
+                    self.appEndSkeleton()
                     return
                 }
                 self.setUpSnapshot(with: location, size: size)

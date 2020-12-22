@@ -19,12 +19,13 @@ extension Network {
         case updateVisit
         case getPreSignedPost
         case deleteStandardTag
+        case updateVisitPhotos
         
         var requestMethod: HTTPMethod {
             switch self {
             case .userFeed, .getPreSignedPost:
                 return .get
-            case .userPost:
+            case .userPost, .updateVisitPhotos:
                 return .post
             case .deleteVisit, .deleteStandardTag:
                 return .delete
@@ -37,7 +38,7 @@ extension Network {
             switch self {
             case .userFeed, .userPost:
                 return "visit"
-            case .deleteVisit, .updateVisit:
+            case .deleteVisit, .updateVisit, .updateVisitPhotos:
                 return "visit/\(int!)/"
             case .getPreSignedPost:
                 return "generatepresignedpost"
@@ -53,6 +54,7 @@ extension Network {
     }
     
     private func reqVisit(params: Parameters?,
+                          paramsArray: [[String:Any]]? = nil,
                           visit: Visit?,
                           requestType: VisitRequestType,
                           mainImage: String? = nil,
@@ -68,6 +70,20 @@ extension Network {
         case .deleteVisit, .userFeed, .updateVisit, .getPreSignedPost, .deleteStandardTag:
             let request = AF.request(requestUrl, method: requestType.requestMethod, parameters: params, headers: headers)
             return request
+        case .updateVisitPhotos:
+            guard let url = URL(string: requestUrl), let paramsArray = paramsArray else { return AF.request(requestUrl) }
+            var request = URLRequest(url: url)
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpMethod = "POST"
+            request.headers = headers
+            
+            do {
+                request.httpBody = try JSONSerialization.data(withJSONObject: paramsArray, options: [])
+                return AF.request(request)
+            } catch {
+                return AF.request(requestUrl)
+            }
+            
         case .userPost:
             guard let params = params else { return nil }
             let req = AF.upload(multipartFormData: { (multipartFormData) in
@@ -142,12 +158,14 @@ extension Network {
             orderedImages.append(contentsOf: otherImage)
         }
         
-        Network.shared.uploadImagesToAwsWithCompletion(orderedImages: orderedImages) { [unowned self] (urlsFound) in
+        Network.shared.uploadImagesToAwsWithCompletion(orderedImages: orderedImages, progressView: progressView) { [unowned self] (urlsFound) in
+            
+            progressView?.updateProgressTo100PercentAnimated(seconds: 2.0)
+            
             if var urls = urlsFound, urls.count > 0 {
                 mainImagePath = urls.removeFirst()
                 otherImagePaths = urls
             }
-            
             
             // add everything into the params for the request
             do {
@@ -185,13 +203,6 @@ extension Network {
                         }
                         
                     })
-                    .uploadProgress { progress in
-                        if progressView != nil {
-                            DispatchQueue.main.async {
-                                progressView?.updateProgress(to: Float(progress.fractionCompleted))
-                            }
-                        }
-                    }
                     
                 } else {
                     completion(Result.failure(.encoding))
@@ -228,7 +239,10 @@ extension Network {
         }
         
         
-        Network.shared.uploadImagesToAwsWithCompletion(orderedImages: orderedImages) { [unowned self] (urlsFound) in
+        Network.shared.uploadImagesToAwsWithCompletion(orderedImages: orderedImages, progressView: progressView) { [unowned self] (urlsFound) in
+            
+            progressView?.updateProgressTo100PercentAnimated(seconds: 2.0)
+            
             if var urls = urlsFound, urls.count > 0 {
                 mainImagePath = urls.removeFirst()
                 otherImagePaths = urls
@@ -261,14 +275,7 @@ extension Network {
                     completion(Result.failure(.decoding))
                 }
             })
-            .uploadProgress { progress in
-                if progressView != nil {
-                    DispatchQueue.main.async {
-                        progressView?.updateProgress(to: Float(progress.fractionCompleted))
-                    }
-                    
-                }
-            }
+            
         }
     }
     
@@ -350,7 +357,7 @@ extension Network {
     }
     
     #warning("do the progress stuff with this one, average of all the requests")
-    func uploadImagesToAwsWithCompletion(orderedImages: [UIImage], allOrderedUrls: @escaping ([String]?) -> Void) {
+    func uploadImagesToAwsWithCompletion(orderedImages: [UIImage], progressView: ProgressView?, maximumProgressAllowed: Float = 0.8, allOrderedUrls: @escaping ([String]?) -> Void) {
         guard orderedImages.count > 0 else { allOrderedUrls(nil); return }
         getPreSignedPostAWS(count: orderedImages.count) { (result) in
             switch result {
@@ -360,8 +367,9 @@ extension Network {
                     return
                 }
                 var successfulUrls: [String?] = Array.init(repeating: nil, count: orderedImages.count)
-                
+                var progressMap: [Double] = Array.init(repeating: 0.0, count: postRequests.count)
                 for (index, postRequest) in postRequests.enumerated() {
+                    
                     postRequest.uploadImage(image: orderedImages[index]) { (done) in
                         if done {
                             successfulUrls[index] = postRequest.fileName
@@ -375,6 +383,12 @@ extension Network {
                             allOrderedUrls(nil)
                             return
                         }
+                    } progressUpdated: { (progress) in
+                        progressMap[index] = progress
+                        // figure out the complete progress here and do something with it
+                        let totalProgress = Float(progressMap.reduce(0.0, +)) / Float(progressMap.count)
+                        let totalProgressAllowed = totalProgress * maximumProgressAllowed
+                        progressView?.updateProgress(to: totalProgressAllowed)
                     }
                 }
             case .failure(_):
@@ -393,16 +407,38 @@ extension Network {
     }
     
     func editPhotosOnVisit(imageTransfer: [ImageTransfer], visit: Visit?) {
-        #warning("need to complete")
+        #warning("need to complete, also probably implement progress view")
         let newTransfers = imageTransfer.filter({$0.newPhoto})
         let newImagesRaw = newTransfers.map({$0.image})
         guard let visit = visit, newImagesRaw.nonNilElementsMatchCount() else { return }
         let newImages = newImagesRaw.map({$0!})
         
-        self.uploadImagesToAwsWithCompletion(orderedImages: newImages) { (orderedUrls) in
-            let v = orderedUrls
-        }
         
+        self.uploadImagesToAwsWithCompletion(orderedImages: newImages, progressView: nil) { [unowned self] (orderedFileNames) in
+            let orderedFileNames = orderedFileNames ?? []
+            guard orderedFileNames.count == newTransfers.count else { return }
+            
+            // update with the new file name
+            for (transfer, filename) in zip(newTransfers, orderedFileNames) {
+                transfer.newUploadedToFile = filename
+            }
+            
+            do {
+                let params = try ImageTransfer.toParams(encoder: self.encoder, transfers: imageTransfer)
+                
+                let req = self.reqVisit(params: nil, paramsArray: params, visit: visit, requestType: .updateVisitPhotos)
+                
+                req?.responseJSON(completionHandler: { (response) in
+                    print()
+                    print(response.value)
+                    print(response.value)
+                    print()
+                })
+                
+            } catch let error {
+                print(error.localizedDescription)
+            }
+        }
     }
     
 }

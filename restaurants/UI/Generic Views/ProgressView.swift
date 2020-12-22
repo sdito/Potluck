@@ -66,7 +66,7 @@ class ProgressView: UIView {
     }
     
     func updateProgress(to progress: Float) {
-        
+        self.progress = progress
         if progress > 0.99 {
             self.progressTrackerView.setProgress(progress, animated: false)
             progressTrackerView.tintColor = .systemGreen
@@ -75,8 +75,13 @@ class ProgressView: UIView {
         }
     }
     
+    func updateProgressTo100PercentAnimated(seconds: Double) {
+        UIView.animate(withDuration: seconds) {
+            self.progressTrackerView.setProgress(1.0, animated: true)
+        }
+    }
+    
     func failureAnimation() {
-        
         progressTrackerView.progressTintColor = .systemRed
         label.textColor = .systemRed
         label.text = "Upload failed"

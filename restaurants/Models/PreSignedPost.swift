@@ -18,8 +18,8 @@ struct PreSignedPost: Decodable {
         return fields["key"]!
     }
     
-    func uploadImage(image: UIImage, completion: @escaping (Bool) -> Void) {
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else { completion(false); return }
+    func uploadImage(image: UIImage, completion: @escaping (Bool) -> Void, progressUpdated: ((Double) -> Void)? = nil) {
+        guard let imageData = image.jpegData(compressionQuality: 0.7) else { completion(false); return }
         
         let req = AF.upload(multipartFormData: { (multipartFormData) in
             for (key, value) in fields {
@@ -36,6 +36,8 @@ struct PreSignedPost: Decodable {
                 return
             }
             completion(true)
+        }.uploadProgress { (progress) in
+            progressUpdated?(progress.fractionCompleted)
         }
     }
 }
