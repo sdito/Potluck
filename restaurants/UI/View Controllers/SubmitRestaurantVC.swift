@@ -294,11 +294,9 @@ class SubmitRestaurantVC: UIViewController {
             var firstPhoto: UIImage {
                 return firstPhotoWhole.maxImage ?? firstPhotoWhole.image
             }
-            let progressView = ProgressView(delegate: self)
             let firstPhotoDate = firstPhotoWhole.date.convertToUTC()
-            let vc = ShowViewVC(newView: progressView, mode: .top, allowScreenPressToDismiss: false)
-            vc.modalPresentationStyle = .overFullScreen
-            self.navigationController?.present(vc, animated: false, completion: nil)
+            
+            let progressView = self.showProgressView(on: self.navigationController, delegate: self)
             
             postVisit(mode: mode, firstPhotoDate: firstPhotoDate, firstPhoto: firstPhoto, otherImages: otherPhotos, progressView: progressView, comment: newComment)
             

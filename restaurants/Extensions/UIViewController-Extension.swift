@@ -13,12 +13,6 @@ import SafariServices
 
 extension UIViewController {
     
-    
-    
-    
-    
-    
-    #warning("this")
     func actionSheetToEditVisit(visit: Visit, enterValueViewDelegate: EnterValueViewDelegate?, visitTagsDelegate: VisitTagsDelegate?, deleteAction: @escaping (() ->())) {
         self.appActionSheet(buttons: [
             AppAction(title: "Edit visit", action: nil, buttons: [
@@ -35,8 +29,6 @@ extension UIViewController {
             })
         ])
     }
-    
-    
     
     func updateNavigationItemTitle(to string: String) {
         let fadeTextAnimation = CATransition()
@@ -285,6 +277,14 @@ extension UIViewController {
     
     func getRightBarButtonView() -> UIView? {
         return self.navigationItem.rightBarButtonItem?.value(forKey: "view") as? UIView
+    }
+    
+    func showProgressView(on viewController: UIViewController?, delegate: ProgressViewDelegate) -> ProgressView {
+        let progressView = ProgressView(delegate: delegate)
+        let vc = ShowViewVC(newView: progressView, mode: .top, allowScreenPressToDismiss: false)
+        vc.modalPresentationStyle = .overFullScreen
+        (viewController ?? self).present(vc, animated: false, completion: nil)
+        return progressView
     }
     
 }

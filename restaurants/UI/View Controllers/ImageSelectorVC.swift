@@ -480,19 +480,27 @@ class ImageSelectorVC: UIViewController {
     }
     
     @objc private func doneWithEditingPressed() {
-        #warning("need to complete and stuff, can delete imageInfoStartedWith stuff at end probably")
-        print()
-        print("Photos started with: \(imageInfoStartedWith.map({$0.uniqueId}))")
-        print("Photos ended with: \(selectedPhotos.map({$0.uniqueId}))")
-        print()
-        
+        // make sure the user wants to continue with no photos selected
+        guard selectedPhotos.count > 0 else {
+            self.appAlert(title: "No photos selected", message: "Are you sure you want to add a visit with no photos?", buttons: [
+                ("Cancel", nil),
+                ("Post", { [weak self] in
+                    self?.handleDoneButtonPressed()
+                })
+            ])
+            return
+        }
+        handleDoneButtonPressed()
+    }
+    
+    private func handleDoneButtonPressed() {
         let previousIds = imageInfoStartedWith.map({$0.uniqueId})
         /*
          For each photo in selected photos, need to determine how it got there
          Main is 0, first in other 1, second 2, and so on
          
          -- Deletions (not in end, in beginning, will be handled on backend)
-         -- Go through the ending selected photos and create image trasnfers
+         -- Go through the ending selected photos and create image transfers
          */
         var imageTransfers: [ImageTransfer] = []
         for (i, v) in selectedPhotos.enumerated() {
@@ -520,12 +528,12 @@ class ImageSelectorVC: UIViewController {
             imageTransfers.append(imageTransfer)
         }
         
-        
+        #warning("need to fix this stuff")
         // need to determine how many new images there are here, and get that many presigned posts and upload the stuff
-        Network.shared.editPhotosOnVisit(imageTransfer: imageTransfers, visit: editingVisit)
+        let progressView = self.showProgressView(on: self.parent ?? self, delegate: self)
+        Network.shared.editPhotosOnVisit(imageTransfer: imageTransfers, visit: editingVisit, progressView: progressView)
         
     }
-    
     
     
 }
@@ -648,3 +656,10 @@ extension ImageSelectorVC {
     }
 }
 
+
+// MARK: Progress view
+extension ImageSelectorVC: ProgressViewDelegate {
+    func endAnimationComplete() {
+        self.presentingViewController?.dismiss(animated: true, completion: nil)
+    }
+}

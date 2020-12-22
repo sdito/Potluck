@@ -406,7 +406,7 @@ extension Network {
         })
     }
     
-    func editPhotosOnVisit(imageTransfer: [ImageTransfer], visit: Visit?) {
+    func editPhotosOnVisit(imageTransfer: [ImageTransfer], visit: Visit?, progressView: ProgressView?) {
         #warning("need to complete, also probably implement progress view")
         let newTransfers = imageTransfer.filter({$0.newPhoto})
         let newImagesRaw = newTransfers.map({$0.image})
@@ -415,6 +415,7 @@ extension Network {
         
         
         self.uploadImagesToAwsWithCompletion(orderedImages: newImages, progressView: nil) { [unowned self] (orderedFileNames) in
+            progressView?.updateProgressTo100PercentAnimated(seconds: 2.0)
             let orderedFileNames = orderedFileNames ?? []
             guard orderedFileNames.count == newTransfers.count else { return }
             
@@ -429,10 +430,11 @@ extension Network {
                 let req = self.reqVisit(params: nil, paramsArray: params, visit: visit, requestType: .updateVisitPhotos)
                 
                 req?.responseJSON(completionHandler: { (response) in
-                    print()
-                    print(response.value)
-                    print(response.value)
-                    print()
+                    guard let code = response.response?.statusCode, (200...299) ~= code else {
+                        progressView?.failureAnimation()
+                        return
+                    }
+                    progressView?.successAnimation()
                 })
                 
             } catch let error {
