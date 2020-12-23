@@ -297,6 +297,7 @@ extension Network {
                 let visits = try self.decoder.decode(Visit.VisitFeedDecoder.self, from: data)
                 completion(Result.success(visits))
             } catch let error {
+                print("Error is coming from here")
                 print(error.localizedDescription)
                 completion(Result.failure(.decoding))
             }
@@ -407,7 +408,6 @@ extension Network {
     }
     
     func editPhotosOnVisit(imageTransfer: [ImageTransfer], visit: Visit?, progressView: ProgressView?) {
-        #warning("need to complete, also probably implement progress view")
         let newTransfers = imageTransfer.filter({$0.newPhoto})
         let newImagesRaw = newTransfers.map({$0.image})
         guard let visit = visit, newImagesRaw.nonNilElementsMatchCount() else { return }

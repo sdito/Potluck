@@ -63,8 +63,9 @@ class FeedHomeVC: UIViewController {
                     self.visits = value.visits
                     let numberOfRequests = value.pending_request_count ?? 0
                     self.handleNotificationTextFor(numberOfRequests: numberOfRequests)
-                case .failure(_):
-                    print("Failure getting friends visit feed")
+                case .failure(let error):
+                    
+                    print("Failure getting friends visit feed: \(print(error.localizedDescription))")
                     self.visits = []
                 }
                 self.handleReloadingVisitTableView()

@@ -268,11 +268,11 @@ class SubmitRestaurantVC: UIViewController {
     }
     
     @objc private func submitPressed() {
+        guard let mode = mode else { return }
         
-        
-        #warning("need to refractor and clean following code")
-        guard let mode = mode else {
-            fatalError()
+        guard hasCoordinateForMode(mode: mode) else {
+            self.present(SelectLocationVC(owner: self), animated: true, completion: nil)
+            return
         }
         
         var newComment: String? {
@@ -370,6 +370,17 @@ class SubmitRestaurantVC: UIViewController {
                     progressView?.failureAnimation()
                 }
             }
+        }
+    }
+    
+    private func hasCoordinateForMode(mode: Mode) -> Bool {
+        switch mode {
+        case .rawValue:
+            return coordinateRawValue != nil
+        case .establishment:
+            return establishment?.coordinate != nil
+        case .restaurant:
+            return restaurant?.coordinate != nil
         }
     }
     
@@ -545,5 +556,22 @@ extension SubmitRestaurantVC: VisitTagsDelegate {
         } else {
             addViewToTellUserToAddTags()
         }
+    }
+}
+
+// MARK: SelectLocationDelegate
+extension SubmitRestaurantVC: SelectLocationDelegate {
+    func locationSelected(coordinate: CLLocationCoordinate2D, fullAddress: String) {
+        guard let mode = mode else { return }
+        switch mode {
+        case .rawValue:
+            coordinateRawValue = coordinate
+            addressRawValue = fullAddress
+        case .establishment:
+            establishment?.updatePropertiesWithFullAddress(address: fullAddress, coordinate: coordinate)
+        case .restaurant:
+            return
+        }
+        submitPressed()
     }
 }
