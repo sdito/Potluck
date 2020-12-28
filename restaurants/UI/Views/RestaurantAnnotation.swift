@@ -17,7 +17,7 @@ class RestaurantAnnotation: NSObject, MKAnnotation {
     let establishment: Establishment?
     let place: Int
     
-    
+
     init(restaurant: Restaurant, place: Int) {
         self.title = restaurant.name
         self.locationName = restaurant.price

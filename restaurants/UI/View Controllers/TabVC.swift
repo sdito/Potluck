@@ -12,12 +12,9 @@ import UIKit
 class TabVC: UITabBarController {
     #warning("*****map clustering only on profile maps (userProfileVC, profileMapVC)")
     #warning("pagination on django")
-    
     #warning("image url can expire before it is seen")
     #warning("unique together the reverse way too")
     #warning("unique together i.e. do not allow the reverse of friends to be true")
-    #warning("if a visit is deleted, and then a tag is selected that has that visit, it will show again, prob same for establishments")
-    
     #warning("calendar option, should be a pop-up view")
     
     private let home = ProfilePageVC()

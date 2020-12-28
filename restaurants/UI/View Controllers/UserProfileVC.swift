@@ -446,8 +446,6 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
         }
     }
     
-    
-    
     func reloadCollectionView(tag: Tag?) {
         let prevAlpha = headerButton?.alpha ?? 0.0
         collectionView?.reloadData()
@@ -467,6 +465,7 @@ extension UserProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
 // MARK: Scroll view
 extension UserProfileVC {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
         animatedRefreshControl.updateProgress(with: scrollView.contentOffset.y)
         if allowChanges {
             allowChanges = false
@@ -509,6 +508,20 @@ extension UserProfileVC {
             }
             allowChanges = true
         }
+        
+        
+        
+        #error("need to complete, left off on this")
+        guard let cv = collectionView else { return }
+        let lastContentOffset = scrollView.contentOffset.y + cv.bounds.height
+        let collectionViewHeight = scrollView.contentSize.height - (cv.bounds.height / 2.0)
+        print(lastContentOffset, collectionViewHeight)
+//        if allowNextPage && lastContentOffset > tableViewHeight {
+//            visitTableViewDelegate?.nextPageRequested()
+//            allowNextPage = false
+//        }
+        
+        
     }
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         self.allowChanges = true

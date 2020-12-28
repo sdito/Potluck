@@ -27,6 +27,7 @@ class ProfileHomeVC: UIViewController {
     private let scrollingStackView = ScrollingStackView(subViews: [UIView.getSpacerView()])
     private let tagFilterButton = UIButton()
     private var tagButtons: [TagButton] = []
+    private var nextPageCutoff: String?
     
     init(isOwnUsersProfile: Bool, visits: [Visit]?, selectedVisit: Visit? = nil, prevImageCache: NSCache<NSString, UIImage>? = nil, otherPerson: Person? = nil) {
         super.init(nibName: nil, bundle: nil)
@@ -99,7 +100,7 @@ class ProfileHomeVC: UIViewController {
     
     private func handleInitialDataNeeded() {
         if !preLoadedData {
-            getInitialUserVisits()
+            getUserVisits()
         } else {
             visitTableView?.reloadData()
             if let elementId = selectedVisit?.djangoOwnID, let idx = filteredVisits.map({$0.djangoOwnID}).firstIndex(of: elementId) {
@@ -137,7 +138,7 @@ class ProfileHomeVC: UIViewController {
         }
     }
     
-    private func getInitialUserVisits() {
+    private func getUserVisits() {
         if Network.shared.loggedIn {
             Network.shared.getVisitFeed(feedType: .user) { [weak self] (result) in
                 DispatchQueue.main.async {
@@ -147,6 +148,7 @@ class ProfileHomeVC: UIViewController {
                         self.allVisits = value.visits
                         self.filteredVisits = value.visits
                         self.tags = value.tags ?? []
+                        self.nextPageCutoff = value.date_offset
                         self.visitTableView?.allowHintToCreateRestaurant = true
                         self.visitTableView?.refreshControl?.endRefreshing()
                         self.visitTableView?.clearCaches()
@@ -160,6 +162,39 @@ class ProfileHomeVC: UIViewController {
         } else {
             self.filteredVisits = []
             noUserTableView()
+        }
+    }
+    
+    private func getNextVisitPage() {
+        guard let dateOffset = nextPageCutoff else { return }
+        nextPageCutoff = nil
+        
+        Network.shared.getVisitFeed(feedType: .user, previousDateOffset: dateOffset) { [weak self] (result) in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let value):
+                    self.allVisits.append(contentsOf: value.visits)
+                    self.nextPageCutoff = value.date_offset
+                    
+                    var indexPaths: [IndexPath] = []
+                    var index = self.filteredVisits.count
+                    for _ in 0..<value.visits.count {
+                        indexPaths.append(IndexPath(row: index, section: 0))
+                        index += 1
+                    }
+                    self.filteredVisits.append(contentsOf: value.visits)
+                    
+                    self.visitTableView?.insertRows(at: indexPaths, with: .automatic)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        self.visitTableView?.allowNextPage = true
+                    }
+                    
+                case .failure(_):
+                    print("Failed getting next page of visits")
+                }
+            }
         }
     }
     
@@ -227,7 +262,7 @@ class ProfileHomeVC: UIViewController {
             self.visitTableView?.restore()
         }
         
-        getInitialUserVisits()
+        getUserVisits()
     }
     
     @objc private func userLoggedOut() {
@@ -318,15 +353,13 @@ class ProfileHomeVC: UIViewController {
 extension ProfileHomeVC: VisitTableViewDelegate {
     
     func nextPageRequested() {
-        #warning("also need to do pagination stuff on user profile vc")
-        #warning("need to complete")
-        print("Next page requested")
-        
+        getNextVisitPage()
     }
     
     func refreshControlSelected() {
         setBaseNavigationTitle()
-        getInitialUserVisits()
+        getUserVisits()
+        self.visitTableView?.allowNextPage = true
     }
 }
 

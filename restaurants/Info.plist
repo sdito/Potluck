@@ -4,8 +4,6 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>NSCameraUsageDescription</key>
-	<string>The camera is used to take photos to add to your visit</string>
 	<key>CFBundleDisplayName</key>
 	<string>Potluck</string>
 	<key>CFBundleExecutable</key>
@@ -24,6 +22,8 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>The camera is used to take photos to add to your visit</string>
 	<key>NSContactsUsageDescription</key>
 	<string>The app will use your contacts to help you find your friends on this appl</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

@@ -280,9 +280,13 @@ extension Network {
     }
     
     // Get the user's own posts or friends posts
-    func getVisitFeed(feedType: FeedType, completion: @escaping (Result<Visit.VisitFeedDecoder, Errors.VisitEstablishment>) -> Void) {
+    func getVisitFeed(feedType: FeedType, previousDateOffset: String? = nil, completion: @escaping (Result<Visit.VisitFeedDecoder, Errors.VisitEstablishment>) -> Void) {
         
-        let params: Parameters = ["type": feedType.rawValue]
+        var params: Parameters = ["type": feedType.rawValue]
+        
+        if let dateOffset = previousDateOffset {
+            params["date_offset"] = dateOffset
+        }
         
         let req = reqVisit(params: params, visit: nil, requestType: .userFeed)
         guard let request = req else { completion(Result.failure(.noAccount)); return}
@@ -357,7 +361,6 @@ extension Network {
         })
     }
     
-    #warning("do the progress stuff with this one, average of all the requests")
     func uploadImagesToAwsWithCompletion(orderedImages: [UIImage], progressView: ProgressView?, maximumProgressAllowed: Float = 0.8, allOrderedUrls: @escaping ([String]?) -> Void) {
         guard orderedImages.count > 0 else { allOrderedUrls(nil); return }
         getPreSignedPostAWS(count: orderedImages.count) { (result) in

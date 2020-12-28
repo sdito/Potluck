@@ -247,7 +247,6 @@ class RestaurantListVC: UIViewController {
     }
     
     @objc private func reloadPressed() {
-        #warning("complete")
         owner.reloadSearchWithSameAttributes()
     }
     

@@ -35,7 +35,7 @@ class VisitTableView: UITableView {
     private weak var visitTableViewDelegate: VisitTableViewDelegate?
     private var mode: Mode = .user
     private var initialDataFound = false
-    private var allowNextPage = true; #warning("need to implement")
+    var allowNextPage = true
     var allowHintToCreateRestaurant = false
     var allowHintForFriendsFeed = false
     
@@ -304,7 +304,6 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         
         // handle the profile image
         if mode == .friends {
-            print("Not for own user")
             // always update to at least update name and color, at the beginning
             setProfileImage(visit: visit, cell: cell)
         } else {
@@ -348,10 +347,9 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         
         // find out when user is at bottom
         lastContentOffset = scrollView.contentOffset.y + self.bounds.height
-        
-        // allowNextPage is the boolean
-        #warning("need to implement here, and implement on django")
+            
         let tableViewHeight = scrollView.contentSize.height - (self.bounds.height / 2.0)
+        
         if allowNextPage && lastContentOffset > tableViewHeight {
             visitTableViewDelegate?.nextPageRequested()
             allowNextPage = false

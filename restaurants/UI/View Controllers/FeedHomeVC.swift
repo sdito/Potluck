@@ -18,6 +18,7 @@ class FeedHomeVC: UIViewController {
     }
     private var visitTableView: VisitTableView?
     private let reuseIdentifier = "visitCellReuseIdentifier"
+    private var previousDateOffset: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,6 +54,7 @@ class FeedHomeVC: UIViewController {
     }
     
     private func getUserFeed() {
+        #warning("need to take date from response")
         Network.shared.getVisitFeed(feedType: .friends) { [weak self] (result) in
             DispatchQueue.main.async {
                 self?.visitTableView?.allowHintForFriendsFeed = true
@@ -63,12 +65,44 @@ class FeedHomeVC: UIViewController {
                     self.visits = value.visits
                     let numberOfRequests = value.pending_request_count ?? 0
                     self.handleNotificationTextFor(numberOfRequests: numberOfRequests)
+                    self.previousDateOffset = value.date_offset
+                    self.visitTableView?.allowNextPage = true
                 case .failure(let error):
                     
                     print("Failure getting friends visit feed: \(print(error.localizedDescription))")
                     self.visits = []
                 }
                 self.handleReloadingVisitTableView()
+            }
+        }
+    }
+    
+    private func getNextPage() {
+        guard let dateOffset = previousDateOffset else { return }
+        previousDateOffset = nil
+        Network.shared.getVisitFeed(feedType: .friends, previousDateOffset: dateOffset) { [weak self] (result) in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let value):
+                    let newVisits = value.visits
+                    self.previousDateOffset = value.date_offset
+                    var index = self.visits.count
+                    var indexPaths: [IndexPath] = []
+                    for _ in 0..<value.visits.count {
+                        indexPaths.append(IndexPath(row: index, section: 0))
+                        index += 1
+                    }
+                    self.visits.append(contentsOf: newVisits)
+                    self.visitTableView?.insertRows(at: indexPaths, with: .automatic)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        self.visitTableView?.allowNextPage = true
+                    }
+                    
+                case .failure(_):
+                    print("Failure in getting next page of visits")
+                }
             }
         }
     }
@@ -116,8 +150,7 @@ class FeedHomeVC: UIViewController {
 extension FeedHomeVC: VisitTableViewDelegate {
     
     func nextPageRequested() {
-        #warning("need to complete")
-        print("Next page requested")
+        getNextPage()
     }
     
     func refreshControlSelected() {
