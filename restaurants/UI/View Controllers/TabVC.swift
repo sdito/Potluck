@@ -11,7 +11,6 @@ import UIKit
 
 class TabVC: UITabBarController {
     #warning("*****map clustering only on profile maps (userProfileVC, profileMapVC)")
-    #warning("pagination on django")
     #warning("image url can expire before it is seen")
     #warning("unique together the reverse way too")
     #warning("unique together i.e. do not allow the reverse of friends to be true")

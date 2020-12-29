@@ -17,6 +17,7 @@ struct Profile: Decodable {
     var sentRequestId: Int?
     var isOwnProfile: Bool
     var friendshipId: Int?
+    var nextPageDate: String?
     
     var hasPendingReceivedRequest: Bool {
         return receivedRequestId != nil
@@ -39,5 +40,6 @@ struct Profile: Decodable {
         case sentRequestId = "sent_request_to_user"
         case isOwnProfile = "is_own_profile"
         case friendshipId = "friend_id"
+        case nextPageDate = "date_offset"
     }
 }

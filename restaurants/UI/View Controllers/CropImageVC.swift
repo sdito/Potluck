@@ -152,7 +152,7 @@ class CropImageVC: UIViewController {
             self.overlayView.alpha = 1.0
         }
     }
-    
+    #warning("establishment list pagination")
     private func getImageFromAsset() {
         #warning("can freeze app, usually on the first call")
         asset?.getOriginalImage(imageFound: { (image) in

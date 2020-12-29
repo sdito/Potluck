@@ -126,7 +126,6 @@ class EstablishmentListVC: UIViewController {
                 establishments.remove(at: removeIndex)
                 profile?.establishments = establishments
                 tableView.deleteRows(at: [indexPath], with: .automatic)
-                
             }
         }
     }

@@ -195,9 +195,14 @@ extension Network {
         }
     }
     
-    func getPersonProfile(person: Person?, profileFound: @escaping (Result<Profile, Errors.Friends>) -> Void) {
+    func getPersonProfile(person: Person?, nextPageDate: String? = nil, profileFound: @escaping (Result<Profile, Errors.Friends>) -> Void) {
         guard let personId = person?.id else { profileFound(Result.failure(.other)); return }
-        let params: Parameters = ["account": personId]
+        
+        var params: Parameters = ["account": personId]
+        if let nextPage = nextPageDate {
+            params["date_offset"] = nextPage
+        }
+        
         guard let req = reqPerson(params: params, requestType: .getPersonProfile) else { profileFound(Result.failure(.other)); return }
         req.responseJSON(queue: .global(qos: .userInteractive)) { [unowned self] (response) in
             guard let data = response.data, response.error == nil else {
@@ -214,4 +219,5 @@ extension Network {
             }
         }
     }
+    
 }

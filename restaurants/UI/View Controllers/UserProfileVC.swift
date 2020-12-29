@@ -34,12 +34,14 @@ class UserProfileVC: UIViewController {
     private var overlayForNoEstablishments: OverlayButton? { didSet { self.overlayForNoEstablishments?.isUserInteractionEnabled = false } }
     private var initialDataReceived = false
     private var refreshControlSetUp = false
+    private var allowNextPage = true
+    private var allowChanges = true
+    private var nextPageDate: String?
     
     private let reCenterMapButton = OverlayButton()
     private let overlayConfiguration = UIImage.SymbolConfiguration(scale: .large)
     
     private var previousScrollOffset: CGFloat = 0.0
-    private var allowChanges = true
     private let mapOverlayButtonPadding: CGFloat = 5.0
     private let headerHeight: CGFloat = 45.0
     
@@ -172,8 +174,41 @@ class UserProfileVC: UIViewController {
             case .success(let profile):
                 self.profile = profile
                 self.setUpWithProfile(profile: profile)
+                self.nextPageDate = profile.nextPageDate
             case .failure(_):
                 print("Failed getting profile")
+            }
+        }
+    }
+    
+    private func getNextPage() {
+        guard let nextPage = self.nextPageDate else { return }
+        self.nextPageDate = nil
+        Network.shared.getPersonProfile(person: person, nextPageDate: nextPage) { [weak self] (response) in
+            switch response {
+            case .success(let profile):
+                guard let self = self, let newVisits = profile.visits else { return }
+                
+                var indexPaths: [IndexPath] = []
+                var index = self.filteredVisits.count
+                for _ in 0..<newVisits.count {
+                    indexPaths.append(IndexPath(item: index, section: 0))
+                    index += 1
+                }
+                
+                self.profile?.visits?.append(contentsOf: newVisits)
+                self.filteredVisits.append(contentsOf: newVisits)
+                self.nextPageDate = profile.nextPageDate
+                
+                DispatchQueue.main.async {
+                    self.collectionView?.insertItems(at: indexPaths)
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    self.allowNextPage = true
+                }
+            case .failure(_):
+                print("Failed getting next visit page for UserProfileVC")
             }
         }
     }
@@ -508,21 +543,15 @@ extension UserProfileVC {
             }
             allowChanges = true
         }
-        
-        
-        
-        #error("need to complete, left off on this")
         guard let cv = collectionView else { return }
         let lastContentOffset = scrollView.contentOffset.y + cv.bounds.height
         let collectionViewHeight = scrollView.contentSize.height - (cv.bounds.height / 2.0)
-        print(lastContentOffset, collectionViewHeight)
-//        if allowNextPage && lastContentOffset > tableViewHeight {
-//            visitTableViewDelegate?.nextPageRequested()
-//            allowNextPage = false
-//        }
-        
-        
+        if allowNextPage && lastContentOffset > collectionViewHeight {
+            getNextPage()
+            allowNextPage = false
+        }
     }
+    
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         self.allowChanges = true
     }
