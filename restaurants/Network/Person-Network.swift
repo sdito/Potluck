@@ -195,12 +195,12 @@ extension Network {
         }
     }
     
-    func getPersonProfile(person: Person?, nextPageDate: String? = nil, profileFound: @escaping (Result<Profile, Errors.Friends>) -> Void) {
+    func getPersonProfile(person: Person?, nextVisitPageDate: String? = nil, profileFound: @escaping (Result<Profile, Errors.Friends>) -> Void) {
         guard let personId = person?.id else { profileFound(Result.failure(.other)); return }
         
         var params: Parameters = ["account": personId]
-        if let nextPage = nextPageDate {
-            params["date_offset"] = nextPage
+        if let nextVisitPageDate = nextVisitPageDate {
+            params["visit_date_offset"] = nextVisitPageDate
         }
         
         guard let req = reqPerson(params: params, requestType: .getPersonProfile) else { profileFound(Result.failure(.other)); return }

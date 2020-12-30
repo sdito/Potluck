@@ -214,7 +214,7 @@ class Visit: Codable {
         var visits: [Visit]
         var tags: [Tag]?
         var pending_request_count: Int?
-        var date_offset: String?
+        var visit_date_offset: String?
     }
     
     

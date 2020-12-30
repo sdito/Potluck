@@ -285,7 +285,7 @@ extension Network {
         var params: Parameters = ["type": feedType.rawValue]
         
         if let dateOffset = previousDateOffset {
-            params["date_offset"] = dateOffset
+            params["visit_date_offset"] = dateOffset
         }
         
         let req = reqVisit(params: params, visit: nil, requestType: .userFeed)

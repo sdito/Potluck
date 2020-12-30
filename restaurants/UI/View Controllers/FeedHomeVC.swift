@@ -65,7 +65,7 @@ class FeedHomeVC: UIViewController {
                     self.visits = value.visits
                     let numberOfRequests = value.pending_request_count ?? 0
                     self.handleNotificationTextFor(numberOfRequests: numberOfRequests)
-                    self.previousDateOffset = value.date_offset
+                    self.previousDateOffset = value.visit_date_offset
                     self.visitTableView?.allowNextPage = true
                 case .failure(let error):
                     
@@ -86,7 +86,7 @@ class FeedHomeVC: UIViewController {
                 switch result {
                 case .success(let value):
                     let newVisits = value.visits
-                    self.previousDateOffset = value.date_offset
+                    self.previousDateOffset = value.visit_date_offset
                     var index = self.visits.count
                     var indexPaths: [IndexPath] = []
                     for _ in 0..<value.visits.count {

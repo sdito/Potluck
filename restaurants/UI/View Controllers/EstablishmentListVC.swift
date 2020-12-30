@@ -9,7 +9,8 @@
 import UIKit
 
 class EstablishmentListVC: UIViewController {
-    
+    #warning("just change to establishments only for network request, and paginate possibly")
+    #warning("change profile view to limit the number of establishments to most recently visited")
     var person: Person?
     var profile: Profile?
     var initialDataFound = false

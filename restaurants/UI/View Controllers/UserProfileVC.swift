@@ -174,7 +174,7 @@ class UserProfileVC: UIViewController {
             case .success(let profile):
                 self.profile = profile
                 self.setUpWithProfile(profile: profile)
-                self.nextPageDate = profile.nextPageDate
+                self.nextPageDate = profile.nextVisitPageDate
             case .failure(_):
                 print("Failed getting profile")
             }
@@ -184,7 +184,7 @@ class UserProfileVC: UIViewController {
     private func getNextPage() {
         guard let nextPage = self.nextPageDate else { return }
         self.nextPageDate = nil
-        Network.shared.getPersonProfile(person: person, nextPageDate: nextPage) { [weak self] (response) in
+        Network.shared.getPersonProfile(person: person, nextVisitPageDate: nextPage) { [weak self] (response) in
             switch response {
             case .success(let profile):
                 guard let self = self, let newVisits = profile.visits else { return }
@@ -198,7 +198,7 @@ class UserProfileVC: UIViewController {
                 
                 self.profile?.visits?.append(contentsOf: newVisits)
                 self.filteredVisits.append(contentsOf: newVisits)
-                self.nextPageDate = profile.nextPageDate
+                self.nextPageDate = profile.nextVisitPageDate
                 
                 DispatchQueue.main.async {
                     self.collectionView?.insertItems(at: indexPaths)

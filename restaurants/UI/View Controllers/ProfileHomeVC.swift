@@ -148,7 +148,7 @@ class ProfileHomeVC: UIViewController {
                         self.allVisits = value.visits
                         self.filteredVisits = value.visits
                         self.tags = value.tags ?? []
-                        self.nextPageCutoff = value.date_offset
+                        self.nextPageCutoff = value.visit_date_offset
                         self.visitTableView?.allowHintToCreateRestaurant = true
                         self.visitTableView?.refreshControl?.endRefreshing()
                         self.visitTableView?.clearCaches()
@@ -175,7 +175,7 @@ class ProfileHomeVC: UIViewController {
                 switch result {
                 case .success(let value):
                     self.allVisits.append(contentsOf: value.visits)
-                    self.nextPageCutoff = value.date_offset
+                    self.nextPageCutoff = value.visit_date_offset
                     
                     var indexPaths: [IndexPath] = []
                     var index = self.filteredVisits.count

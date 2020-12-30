@@ -249,8 +249,6 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
             }
         }
         
-        
-        
         if count != 0 {
             tableView.restore(separatorStyle: .none)
         }
@@ -284,8 +282,10 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         
         cellImageView.image = nil
         if let image = imageCache?.object(forKey: key) {
+            print("Already has image: \(key)")
             cellImageView.image = image
         } else {
+            print("Doesn't have image: \(key)")
             cellImageView.appStartSkeleton()
             Network.shared.getImage(url: visit.mainImage) { [weak self] (imageFound) in
                 cellImageView.appEndSkeleton()
@@ -293,6 +293,7 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
                 DispatchQueue.global(qos: .background).async {
                     let resized = imageFound.resizeToBeNoLargerThanScreenWidth()
                     DispatchQueue.main.async { [weak self] in
+                        print("Got image: \(key)")
                         self?.imageCache?.setObject(resized, forKey: key)
                         if let cell = self?.cellFrom(visit: visit) {
                             cell.visitImageView.image = resized
@@ -351,6 +352,7 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         let tableViewHeight = scrollView.contentSize.height - (self.bounds.height / 2.0)
         
         if allowNextPage && lastContentOffset > tableViewHeight {
+            print("Next page requested")
             visitTableViewDelegate?.nextPageRequested()
             allowNextPage = false
         }

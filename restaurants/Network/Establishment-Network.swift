@@ -77,8 +77,14 @@ extension Network {
             
         })
     }
-    
-    func getUserEstablishments(completion: @escaping (Result<[Establishment], Errors.VisitEstablishment>) -> Void) {
+    /// No accountId means it will be for the own user
+    func getUserEstablishments(accountId: Int? = nil, completion: @escaping (Result<[Establishment], Errors.VisitEstablishment>) -> Void) {
+        
+        var params: Parameters = [:]
+        if let accountId = accountId {
+            params["account_id"] = accountId
+        }
+        
         let request = reqEstablishment(requestType: .userRestaurants, params: nil, establishment: nil)
         request?.responseJSON(queue: DispatchQueue.global(qos: .userInteractive), completionHandler: { [weak self] (response) in
             guard let self = self else { return }
