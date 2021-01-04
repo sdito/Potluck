@@ -185,7 +185,10 @@ extension UIViewController {
         
     }
     
+    private static var allowNewMessage = true
     func showMessage(_ string: String, lastsFor: Double = 3.0, on presentingVC: UIViewController? = nil) {
+        guard UIViewController.allowNewMessage else { return }
+        UIViewController.allowNewMessage = false
         let upAndDownDuration = 0.125
         let duration = (upAndDownDuration * 2) + lastsFor
         let beginningScale: CGFloat = 0.3
@@ -227,6 +230,7 @@ extension UIViewController {
         }) { (complete) in
             if complete {
                 label.removeFromSuperview()
+                UIViewController.allowNewMessage = true
             }
         }
         

@@ -238,7 +238,6 @@ extension TagSelectorView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        #warning("need to finish and implement")
         guard let vc = self.findViewController(), let tag = tags.appAtIndex(indexPath.row) else { return }
         vc.appAlert(title: "Delete tag", message: "Are you sure you want to delete the \(tag.display) tag? This will delete the tag from all visits that have it. The visits will not be deleted.", buttons: [
             ("Cancel", nil),

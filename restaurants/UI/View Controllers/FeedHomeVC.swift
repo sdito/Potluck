@@ -54,7 +54,6 @@ class FeedHomeVC: UIViewController {
     }
     
     private func getUserFeed() {
-        #warning("need to take date from response")
         Network.shared.getVisitFeed(feedType: .friends) { [weak self] (result) in
             DispatchQueue.main.async {
                 self?.visitTableView?.allowHintForFriendsFeed = true

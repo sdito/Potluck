@@ -528,7 +528,6 @@ class ImageSelectorVC: UIViewController {
             imageTransfers.append(imageTransfer)
         }
         
-        #warning("need to fix this stuff")
         // need to determine how many new images there are here, and get that many presigned posts and upload the stuff
         let progressView = self.showProgressView(on: self.parent ?? self, delegate: self)
         Network.shared.editPhotosOnVisit(imageTransfer: imageTransfers, visit: editingVisit, progressView: progressView)

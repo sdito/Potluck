@@ -15,6 +15,7 @@ import CoreLocation
 extension CGFloat {
     static let overlayDistanceFromBottom: CGFloat = -25.0
     static let heightDistanceBetweenChildOverParent: CGFloat = 50.0
+    static let maximumImageRatio: CGFloat = 1.2
 }
 
 extension String {

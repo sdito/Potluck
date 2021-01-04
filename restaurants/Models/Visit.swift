@@ -23,7 +23,7 @@ class Visit: Codable {
     
     var mainImageRatio: CGFloat? {
         if let imageHeight = mainImageHeight, let imageWidth = mainImageWidth {
-            return CGFloat(imageWidth) / CGFloat(imageHeight)
+            return min((CGFloat(imageHeight) / CGFloat(imageWidth)), .maximumImageRatio)
         } else {
             return nil
         }

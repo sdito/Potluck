@@ -221,7 +221,7 @@ extension UIDevice {
     }
     
     static func goToReviewPage() {
-        guard let reviewUrl = URL(string: "itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=1543547966&onlyLatestVersion=true&pageNumber=0&sortOrdering=1&type=Purple+Software") else { return }
+        guard let reviewUrl = URL(string: "https://itunes.apple.com/us/app/potluck-restaurant-meal-hub/id1543547966?mt=8&action=write-review") else { return }
         if UIApplication.shared.canOpenURL(reviewUrl) {
             UIApplication.shared.open(reviewUrl, completionHandler: { _ in return })
         }

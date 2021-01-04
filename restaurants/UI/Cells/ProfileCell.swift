@@ -136,9 +136,8 @@ class ProfileCell: UICollectionViewCell {
     }
     
     private static func getVisitImageHeight(visit: Visit?, width: CGFloat) -> CGFloat {
-        #warning("need to have maximum for the thing")
         if let imageHeight = visit?.mainImageHeight, let imageWidth = visit?.mainImageWidth, visit?.mainImage != nil {
-            let ratio = CGFloat(imageHeight) / CGFloat(imageWidth)
+            let ratio = min((CGFloat(imageHeight) / CGFloat(imageWidth)), .maximumImageRatio)
             return width * ratio
         } else {
             return 0.0

@@ -453,7 +453,6 @@ class FindRestaurantVC: UIViewController {
                     self.restaurantListVC.scrollTableViewToTop()
                     self.restaurants = newRestaurants
                 case .failure(_):
-                    #warning("need to see if this works, not tested")
                     self.mapView.removeAnnotations(self.mapView.annotations)
                     self.restaurants = []
                 }

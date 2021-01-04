@@ -154,6 +154,8 @@ class Network {
     
     func getRestaurants(restaurantSearch: RestaurantSearch, filters: [String:Any], restaurantsReturned: @escaping (Result<[Restaurant], Errors.Yelp>) -> Void) {
         
+        
+        
         var params: [String:Any] = [:]
         
         if let coordinate = restaurantSearch.coordinate {

@@ -22,6 +22,7 @@ class VisitTableView: UITableView {
     private var imageCache: NSCache<NSString, UIImage>?
     private let otherImageCache = NSCache<NSString, ImageRequest>()
     private var profileImageCache: NSCache<NSString, UIImage>?
+    private let alreadyRequestedCache = NSCache<NSString, NSNumber>()
     private let photoIndexCache = NSCache<NSNumber, NSNumber>()
     
     var visits: [Visit] = [] {
@@ -182,6 +183,7 @@ class VisitTableView: UITableView {
         photoIndexCache.removeAllObjects()
         imageCache?.removeAllObjects()
         otherImageCache.removeAllObjects()
+        alreadyRequestedCache.removeAllObjects()
     }
     
     private func setProfileImage(visit: Visit, cell: VisitCell) {
@@ -215,7 +217,7 @@ class VisitTableView: UITableView {
         print("Remove images from cache: \(visit.djangoOwnID)")
         let mainKey = NSString(string: "\(visit.djangoOwnID)")
         imageCache?.removeObject(forKey: mainKey)
-        
+        alreadyRequestedCache.removeObject(forKey: mainKey)
         for visIdx in 0..<visit.otherImages.count {
             let otherKey = NSString(string: "\(visit.djangoOwnID)-\(visIdx)")
             otherImageCache.removeObject(forKey: otherKey)
@@ -275,7 +277,7 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         let cellImageView = cell.visitImageView
         
         if let ratio = visit.mainImageRatio {
-            cell.visitImageViewHeightConstraint?.constant = cell.standardImageWidth / ratio
+            cell.visitImageViewHeightConstraint?.constant = cell.standardImageWidth * ratio
         } else {
             cell.visitImageViewHeightConstraint?.constant = 0
         }
@@ -284,18 +286,23 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         if let image = imageCache?.object(forKey: key) {
             print("Already has image: \(key)")
             cellImageView.image = image
+        } else if alreadyRequestedCache.object(forKey: key) == 1 {
+            // Don't need to make a request again, image will find cell otherwise
+            print("Already made a request: \(key)")
         } else {
             print("Doesn't have image: \(key)")
             cellImageView.appStartSkeleton()
+            alreadyRequestedCache.setObject(1, forKey: key)
             Network.shared.getImage(url: visit.mainImage) { [weak self] (imageFound) in
                 cellImageView.appEndSkeleton()
                 guard let imageFound = imageFound, let self = self else { return }
                 DispatchQueue.global(qos: .background).async {
                     let resized = imageFound.resizeToBeNoLargerThanScreenWidth()
                     DispatchQueue.main.async { [weak self] in
-                        print("Got image: \(key)")
                         self?.imageCache?.setObject(resized, forKey: key)
                         if let cell = self?.cellFrom(visit: visit) {
+                            // cell from visit will even find the cell if it is dequeued and added again
+                            print("Got image, cell exist: \(key)")
                             cell.visitImageView.image = resized
                         }
                     }
@@ -318,8 +325,9 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let visitSelected = visits[indexPath.row]
-        guard let listPhotos = visitSelected.listPhotos else {
-            #warning("do something here")
+        
+        guard let listPhotos = visitSelected.listPhotos, listPhotos.count > 0 else {
+            self.findViewController()?.showMessage("No photos")
             return
         }
         
@@ -337,7 +345,6 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
                 images[counter].1 = otherImageCache.object(forKey: key)?.image
             }
         }
-        
         
         let photosVC = PhotosVC(upperNavigationTitle: "Visit", images: images)
         self.findViewController()?.navigationController?.pushViewController(photosVC, animated: true)

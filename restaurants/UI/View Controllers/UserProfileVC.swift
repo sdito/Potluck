@@ -9,7 +9,6 @@
 import UIKit
 import MapKit
 
-#warning("fix refresh when tag is selected")
 
 class UserProfileVC: UIViewController {
     private var person: Person?
@@ -252,6 +251,7 @@ class UserProfileVC: UIViewController {
     }
     
     @objc private func refreshControlSelected() {
+        clearTag()
         getPersonData()
     }
     

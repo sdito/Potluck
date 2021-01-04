@@ -12,7 +12,6 @@ import SkeletonView
 extension UIView {
     
     func addCameraLines() -> UIView {
-        #warning("return dummy view, so that the lines can be hidden when view is not actively being scrolled")
         /*
          two vertical lines, and two horizontal lines
          split the view into thirds both directions
