@@ -289,7 +289,7 @@ extension Network {
         }
         
         let req = reqVisit(params: params, visit: nil, requestType: .userFeed)
-        guard let request = req else { completion(Result.failure(.noAccount)); return}
+        guard let request = req else { completion(Result.failure(.noAccount)); return }
         
         request.responseJSON(queue: DispatchQueue.global(qos: .userInteractive)) { (response) in
             guard let data = response.data, response.error == nil else {

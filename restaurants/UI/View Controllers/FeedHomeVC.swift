@@ -32,6 +32,14 @@ class FeedHomeVC: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(friendshipRequestCountDecreased), name: .friendRequestPendingCountDecreased, object: nil)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.visitTableView?.backgroundView?.alpha = 0.0
+        UIView.animate(withDuration: 0.5) {
+            self.visitTableView?.backgroundView?.alpha = 1.0
+        }
+    }
+    
     @objc private func friendshipRequestCountDecreased() {
         print("Notification is being called...")
         let rightView = self.getRightBarButtonView()

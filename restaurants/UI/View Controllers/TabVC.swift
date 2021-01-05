@@ -44,14 +44,14 @@ class TabVC: UITabBarController {
     }
     
     
-    func getProfileTabIndex() -> Int {
-        for (i, tab) in self.children.enumerated() {
-            if tab == settings {
-                return i
-            }
-        }
-        return 0
-    }
+//    func getProfileTabIndex() -> Int {
+//        for (i, tab) in self.children.enumerated() {
+//            if tab == settings {
+//                return i
+//            }
+//        }
+//        return 0
+//    }
     
     func getProfileNavigationController() -> UINavigationController {
         return settings

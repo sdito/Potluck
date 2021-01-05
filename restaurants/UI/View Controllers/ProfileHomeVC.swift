@@ -60,6 +60,15 @@ class ProfileHomeVC: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(tagDeleted(notification:)), name: .standardTagDeleted, object: nil)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.visitTableView?.backgroundView?.alpha = 0.0
+        UIView.animate(withDuration: 0.5) {
+            self.visitTableView?.backgroundView?.alpha = 1.0
+        }
+    }
+    
+    
     private func setUpNavigationBar() {
         self.setNavigationBarColor()
         self.navigationController?.navigationBar.tintColor = Colors.main
@@ -231,7 +240,7 @@ class ProfileHomeVC: UIViewController {
     private func noUserTableView() {
         visitTableView?.layoutIfNeeded()
         self.visitTableView?.allowHintToCreateRestaurant = false
-        let createAccountButton = self.visitTableView?.setEmptyWithAction(message: "You need to create an account in order to make posts.", buttonTitle: "Create account", area: .center)
+        let createAccountButton = self.visitTableView?.setEmptyWithAction(message: "You need to create an account in order to make posts.", buttonTitle: "Create account", area: .screenMiddle)
         createAccountButton?.addTarget(self, action: #selector(rightBarButtonItemSelector), for: .touchUpInside)
     }
     
@@ -358,6 +367,16 @@ extension ProfileHomeVC: VisitTableViewDelegate {
     
     func refreshControlSelected() {
         setBaseNavigationTitle()
+        
+        guard Network.shared.loggedIn else {
+            allVisits = []
+            filteredVisits = []
+            visitTableView?.reloadData()
+            visitTableView?.refreshControl?.endRefreshing()
+            self.showMessage("Log in to track your visits")
+            return
+        }
+        
         getUserVisits()
         self.visitTableView?.allowNextPage = true
     }

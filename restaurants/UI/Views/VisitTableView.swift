@@ -237,16 +237,16 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
         
         let count = visits.count
         if allowHintToCreateRestaurant && count == 0 {
-            let addPostButton = self.setEmptyWithAction(message: "You do not have any posts yet. Add a post every time you eat at a restaurant.", buttonTitle: "Add post", area: .center)
+            let addPostButton = self.setEmptyWithAction(message: "You do not have any posts yet. Add a post every time you eat at a restaurant.", buttonTitle: "Add post", area: .screenMiddle)
             addPostButton.addTarget(self, action: #selector(addNewPostSelector), for: .touchUpInside)
         }
         if allowHintForFriendsFeed && count == 0 {
             if Network.shared.loggedIn {
                 // Say there are no visits... and no button
-                self.setEmptyWithAction(message: "Your friends have not posted anything yet", buttonTitle: "", area: .center)
+                self.setEmptyWithAction(message: "Your friends have not posted anything yet", buttonTitle: "", area: .screenMiddle)
             } else {
                 // Tell the user to log in
-                let createAccountButton = self.setEmptyWithAction(message: "You need to create an account in order to see your friends posts", buttonTitle: "Create account", area: .center)
+                let createAccountButton = self.setEmptyWithAction(message: "You need to create an account in order to see your friends posts", buttonTitle: "Create account", area: .screenMiddle)
                 createAccountButton.addTarget(self, action: #selector(goToCreateAccount), for: .touchUpInside)
             }
         }
@@ -358,8 +358,7 @@ extension VisitTableView: UITableViewDelegate, UITableViewDataSource {
             
         let tableViewHeight = scrollView.contentSize.height - (self.bounds.height / 2.0)
         
-        if allowNextPage && lastContentOffset > tableViewHeight {
-            print("Next page requested")
+        if allowNextPage && lastContentOffset > tableViewHeight && Network.shared.loggedIn {
             visitTableViewDelegate?.nextPageRequested()
             allowNextPage = false
         }

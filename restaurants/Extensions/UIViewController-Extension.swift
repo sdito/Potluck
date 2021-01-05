@@ -264,17 +264,10 @@ extension UIViewController {
     
     func userNotLoggedInAlert(tabVC: TabVC?) {
         var buttons: [(String, (() -> ())?)] {
-            if let tabVC = tabVC {
-                return
-                    [("Cancel", nil),
-                    ("Log in", {
-                    tabVC.selectedIndex = tabVC.getProfileTabIndex()
-                    let vc = tabVC.getProfileNavigationController()
-                    vc.pushViewController(CreateAccountVC(), animated: true)
-                })]
-            } else {
-                return [("Ok", nil)]
-            }
+            [("Cancel", nil),
+            ("Log in", {
+                self.navigationController?.pushViewController(CreateAccountVC(), animated: true)
+        })]
         }
         self.appAlert(title: "Not logged in", message: "In order to add a visit, you either need to log in to an existing account or create a new account.", buttons: buttons)
     }

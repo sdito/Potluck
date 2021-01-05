@@ -11,7 +11,6 @@ import UIKit
 extension UITableView {
     
     func showLoadingOnTableView(middle: Bool = true) {
-        
         let containerView = UIView()
         let animationView = LoaderView(style: .large)
         
@@ -25,16 +24,15 @@ extension UITableView {
             animationView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: UIScreen.main.bounds.height * 0.05).isActive = true
         }
         
-        
         self.backgroundView = containerView
         self.separatorStyle = .none
-        
     }
     
     enum BackgroundViewArea {
         case top
         case center
         case bottom
+        case screenMiddle
     }
     
     @discardableResult
@@ -62,8 +60,6 @@ extension UITableView {
         stack.addArrangedSubview(label)
         stack.addArrangedSubview(button)
         
-        
-        
         NSLayoutConstraint.activate([
             stack.centerXAnchor.constraint(equalTo: container.centerXAnchor),
             stack.widthAnchor.constraint(equalToConstant: self.bounds.width * 0.75)
@@ -76,6 +72,10 @@ extension UITableView {
             stack.centerYAnchor.constraint(equalTo: container.centerYAnchor).isActive = true
         case .bottom:
             stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -(stack.bounds.height + UIScreen.main.bounds.height * 0.3)).isActive = true
+        case .screenMiddle:
+            // all bottoms for the table view will be the same
+            let height = (UIScreen.main.bounds.height / 2.0) - stack.bounds.height / 2.0 - (self.findViewController()?.tabBarController?.tabBar.bounds.height ?? 0.0)
+            stack.constrain(.bottom, to: container, .bottom, constant: height)
         }
         
         self.backgroundView = container
