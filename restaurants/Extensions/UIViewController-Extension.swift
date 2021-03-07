@@ -233,7 +233,6 @@ extension UIViewController {
                 UIViewController.allowNewMessage = true
             }
         }
-        
     }
     
     func openMaps(coordinate: CLLocationCoordinate2D, name: String, method: String = "driving") {

@@ -38,11 +38,7 @@ extension UIColor {
         return adjust(by: 0.94)
     }
     
-    func adjust(by percent: CGFloat) -> UIColor {
-        var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
-        getHue(&h, saturation: &s, brightness: &b, alpha: &a)
-        return UIColor(hue: h, saturation: s, brightness: b * percent, alpha: a)
-    }
+    
     
     func makeGradient() -> [UIColor] {
         return [self, self.complementaryColor, self]

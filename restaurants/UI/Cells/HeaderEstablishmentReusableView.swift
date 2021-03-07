@@ -87,7 +87,6 @@ class HeaderEstablishmentReusableView: UICollectionReusableView {
         guard allowPressing else { return }
         guard let vc = self.findViewController(), let visit = visit else { return }
         
-        #warning("need to test to make sure this actually works")
         vc.actionSheetToEditVisit(visit: visit, enterValueViewDelegate: self, visitTagsDelegate: self, deleteAction: { [weak self] in self?.handleDeleting() })
     }
     
