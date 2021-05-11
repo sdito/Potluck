@@ -9,11 +9,11 @@
 import UIKit
 import MapKit
 
-protocol SearchHelperDelegate: class {
+protocol SearchHelperDelegate: AnyObject {
     func textChanged(newString: String)
 }
 
-protocol SearchHelperComplete: class {
+protocol SearchHelperComplete: AnyObject {
     func searchFound(search: MKLocalSearchCompletion)
     func establishmentSelected(establishment: Establishment)
 }

@@ -12,7 +12,7 @@ import CoreLocation
 
 
 
-protocol MapCutoutViewDelegate: class {
+protocol MapCutoutViewDelegate: AnyObject {
     func locationPressed(name: String, destination: CLLocationCoordinate2D)
 }
 

@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol ViewSpecificAnimation: class {
+protocol ViewSpecificAnimation: AnyObject {
     func start(duration: TimeInterval)
 }
 

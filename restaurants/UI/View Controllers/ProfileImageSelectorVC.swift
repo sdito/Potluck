@@ -10,7 +10,6 @@ import UIKit
 import Photos
 
 class ProfileImageSelectorVC: UIViewController {
-    #warning("could update account name form here also, would need to implement")
     
     private var allPhotos = PHFetchResult<PHAsset>()
     private let requestOptions = PHImageRequestOptions()
@@ -108,7 +107,6 @@ class ProfileImageSelectorVC: UIViewController {
     }
     
     private func setUpDeleteButton() {
-        #warning("button to remove the image")
         deleteImageButton.translatesAutoresizingMaskIntoConstraints = false
         deleteImageButton.setImage(.xImage, for: .normal)
         deleteImageButton.tintColor = Colors.main

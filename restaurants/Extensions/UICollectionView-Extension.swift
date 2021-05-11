@@ -42,9 +42,7 @@ extension UICollectionView {
             stack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
             stack.widthAnchor.constraint(equalToConstant: self.bounds.width * 0.75)
         ])
-        
         return button
-
     }
     
     func restore() {

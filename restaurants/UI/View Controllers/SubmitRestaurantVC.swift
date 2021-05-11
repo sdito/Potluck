@@ -523,7 +523,6 @@ extension SubmitRestaurantVC: ImageSelectorDelegate {
 // MARK: ProgressViewDelegate
 extension SubmitRestaurantVC: ProgressViewDelegate {
     func endAnimationComplete() {
-        #warning("need to complete for showing from restaurant detail")
         // TODO: pretty bad temporary fix
         // Could go wrong with any additional changes
         self.view.isUserInteractionEnabled = false

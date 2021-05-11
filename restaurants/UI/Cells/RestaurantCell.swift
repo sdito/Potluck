@@ -10,7 +10,7 @@ import UIKit
 
 
 
-protocol RestaurantCellDelegate: class {
+protocol RestaurantCellDelegate: AnyObject {
     func mapButtonPressed(restaurant: Restaurant)
 }
 

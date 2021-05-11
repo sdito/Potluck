@@ -9,7 +9,7 @@
 import UIKit
 
 
-protocol HeaderDetailViewDelegate: class {
+protocol HeaderDetailViewDelegate: AnyObject {
     func urlPressedToOpen()
     func moreInfoOnHeaderPressed()
     func callRestaurant()

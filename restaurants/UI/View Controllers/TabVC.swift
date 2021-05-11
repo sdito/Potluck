@@ -10,10 +10,6 @@ import UIKit
 
 
 class TabVC: UITabBarController {
-    #warning("*****map clustering only on profile maps (userProfileVC, profileMapVC)")
-    #warning("image url can expire before it is seen")
-    #warning("unique together the reverse way too")
-    #warning("calendar option, should be a pop-up view")
     
     private let home = ProfilePageVC()
     private let feed = UINavigationController(rootViewController: FeedHomeVC())

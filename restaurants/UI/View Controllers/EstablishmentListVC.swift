@@ -9,7 +9,6 @@
 import UIKit
 
 class EstablishmentListVC: UIViewController {
-    #warning("just change to establishments only for network request, and paginate possibly")
     var person: Person?
     var profile: Profile?
     var initialDataFound = false

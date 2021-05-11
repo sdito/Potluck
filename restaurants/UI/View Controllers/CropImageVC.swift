@@ -154,7 +154,6 @@ class CropImageVC: UIViewController {
     }
     
     private func getImageFromAsset() {
-        #warning("can freeze app, usually on the first call")
         asset?.getOriginalImage(imageFound: { (image) in
             self.imageToCrop = image ?? self.imageToCrop
         })
@@ -240,11 +239,6 @@ extension CropImageVC: UIScrollViewDelegate {
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         setAlphaTo(0.0)
-    }
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        #warning("do something here to show the user for the sides that go accross the image that they actually go across the image")
-        print("Did Scroll")
     }
     
     private func setAlphaTo(_ value: CGFloat) {

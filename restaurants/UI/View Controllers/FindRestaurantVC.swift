@@ -12,7 +12,7 @@ import MapKit
 import CoreLocation
 
 
-protocol SearchUpdatedFromMasterDelegate: class {
+protocol SearchUpdatedFromMasterDelegate: AnyObject {
     func newSearch(search: Network.RestaurantSearch)
 }
 

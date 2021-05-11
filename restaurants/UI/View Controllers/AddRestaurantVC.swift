@@ -268,7 +268,6 @@ class AddRestaurantVC: UIViewController {
         guard let type = type else { return }
         switch type {
         case .search:
-            #warning("need to complete")
             let newRow = (name, fullAddress)
             tableView.beginUpdates()
             searchResults.insert(newRow, at: 0)

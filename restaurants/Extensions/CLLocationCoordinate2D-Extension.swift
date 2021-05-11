@@ -11,7 +11,7 @@ import CoreLocation
 
 extension CLLocationCoordinate2D {
     
-    static let simulatorDefault = CLLocationCoordinate2D(latitude: 37.923300418475655, longitude: -122.01613426208498)
+    static let simulatorDefault = CLLocationCoordinate2D(latitude: 35.3050, longitude: -120.6625)
     
     func getParams() -> [String:Any] {
         let latitude = self.latitude

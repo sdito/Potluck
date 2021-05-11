@@ -60,21 +60,6 @@ extension UIImage {
         }
     }
     
-    func resizeToBeNoLargerThanScreenWidth() -> UIImage {
-        let width = self.size.width
-        let height = self.size.height
-        
-        let screenWidth = UIScreen.main.bounds.width
-        
-        if screenWidth >= width {
-            return self
-        } else {
-            let widthRatio = screenWidth / width
-            return resizeImage(to: CGSize(width: screenWidth, height: height * widthRatio))
-        }
-    }
-    
-    
     private func resizeImage(to targetSize: CGSize) -> UIImage {
         let widthRatio  = targetSize.width  / self.size.width
         let heightRatio = targetSize.height / self.size.height
@@ -96,6 +81,21 @@ extension UIImage {
 
         return newImage!
     }
+    
+    func resizeToBeNoLargerThanScreenWidth() -> UIImage {
+        let width = self.size.width
+        let height = self.size.height
+        
+        let screenWidth = UIScreen.main.bounds.width
+        
+        if screenWidth >= width {
+            return self
+        } else {
+            let widthRatio = screenWidth / width
+            return resizeImage(to: CGSize(width: screenWidth, height: height * widthRatio))
+        }
+    }
+    
     
     convenience init?(color: UIColor, size: CGSize = CGSize(width: 1, height: 1)) {
           let rect = CGRect(origin: .zero, size: size)

@@ -11,7 +11,7 @@
 import UIKit
 
 
-protocol VisitCellDelegate: class {
+protocol VisitCellDelegate: AnyObject {
     func delete(visit: Visit?)
     func establishmentSelected(establishment: Establishment)
     func moreImageRequest(visit: Visit?, cell: VisitCell)
