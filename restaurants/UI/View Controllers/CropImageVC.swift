@@ -10,7 +10,7 @@ import UIKit
 import Photos
 
 
-protocol CropImageDelegate: class {
+protocol CropImageDelegate: AnyObject {
     func animationStarted()
     func imageFound(image: UIImage)
 }

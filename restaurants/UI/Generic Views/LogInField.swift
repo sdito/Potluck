@@ -9,7 +9,7 @@
 import UIKit
 
 
-protocol LogInFieldDelegate: class {
+protocol LogInFieldDelegate: AnyObject {
     func returnPressed(from view: LogInField)
 }
 

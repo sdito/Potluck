@@ -9,7 +9,7 @@
 import UIKit
 
 
-protocol AlphabetViewDelegate: class {
+protocol AlphabetViewDelegate: AnyObject {
     func letterSelected(_ string: String)
 }
 

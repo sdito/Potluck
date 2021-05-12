@@ -10,7 +10,7 @@ import UIKit
 import Hero
 
 
-protocol RestaurantSelectedViewDelegate: class {
+protocol RestaurantSelectedViewDelegate: AnyObject {
     func nextButtonSelected(rest: Restaurant)
     func previousButtonSelected(rest: Restaurant)
     func restaurantSelected(rest: Restaurant)

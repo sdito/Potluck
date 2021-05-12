@@ -11,7 +11,7 @@ import Photos
 
 
 
-protocol ImageSelectorDelegate: class {
+protocol ImageSelectorDelegate: AnyObject {
     func scrollViewContentOffset(scrollView: UIScrollView)
     func photosUpdated(to selectedPhotos: [ImageSelectorVC.ImageInfo])
 }

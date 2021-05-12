@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 
 
-protocol SelectLocationDelegate: class {
+protocol SelectLocationDelegate: AnyObject {
     func locationSelected(coordinate: CLLocationCoordinate2D, fullAddress: String)
 }
 

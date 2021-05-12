@@ -9,7 +9,7 @@
 import UIKit
 
 
-protocol PersonCellDelegate: class {
+protocol PersonCellDelegate: AnyObject {
     func cellSelected(contact: Person?)
     func requestResponse(request: Person.PersonRequest, accept: Bool)
     func editFriendRequest(request: Person.PersonRequest)

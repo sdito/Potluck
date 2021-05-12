@@ -9,7 +9,7 @@
 import UIKit
 
 
-protocol ProgressViewDelegate: class {
+protocol ProgressViewDelegate: AnyObject {
     func endAnimationComplete()
 }
 

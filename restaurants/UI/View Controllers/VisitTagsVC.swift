@@ -9,7 +9,7 @@
 import UIKit
 
 
-protocol VisitTagsDelegate: class {
+protocol VisitTagsDelegate: AnyObject {
     func tagsSelected(tags: [String])
 }
 

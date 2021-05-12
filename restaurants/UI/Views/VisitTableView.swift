@@ -10,7 +10,7 @@ import UIKit
 
 
 
-protocol VisitTableViewDelegate: class {
+protocol VisitTableViewDelegate: AnyObject {
     func refreshControlSelected()
     func nextPageRequested()
 }

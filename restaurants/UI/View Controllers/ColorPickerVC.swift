@@ -9,7 +9,7 @@
 import UIKit
 
 
-protocol ColorPickerDelegate: class {
+protocol ColorPickerDelegate: AnyObject {
     func colorPicker(color: UIColor)
 }
 

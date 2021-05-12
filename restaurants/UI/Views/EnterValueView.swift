@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol EnterValueViewDelegate: class {
+protocol EnterValueViewDelegate: AnyObject {
     func textFound(string: String?)
     func ratingFound(float: Float?)
     func phoneFound(string: String?)

@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 
 
-protocol SearchCompleteDelegate: class {
+protocol SearchCompleteDelegate: AnyObject {
     func newSearchCompleted(searchType: Network.YelpCategory?, locationText: String?)
 }
 

@@ -9,7 +9,7 @@
 import UIKit
 
 
-protocol TagSelectorViewDelegate: class {
+protocol TagSelectorViewDelegate: AnyObject {
     func tagSelected(tag: Tag)
     func clearTag()
     func multipleChange(newAdditions: [Tag], newSubtractions: [Tag])

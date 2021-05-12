@@ -10,7 +10,7 @@ import UIKit
 
 
 
-protocol ScrollingStackViewDelegate: class {
+protocol ScrollingStackViewDelegate: AnyObject {
     func scrollViewScrolled()
     func newIndexSelected(idx: Int)
 }

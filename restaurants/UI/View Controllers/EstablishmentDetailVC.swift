@@ -9,7 +9,7 @@
 import UIKit
 import CoreLocation
 
-protocol EstablishmentDetailDelegate: class {
+protocol EstablishmentDetailDelegate: AnyObject {
     func detailDismissed() -> Void
     
 }
